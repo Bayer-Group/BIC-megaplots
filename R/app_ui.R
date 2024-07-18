@@ -10,7 +10,7 @@
 #' @import shinyWidgets
 #' @importFrom stringr str_wrap
 #' @rawNamespace import(shiny, except=c(dataTableOutput, renderDataTable))
-#' 
+#'
 #' @noRd
 #' @keywords internal
 
@@ -245,7 +245,7 @@ app_ui <- function(request) {
               "<p style='color: grey'> Open application in browser,</p>",
               "<p style='color: grey'> press F11 (Full screen)</p>"
             ),
-          
+
             shiny::sliderInput(
               inputId = "height_slider",
               label = "Change height ratio",
@@ -279,6 +279,19 @@ app_ui <- function(request) {
               inputId = "lines_instead_symbols",
               label = "Use lines for all events",
               value = FALSE
+            ),
+            shiny::conditionalPanel(condition = "input.lines_instead_symbols == true",
+              shiny::radioButtons(
+                inputId = "lines_options",
+                label = "Select line(s) appearance",
+                choices = c("Adjacent", "Overlaying")
+              ),
+                HTML(
+                 "<p style='color: grey'> Note: Some events might not be visible</p>"
+                ),
+                HTML(
+                 "<p style='color: grey'> for option 'Overlaying'!</p>"
+                )
             ),
             shiny::checkboxInput(
               inputId = 'det.xaxt',
@@ -524,10 +537,10 @@ app_ui <- function(request) {
               shiny::column(8,
                 img(src = 'www/megaplot-logo.png', width = '500px'),
                 HTML("<h5> depict individual patient journey per day. Pre-specified events on certain days, for example
-                     drug intake, efficacy, or safety events, are indicated by different symbols. The detection of 
-                     patterns in the data or the temporal connection of study procedures and outcome events is 
+                     drug intake, efficacy, or safety events, are indicated by different symbols. The detection of
+                     patterns in the data or the temporal connection of study procedures and outcome events is
                      supported by artificial intelligence-based functions, such as sorting, grouping, as well as
-                     graphical features like changing the complexity of the display. You can either use demo data or upload your own data to generate a 
+                     graphical features like changing the complexity of the display. You can either use demo data or upload your own data to generate a
                      Megaplot. Please take a look at the Package Manual for more information. </h5>"),
                 shiny::br(),
                 shiny::br(),
@@ -551,7 +564,7 @@ app_ui <- function(request) {
                         animation = 'smooth',
                         choices = c(
                           '*.RData files (two files)',
-                          '*.RData file', 
+                          '*.RData file',
                           '*.CSV files')
                       )
                     ),
@@ -561,7 +574,7 @@ app_ui <- function(request) {
                   )
                 ),
                 shiny::conditionalPanel(condition = "output.fileUploaded_rdata & input.selectdata == 'Upload data'
-                                        & input.impswitch == '*.RData file'", 
+                                        & input.impswitch == '*.RData file'",
                   shiny::fluidRow(
                     shiny::column(4,
                       shiny::selectInput(
@@ -569,7 +582,7 @@ app_ui <- function(request) {
                         label = "A: subjectid",
                         choices = "",
                         selected = NULL
-                      )             
+                      )
                     ),
                     shiny::column(4,
                       shiny::selectInput(
@@ -577,7 +590,7 @@ app_ui <- function(request) {
                         label = "A: start time",
                         choices = "",
                         selected = NULL
-                      )             
+                      )
                     ),
                     shiny::column(4,
                        shiny::selectInput(
@@ -585,7 +598,7 @@ app_ui <- function(request) {
                         label = "A: end time",
                         choices = "",
                         selected = NULL
-                      )             
+                      )
                     )
                   ),
                   shiny::fluidRow(
@@ -595,7 +608,7 @@ app_ui <- function(request) {
                         label = "B: subjectid",
                         choices = "",
                         selected = NULL
-                      )             
+                      )
                     ),
                     shiny::column(4,
                       shiny::selectInput(
@@ -603,12 +616,12 @@ app_ui <- function(request) {
                         label = "B: event_time",
                         choices = "",
                         selected = NULL
-                      )              
+                      )
                     )
                   )
                 ),
                 shiny::conditionalPanel(condition = "output.fileUploaded_csv_A & input.selectdata == 'Upload data'
-                                        & input.impswitch == '*.CSV files'", 
+                                        & input.impswitch == '*.CSV files'",
                   shiny::fluidRow(
                     shiny::column(4,
                       shiny::selectInput(
@@ -616,7 +629,7 @@ app_ui <- function(request) {
                         label = "A: subjectid",
                         choices = "",
                         selected = NULL
-                      )             
+                      )
                     ),
                     shiny::column(4,
                       shiny::selectInput(
@@ -624,7 +637,7 @@ app_ui <- function(request) {
                         label = "A: start time",
                         choices = "",
                         selected = NULL
-                      )             
+                      )
                     ),
                     shiny::column(4,
                        shiny::selectInput(
@@ -632,12 +645,12 @@ app_ui <- function(request) {
                         label = "A: end time",
                         choices = "",
                         selected = NULL
-                      )             
+                      )
                     )
                   )
                 ),
                 shiny::conditionalPanel(condition = "output.fileUploaded_csv_B & input.selectdata == 'Upload data'
-                                        & input.impswitch == '*.CSV files'", 
+                                        & input.impswitch == '*.CSV files'",
                   shiny::fluidRow(
                     shiny::column(4,
                        shiny::selectInput(
@@ -645,7 +658,7 @@ app_ui <- function(request) {
                         label = "B: subjectid",
                         choices = "",
                         selected = NULL
-                      )             
+                      )
                     ),
                     shiny::column(4,
                       shiny::selectInput(
@@ -653,12 +666,12 @@ app_ui <- function(request) {
                         label = "B: event_time",
                         choices = "",
                         selected = NULL
-                      )              
+                      )
                     )
                   )
                 ),
                 shiny::conditionalPanel(condition = "output.fileUploaded_rdata_A & input.selectdata == 'Upload data'
-                                        & input.impswitch == '*.RData files (two files)'", 
+                                        & input.impswitch == '*.RData files (two files)'",
                   shiny::fluidRow(
                     shiny::column(4,
                       shiny::selectInput(
@@ -666,7 +679,7 @@ app_ui <- function(request) {
                         label = "A: subjectid",
                         choices = "",
                         selected = NULL
-                      )             
+                      )
                     ),
                     shiny::column(4,
                       shiny::selectInput(
@@ -674,7 +687,7 @@ app_ui <- function(request) {
                         label = "A: start time",
                         choices = "",
                         selected = NULL
-                      )             
+                      )
                     ),
                     shiny::column(4,
                        shiny::selectInput(
@@ -682,12 +695,12 @@ app_ui <- function(request) {
                         label = "A: end time",
                         choices = "",
                         selected = NULL
-                      )             
+                      )
                     )
                   )
                 ),
                 shiny::conditionalPanel(condition = "output.fileUploaded_rdata_B & input.selectdata == 'Upload data'
-                                        & input.impswitch == '*.RData files (two files)'", 
+                                        & input.impswitch == '*.RData files (two files)'",
                   shiny::fluidRow(
                     shiny::column(4,
                        shiny::selectInput(
@@ -695,7 +708,7 @@ app_ui <- function(request) {
                         label = "B: subjectid",
                         choices = "",
                         selected = NULL
-                      )             
+                      )
                     ),
                     shiny::column(4,
                       shiny::selectInput(
@@ -703,7 +716,7 @@ app_ui <- function(request) {
                         label = "B: event_time",
                         choices = "",
                         selected = NULL
-                      )              
+                      )
                     )
                   )
                 ),
