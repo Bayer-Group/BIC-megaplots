@@ -1663,7 +1663,7 @@ app_server <- function(input, output, session) {
       ds$A$'Group_ID_char' <-
         droplevels(interaction(tmp.A, sep = '::'))
       # transform numeric subject ID and implement gaps between groups
-      ds$A$'subject' <- ds$A$subject + (3 * (ds$A$Group_ID - 1))
+      ds$A$'subject' <- ds$A$subject + (8 * (ds$A$Group_ID - 1))
     } else {
       ds$A$'Group_ID' <- rep(1, dim(ds$A)[1])
       ds$A$'Group_ID_char' <- rep('', dim(ds$A)[1])
@@ -2063,9 +2063,9 @@ app_server <- function(input, output, session) {
           xpd = NA,
           adj = c(0, 0.5),
           # Wed Mar 27 12:29:06 2024 ------------------------------
-          #cex = 1.3,
+          cex = 1.3,
           # Wed Mar 27 12:28:53 2024 ------------------------------
-          cex = cex.subjLab,
+          #cex = cex.subjLab,
           labels = plot.set()$grLab$LABEL,
           col = color_bg[4]
         )
