@@ -237,6 +237,18 @@ app_server <- function(input, output, session) {
         inputId = 'select.pal4',
         selected = df()$megaplot_data$saved$select.pal4,
       )
+      shiny::updateTextInput(
+        session,
+        inputId = "y_axis_label",
+        label = "y axis label",
+        value = df()$megaplot_data$saved$y_label
+      )
+      shiny::updateTextInput(
+        session,
+        inputId = "x_axis_label",
+        label = "x axis label",
+        value = df()$megaplot_data$saved$x_label
+      )
     }
   })
 
@@ -1852,7 +1864,7 @@ app_server <- function(input, output, session) {
       # x- and y-limits
 
       xlim <- c(input$range[1], input$range[2])
-      ylim <- range(dp$A$subject) + c(-0.5, 0.5)
+      ylim <- range(dp$A$subject) + c(-1.5, 1.5)
 
       # Empty Plot
       plot(
@@ -2006,6 +2018,16 @@ app_server <- function(input, output, session) {
         col = color_bg[4]
       )
 
+      text(
+        x = grconvertX(0.001, from = 'npc', to = 'user'),
+        y = c(0, dp$A$subject[length(dp$A$subject)] + 1),
+        xpd = NA,
+        adj = c(0.5, 0.5),
+        cex = cex.subjLab,
+        labels = input$y_axis_label,
+        col = color_bg['plot.id']
+      )
+
       # reference line
       # rect(
       #   xleft = input$refdate[1] - 0.25,
@@ -2062,10 +2084,7 @@ app_server <- function(input, output, session) {
           y = plot.set()$grLab$POS,
           xpd = NA,
           adj = c(0, 0.5),
-          # Wed Mar 27 12:29:06 2024 ------------------------------
           cex = 1.3,
-          # Wed Mar 27 12:28:53 2024 ------------------------------
-          #cex = cex.subjLab,
           labels = plot.set()$grLab$LABEL,
           col = color_bg[4]
         )
@@ -2220,6 +2239,7 @@ app_server <- function(input, output, session) {
   # x-axis plot
   output$image1Axis <- shiny::renderPlot({
     # x-axis
+    input$x_axis_label
     ax1.min <- shiny::req(input$range[1])
     ax1.max <- shiny::req(input$range[2])
     color_bg <- select.col()
@@ -2288,6 +2308,15 @@ app_server <- function(input, output, session) {
     rowHeightY <- strheight('A', units = 'user', cex = par('cex'))
     cex.pt <-  0.3 * par('cex') / rowHeightY
 
+    mtext(
+      input$x_axis_label,
+      side = 2,
+      line = 1,
+      adj = TRUE,
+      las = 1,
+      cex = cex.pt,
+      col = color_bg['plot.id']
+    )
     # points(
     #   x = input$refdate[1],
     #   y = grconvertY(0.9, from = 'nfc', to = 'user'),
@@ -3336,7 +3365,10 @@ app_server <- function(input, output, session) {
       methSer = input$methSer,
       group_seriation = input$select.grouping,
       multiple_distmeasures = input$multiple_distmeasures,
-      parameters_seriation = input_seriation()
+      parameters_seriation = input_seriation(),
+      #plot labels
+      y_label = input$y_axis_label,
+      x_label = input$x_axis_label
     )
     param
   })

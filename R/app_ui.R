@@ -354,6 +354,18 @@ app_ui <- function(request) {
                 value = 0
               )
             ),
+            shiny::textInput(
+              inputId = "y_axis_label",
+              label = "y axis label",
+              value = "Subject identifier",
+              placeholder = "Subject identifier"
+            ),
+            shiny::textInput(
+              inputId = "x_axis_label",
+              label = "x axis label",
+              value = "Time",
+              placeholder = "Time"
+            ),
             shiny::tags$br()
           ),
           shinydashboard::menuItem(
