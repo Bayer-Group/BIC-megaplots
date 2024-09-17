@@ -334,8 +334,7 @@ app_server <- function(input, output, session) {
 
       # read all character values from data set B as char_B
       char_B <- names(which(sapply(B, is.character)))
-      # read all numeric values from data set A as nume_A
-      nume_A <- names(which(sapply(A, is.numeric)))
+
       # read all numeric values from data set B as nume_B
       nume_B <- names(which(sapply(B, is.numeric)))
 
@@ -397,6 +396,20 @@ app_server <- function(input, output, session) {
       names(lev.ev.n) <- do$event
       do[['event.lev']] <- lev.ev
       do[['event.lev.n']] <- lev.ev.n
+
+      for(i in 1:length(do$event.lev)){
+        for(j in 1:length(do$event.lev[[i]])){
+          do$A <- add_ttfe(
+            A = do$A,
+            B = do$B,
+            event = names(do$event.lev[i]),
+            level = do$event.lev[[i]][j]
+          )
+        }
+      }
+
+      # read all numeric values from data set A as nume_A
+      nume_A <- names(which(sapply(do$A, is.numeric)))
 
       # set plotting symbols
       sym.ev <- c(15, 18, 16, 4)[1:length(do$event)]
