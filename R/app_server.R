@@ -307,7 +307,6 @@ app_server <- function(input, output, session) {
   #           together with information on the grouping and event variables
   #           (will not be reactively modified in the app and can be used to
   #           create some of the UI input fields)
-
   do <- shiny::eventReactive(
     c(
       stats(),
@@ -413,6 +412,7 @@ app_server <- function(input, output, session) {
 
       # set plotting symbols
       sym.ev <- c(15, 18, 16, 4)[1:length(do$event)]
+
       ai.tab <- base::merge(stats()$'total', stats()$'detail')
 
       ai.tab <- base::merge(ai.tab, do$A[, nume_A])
@@ -1530,7 +1530,7 @@ app_server <- function(input, output, session) {
     }
 
     # delete group levels that were not selected
-    if(length(ds$group.lev) > 0) {
+    if (length(ds$group.lev) > 0) {
       for (i in 1:length(ds$group.lev)) {
         # level vector of group i
         tmp <- ds$group.lev[[ds$group[i]]]
@@ -1605,6 +1605,8 @@ app_server <- function(input, output, session) {
       }
       ds$A <- subset(ds$A, (ds$A$megaplots_selected_subjectid %in% rand))
       ds$B <- subset(ds$B, (ds$B$megaplots_selected_subjectid %in% rand))
+      # ds$A <- subset(ds$A, (ds$A$megaplots_selected_subjectid %in% rand))
+      # ds$B <- subset(ds$B, (ds$B$megaplots_selected_subjectid %in% rand))
     }
 
     # ...selected grouping variables
@@ -1625,7 +1627,7 @@ app_server <- function(input, output, session) {
     if (!is.null(inputIMP$select.events) &
         !is.null(input$event.levels) & nrow(ds$A) > 0) {
       # matching table with event variables and selected levels
-      tmp.ev <- input$event.levels
+      tmp.ev <- shiny::req(input$event.levels)
       mt.ev <-
         data.frame(
           'VAR' = sapply(
@@ -1653,14 +1655,13 @@ app_server <- function(input, output, session) {
         ds$B[, ds$event[i]] <- droplevels(ds$B[, ds$event[i]])
       }
     }
-
     # ...sorting
 
     # sorting variables
     if (!is.null(inputIMP$select.grouping)) {
-      var.sort <- c(ds$group, input$select.sorting)
+      var.sort <- c(ds$group, shiny::req(input$select.sorting))
     } else {
-      var.sort <- input$select.sorting
+      var.sort <- shiny::req(input$select.sorting)
     }
     # sort data set
 
@@ -1679,7 +1680,6 @@ app_server <- function(input, output, session) {
       factor(ds$B[, 'megaplots_selected_subjectid'], levels = ds$A[, 'megaplots_selected_subjectid'])
     # create numeric id variable based on current order
     ds$A <- transform(ds$A, subject = as.numeric(megaplots_selected_subjectid))
-
 
     # create group ID variable
     if (!is.null(inputIMP$select.grouping)) {
@@ -1704,6 +1704,7 @@ app_server <- function(input, output, session) {
         upload_indicator$dat <- 2
       }
     }
+
     ds
   })
 
@@ -2960,8 +2961,10 @@ app_server <- function(input, output, session) {
     }
   })
 
-  #observer for creating a summary table
-  shiny::observe({
+ # observer for creating a summary table
+  shiny::observeEvent(c(ds(),input$import.button), {
+
+
     ds_ <- ds()$B[, c('megaplots_selected_subjectid', 'megaplots_selected_event_time', ds()$event.total, "Group_ID_char")] %>%
       dplyr::mutate_if(is.factor, as.character)
     mel <- reshape2::melt(
@@ -2970,12 +2973,12 @@ app_server <- function(input, output, session) {
       variable.name = 'EVENT',
       value.name = 'LEVEL'
     )
+
     #calculate number of rows/subjects in each group
     nr_subjects <-
       table(unique(mel[c("Group_ID_char", "megaplots_selected_subjectid")])$Group_ID_char)
-
     #calculate number of events in each group and for each event level
-    if (nrow(mel) > 0) {
+    if (nrow(mel) > 0 & !all(is.na(mel$LEVEL))) {
       mel.sum <- stats::aggregate(
         megaplots_selected_event_time ~ EVENT + LEVEL + Group_ID_char,
          data = mel,
