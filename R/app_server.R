@@ -333,7 +333,6 @@ app_server <- function(input, output, session) {
 
       # read all character values from data set B as char_B
       char_B <- names(which(sapply(B, is.character)))
-
       # read all numeric values from data set B as nume_B
       nume_B <- names(which(sapply(B, is.numeric)))
 
@@ -586,17 +585,14 @@ app_server <- function(input, output, session) {
 
   shiny::observeEvent(choiceSort(), {
     choices <- choiceSort()
-    selected <-
-      ifelse(input$selectdata == 'Use demo data',
-             'start_time',
-             'megaplots_selected_subjectid')
+
+    selected <- 'megaplots_selected_subjectid'
     if (any(choices == 'SEQUENCING'))
       selected <- utils::tail(choices, 1)
 
     if (input$selectdata == 'Upload saved data') {
       selected <- df()$megaplot_data$saved$select.sorting
     }
-
     shinyWidgets::updatePickerInput(
       session,
       inputId = "select.sorting",
@@ -1665,7 +1661,9 @@ app_server <- function(input, output, session) {
     }
     # sort data set
 
-    ds$A <- dplyr::arrange(ds$A,!!!rlang::syms(var.sort))
+    if (all(var.sort %in% colnames(ds$A))) {
+      ds$A <- dplyr::arrange(ds$A,!!!rlang::syms(var.sort))
+    }
 
     # transform subjectid to factor...
     if (any(is.na(ds$A$megaplots_selected_subjectid))) {
@@ -3038,7 +3036,8 @@ app_server <- function(input, output, session) {
       #filter data and colors for selected events & selected levels
       tmp <- tmp[tmp$EVENT %in% input$select.events,]
 
-      dp_col <- dp()$col.ev[names(dp()$col.ev) %in% input$select.events]
+        dp_col <- dp()$col.ev[names(dp()$col.ev) %in% input$select.events]
+
       summary_color <- unlist(dp_col)[names(unlist(dp_col)) %in% gsub(" = ", ".",input$event.levels)]
 
       #filter for selected levels
@@ -3080,6 +3079,7 @@ app_server <- function(input, output, session) {
         }
         summary_statistics_text$val <- text
       }
+
     } else {
       summary_statistics_text$val <- NULL
     }

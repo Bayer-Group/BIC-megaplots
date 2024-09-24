@@ -17,6 +17,9 @@ add_ttfe <- function(
   event,
   level){
 
+  if (!identical(level,character(0))) {
+
+
   A_new <-  A %>%
     dplyr::left_join(B %>%
       dplyr::select(
@@ -31,6 +34,8 @@ add_ttfe <- function(
       dplyr::select(megaplots_selected_subjectid, !!paste0("time_to_first_",gsub(" ", "",event),"_",gsub(" ", "",level))),
       by = "megaplots_selected_subjectid"
     )
-
+  } else {
+    A_new <- A
+  }
   return(A_new)
 }
