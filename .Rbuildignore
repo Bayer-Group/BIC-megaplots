@@ -5,3 +5,7 @@ dev_history.R
 ^dev$
 $run_dev.*
 ^LICENSE\.md$
+^CODEOWNERS$
+^CONTRIBUTING\.md$
+^MAINTAINERS\.md$
+^CODE_OF_CONDUCT\.md$

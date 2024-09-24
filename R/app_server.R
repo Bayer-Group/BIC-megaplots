@@ -7,9 +7,9 @@
 #' @importFrom dplyr arrange select group_by count filter n_distinct mutate ungroup row_number all_of
 #' @importFrom plyr ddply summarize .
 #' @importFrom DT renderDT datatable renderDataTable formatRound DTOutput
-#' @importFrom graphics axis grconvertX grconvertY legend par points rect strheight strwidth text
+#' @importFrom graphics axis grconvertX grconvertY legend par points rect strheight strwidth text mtext
 #' @importFrom reshape2 melt dcast
-#' @importFrom rlang syms
+#' @importFrom rlang syms :=
 #' @importFrom shinydashboard updateTabItems
 #' @importFrom shinyjs runjs click disable enable
 #' @import shinyWidgets
@@ -24,7 +24,7 @@
 app_server <- function(input, output, session) {
 
   A <- B <- megaplots_demo_data <- EVENT <- Group_ID <- LEVEL <- megaplots_selected_event_time <- subject <- megaplots_selected_subjectid <- NULL
-  megaplots_selected_start_time <- megaplots_selected_end_time <- NULL
+  megaplots_selected_start_time <- megaplots_selected_end_time <- 'GROUP BY' <- NULL
 
   ns <- session$ns
 
