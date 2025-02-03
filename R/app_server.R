@@ -2154,7 +2154,7 @@ app_server <- function(input, output, session) {
       ybottom = grconvertY(0, 'ndc', 'user'),
       ytop = grconvertY(1, 'ndc', 'user'),
       xpd = NA,
-      border = NA,
+      border = "snow1", # NA,
       col = color_bg['plot.bg']
     )
 
