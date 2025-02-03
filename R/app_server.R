@@ -2830,29 +2830,32 @@ app_server <- function(input, output, session) {
   }, width = 400)
 
   output$hover_legend <- shiny::renderUI({
-    leg.height <- paste0(40*length(dp()$event),'px')
+    leg.height <- paste0(40 * length(dp()$event), 'px')
     if (input.fontsize$fontsize) {
-      leg.height <- paste0(60*length(dp()$event),'px')
+      leg.height <- paste0(60 * length(dp()$event), 'px')
     }
 
-    shiny::absolutePanel(
-      id = "hover_legend",
-      class = "modal-content",
-      fixed = TRUE,
-      draggable = TRUE,
-      HTML(paste0(
-        "<div style='background-color: #404A4E'>"
-      )),
-      top = 333,
-      left = "auto",
-      right = 75,
-      bottom = "auto",
-      width = max_legend_char(),
-      height = "auto",
+    shiny::fixedPanel(
+      # attrs or childs that should be included in the panel
+      id        = "hover_legend",
+      class     = "modal-content",
+      shiny::HTML("<div style='background-color: #404A4E'>"),
       shiny::fluidRow(
-        shiny::plotOutput('image1Legend', height = leg.height, width = max_legend_char())
+        shiny::plotOutput(
+          outputId = 'image1Legend',
+          height   = leg.height,
+          width    = "100%"  # max_legend_char()
+        )
       ),
-      style = "z-index: 10;"
+      style     = "z-index: 10;",
+      # named arguments
+      top       = 300,
+      left      = "auto",
+      right     = 100,
+      bottom    = "auto",
+      width     = max_legend_char(),
+      height    = "auto",
+      draggable = TRUE
     )
   })
 
