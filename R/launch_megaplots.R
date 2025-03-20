@@ -40,7 +40,7 @@
 #' 
 #' @return A shiny app
 
-launch_megaplots <- function(host = "127.0.0.1", port = 3838, ...) {
+launch_megaplots <- function(host = "0.0.0.0", port = 3838, ...) {
   golem::with_golem_options(
     app = shinyApp(
       ui = app_ui,
