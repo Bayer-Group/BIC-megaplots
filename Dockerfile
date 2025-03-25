@@ -19,6 +19,6 @@ RUN R -e "devtools::install_github('Bayer-Group/BIC-megaplots', ref = 'api')"
 # Set entrypoint and pass runtime arguments to the CMD
 ENTRYPOINT ["R", "-e"]
 # Modifiy this line to match your startup command
-CMD ["library('megaplots');options(shiny.trace=TRUE;httpuv.use.ws=FALSE);launch_megaplots(host = '0.0.0.0', port = 3838)"]
+CMD ["library('megaplots');options(shiny.trace=TRUE);options(httpuv.use.ws = FALSE);launch_megaplots(host = '0.0.0.0', port = 3838)"]
 #CMD ["R", "-e", "options(shiny.trace=TRUE, httpuv.use.ws=FALSE); library(megaplots); launch_megaplots(host = '0.0.0.0', port = 3838)"]
 # END DOCKERFILE
