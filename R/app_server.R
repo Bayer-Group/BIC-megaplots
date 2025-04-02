@@ -1911,8 +1911,13 @@ app_server <- function(input, output, session) {
           )
         }
       }
+      tmp <- tempfile(fileext = ".png")
+      png(tmp)  # temporäres, unsichtbares Device
+
       rowHeightY <- strheight('A', units = 'user', cex = par('cex'))
       rowHeightX <- strwidth('A', units = 'user', cex = par('cex'))
+
+      dev.off()
       yxRatio <- rowHeightY / rowHeightX
       cex.subjLab <-  0.9 * par('cex') / rowHeightY
       
