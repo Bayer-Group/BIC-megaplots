@@ -1,4 +1,5 @@
 suppressPackageStartupMessages(library(shiny))
+options(device = function(...) png(filename = tempfile(fileext = ".png")))
 pdf(file=NULL)
 
 colChoice <- list(
