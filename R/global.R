@@ -1,3 +1,5 @@
+message("global.R load")
+options(shiny.trace = TRUE)
 suppressPackageStartupMessages(library(shiny))
 options(device = function(...) png(filename = tempfile(fileext = ".png")))
 pdf(file=NULL)
