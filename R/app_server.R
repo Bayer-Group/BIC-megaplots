@@ -2080,7 +2080,12 @@ app_server <- function(input, output, session) {
     else{
       cex.leg <- 0.9
     }
-    x <- strwidth(max_length_event_levels, cex = cex.leg * 1.2, units = "inches") *96
+    tmp <- tempfile(fileext = ".png")
+    png(tmp)  # temporäres Grafikgerät, schreibt in Temp-Verzeichnis
+
+    x <- strwidth(max_length_event_levels, cex = cex.leg * 1.2, units = "inches") * 96
+
+    dev.off()
     max_legend_char(x)
   })
   
@@ -2535,8 +2540,13 @@ app_server <- function(input, output, session) {
       )
       
       # set label and point size
+      tmp <- tempfile(fileext = ".png")
+      png(tmp)  # temporäres, unsichtbares Device
+
       rowHeightY <- strheight('A', units = 'user', cex = par('cex'))
       rowHeightX <- strwidth('A', units = 'user', cex = par('cex'))
+
+      dev.off()
       yxRatio <- rowHeightY / rowHeightX
       
       cex.subjLab <-  0.5 * par('cex') / rowHeightY
