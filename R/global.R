@@ -1,4 +1,5 @@
 suppressPackageStartupMessages(library(shiny))
+pdf(file=NULL)
 
 colChoice <- list(
     'color palette 1'=list(
