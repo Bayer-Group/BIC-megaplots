@@ -1913,7 +1913,7 @@ app_server <- function(input, output, session) {
       }
       tmp <- tempfile(fileext = ".png")
       png(tmp)  # temporäres, unsichtbares Device
-
+      plot.new()
       rowHeightY <- strheight('A', units = 'user', cex = par('cex'))
       rowHeightX <- strwidth('A', units = 'user', cex = par('cex'))
 
@@ -2275,7 +2275,7 @@ app_server <- function(input, output, session) {
       col = color_bg['plot.id'],
       col.axis = color_bg['plot.id']
     )
-    
+    plot.new()
     rowHeightY <- strheight('A', units = 'user', cex = par('cex'))
     cex.pt <-  0.3 * par('cex') / rowHeightY
     
@@ -2542,7 +2542,7 @@ app_server <- function(input, output, session) {
       # set label and point size
       tmp <- tempfile(fileext = ".png")
       png(tmp)  # temporäres, unsichtbares Device
-
+      plot.new()
       rowHeightY <- strheight('A', units = 'user', cex = par('cex'))
       rowHeightX <- strwidth('A', units = 'user', cex = par('cex'))
 
@@ -2658,6 +2658,7 @@ app_server <- function(input, output, session) {
         dp$A[dp$A$subject %in% index[1]:index[2], ]$megaplots_selected_subjectid
       
       A.sub <- dp$A[dp$A$subject %in% index[1]:index[2], ]
+      plot.new()
       rowHeightY <-
         strheight('A.sub', units = 'user', cex = par('cex'))
       cex.sub <- 0.3 * par('cex') / rowHeightY
