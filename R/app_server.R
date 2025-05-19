@@ -1601,8 +1601,6 @@ app_server <- function(input, output, session) {
       }
       ds$A <- subset(ds$A, (ds$A$megaplots_selected_subjectid %in% rand))
       ds$B <- subset(ds$B, (ds$B$megaplots_selected_subjectid %in% rand))
-      # ds$A <- subset(ds$A, (ds$A$megaplots_selected_subjectid %in% rand))
-      # ds$B <- subset(ds$B, (ds$B$megaplots_selected_subjectid %in% rand))
     }
 
     # ...selected grouping variables
@@ -1848,7 +1846,9 @@ app_server <- function(input, output, session) {
     choiceGroup()
     shiny::req(dp(), ds(), da(), do())
 
+
     dp <- dp()
+
     if (max(c(1, dp$A$subject)) == 1) {
       par(mar = c(0, 0, 0, 0))
       plot(NULL,
