@@ -1,5 +1,11 @@
 <img src="inst/app/www/megaplot-logo.png" align="left"/>
 
+<!-- badges: start -->
+[![CRAN status](https://www.r-pkg.org/badges/version/megaplots)](https://cran.r-project.org/package=megaplots)
+[![CRAN total downloads](https://cranlogs.r-pkg.org/badges/grand-total/megaplots)](https://cranlogs.r-pkg.org/badges/grand-total/megaplots)
+[![status](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
+<!-- badges: end -->
+
 ## Description
 
 A 'megaplot' is a 'shiny' application and as the name suggests,

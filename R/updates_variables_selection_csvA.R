@@ -16,7 +16,7 @@ updates_variables_selection_csvA <- function(
   csvA_quote,
   csvA_dec
 ) {
-  if (class(file) == "data.frame") {
+  if (inherits(file, "data.frame")) {
     if (is.character(file$datapath)) {
       if (nchar(file$datapath) > 0 ) {
         if (!utils::tail(strsplit(file$datapath, ".", fixed = TRUE)[[1]], n = 1) != "csv") {
@@ -29,11 +29,11 @@ updates_variables_selection_csvA <- function(
             dec = csvA_dec,
             stringsAsFactors = FALSE
           )
-          
+
           A2 <- numeric_to_integer(A)
-          
+
           integers_A <- names(which(unlist(lapply(A2,is.integer))))
-          
+
           if (shiny::isRunning()) {
             shiny::updateSelectInput(
               session,
@@ -60,10 +60,10 @@ updates_variables_selection_csvA <- function(
         }
       } else {
         warning("datapath is of length 0 in updates_variables_selection_csvA")
-      } 
+      }
     } else {
       warning("datapath is non character in updates_variables_selection_csvA")
-    } 
+    }
   } else {
     warning("parameter 'file' needs to be of class data.frame in function updates_variables_selection_csvA")
   }
