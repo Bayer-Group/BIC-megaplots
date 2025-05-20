@@ -2114,7 +2114,7 @@ app_server <- function(input, output, session) {
   event_trigger <- reactive({list(do(), input.fontsize$fontsize)})
 
   shiny::observeEvent(event_trigger(), {
-    event_levels <- sapply(do()$event.lev, function(x) paste(x, collapse = ""))
+    event_levels <- sapply(do()$event.lev, function(x) paste(x, collapse = " "))
     number_levels <- unlist(lapply(do()$event.lev, length))
     x <- unlist(lapply(number_levels, function(x) paste(rep("_", x), collapse = "")))
     event_levels <- paste(event_levels, x)
