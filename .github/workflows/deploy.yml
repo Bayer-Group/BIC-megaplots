@@ -6,7 +6,7 @@ on:
   # Trigger when a push occurs on the "api" branch or when any tag is created
   push:
     branches:
-      - api
+      - fixed
     tags:
       - '*'  # Matches any tag
   # Allows manual triggering of the workflow via the GitHub Actions interface
