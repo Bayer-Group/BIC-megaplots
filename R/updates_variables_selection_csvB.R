@@ -16,7 +16,7 @@ updates_variables_selection_csvB <- function(
   csvB_quote,
   csvB_dec
 ) {
-  if (class(file) == "data.frame") {
+  if (inherits(file, "data.frame")) {
     if (is.character(file$datapath)) {
       if (nchar(file$datapath) > 0 ) {
         if (!utils::tail(strsplit(file$datapath, ".", fixed = TRUE)[[1]], n = 1) != "csv") {
@@ -29,11 +29,11 @@ updates_variables_selection_csvB <- function(
             dec = csvB_dec,
             stringsAsFactors = FALSE
           )
-          
+
           B2 <- numeric_to_integer(B)
-          
+
           integers_B <- names(which(unlist(lapply(B2,is.integer))))
-          
+
           if (shiny::isRunning()) {
             shiny::updateSelectInput(
               session,
@@ -41,7 +41,7 @@ updates_variables_selection_csvB <- function(
               choices = integers_B,
               selected = integers_B[1]
             )
-            
+
             shiny::updateSelectInput(
               session,
               inputId = "B_event_time_csv",
@@ -55,10 +55,10 @@ updates_variables_selection_csvB <- function(
         }
       } else {
         warning("datapath is of length 0 in updates_variables_selection_csvB")
-      } 
+      }
     } else {
       warning("datapath is non character in updates_variables_selection_csvB")
-    } 
+    }
   } else {
     warning("parameter 'file' needs to be of class data.frame in function updates_variables_selection_csvB")
   }

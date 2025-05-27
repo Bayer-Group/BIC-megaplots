@@ -9,16 +9,16 @@
 updates_variables_selection_rdataB <- function(
   file,
   session
-) {  
-  if (class(file) == "data.frame") {
+) {
+  if (inherits(file, "data.frame")) {
     if (is.character(file$datapath)) {
       if (nchar(file$datapath) > 0 ) {
         if (utils::tail(strsplit(file$datapath, ".", fixed = TRUE)[[1]], n = 1) %in% c("RData","rdata","Rdata")) {
           B <- get(load(file$datapath))
           B2 <- numeric_to_integer(B)
-          
+
           integers_B <- names(which(unlist(lapply(B2,is.integer))))
-          
+
           if (shiny::isRunning()) {
             shiny::updateSelectInput(
               session,
@@ -39,10 +39,10 @@ updates_variables_selection_rdataB <- function(
         }
       } else {
         warning("datapath is of length 0 in updates_variables_selection_rdataB")
-      } 
+      }
     } else {
       warning("datapath is non character in updates_variables_selection_rdataB")
-    } 
+    }
   } else {
     warning("parameter 'file' needs to be of class data.frame in function updates_variables_selection_rdataB")
   }
