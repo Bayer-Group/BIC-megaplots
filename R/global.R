@@ -1,5 +1,6 @@
 suppressPackageStartupMessages(library(shiny))
-
+pdf(NULL)
+invisible(dev.off())
 colChoice <- list(
     'color palette 1'=list(
       'col'=c("#a6cee3","#cab2d6","#b2df8a","#fb9a99","#fdbf6f","#1f78b4","#6a3d9a","#ff7f00"),
@@ -90,5 +91,5 @@ colChoice <- list(
       'gradient'=TRUE
     )
   )
- 
+
 utils::globalVariables(c('colChoice','megaplots_demo_data'))
