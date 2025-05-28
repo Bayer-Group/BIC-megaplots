@@ -41,7 +41,7 @@
 #' @return A shiny app
 
 launch_megaplots <- function(host = "0.0.0.0", port = 3838, ...) {
-  pdf(NULL)
+  png(tempfile(), width = 800, height = 600)
   invisible(dev.off())
   golem::with_golem_options(
     app = shinyApp(
