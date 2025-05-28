@@ -1,5 +1,5 @@
 suppressPackageStartupMessages(library(shiny))
-pdf(NULL)
+png(tempfile(), width = 800, height = 600)
 invisible(dev.off())
 colChoice <- list(
     'color palette 1'=list(
