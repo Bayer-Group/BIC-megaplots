@@ -31,6 +31,7 @@ app_server <- function(input, output, session) {
   # set maximum data upload size to 750MB
   options(shiny.maxRequestSize = 750 * 1024^2)
 
+  #### server part data upload ####
   #disable/enable import button if data are missing/available
   shiny::observe({
     shinyjs::disable(id = 'import.button', selector = NULL)
@@ -97,8 +98,9 @@ app_server <- function(input, output, session) {
     }
   })
 
-  #### DATA UPLOAD ####
+  #### Preprocess uploaded data ####
   df <- shiny::reactive({
+
     #read & preprocess data in desired format
     tmp <- preprocess_data_frame(
       selectdata = input$selectdata,
@@ -128,6 +130,7 @@ app_server <- function(input, output, session) {
       csv_dec = input$dec,
       setting_file = input$setting_file
     )
+
     # remove optional variables with only one value/category
     if (!is.null(tmp$megaplot_data)) {
       remove_variables <- names(
@@ -150,7 +153,7 @@ app_server <- function(input, output, session) {
         dplyr::select(-dplyr::all_of(remove_variables))
       #transform Missings to character "NA"
       for(i in 1:dim(tmp$megaplot_data$A)[2]) {
-        if (is.numeric(tmp$megaplot_data$A[,i]) | is.integer(tmp$megaplot_data$A[,i])) {
+        if (is.numeric(tmp$megaplot_data$A[,i]) | is.numeric(tmp$megaplot_data$A[,i])) {
         } else if (
           inherits(tmp$megaplot_data$A[,i], 'Date')
           ){
@@ -172,7 +175,7 @@ app_server <- function(input, output, session) {
     }
   })
 
-  ## Upload saved data and update all widgets ##
+  #### Upload saved data and update all widgets ####
   shiny::observeEvent(df()$megaplot_data, {
     if (input$selectdata == "Upload saved data") {
       saved_file <- readRDS(input$setting_file$datapath)
@@ -252,7 +255,6 @@ app_server <- function(input, output, session) {
     }
   })
 
-  ## INITIALIZATION ##
   # calculate aggregated stats for sequencing and clustering
   stats <- shiny::eventReactive(input$import.button, {
     B.long <- na.exclude(
@@ -303,142 +305,125 @@ app_server <- function(input, output, session) {
     list('total' = B.sum2, 'detail' = B.sum1)
   })
 
-  # 0. 'do' = standardized object in which the original data is stored
+
+   # 0. 'do' = standardized object in which the original data is stored
   #           together with information on the grouping and event variables
   #           (will not be reactively modified in the app and can be used to
   #           create some of the UI input fields)
-  do <- shiny::eventReactive(
-    c(
-      stats(),
+  do <- shiny::eventReactive(c(stats(),input$select.ev.lev1,input$select.ev.lev2,input$select.ev.lev3,input$select.ev.lev4),{
+
+    shiny::req(df())
+    shiny::req(c(input$select.ev.lev1,input$select.ev.lev2,input$select.ev.lev3,input$select.ev.lev4))
+
+    A <- df()$megaplot_data$A
+    B <- df()$megaplot_data$B
+
+    # read all character values from data set A as char_A
+    char_A <- names(which(sapply(A, is.character)))
+
+    # read all character values from data set B as char_B
+    char_B <- names(which(sapply(B, is.character)))
+    # read all numeric values from data set B as nume_B
+    nume_B <- names(which(sapply(B, is.numeric)))
+
+    # selected events
+    char_B.sel <-
+      unique(base::intersect(
+        c(update_select.ev1(),update_select.ev2(),update_select.ev3(),update_select.ev4()),
+        char_B
+      )
+    )
+
+    do <- list(
+      'A' = A,
+      'B' = B,
+      'group' = char_A,
+      'event' = char_B.sel,
+      'event.total' = char_B
+    )
+
+    # ensure that group variables and events are factors
+    list_order <- list(
       input$select.ev.lev1,
       input$select.ev.lev2,
       input$select.ev.lev3,
       input$select.ev.lev4
-    ),{
+    )
 
-      shiny::req(df())
-      shiny::req(
-        c(
-          input$select.ev.lev1,
-          input$select.ev.lev2,
-          input$select.ev.lev3,
-          input$select.ev.lev4
-        )
-      )
-      A <- df()$megaplot_data$A
-      B <- df()$megaplot_data$B
-
-      # read all character values from data set A as char_A
-      char_A <- names(which(sapply(A, is.character)))
-
-      # read all character values from data set B as char_B
-      char_B <- names(which(sapply(B, is.character)))
-      # read all numeric values from data set B as nume_B
-      nume_B <- names(which(sapply(B, is.numeric)))
-
-      # selected events
-      char_B.sel <- unique(
-        base::intersect(
-        c(
-          update_select.ev1(),
-          update_select.ev2(),
-          update_select.ev3(),
-          update_select.ev4()
-        ),
-        char_B
-        )
-      )
-      do <- list(
-        'A' = A,
-        'B' = B,
-        'group' = char_A,
-        'event' = char_B.sel,
-        'event.total' = char_B
-      )
-
-      # ensure that group variables and events are factors
-      list_order <- list(
-        input$select.ev.lev1,
-        input$select.ev.lev2,
-        input$select.ev.lev3,
-        input$select.ev.lev4
-      )
-
-      if(length(do$group) > 0) {
-        for (i in 1:length(do$group))
-          do$A[, do$group[i]] <- factor(do$A[, do$group[i]])
-      }
-      if(length(do$event) > 0) {
-      for (i in 1:length(do$event))
-        do$B[, do$event[i]] <-
-        factor(do$B[, do$event[i]], levels = list_order[[i]])
-      }
-      # save group levels
-      lev.gr <- list()
-      if(length(do$group) > 0) {
+    if(length(do$group) > 0) {
       for (i in 1:length(do$group))
-        lev.gr[[i]] <- levels(do$A[, do$group[i]])
-      }
-
-      names(lev.gr) <- do$group
-      do[['group.lev']] <- lev.gr
-
-      # save event levels
-      lev.ev <- list()
-      lev.ev.n <- list()
-      for (i in 1:length(do$event)) {
-        lev.ev[[i]] <- levels(do$B[, do$event[i]])
-        lev.ev.n[[i]] <- nlevels(do$B[, do$event[i]])
-      }
-      names(lev.ev) <- do$event
-      names(lev.ev.n) <- do$event
-      do[['event.lev']] <- lev.ev
-      do[['event.lev.n']] <- lev.ev.n
-
-      for(i in 1:length(do$event.lev)){
-        for(j in 1:length(do$event.lev[[i]])){
-          do$A <- add_ttfe(
-            A = do$A,
-            B = do$B,
-            event = names(do$event.lev[i]),
-            level = do$event.lev[[i]][j]
-          )
-        }
-      }
-
-      # read all numeric values from data set A as nume_A
-      nume_A <- names(which(sapply(do$A, is.numeric)))
-
-      # set plotting symbols
-      sym.ev <- c(15, 18, 16, 4)[1:length(do$event)]
-
-      ai.tab <- base::merge(stats()$'total', stats()$'detail')
-
-      ai.tab <- base::merge(ai.tab, do$A[, nume_A])
-      rownames(ai.tab) <- ai.tab$'megaplots_selected_subjectid'
-      ai.tab <- subset(ai.tab, select = -c(megaplots_selected_subjectid))
-
-      do$'ai.tab' <- ai.tab
-      do$'ai.initselect' <- colnames(stats()$'detail')[-1]
-
-      if (input$selectdata == "Upload saved data") {
-        do$A$'SEQUENCING' <- df()$megaplot_data$saved$sequencing
-      } else {
-        do$A$'SEQUENCING' <- do$A$megaplots_selected_subjectid
-      }
-      # reactive return
-      c(
-        do,
-        list(
-          sym.ev = sym.ev,
-          char_A = char_A,
-          char_B = char_B,
-          nume_A = nume_A,
-          nume_B = nume_B
-        )
-      )
+        do$A[, do$group[i]] <- factor(do$A[, do$group[i]])
     }
-  )
+    if(length(do$event) > 0) {
+    for (i in 1:length(do$event))
+      do$B[, do$event[i]] <-
+      factor(do$B[, do$event[i]], levels = list_order[[i]])
+    }
+    # save group levels
+    lev.gr <- list()
+    if(length(do$group) > 0) {
+    for (i in 1:length(do$group))
+      lev.gr[[i]] <- levels(do$A[, do$group[i]])
+    }
+
+    names(lev.gr) <- do$group
+    do[['group.lev']] <- lev.gr
+
+    # save event levels
+    lev.ev <- list()
+    lev.ev.n <- list()
+    for (i in 1:length(do$event)) {
+      lev.ev[[i]] <- levels(do$B[, do$event[i]])
+      lev.ev.n[[i]] <- nlevels(do$B[, do$event[i]])
+    }
+    names(lev.ev) <- do$event
+    names(lev.ev.n) <- do$event
+    do[['event.lev']] <- lev.ev
+    do[['event.lev.n']] <- lev.ev.n
+
+    for(i in 1:length(do$event.lev)){
+      for(j in 1:length(do$event.lev[[i]])){
+        do$A <- add_ttfe(
+          A = do$A,
+          B = do$B,
+          event = names(do$event.lev[i]),
+          level = do$event.lev[[i]][j]
+        )
+      }
+    }
+
+    # read all numeric values from data set A as nume_A
+    nume_A <- names(which(sapply(do$A, is.numeric)))
+
+    # set plotting symbols
+    sym.ev <- c(15, 18, 16, 4)[1:length(do$event)]
+
+    ai.tab <- base::merge(stats()$'total', stats()$'detail')
+
+    ai.tab <- base::merge(ai.tab, do$A[, nume_A])
+    rownames(ai.tab) <- ai.tab$'megaplots_selected_subjectid'
+    ai.tab <- subset(ai.tab, select = -c(megaplots_selected_subjectid))
+
+    do$'ai.tab' <- ai.tab
+    do$'ai.initselect' <- colnames(stats()$'detail')[-1]
+
+    if (input$selectdata == "Upload saved data") {
+      do$A$'SEQUENCING' <- df()$megaplot_data$saved$sequencing
+    } else {
+      do$A$'SEQUENCING' <- do$A$megaplots_selected_subjectid
+    }
+    # reactive return
+    c(
+      do,
+      list(
+        sym.ev = sym.ev,
+        char_A = char_A,
+        char_B = char_B,
+        nume_A = nume_A,
+        nume_B = nume_B
+      )
+    )
+  })
 
   ## AI FUNCTIONALITY ##
   aiButton <- shiny::reactiveValues(
@@ -453,7 +438,7 @@ app_server <- function(input, output, session) {
 
   # 1. 'da' = copy from 'do' that will be reactively modified based on the AI selections
   #           from the user
-  da1 <- shiny::eventReactive(c(do(), aiButton$seq), {
+  da <- shiny::eventReactive(c(do(), aiButton$seq), {
     da <- shiny::req(do())
     if (!is.null(collectSeq$varSeq)) {
 
@@ -468,17 +453,6 @@ app_server <- function(input, output, session) {
       )
 
     }
-    da
-  })
-
-
-  da2 <- shiny::eventReactive(c(da1()), {
-    da <- shiny::req(da1())
-    da
-  })
-
-  da <- shiny::eventReactive(c(da2()), {
-    da <- shiny::req(da2())
     da
   })
 
@@ -1203,9 +1177,9 @@ app_server <- function(input, output, session) {
     methSer = NULL
   )
 
-  shiny::observeEvent(input$distmeasure, {
-    shiny::updateTabsetPanel(inputId = "Change_input_for_seq_metod", selected = input$distmeasure)
-  })
+  # shiny::observeEvent(input$distmeasure, {
+  #   shiny::updateTabsetPanel(inputId = "Change_input_for_seq_metod", selected = input$distmeasure)
+  # })
 
   shiny::observeEvent(input$import.button, {
     collectSeq$varSeq <- NULL
@@ -1938,7 +1912,10 @@ app_server <- function(input, output, session) {
       rowHeightY <- strheight('A', units = 'user', cex = par('cex'))
       rowHeightX <- strwidth('A', units = 'user', cex = par('cex'))
       yxRatio <- rowHeightY / rowHeightX
-      cex.subjLab <-  0.9 * par('cex') / rowHeightY
+
+      cex.subjLab <- (1.1 - (median(nchar(do()$A$megaplots_selected_subjectid))*0.04))  / max(rowHeightY,0.5)
+      #cex.subjLab <-  1.2 * par('cex') / rowHeightY
+
 
       cex.point <-
         1.5 * par('cex') / rowHeightY * min(c(1, 0.95 * yxRatio))
@@ -2594,9 +2571,10 @@ app_server <- function(input, output, session) {
       rowHeightX <- strwidth('A', units = 'user', cex = par('cex'))
       yxRatio <- rowHeightY / rowHeightX
 
-      cex.subjLab <-  0.5 * par('cex') / rowHeightY
+      # cex.subjLab <- (0.4 - (median(nchar(do()$A$megaplots_selected_subjectid))*0.02))  / max(rowHeightY,0.5)
+      # cex.subjLab <-  1.3 * par('cex') / rowHeightY
       cex.point <-
-        1.3 * par('cex') / rowHeightY * min(c(1, 0.95 * yxRatio))
+        0.5 * par('cex') / rowHeightY * min(c(1, 0.95 * yxRatio))
 
       cex.point <- c(1, 0.92, 0.47, 0.8, 0.9) * cex.point
       # draw lines
@@ -2705,14 +2683,9 @@ app_server <- function(input, output, session) {
       A.sub <- dp$A[dp$A$subject %in% index[1]:index[2], ]
       rowHeightY <-
         strheight('A.sub', units = 'user', cex = par('cex'))
-      cex.sub <- 0.3 * par('cex') / rowHeightY
 
-      if (cex.sub < 0.7) {
-        cex.sub <- 0.7
-      }
-      if (cex.sub > 1) {
-        cex.sub <- 1
-      }
+
+      cex.sub <- (0.6 - (median(nchar(do()$A$megaplots_selected_subjectid))*0.02))  / max(rowHeightY,0.5)
 
       if (length(subject.brush) > 0) {
         text(
@@ -2828,6 +2801,107 @@ app_server <- function(input, output, session) {
            col = select.col()['plot.id'])
     }
   }, width = 400)
+
+
+
+  shiny::observeEvent(input$reset_draggable_panel_positions, {
+
+ output$hoverpanel <- shiny::renderUI({
+    shiny::absolutePanel(
+      id = "hoverpanel",
+      class = "modal-content",
+      fixed = TRUE,
+      draggable = TRUE,
+      HTML(paste0(
+        "<div style='background-color: #222d32'>"
+      )),
+      HTML(
+        '
+        <button style =
+        "background: #3c8dbc;
+        color:#ffffff",
+        data-toggle="collapse" data-target="#demo" style="color:white;">
+        <i class="fa fa-search-plus"></i> Open/Close Zoom Panel</button>'
+      ),
+      top = 80,
+      left = "auto",
+      right = 100,
+      bottom = "auto",
+      width = 400,
+      height = "auto",
+      shiny::tags$div(
+        id = 'demo',
+        class = "collapse",
+        shiny::fluidRow(shiny::column(2,
+                                      shiny::plotOutput('hover')))
+      ),
+      style = "z-index: 10;"
+    )
+  })
+
+  output$summarypanel <- shiny::renderUI({
+    shiny::absolutePanel(
+      id = "summarypanel",
+      class = "modal-content",
+      fixed = TRUE,
+      draggable = TRUE,
+        HTML(paste0(
+          "<div style='background-color: #222d32'>"
+        )
+      ),
+      HTML(
+        '
+        <button style =
+        "background: #3c8dbc;
+        color:#ffffff",
+        data-toggle="collapse" data-target="#demo2" style="color:white;">
+        <i class="fa fa-search-plus"></i> Open/Close Summary Panel</button>'
+      ),
+      top = 120,
+      left = "auto",
+      right = 100,
+      bottom = "auto",
+      width = 400,
+      height = "auto",
+      shiny::tags$div(
+        id = 'demo2',
+        class = "collapse",
+          HTML(
+            summary_statistics_text$val
+          )
+      ),
+      style = "z-index: 10;"
+    )
+  })
+
+    output$hover_legend <- shiny::renderUI({
+    leg.height <- paste0(40*length(dp()$event),'px')
+    if (input.fontsize$fontsize) {
+      leg.height <- paste0(60*length(dp()$event),'px')
+    }
+
+    shiny::absolutePanel(
+      id = "hover_legend",
+      class = "modal-content",
+      fixed = TRUE,
+      draggable = TRUE,
+      HTML(paste0(
+        "<div style='background-color: #404A4E'>"
+      )),
+      top = 333,
+      left = "auto",
+      right = 75,
+      bottom = "auto",
+      width = max_legend_char(),
+      height = "auto",
+      shiny::fluidRow(
+        shiny::plotOutput('image1Legend', height = leg.height, width = max_legend_char())
+      ),
+      style = "z-index: 10;"
+    )
+  })
+  })
+
 
   output$hover_legend <- shiny::renderUI({
     leg.height <- paste0(40*length(dp()$event),'px')

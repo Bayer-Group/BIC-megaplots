@@ -17,7 +17,7 @@ updates_variables_selection_rdataA <- function(
           A <- get(load(file$datapath))
           A2 <- numeric_to_integer(A)
 
-          integers_A <- names(which(unlist(lapply(A2,is.integer))))
+          integers_A <- names(which(unlist(lapply(A2,is.numeric))))
 
           if (shiny::isRunning()) {
             shiny::updateSelectInput(
