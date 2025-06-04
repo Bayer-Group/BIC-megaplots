@@ -226,25 +226,25 @@ app_ui <- function(request) {
               value = c(0, 100),
               step = 1
             ),
-            shinyWidgets::pickerInput(
-              inputId = 'select.device',
-              label = "Select device format",
-              width = 'fit',
-              choices = c('16:9', '16:10', '21:9', '4:3', '9:21', '10:16', '9:16'),
-              multiple = FALSE,
-              selected = '16:9',
-              options = list(
-                `actions-box` = FALSE,
-                `style` = 'background: btn-primary',
-                `none-selected-text` = 'Please select'
-              ),
-              choicesOpt = list(`icon` = rep('glyphicon-picture', 7))
-            ),
-            HTML(
-             "<p style='color: grey'> Note: To maximize your browser window:</p>",
-              "<p style='color: grey'> Open application in browser,</p>",
-              "<p style='color: grey'> press F11 (Full screen)</p>"
-            ),
+            # shinyWidgets::pickerInput(
+            #   inputId = 'select.device',
+            #   label = "Select device format",
+            #   width = 'fit',
+            #   choices = c('16:9', '16:10', '21:9', '4:3', '9:21', '10:16', '9:16'),
+            #   multiple = FALSE,
+            #   selected = '16:9',
+            #   options = list(
+            #     `actions-box` = FALSE,
+            #     `style` = 'background: btn-primary',
+            #     `none-selected-text` = 'Please select'
+            #   ),
+            #   choicesOpt = list(`icon` = rep('glyphicon-picture', 7))
+            # ),
+            # HTML(
+            #  "<p style='color: grey'> Note: To maximize your browser window:</p>",
+            #   "<p style='color: grey'> Open application in browser,</p>",
+            #   "<p style='color: grey'> press F11 (Full screen)</p>"
+            # ),
 
             shiny::sliderInput(
               inputId = "height_slider",
@@ -253,15 +253,15 @@ app_ui <- function(request) {
               max = 2,
               value = 1
             ),
-            shinyWidgets::pickerInput(
-              inputId = 'select.col',
-              label = "Select color theme",
-              width = 'fit',
-              choices = list('grey (app version)', 'white (print version)'),
-              multiple = FALSE,
-              selected = 'grey (app version)',
-              choicesOpt = list(`icon` = rep('glyphicon-blackboard', 2))
-            ),
+            # shinyWidgets::pickerInput(
+            #   inputId = 'select.col',
+            #   label = "Select color theme",
+            #   width = 'fit',
+            #   choices = list('grey (app version)', 'white (print version)'),
+            #   multiple = FALSE,
+            #   selected = 'grey (app version)',
+            #   choicesOpt = list(`icon` = rep('glyphicon-blackboard', 2))
+            # ),
             shiny::sliderInput(
               inputId = "thick",
               label = "Thickness of subject lines",
@@ -383,10 +383,27 @@ app_ui <- function(request) {
             icon = icon('tint'),
             tabName = 'br3',
             startExpanded = FALSE,
+            shinyWidgets::pickerInput(
+              inputId = 'select.col',
+              label = "Select color theme",
+              width = 'fit',
+              choices = list('grey (app version)', 'white (print version)'),
+              multiple = FALSE,
+              selected = 'grey (app version)',
+              choicesOpt = list(`icon` = rep('glyphicon-blackboard', 2))
+            ),
             mod_colour_palette_ui("color_palette1"),
             shiny::conditionalPanel(condition = "output.load_sel_pal1 == true",
                                     shiny::tags$br(),
                                     shiny::tags$hr()),
+            # shinyWidgets::pickerInput(
+            #   inputId = "plot_symbol1",
+            #   label = "Choose Symbol (1)",
+            #   choices = c(0,1,2,3),
+            #   choicesOpt = list(
+            #     content = sprintf("<i class='fa-solid fa-square'></i>")
+            #   )
+            # ),
             mod_colour_palette_ui("color_palette2"),
             shiny::conditionalPanel(condition = "output.load_sel_pal2 == true",
                                     shiny::tags$br(),
@@ -546,7 +563,13 @@ app_ui <- function(request) {
             ),
             shiny::uiOutput('hover_legend'),
             shiny::uiOutput('megaplot'),
-            shiny::uiOutput('axisbox'),
+            fixedPanel(
+              shiny::uiOutput('axisbox'),
+              bottom = 1,
+              width = "100%",
+              height = 42
+
+            ),
             shiny::uiOutput('hoverpanel'),
             shiny::uiOutput('summarypanel'),
             shiny::conditionalPanel(condition = "output.check_slider_used == true",
