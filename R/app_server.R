@@ -345,7 +345,7 @@ app_server <- function(input, output, session) {
     add_sorting_information(
       data_frame = data_w_ai_information(),
       select_subsetting = input$select.subsetting,
-      randet =inputB1$randet,
+      randet = inputB1$randet,
       seed =inputB1$seed,
       nshow =inputB1$nshow,
       start =inputB1$start,
@@ -373,10 +373,10 @@ app_server <- function(input, output, session) {
 
   ## PLOTTING ##
   # height function for pixel-size based on subject number
-  height.random <- shiny::reactive({
-    shiny::req(data_grouped_and_sorted(), data_w_event_and_group_information(), data_w_ai_information(), input$height_slider)
-    (max(c(1, data_grouped_and_sorted()$A$'subject')) * 12) * input$height_slider
-  })
+  # height.random <- shiny::reactive({
+  #   shiny::req(data_grouped_and_sorted(), data_w_event_and_group_information(), data_w_ai_information(), input$height_slider)
+  #   (max(c(1, data_grouped_and_sorted()$A$'subject')) * 12) * input$height_slider
+  # })
 
   # height function for megaplot image
   # height.mp <- shiny::eventReactive(c(session$clientData$output_image1_height, select.device()), {
@@ -396,7 +396,7 @@ app_server <- function(input, output, session) {
   # })
 
   # set reactive value as start value for dynamic height adjustment
-  height_chk <- shiny::reactiveValues(hchk = 250)
+  # height_chk <- shiny::reactiveValues(hchk = 250)
 
   # update reactive value for height only if the new adjustment is bigger then 5%
   # shiny::observeEvent(height.mp(), {
@@ -405,368 +405,120 @@ app_server <- function(input, output, session) {
   # })
 
   # create reactive plotting object
-  dp <- shiny::reactive({
+  # 5. 'data_w_plot_info' = add plot information to data set (zoom/range and colors)
+  #
+
+  data_w_plot_info <- shiny::reactive({
     session$clientData[["image1"]]
     shiny::req(data_grouped_and_sorted(), data_w_ai_information(), data_w_event_and_group_information())
     # create plotting data based on user selections
-    dp <- data_grouped_and_sorted()
-    do <- data_w_event_and_group_information()
+
+    data_w_plot_info <- data_grouped_and_sorted()
+    data_w_event_and_group_information <- data_w_event_and_group_information()
     # constrain to selected x-range
-    dp$A$megaplots_selected_start_time <- pmax(dp$A$megaplots_selected_start_time, input$range[1])
-    dp$A$megaplots_selected_end_time <-
-      pmin(pmax(dp$A$megaplots_selected_end_time, input$range[1]), input$range[2])
-    dp$B <-
-      subset(dp$B, megaplots_selected_event_time >= input$range[1] & megaplots_selected_event_time <= input$range[2])
+    data_w_plot_info$A$megaplots_selected_start_time <- pmax(data_w_plot_info$A$megaplots_selected_start_time, input$range[1])
+    data_w_plot_info$A$megaplots_selected_end_time <-
+      pmin(pmax(data_w_plot_info$A$megaplots_selected_end_time, input$range[1]), input$range[2])
+    data_w_plot_info$B <-
+      subset(data_w_plot_info$B, megaplots_selected_event_time >= input$range[1] & megaplots_selected_event_time <= input$range[2])
 
     # set plotting colors
     col.ev <- list()
     type.ev <- list()
 
-    if (!is.na(do$event[1])) {
-      col.ev[[1]] <- color_pal1$val[1:length(do$event.lev[[do$event[1]]])]
+    if (!is.na(data_w_event_and_group_information$event[1])) {
+      col.ev[[1]] <- color_pal1$val[1:length(data_w_event_and_group_information$event.lev[[data_w_event_and_group_information$event[1]]])]
     }
-    if (!is.na(do$event[2])) {
-      col.ev[[2]] <- color_pal2$val[1:length(do$event.lev[[do$event[2]]])]
+    if (!is.na(data_w_event_and_group_information$event[2])) {
+      col.ev[[2]] <- color_pal2$val[1:length(data_w_event_and_group_information$event.lev[[data_w_event_and_group_information$event[2]]])]
     }
-    if (!is.na(do$event[3])) {
-      col.ev[[3]] <- color_pal3$val[1:length(do$event.lev[[do$event[3]]])]
+    if (!is.na(data_w_event_and_group_information$event[3])) {
+      col.ev[[3]] <- color_pal3$val[1:length(data_w_event_and_group_information$event.lev[[data_w_event_and_group_information$event[3]]])]
     }
-    if (!is.na(do$event[4])) {
-      col.ev[[4]] <- color_pal4$val[1:length(do$event.lev[[do$event[4]]])]
+    if (!is.na(data_w_event_and_group_information$event[4])) {
+      col.ev[[4]] <- color_pal4$val[1:length(data_w_event_and_group_information$event.lev[[data_w_event_and_group_information$event[4]]])]
     }
-    if (!is.na(do$event[1])) {
+    if (!is.na(data_w_event_and_group_information$event[1])) {
       type.ev[[1]] <- color_pal1$val[length(color_pal1$val)]
     }
-    if (!is.na(do$event[2])) {
+    if (!is.na(data_w_event_and_group_information$event[2])) {
       type.ev[[2]] <- color_pal2$val[length(color_pal2$val)]
     }
-    if (!is.na(do$event[3])) {
+    if (!is.na(data_w_event_and_group_information$event[3])) {
       type.ev[[3]] <- color_pal3$val[length(color_pal3$val)]
     }
-    if (!is.na(do$event[4])) {
+    if (!is.na(data_w_event_and_group_information$event[4])) {
       type.ev[[4]] <- color_pal4$val[length(color_pal4$val)]
     }
     if (length(col.ev)>0) {
-      for (i in 1:length(do$event)) {
-        names(col.ev[[i]]) <- do$event.lev[[do$event[i]]]
+      for (i in 1:length(data_w_event_and_group_information$event)) {
+        names(col.ev[[i]]) <- data_w_event_and_group_information$event.lev[[data_w_event_and_group_information$event[i]]]
       }
-      names(col.ev) <- do$event
-      names(type.ev) <- do$event
+      names(col.ev) <- data_w_event_and_group_information$event
+      names(type.ev) <- data_w_event_and_group_information$event
 
-      dp$col.ev <- col.ev
-      dp$type.ev <- type.ev
+      data_w_plot_info$col.ev <- col.ev
+      data_w_plot_info$type.ev <- type.ev
     }
-    dp
+    data_w_plot_info
   })
 
   # global plot settings
-  plot.set <- shiny::reactive({
-    shiny::req(dp(), data_w_event_and_group_information(), data_grouped_and_sorted())
-
+  plot_par_settings <- shiny::reactive({
+    shiny::req(data_w_plot_info(), data_w_event_and_group_information(), data_grouped_and_sorted())
     mar2 <- 5
-
     # create group labels
     grLab <- NULL
     mar4 <- 1
-    if ((dp()$group[1] != 'NULL')) {
+    if ((data_w_plot_info()$group[1] != 'NULL')) {
       mar4 <- 12
-      tmp <-
-        strsplit(levels(droplevels(dp()$A$Group_ID_char)), split = '::')
+      tmp <-strsplit(levels(droplevels(data_w_plot_info()$A$Group_ID_char)), split = '::')
       grLab <- data.frame(
-        'LABEL' = sapply(
-          tmp,
-          FUN = function(x) {
-            paste(paste0(
-              dp()$group,
-              '=',
-              stringr::str_wrap(rev(x), width = 25, exdent = 5)
-            ), collapse = '\n')
-          }
-        ),
-        'POS' = plyr::ddply(
-          dp()$A,
-          plyr::.(Group_ID),
-          plyr::summarize,
-          'POS' = mean(subject)
-        )$POS,
+        'LABEL' = sapply(tmp,FUN = function(x) {paste(paste0(data_w_plot_info()$group,'=',stringr::str_wrap(rev(x), width = 25, exdent = 5)), collapse = '\n')}),
+        'POS' = plyr::ddply(data_w_plot_info()$A,plyr::.(Group_ID), plyr::summarize,'POS' = mean(subject))$POS,
         stringsAsFactors = FALSE
       )
     }
     list('mar' = c(0, mar2, 0, mar4), 'grLab' = grLab)
   })
 
-  # main plot
+  #### Main plot output image1 ####
   output$image1 <- shiny::renderPlot({
+
     input$height_slider
     session$clientData[["image1"]]
     choiceGroup()
-    shiny::req(dp(), data_grouped_and_sorted(), data_w_ai_information(), data_w_event_and_group_information())
+    shiny::req(data_w_plot_info(), data_grouped_and_sorted(), data_w_ai_information(), data_w_event_and_group_information())
 
-
-    dp <- dp()
-
-    if (max(c(1, dp$A$subject)) == 1) {
-      par(mar = c(0, 0, 0, 0))
-      plot(NULL,
-           xlim = c(0, 1),
-           ylim = c(0, 1),
-           axes = FALSE)
-
-      rect(
-        xleft = grconvertX(0, 'ndc', 'user') - 1000,
-        xright = grconvertX(1, 'ndc', 'user') + 1000,
-        ybottom = grconvertY(0, 'ndc', 'user'),
-        ytop = grconvertX(1, 'ndc', 'user'),
-        border = select.col()['plot.bg'],
-        col = select.col()['plot.bg'],
-        lwd = 2,
-        xpd = NA
-      )
-    } else {
-      # load general plot settings
-      color_bg <- select.col()
-      par(mar = plot.set()$mar,
-          bg = color_bg['plot.bg'],
-          lheight = 0.8)
-
-      # x- and y-limits
-
-      xlim <- c(input$range[1], input$range[2])
-      ylim <- range(dp$A$subject) + c(-1.5, 1.5)
-
-      # Empty Plot
-      plot(
-        NULL,
-        xlim = xlim,
-        ylim = ylim,
-        xlab = '',
-        ylab = '',
-        axes = FALSE,
-        yaxs = 'i'
-      )
-
-      # use rectangle as background (the par() setting does not work on some devices)
-      rect(
-        xleft = grconvertX(0, 'ndc', 'user') - 1000,
-        xright = grconvertX(1, 'ndc', 'user') + 1000,
-        ybottom = grconvertY(0, 'ndc', 'user'),
-        ytop = grconvertY(1, 'ndc', 'user'),
-        xpd = NA,
-        border = NA,
-        col = color_bg['plot.bg']
-      )
-
-      # background stripes:
-      if (input$background_stripes &
-          is.numeric(input$background.stripes.length) &
-          input$background.stripes.length > 0 &
-          input$background.stripes.length %% 1 == 0) {
-        min_tmp  <- min(data_w_event_and_group_information()$A$megaplots_selected_start_time)
-        max_tmp <- max(data_w_event_and_group_information()$A$megaplots_selected_end_time)
-        tmp <-
-          seq(min_tmp, max_tmp, by = input$background.stripes.length)
-        while (!0 %in% tmp) {
-          min_tmp <- min_tmp - 1
-          tmp <-
-            seq(
-              min_tmp,
-              max_tmp + input$background.stripes.length,
-              by = input$background.stripes.length
-            )
-        }
-
-        for (i in seq(1, length(tmp), 2)) {
-          rect(
-            tmp[i],
-            -1000,
-            tmp[i + 1],
-            1000,
-            col = ifelse(
-              coltheme$col_sel != 'grey (app version)',
-              "#e6e6e6",
-              "#475257"
-            ),
-            xpd = NA,
-            border = NA
-          )
-        }
-      }
-      rowHeightY <- strheight('A', units = 'user', cex = par('cex'))
-      rowHeightX <- strwidth('A', units = 'user', cex = par('cex'))
-      yxRatio <- rowHeightY / rowHeightX
-
-      cex.subjLab <- (1.1 - (median(nchar(data_w_event_and_group_information()$A$megaplots_selected_subjectid))*0.04))  / max(rowHeightY,0.5)
-      #cex.subjLab <-  1.2 * par('cex') / rowHeightY
-
-
-      cex.point <-
-        1.5 * par('cex') / rowHeightY * min(c(1, 0.95 * yxRatio))
-
-      cex.point <- c(1, 0.92, 0.47, 0.8, 0.9) * cex.point
-
-      # draw lines
-      rect(
-        xleft = dp$A$megaplots_selected_start_time,
-        xright = dp$A$megaplots_selected_end_time,
-        ybottom = dp$A$subject - subl$thick,
-        ytop = dp$A$subject + subl$thick,
-        col = color_bg[2],
-        border = NA
-      )
-
-      # add points
-      if (!is.null(inputIMP$select.events) &
-          !is.null(input$event.levels) & !(input$lines_instead_symbols)) {
-        for (i in 1:length(dp$event)) {
-          tmp <- na.exclude(dp$B[, c('subject', 'megaplots_selected_event_time', dp$event[i])])
-          tmp.col <- dp$col.ev[[dp$event[i]]]
-          if (i == 1 & input.incev$inc.ev.subj) {
-            rect(
-              xleft = tmp$megaplots_selected_event_time - 0.5,
-              xright = tmp$megaplots_selected_event_time + 0.5,
-              ybottom = tmp$subject - subl$thick,
-              ytop = tmp$subject + subl$thick,
-              border = NA,
-              col = tmp.col[as.character(tmp[, dp$event[i]])]
-            )
-          } else {
-            points(
-              tmp$megaplots_selected_event_time,
-              tmp$subject,
-              pch = dp$sym.ev[i],
-              cex = cex.point[i],
-              col = tmp.col[as.character(tmp[, dp$event[i]])]
-            )
-          }
-        }
-      }
-
-      if (!is.null(inputIMP$select.events) &
-          !is.null(input$event.levels) & input$lines_instead_symbols) {
-
-        if (input$lines_options == "Adjacent"){
-          tmp.height <-
-            seq(-subl$thick, subl$thick, length = (length(dp$event) + 1))
-          for (i in 1:length(dp$event)) {
-            tmp <- na.exclude(dp$B[, c('subject', 'megaplots_selected_event_time', dp$event[i])])
-            tmp.col <- dp$col.ev[[dp$event[i]]]
-            rect(
-              xleft = tmp$megaplots_selected_event_time - 0.5,
-              xright = tmp$megaplots_selected_event_time + 0.5,
-              ybottom = tmp$subject + tmp.height[i],
-              ytop = tmp$subject + tmp.height[i + 1],
-              border = NA,
-              col = tmp.col[as.character(tmp[, dp$event[i]])]
-            )
-          }
-        }
-        if (input$lines_options == "Overlaying"){
-           tmp.height <-
-            seq(-subl$thick, subl$thick, length = (length(dp$event) + 1))
-          for (i in 1:length(dp$event)) {
-            tmp <- na.exclude(dp$B[, c('subject', 'megaplots_selected_event_time', dp$event[i])])
-            tmp.col <- dp$col.ev[[dp$event[i]]]
-            rect(
-              xleft = tmp$megaplots_selected_event_time - 0.5,
-              xright = tmp$megaplots_selected_event_time + 0.5,
-              ybottom = tmp$subject - subl$thick,
-              ytop = tmp$subject + subl$thick,
-              border = NA,
-              col = tmp.col[as.character(tmp[, dp$event[i]])]
-            )
-          }
-        }
-      }
-
-      # y-axis
-      text(
-        x = grconvertX(0.001, from = 'npc', to = 'user'),
-        y = dp$A$subject,
-        xpd = NA,
-        adj = c(1, 0.5),
-        cex = cex.subjLab,
-        labels = dp$A[, 'megaplots_selected_subjectid'],
-        col = color_bg[4]
-      )
-
-      text(
-        x = grconvertX(0.001, from = 'npc', to = 'user'),
-        y = c(0, dp$A$subject[length(dp$A$subject)] + 1),
-        xpd = NA,
-        adj = c(0.5, 0.5),
-        cex = cex.subjLab,
-        labels = input$y_axis_label,
-        col = color_bg['plot.id']
-      )
-
-      # reference line
-      # rect(
-      #   xleft = input$refdate[1] - 0.25,
-      #   xright = input$refdate[1] + 0.25,
-      #   ybottom = grconvertY(0, 'npc', 'user'),
-      #   ytop = grconvertY(1, 'npc', 'user'),
-      #   border = NA,
-      #   col = rgb(1, 0, 0, alpha = 0.3)
-      # )
-      # rect(
-      #   xleft = input$refdate[2] - 0.25,
-      #   xright = input$refdate[2] + 0.25,
-      #   ybottom = grconvertY(0, 'npc', 'user'),
-      #   ytop = grconvertY(1, 'npc', 'user'),
-      #   border = NA,
-      #   col = rgb(1, 0, 0, alpha = 0.3)
-      # )
-      #First reference line
-      if(input$reference_line_1) {
-        rect(
-          xleft = input$reference_line_1_value - 0.25,
-          xright = input$reference_line_1_value + 0.25,
-          ybottom = grconvertY(0, 'npc', 'user'),
-          ytop = grconvertY(1, 'npc', 'user'),
-          border = NA,
-          col = rgb(1, 0, 0, alpha = 0.3)
-        )
-      }
-      if(input$reference_line_2) {
-        rect(
-          xleft = input$reference_line_2_value - 0.25,
-          xright = input$reference_line_2_value + 0.25,
-          ybottom = grconvertY(0, 'npc', 'user'),
-          ytop = grconvertY(1, 'npc', 'user'),
-          border = NA,
-          col = rgb(1, 0, 0, alpha = 0.3)
-        )
-      }
-      if(input$reference_line_3) {
-        rect(
-          xleft = input$reference_line_3_value - 0.25,
-          xright = input$reference_line_3_value + 0.25,
-          ybottom = grconvertY(0, 'npc', 'user'),
-          ytop = grconvertY(1, 'npc', 'user'),
-          border = NA,
-          col = rgb(1, 0, 0, alpha = 0.3)
-        )
-      }
-
-      # add group labels
-      if (!is.null(plot.set()$grLab)) {
-        text(
-          x = graphics::grconvertX(1.0025, from = 'npc', to = 'user'),
-          y = plot.set()$grLab$POS,
-          xpd = NA,
-          adj = c(0, 0.5),
-          cex = 1.3,
-          labels = plot.set()$grLab$LABEL,
-          col = color_bg[4]
-        )
-      }
-    }
+    draw_megaplot(
+      megaplot_data = data_w_plot_info(),
+      select_color = select.col(),
+      par_settings = plot_par_settings(),
+      background_stripes = input$background_stripes,
+      background_stripes_length = input$background.stripes.length,
+      event_levels = input$event.levels,
+      range = input$range,
+      lines_instead_symbols = input$lines_instead_symbols,
+      lines_options = input$lines_options,
+      line_width = subl$thick,
+      y_axis_label = input$y_axis_label,
+      reference_line_1 = input$reference_line_1,
+      reference_line_1_value = input$reference_line_1_value,
+      reference_line_2 = input$reference_line_2,
+      reference_line_2_value = input$reference_line_2_value,
+      reference_line_3 = input$reference_line_3,
+      reference_line_3_value = input$reference_line_3_value,
+      select_events = inputIMP$select.events,
+      color_subject_line_by_first_event = input.incev$inc.ev.subj
+    )
   },
   # function for UI auto height resizing
   height = function() {
     # calculate height based on selected subject number
-    height.random()
+    (max(c(1, shiny::req(data_grouped_and_sorted())$A$'subject')) * 12) * shiny::req(input$height_slider)
   })
+
+
 
   max_legend_char <- shiny::reactiveVal({270})
 
@@ -791,119 +543,143 @@ app_server <- function(input, output, session) {
   # legend plot
   output$image1Legend <- shiny::renderPlot({
     shiny::req(max_legend_char())
-    shiny::req(dp(), data_grouped_and_sorted(), data_w_ai_information(), data_w_event_and_group_information())
-    dp <- dp()
-    color_bg <- select.col()
-    par(mar = c(0, 0, 0, 0), bg = color_bg['plot.bg'])
-    plot(
-      0,
-      0,
-      xlim = c(0, 1),
-      ylim = c(0, 1),
-      xlab = '',
-      ylab = '',
-      type = 'n',
-      axes = FALSE
+    shiny::req(data_w_plot_info(), data_grouped_and_sorted(), data_w_ai_information(), data_w_event_and_group_information())
+
+
+    draw_megaplot_legend(
+      megaplot_data = data_w_plot_info(),
+      select_color = select.col()#,
+      # par_settings = plot_par_settings(),
+      # background_stripes = input$background_stripes,
+      # background_stripes_length = input$background.stripes.length,
+      # event_levels = input$event.levels,
+      # range = input$range,
+      # lines_instead_symbols = input$lines_instead_symbols,
+      # lines_options = input$lines_options,
+      # line_width = subl$thick,
+      # y_axis_label = input$y_axis_label,
+      # reference_line_1 = input$reference_line_1,
+      # reference_line_1_value = input$reference_line_1_value,
+      # reference_line_2 = input$reference_line_2,
+      # reference_line_2_value = input$reference_line_2_value,
+      # reference_line_3 = input$reference_line_3,
+      # reference_line_3_value = input$reference_line_3_value,
+      # select_events = inputIMP$select.events,
+      # color_subject_line_by_first_event = input.incev$inc.ev.subj
     )
 
-    # use rectangle as background (the par() setting does not work on some devices)
-    rect(
-      xleft = grconvertX(0, 'ndc', 'user'),
-      xright = grconvertX(1, 'ndc', 'user'),
-      ybottom = grconvertY(0, 'ndc', 'user'),
-      ytop = grconvertY(1, 'ndc', 'user'),
-      xpd = NA,
-      border = NA,
-      col = color_bg['plot.bg']
-    )
-
-    add.leg <- TRUE
-
-    if (add.leg & (dp$event[1] != "NULL")) {
-      # starting coordinates
-      legY <-
-        grconvertY(1 / (2* length(dp$event)), from = 'ndc', to = 'user')
-      legY_num <-  1/ (4*length(dp$event))
-      legY_num_o <- 1/ (2*length(dp$event))
-      legYmax_num <- 1
-      legYmax <- grconvertY(1, from = 'ndc', to = 'user')
-      legX <- grconvertX(0, from = 'npc', to = 'user')
-      # calculate 'cex'
-      heightMar3 <-
-        grconvertY(1, from = 'ndc', to = 'user') - grconvertY(0, from = 'ndc', to = 'user')
-      leg.test <- legend(legX, legY, xpd = NA, pch = 15, legend = 'Why', plot = FALSE)
-      if(input.fontsize$fontsize){
-        cex.leg <- 1.2
-      }
-      else{
-        cex.leg <- 0.9
-      }
-
-      for (i in 1:length(dp$event)) {
-        # set text color ('grey' if not shown in the plot)
-        tmp <- data_w_event_and_group_information()$event.lev[[dp$event[i]]]
-        col.legtxt <- rep(color_bg['plot.id'], length(tmp))
-        names(col.legtxt) <- tmp
-        col.legtxt[!tmp %in% dp$event.lev[[dp$event[i]]]] <-
-          c('grey40', '#93a3ae', '#5D6A70', '#404A4E')[3]
-        font.legtxt <- ifelse(col.legtxt == '#5D6A70', 3, 1)
-        col.leg <- dp$col.ev[[dp$event[i]]]
-
-        # event name
-        ltitle <- legend(
-          legX,
-          grconvertY(legYmax_num - legY_num, from = 'ndc', to = 'user'),
-          xjust = 0,
-          yjust = 0.5,
-          xpd = NA,
-          bty = 'n',
-          pch = NA,
-          horiz = TRUE,
-          col = NA,
-          legend = "",
-          text.col = color_bg['plot.id'],
-          cex = cex.leg,
-          text.font = 2
-        )
-        text(
-          x = legX,
-          y = grconvertY(legYmax_num - legY_num, from = 'ndc', to = 'user'),
-          xpd = NA,
-          cex = cex.leg,
-          font = 2,
-          adj = c(0, 0.5),
-          labels = paste0(dp$event[i], ': '),
-          col = color_bg['plot.id']
-        )
-        legY_num <- legY_num + legY_num_o
-        # legend
-        lleft <- legX
-
-        for (j in 1:length(col.leg)) {
-          l <-
-            legend(
-              lleft[j],
-              grconvertY(legYmax_num - legY_num, from = 'ndc', to = 'user'),
-              xjust = 0,
-              yjust = 0.5,
-              xpd = NA,
-              bty = 'n',
-              pch = dp$sym.ev[i],
-              horiz = TRUE,
-              col = col.leg[j],
-              legend = names(col.leg)[j],
-              text.col = col.legtxt[j],
-              pt.cex = 2.5,
-              cex = cex.leg *1.2,
-              text.font = font.legtxt[j]
-            )
-          lleft[j + 1] <- l$rect$left + l$rect$w
-        }
-        # modify y-coordinate for next legend
-        legY_num <- legY_num + legY_num_o
-
-      }
-    }
+    # data_w_plot_info <- data_w_plot_info()
+    # color_bg <- select.col()
+    # par(mar = c(0, 0, 0, 0), bg = color_bg['plot.bg'])
+    # plot(
+    #   0,
+    #   0,
+    #   xlim = c(0, 1),
+    #   ylim = c(0, 1),
+    #   xlab = '',
+    #   ylab = '',
+    #   type = 'n',
+    #   axes = FALSE
+    # )
+    #
+    # # use rectangle as background (the par() setting does not work on some devices)
+    # rect(
+    #   xleft = grconvertX(0, 'ndc', 'user'),
+    #   xright = grconvertX(1, 'ndc', 'user'),
+    #   ybottom = grconvertY(0, 'ndc', 'user'),
+    #   ytop = grconvertY(1, 'ndc', 'user'),
+    #   xpd = NA,
+    #   border = NA,
+    #   col = color_bg['plot.bg']
+    # )
+    #
+    # add.leg <- TRUE
+    #
+    # if (add.leg & (data_w_plot_info$event[1] != "NULL")) {
+    #   # starting coordinates
+    #   legY <-
+    #     grconvertY(1 / (2* length(data_w_plot_info$event)), from = 'ndc', to = 'user')
+    #   legY_num <-  1/ (4*length(data_w_plot_info$event))
+    #   legY_num_o <- 1/ (2*length(data_w_plot_info$event))
+    #   legYmax_num <- 1
+    #   legYmax <- grconvertY(1, from = 'ndc', to = 'user')
+    #   legX <- grconvertX(0, from = 'npc', to = 'user')
+    #   # calculate 'cex'
+    #   heightMar3 <-
+    #     grconvertY(1, from = 'ndc', to = 'user') - grconvertY(0, from = 'ndc', to = 'user')
+    #   leg.test <- legend(legX, legY, xpd = NA, pch = 15, legend = 'Why', plot = FALSE)
+    #   if(input.fontsize$fontsize){
+    #     cex.leg <- 1.2
+    #   }
+    #   else{
+    #     cex.leg <- 0.9
+    #   }
+    #
+    #   for (i in 1:length(data_w_plot_info$event)) {
+    #     # set text color ('grey' if not shown in the plot)
+    #     tmp <- data_w_event_and_group_information()$event.lev[[data_w_plot_info$event[i]]]
+    #     col.legtxt <- rep(color_bg['plot.id'], length(tmp))
+    #     names(col.legtxt) <- tmp
+    #     col.legtxt[!tmp %in% data_w_plot_info$event.lev[[data_w_plot_info$event[i]]]] <-
+    #       c('grey40', '#93a3ae', '#5D6A70', '#404A4E')[3]
+    #     font.legtxt <- ifelse(col.legtxt == '#5D6A70', 3, 1)
+    #     col.leg <- data_w_plot_info$col.ev[[data_w_plot_info$event[i]]]
+    #
+    #     # event name
+    #     ltitle <- legend(
+    #       legX,
+    #       grconvertY(legYmax_num - legY_num, from = 'ndc', to = 'user'),
+    #       xjust = 0,
+    #       yjust = 0.5,
+    #       xpd = NA,
+    #       bty = 'n',
+    #       pch = NA,
+    #       horiz = TRUE,
+    #       col = NA,
+    #       legend = "",
+    #       text.col = color_bg['plot.id'],
+    #       cex = cex.leg,
+    #       text.font = 2
+    #     )
+    #     text(
+    #       x = legX,
+    #       y = grconvertY(legYmax_num - legY_num, from = 'ndc', to = 'user'),
+    #       xpd = NA,
+    #       cex = cex.leg,
+    #       font = 2,
+    #       adj = c(0, 0.5),
+    #       labels = paste0(data_w_plot_info$event[i], ': '),
+    #       col = color_bg['plot.id']
+    #     )
+    #     legY_num <- legY_num + legY_num_o
+    #     # legend
+    #     lleft <- legX
+    #
+    #     for (j in 1:length(col.leg)) {
+    #       l <-
+    #         legend(
+    #           lleft[j],
+    #           grconvertY(legYmax_num - legY_num, from = 'ndc', to = 'user'),
+    #           xjust = 0,
+    #           yjust = 0.5,
+    #           xpd = NA,
+    #           bty = 'n',
+    #           pch = data_w_plot_info$sym.ev[i],
+    #           horiz = TRUE,
+    #           col = col.leg[j],
+    #           legend = names(col.leg)[j],
+    #           text.col = col.legtxt[j],
+    #           pt.cex = 2.5,
+    #           cex = cex.leg *1.2,
+    #           text.font = font.legtxt[j]
+    #         )
+    #       lleft[j + 1] <- l$rect$left + l$rect$w
+    #     }
+    #     # modify y-coordinate for next legend
+    #     legY_num <- legY_num + legY_num_o
+    #
+    #   }
+    # }
   })
 
 
@@ -923,13 +699,13 @@ app_server <- function(input, output, session) {
     if (!is.na(scroll.pct)){
       if(scroll.pct <= 1 & scroll.pct >=0){
         par(
-          mar = plot.set()$mar,
+          mar = plot_par_settings()$mar,
           bg = color_bg['axleg.bg'],
           omd = c(0, 1 - scroll.pct, 0, 1)
         )
       } else {
         par(
-          mar = plot.set()$mar,
+          mar = plot_par_settings()$mar,
           bg = color_bg['axleg.bg'],
           omd = c(0, 1, 0, 1)
         )
@@ -1217,9 +993,9 @@ app_server <- function(input, output, session) {
   })
 
   output$hover <- shiny::renderPlot({
-    shiny::req(dp())
+    shiny::req(data_w_plot_info())
     color_bg <- select.col()
-    dp <- dp()
+    data_w_plot_info <- data_w_plot_info()
 
     if (!is.null(brush_coord$x) & !is.null(brush_coord$y)) {
       xlim <- brush_coord$x
@@ -1261,10 +1037,10 @@ app_server <- function(input, output, session) {
       cex.point <- c(1, 0.92, 0.47, 0.8, 0.9) * cex.point
       # draw lines
       rect(
-        xleft = dp$A$megaplots_selected_start_time,
-        xright = dp$A$megaplots_selected_end_time,
-        ybottom = dp$A$subject - subl$thick,
-        ytop = dp$A$subject + subl$thick,
+        xleft = data_w_plot_info$A$megaplots_selected_start_time,
+        xright = data_w_plot_info$A$megaplots_selected_end_time,
+        ybottom = data_w_plot_info$A$subject - subl$thick,
+        ytop = data_w_plot_info$A$subject + subl$thick,
         col = color_bg[2],
         border = NA
       )
@@ -1273,19 +1049,19 @@ app_server <- function(input, output, session) {
           !is.null(input$event.levels)) {
         levs <- character(0)
         sevs <- character(0)
-        for (i in 1:length(dp$event)) {
-          if (dp$type.ev[[dp$event[i]]] == "line")
-            levs <- c(levs, dp$event[i])
-          else if (dp$type.ev[[dp$event[i]]] == "symbol")
-            sevs <- c(sevs, dp$event[i])
+        for (i in 1:length(data_w_plot_info$event)) {
+          if (data_w_plot_info$type.ev[[data_w_plot_info$event[i]]] == "line")
+            levs <- c(levs, data_w_plot_info$event[i])
+          else if (data_w_plot_info$type.ev[[data_w_plot_info$event[i]]] == "symbol")
+            sevs <- c(sevs, data_w_plot_info$event[i])
         }
 
-        if (sum(dp$type.ev == "line") > 0) {
+        if (sum(data_w_plot_info$type.ev == "line") > 0) {
           tmp.height <-
             seq(-subl$thick, subl$thick, length = (length(levs) + 1))
           for (i in 1:length(levs)) {
-            tmp <- na.exclude(dp$B[, c('subject', 'megaplots_selected_event_time', levs[i])])
-            tmp.col <- dp$col.ev[[levs[i]]]
+            tmp <- na.exclude(data_w_plot_info$B[, c('subject', 'megaplots_selected_event_time', levs[i])])
+            tmp.col <- data_w_plot_info$col.ev[[levs[i]]]
             rect(
               xleft = tmp$megaplots_selected_event_time - 0.5,
               xright = tmp$megaplots_selected_event_time + 0.5,
@@ -1297,14 +1073,14 @@ app_server <- function(input, output, session) {
           }
         }
 
-        if (sum(dp$type.ev == "symbol") > 0) {
+        if (sum(data_w_plot_info$type.ev == "symbol") > 0) {
           for (i in 1:length(sevs)) {
-            tmp <- na.exclude(dp$B[, c('subject', 'megaplots_selected_event_time', sevs[i])])
-            tmp.col <- dp$col.ev[[sevs[i]]]
+            tmp <- na.exclude(data_w_plot_info$B[, c('subject', 'megaplots_selected_event_time', sevs[i])])
+            tmp.col <- data_w_plot_info$col.ev[[sevs[i]]]
             points(
               tmp$megaplots_selected_event_time,
               tmp$subject,
-              pch = dp$sym.ev[i],
+              pch = data_w_plot_info$sym.ev[i],
               cex = cex.point[i],
               col = tmp.col[as.character(tmp[, sevs[i]])]
             )
@@ -1315,9 +1091,9 @@ app_server <- function(input, output, session) {
       # add points
       if (!is.null(inputIMP$select.events) &
           !is.null(input$event.levels) & !(input$lines_instead_symbols)) {
-        for (i in 1:length(dp$event)) {
-          tmp <- na.exclude(dp$B[, c('subject', 'megaplots_selected_event_time', dp$event[i])])
-          tmp.col <- dp$col.ev[[dp$event[i]]]
+        for (i in 1:length(data_w_plot_info$event)) {
+          tmp <- na.exclude(data_w_plot_info$B[, c('subject', 'megaplots_selected_event_time', data_w_plot_info$event[i])])
+          tmp.col <- data_w_plot_info$col.ev[[data_w_plot_info$event[i]]]
           if (i == 1 & input.incev$inc.ev.subj) {
             rect(
               xleft = tmp$megaplots_selected_event_time - 0.5,
@@ -1325,15 +1101,15 @@ app_server <- function(input, output, session) {
               ybottom = tmp$subject - subl$thick,
               ytop = tmp$subject + subl$thick,
               border = NA,
-              col = tmp.col[as.character(tmp[, dp$event[i]])]
+              col = tmp.col[as.character(tmp[, data_w_plot_info$event[i]])]
             )
           } else {
             points(
               tmp$megaplots_selected_event_time,
               tmp$subject,
-              pch = dp$sym.ev[i],
+              pch = data_w_plot_info$sym.ev[i],
               cex = cex.point[i],
-              col = tmp.col[as.character(tmp[, dp$event[i]])]
+              col = tmp.col[as.character(tmp[, data_w_plot_info$event[i]])]
             )
           }
         }
@@ -1342,17 +1118,17 @@ app_server <- function(input, output, session) {
       if (!is.null(inputIMP$select.events) &
           !is.null(input$event.levels) & input$lines_instead_symbols) {
         tmp.height <-
-          seq(-subl$thick, subl$thick, length = (length(dp$event) + 1))
-        for (i in 1:length(dp$event)) {
-          tmp <- na.exclude(dp$B[, c('subject', 'megaplots_selected_event_time', dp$event[i])])
-          tmp.col <- dp$col.ev[[dp$event[i]]]
+          seq(-subl$thick, subl$thick, length = (length(data_w_plot_info$event) + 1))
+        for (i in 1:length(data_w_plot_info$event)) {
+          tmp <- na.exclude(data_w_plot_info$B[, c('subject', 'megaplots_selected_event_time', data_w_plot_info$event[i])])
+          tmp.col <- data_w_plot_info$col.ev[[data_w_plot_info$event[i]]]
           rect(
             xleft = tmp$megaplots_selected_event_time - 0.5,
             xright = tmp$megaplots_selected_event_time + 0.5,
             ybottom = tmp$subject + tmp.height[i],
             ytop = tmp$subject + tmp.height[i + 1],
             border = NA,
-            col = tmp.col[as.character(tmp[, dp$event[i]])]
+            col = tmp.col[as.character(tmp[, data_w_plot_info$event[i]])]
           )
         }
       }
@@ -1360,9 +1136,9 @@ app_server <- function(input, output, session) {
       index <- c(floor(ylim), ceiling(ylim))
 
       subject.brush <-
-        dp$A[dp$A$subject %in% index[1]:index[2], ]$megaplots_selected_subjectid
+        data_w_plot_info$A[data_w_plot_info$A$subject %in% index[1]:index[2], ]$megaplots_selected_subjectid
 
-      A.sub <- dp$A[dp$A$subject %in% index[1]:index[2], ]
+      A.sub <- data_w_plot_info$A[data_w_plot_info$A$subject %in% index[1]:index[2], ]
       rowHeightY <-
         strheight('A.sub', units = 'user', cex = par('cex'))
 
@@ -1557,9 +1333,9 @@ app_server <- function(input, output, session) {
   })
 
     output$hover_legend <- shiny::renderUI({
-    leg.height <- paste0(40*length(dp()$event),'px')
+    leg.height <- paste0(40*length(data_w_plot_info()$event),'px')
     if (input.fontsize$fontsize) {
-      leg.height <- paste0(60*length(dp()$event),'px')
+      leg.height <- paste0(60*length(data_w_plot_info()$event),'px')
     }
 
     shiny::absolutePanel(
@@ -1586,9 +1362,9 @@ app_server <- function(input, output, session) {
 
 
   output$hover_legend <- shiny::renderUI({
-    leg.height <- paste0(40*length(dp()$event),'px')
+    leg.height <- paste0(40*length(data_w_plot_info()$event),'px')
     if (input.fontsize$fontsize) {
-      leg.height <- paste0(60*length(dp()$event),'px')
+      leg.height <- paste0(60*length(data_w_plot_info()$event),'px')
     }
 
     shiny::absolutePanel(
@@ -2800,9 +2576,9 @@ app_server <- function(input, output, session) {
       #filter data and colors for selected events & selected levels
       tmp <- tmp[tmp$EVENT %in% input$select.events,]
 
-        dp_col <- dp()$col.ev[names(dp()$col.ev) %in% input$select.events]
+        data_w_plot_info_col <- data_w_plot_info()$col.ev[names(data_w_plot_info()$col.ev) %in% input$select.events]
 
-      summary_color <- unlist(dp_col)[names(unlist(dp_col)) %in% gsub(" = ", ".",input$event.levels)]
+      summary_color <- unlist(data_w_plot_info_col)[names(unlist(data_w_plot_info_col)) %in% gsub(" = ", ".",input$event.levels)]
 
       #filter for selected levels
       tmp$filter <- paste0(tmp$EVENT," = ", tmp$LEVEL)
@@ -2816,7 +2592,7 @@ app_server <- function(input, output, session) {
         if (all(tmp$`GROUP BY` == "")) {
           group_index <- ""
         } else {
-          group_index <- rev(levels(dp()$B$Group_ID_char))
+          group_index <- rev(levels(data_w_plot_info()$B$Group_ID_char))
         }
         #generate event summary text for each group and each selected
         #event and event level
@@ -3090,8 +2866,8 @@ app_server <- function(input, output, session) {
     param <- list(
       A = preprocessed_data()$megaplot_data$A,
       B = preprocessed_data()$megaplot_data$B,
-      A_dp = dp()$A,
-      B_dp = dp()$B,
+      A_data_w_plot_info = data_w_plot_info()$A,
+      B_data_w_plot_info = data_w_plot_info()$B,
       name = preprocessed_data()$name,
       select.ev1 = input$select.ev1,
       select.ev2 = input$select.ev2,
