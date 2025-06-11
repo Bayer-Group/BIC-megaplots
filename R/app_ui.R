@@ -112,7 +112,7 @@ app_ui <- function(request) {
                 inputId = 'subset.button',
                 label = "Update subject selection!",
                 style = "gradient",
-                color = "primary",
+                # color = "primary",
                 size = 'xs',
                 no_outline = FALSE,
                 icon = icon("refresh")
@@ -186,7 +186,7 @@ app_ui <- function(request) {
                 inputId = 'seq.button',
                 label = 'Apply sequencing',
                 style = 'gradient',
-                color = 'primary',
+                # color = 'primary',
                 size = 'xs',
                 no_outline = FALSE
               ),
@@ -207,8 +207,8 @@ app_ui <- function(request) {
                       width = 30
                     )
                   )
-                ),
-              style = 'color:#bdc6ce'
+                )#,
+              #style = 'color:#bdc6ce'
               ),
               shiny::br()
             )
@@ -287,10 +287,10 @@ app_ui <- function(request) {
                 choices = c("Adjacent", "Overlaying")
               ),
                 HTML(
-                 "<p style='color: grey'> Note: Some events might not be visible</p>"
+                 "<p> Note: Some events might not be visible</p>"
                 ),
                 HTML(
-                 "<p style='color: grey'> for option 'Overlaying'!</p>"
+                 "<p> for option 'Overlaying'!</p>"
                 )
             ),
             shiny::checkboxInput(
@@ -371,7 +371,7 @@ app_ui <- function(request) {
                 inputId = "reset_draggable_panel_positions",
                 label = "Reset panel positions",
                  style = "gradient",
-                color = "primary",
+                # color = "primary",
                 size = 'xs',
                 no_outline = FALSE,
                 icon = icon("refresh")
@@ -445,30 +445,22 @@ app_ui <- function(request) {
         )
       ),
       shinydashboard::dashboardBody(
-        # tags$style(
-        #   tags$img(src = "www/logo_blue_white_cut.png",
-        #            height = 200,
-        #            id = "myImage")
-        # ),
-        shiny::tags$style(
-          type = 'text/css',
-          '.bg-black {background-color: #222d32!important; }'
-        ),
-        shiny::uiOutput('fontsize'),
+        # individual color_theme defined in file global.R
+        fresh::use_theme(dark_theme),
         shinydashboard::tabItems(
           shinydashboard::tabItem(
             'dashboard',
+            tags$style("{color: white;}"),
             shinydashboard::box(
               width = NULL,
-              title = 'Main options',
-              background = 'black',
+              title = HTML('<p style ="color:white;"> Main options </p>'),
               solidHeader = TRUE,
               collapsible = TRUE,
               shiny::column(
                 3,
                 shiny::selectizeInput(
                   inputId = 'select.events',
-                  label = 'Select events',
+                  label = HTML('<p style ="color:white;"> Select events</p>'),
                   choices = NULL,
                   selected = NULL,
                   multiple = TRUE,
@@ -476,7 +468,7 @@ app_ui <- function(request) {
                 ),
                 shinyWidgets::pickerInput(
                   inputId = 'event.levels',
-                  label = 'Select event levels',
+                  label = HTML('<p style ="color:white;"> Select event levels</p>'),
                   choices = NULL,
                   multiple = TRUE,
                   selected = NULL,
@@ -494,7 +486,7 @@ app_ui <- function(request) {
               shiny::column(3,
                 shiny::selectizeInput(
                   inputId = 'select.grouping',
-                  label = 'Select grouping',
+                  label = HTML('<p style ="color:white;"> Select grouping </p>'),
                   choices = NULL,
                   selected = NULL,
                   multiple = TRUE,
@@ -502,7 +494,7 @@ app_ui <- function(request) {
                 ),
                 shinyWidgets::pickerInput(
                   inputId = 'select.subsetting',
-                  label = "Select subsets",
+                  label = HTML('<p style ="color:white;"> Select subsets</p>'),
                   choices = NULL,
                   multiple = TRUE,
                   selected = NULL,
@@ -521,7 +513,7 @@ app_ui <- function(request) {
                 3,
                 shinyWidgets::pickerInput(
                   inputId = 'select.sorting',
-                  label = "Sort (descending)",
+                  label = HTML('<p style ="color:white;"> Sort (descending) </p>'),
                   choices = NULL,
                   selected = NULL,
                   multiple = FALSE,
@@ -536,7 +528,7 @@ app_ui <- function(request) {
                   outputId = "save_setting2",
                   label = "Save Session Settings",
                   style = 'gradient',
-                  color = 'primary',
+                  # color = 'primary',
                   size = 'sm',
                   no_outline = FALSE,
                   block = FALSE
@@ -553,7 +545,7 @@ app_ui <- function(request) {
                 # ),
               # )
             ),
-            shiny::uiOutput('container_tag'),
+            #shiny::uiOutput('container_tag'),
             shiny::tags$head(
               tags$style(
                 HTML(
@@ -573,276 +565,287 @@ app_ui <- function(request) {
             shiny::uiOutput('hoverpanel'),
             shiny::uiOutput('summarypanel'),
             shiny::conditionalPanel(condition = "output.check_slider_used == true",
-              shiny::uiOutput('next_buttons')
+                  shiny::uiOutput('next_buttons')
             )
           ),
-          shinydashboard::tabItem(
-            'datimport',
-            shiny::fixedRow(
-              shiny::column(8,
-                img(src = 'www/megaplot-logo.png', width = '500px'),
-                HTML("<h5> depict individual patient journey per day. Pre-specified events on certain days, for example
-                     drug intake, efficacy, or safety events, are indicated by different symbols. The detection of
-                     patterns in the data or the temporal connection of study procedures and outcome events is
-                     supported by artificial intelligence-based functions, such as sorting, grouping, as well as
-                     graphical features like changing the complexity of the display. You can either use demo data or upload your own data to generate a
-                     Megaplot. Please take a look at the Package Manual for more information. </h5>"),
-                shiny::br(),
-                shiny::br(),
-                shinyjs::useShinyjs(),
-                shiny::fluidRow(
-                  shiny::column(4,
-                    shinyWidgets::prettyRadioButtons(
-                      inputId = 'selectdata',
-                      label = 'Select data',
-                      shape = 'round',
-                      animation = 'smooth',
-                      choices = c('Upload data', 'Use demo data', 'Upload saved data')
-                    )
-                  ),
-                  shiny::conditionalPanel(condition = "input.selectdata == 'Upload data'",
-                    shiny::column(4,
-                      shinyWidgets::prettyRadioButtons(
-                        inputId = 'impswitch',
-                        label = 'Select file format',
-                        shape = 'square',
-                        animation = 'smooth',
-                        choices = c(
-                          '*.RData files (two files)',
-                          '*.RData file',
-                          '*.CSV files')
-                      )
-                    ),
-                    shiny::column(4,
-                      shiny::uiOutput('impdata')
-                    )
-                  )
-                ),
-                shiny::conditionalPanel(condition = "output.fileUploaded_rdata & input.selectdata == 'Upload data'
-                                        & input.impswitch == '*.RData file'",
-                  shiny::fluidRow(
-                    shiny::column(4,
-                      shiny::selectInput(
-                        inputId = "A_subjectid_rdata",
-                        label = "A: subjectid",
-                        choices = "",
-                        selected = NULL
-                      )
-                    ),
-                    shiny::column(4,
-                      shiny::selectInput(
-                        inputId = "A_start_time_rdata",
-                        label = "A: start time",
-                        choices = "",
-                        selected = NULL
-                      )
-                    ),
-                    shiny::column(4,
-                       shiny::selectInput(
-                        inputId = "A_end_time_rdata",
-                        label = "A: end time",
-                        choices = "",
-                        selected = NULL
-                      )
-                    )
-                  ),
-                  shiny::fluidRow(
-                    shiny::column(4,
-                       shiny::selectInput(
-                        inputId = "B_subjectid_rdata",
-                        label = "B: subjectid",
-                        choices = "",
-                        selected = NULL
-                      )
-                    ),
-                    shiny::column(4,
-                      shiny::selectInput(
-                        inputId = "B_event_time_rdata",
-                        label = "B: event_time",
-                        choices = "",
-                        selected = NULL
-                      )
-                    )
-                  )
-                ),
-                shiny::conditionalPanel(condition = "output.fileUploaded_csv_A & input.selectdata == 'Upload data'
-                                        & input.impswitch == '*.CSV files'",
-                  shiny::fluidRow(
-                    shiny::column(4,
-                      shiny::selectInput(
-                        inputId = "A_subjectid_csv",
-                        label = "A: subjectid",
-                        choices = "",
-                        selected = NULL
-                      )
-                    ),
-                    shiny::column(4,
-                      shiny::selectInput(
-                        inputId = "A_start_time_csv",
-                        label = "A: start time",
-                        choices = "",
-                        selected = NULL
-                      )
-                    ),
-                    shiny::column(4,
-                       shiny::selectInput(
-                        inputId = "A_end_time_csv",
-                        label = "A: end time",
-                        choices = "",
-                        selected = NULL
-                      )
-                    )
-                  )
-                ),
-                shiny::conditionalPanel(condition = "output.fileUploaded_csv_B & input.selectdata == 'Upload data'
-                                        & input.impswitch == '*.CSV files'",
-                  shiny::fluidRow(
-                    shiny::column(4,
-                       shiny::selectInput(
-                        inputId = "B_subjectid_csv",
-                        label = "B: subjectid",
-                        choices = "",
-                        selected = NULL
-                      )
-                    ),
-                    shiny::column(4,
-                      shiny::selectInput(
-                        inputId = "B_event_time_csv",
-                        label = "B: event_time",
-                        choices = "",
-                        selected = NULL
-                      )
-                    )
-                  )
-                ),
-                shiny::conditionalPanel(condition = "output.fileUploaded_rdata_A & input.selectdata == 'Upload data'
-                                        & input.impswitch == '*.RData files (two files)'",
-                  shiny::fluidRow(
-                    shiny::column(4,
-                      shiny::selectInput(
-                        inputId = "A_subjectid_rdata_files",
-                        label = "A: subjectid",
-                        choices = "",
-                        selected = NULL
-                      )
-                    ),
-                    shiny::column(4,
-                      shiny::selectInput(
-                        inputId = "A_start_time_rdata_files",
-                        label = "A: start time",
-                        choices = "",
-                        selected = NULL
-                      )
-                    ),
-                    shiny::column(4,
-                       shiny::selectInput(
-                        inputId = "A_end_time_rdata_files",
-                        label = "A: end time",
-                        choices = "",
-                        selected = NULL
-                      )
-                    )
-                  )
-                ),
-                shiny::conditionalPanel(condition = "output.fileUploaded_rdata_B & input.selectdata == 'Upload data'
-                                        & input.impswitch == '*.RData files (two files)'",
-                  shiny::fluidRow(
-                    shiny::column(4,
-                       shiny::selectInput(
-                        inputId = "B_subjectid_rdata_files",
-                        label = "B: subjectid",
-                        choices = "",
-                        selected = NULL
-                      )
-                    ),
-                    shiny::column(4,
-                      shiny::selectInput(
-                        inputId = "B_event_time_rdata_files",
-                        label = "B: event_time",
-                        choices = "",
-                        selected = NULL
-                      )
-                    )
-                  )
-                ),
-                shiny::column(4,
-                  shiny::conditionalPanel(condition = "input.selectdata == 'Upload saved data'",
-                    shiny::fileInput(
-                      inputId = 'setting_file',
-                      label = HTML(
-                        '<p style="color:#4493da"> Upload previous Session Settings (.rds) </p>'
-                      ),
-                      multiple = FALSE,
-                      accept = '.rds'
-                    ),
-                    shiny::helpText(
-                      'Please upload the data set of the last session which
-                      was saved via the "Save Session Settings"-button
-                      in the MegaPlot-tab.'
-                    )
-                  )
-                )
-              )
-            ),
-            shiny::br(),
-            shiny::fluidRow(
-              shiny::column(3,
-                shiny::uiOutput('select.ev1'),
-                shiny::uiOutput('select_ev_lev1_button'),
-                shiny::conditionalPanel(condition = "input.select_ev_lev1_button == true",
-                  shiny::uiOutput('select.ev.lev1')
-                )
-              ),
-              shiny::column(3,
-                shiny::uiOutput('select.ev2'),
-                shiny::uiOutput('select_ev_lev2_button'),
-                shiny::conditionalPanel(condition = "input.select_ev_lev2_button == true",
-                  shiny::uiOutput('select.ev.lev2')
-                )
-              ),
-              shiny::column(3,
-                shiny::uiOutput('select.ev3'),
-                shiny::uiOutput('select_ev_lev3_button'),
-                shiny::conditionalPanel(condition = "input.select_ev_lev3_button == true",
-                  shiny::uiOutput('select.ev.lev3')
-                )
-              ),
-              shiny::column(3,
-                shiny::uiOutput('select.ev4'),
-                shiny::uiOutput('select_ev_lev4_button'),
-                shiny::conditionalPanel(condition = "input.select_ev_lev4_button == true",
-                  shiny::uiOutput('select.ev.lev4')
-                )
-              )
-            ),
-            shiny::fluidRow(
-              shiny::htmlOutput("err_message"),
-              tags$head(
-                tags$style(
-                 "#err_message{color: red;
-                 font-size: 12px;
-                 margin-size: 20px;
-                 }"
-                )
-              )
-            ),
-            shiny::br(),
-            shiny::br(),
-            shiny::fluidRow(
-              shiny::column(3,
-                shinyWidgets::actionBttn(
-                  inputId = 'import.button',
-                  label = 'Submit...',
-                  style = 'gradient',
-                  color = 'primary',
-                  size = 'sm',
-                  no_outline = FALSE,
-                  block = TRUE
-                ),
-                shiny::helpText('Please upload a data set first or use the demo data set to submit.')
-              )
-            )
-          ),
+
+          # data upload tabItem
+          data_upload_ui("data_upload"),
+          # shinydashboard::tabItem(
+          #   'datimport',
+          #
+          #   shinydashboard::box(
+          #     width = NULL,
+          #     solidHeader = TRUE,
+          #     collapsible = FALSE,
+          #     background = 'black',
+          #     shiny::fixedRow(
+          #
+          #     shiny::column(8,
+          #       img(src = 'www/megaplot-logo.png', width = '500px'),
+          #       HTML("<h5 style = 'color: white;'> depict individual patient journey per day. Pre-specified events on certain days, for example
+          #            drug intake, efficacy, or safety events, are indicated by different symbols. The detection of
+          #            patterns in the data or the temporal connection of study procedures and outcome events is
+          #            supported by artificial intelligence-based functions, such as sorting, grouping, as well as
+          #            graphical features like changing the complexity of the display. You can either use demo data or upload your own data to generate a
+          #            Megaplot. Please take a look at the Package Manual for more information. </h5>"),
+          #       shiny::br(),
+          #       shiny::br(),
+          #       shinyjs::useShinyjs(),
+          #       shiny::fluidRow(
+          #         shiny::column(4,
+          #           shinyWidgets::prettyRadioButtons(
+          #             inputId = 'selectdata',
+          #             label = HTML('<p style ="color:white;"> Select data</p>'),
+          #             shape = 'round',
+          #             animation = 'smooth',
+          #             choices =c("Upload data", "Use demo data", "Upload saved data")
+          #           )
+          #         ),
+          #         shiny::conditionalPanel(condition = "input.selectdata == 'Upload data'",
+          #           shiny::column(4,
+          #             shinyWidgets::prettyRadioButtons(
+          #               inputId = 'impswitch',
+          #               label = HTML('<p style ="color:white;"> Select file format</p>'),
+          #               shape = 'square',
+          #               animation = 'smooth',
+          #               choices = c(
+          #                 '*.RData files (two files)',
+          #                 '*.RData file',
+          #                 '*.CSV files')
+          #             )
+          #           ),
+          #           shiny::column(4,
+          #             shiny::uiOutput('impdata')
+          #           )
+          #         )
+          #       ),
+          #       shiny::conditionalPanel(condition = "output.fileUploaded_rdata & input.selectdata == 'Upload data'
+          #                               & input.impswitch == '*.RData file'",
+          #         shiny::fluidRow(
+          #           shiny::column(4,
+          #             shiny::selectInput(
+          #               inputId = "A_subjectid_rdata",
+          #               label = HTML('<p style ="color:white;"> A: subjectid</p>'),
+          #               choices = "",
+          #               selected = NULL
+          #             )
+          #           ),
+          #           shiny::column(4,
+          #             shiny::selectInput(
+          #               inputId = "A_start_time_rdata",
+          #               label = HTML('<p style ="color:white;"> A: start time</p>'),
+          #               choices = "",
+          #               selected = NULL
+          #             )
+          #           ),
+          #           shiny::column(4,
+          #              shiny::selectInput(
+          #               inputId = "A_end_time_rdata",
+          #               label = HTML('<p style ="color:white;"> A: end time</p>'),
+          #               choices = "",
+          #               selected = NULL
+          #             )
+          #           )
+          #         ),
+          #         shiny::fluidRow(
+          #           shiny::column(4,
+          #              shiny::selectInput(
+          #               inputId = "B_subjectid_rdata",
+          #               label = HTML('<p style ="color:white;"> B: subjectid</p>'),
+          #               choices = "",
+          #               selected = NULL
+          #             )
+          #           ),
+          #           shiny::column(4,
+          #             shiny::selectInput(
+          #               inputId = "B_event_time_rdata",
+          #               label = HTML('<p style ="color:white;"> B: event_time</p>'),
+          #               choices = "",
+          #               selected = NULL
+          #             )
+          #           )
+          #         )
+          #       ),
+          #       shiny::conditionalPanel(condition = "output.fileUploaded_csv_A & input.selectdata == 'Upload data'
+          #                               & input.impswitch == '*.CSV files'",
+          #         shiny::fluidRow(
+          #           shiny::column(4,
+          #             shiny::selectInput(
+          #               inputId = "A_subjectid_csv",
+          #               label = "A: subjectid",
+          #               choices = "",
+          #               selected = NULL
+          #             )
+          #           ),
+          #           shiny::column(4,
+          #             shiny::selectInput(
+          #               inputId = "A_start_time_csv",
+          #               label = "A: start time",
+          #               choices = "",
+          #               selected = NULL
+          #             )
+          #           ),
+          #           shiny::column(4,
+          #              shiny::selectInput(
+          #               inputId = "A_end_time_csv",
+          #               label = "A: end time",
+          #               choices = "",
+          #               selected = NULL
+          #             )
+          #           )
+          #         )
+          #       ),
+          #       shiny::conditionalPanel(condition = "output.fileUploaded_csv_B & input.selectdata == 'Upload data'
+          #                               & input.impswitch == '*.CSV files'",
+          #         shiny::fluidRow(
+          #           shiny::column(4,
+          #              shiny::selectInput(
+          #               inputId = "B_subjectid_csv",
+          #               label = "B: subjectid",
+          #               choices = "",
+          #               selected = NULL
+          #             )
+          #           ),
+          #           shiny::column(4,
+          #             shiny::selectInput(
+          #               inputId = "B_event_time_csv",
+          #               label = "B: event_time",
+          #               choices = "",
+          #               selected = NULL
+          #             )
+          #           )
+          #         )
+          #       ),
+          #       shiny::conditionalPanel(condition = "output.fileUploaded_rdata_A & input.selectdata == 'Upload data'
+          #                               & input.impswitch == '*.RData files (two files)'",
+          #         shiny::fluidRow(
+          #           shiny::column(4,
+          #             shiny::selectInput(
+          #               inputId = "A_subjectid_rdata_files",
+          #               label = "A: subjectid",
+          #               choices = "",
+          #               selected = NULL
+          #             )
+          #           ),
+          #           shiny::column(4,
+          #             shiny::selectInput(
+          #               inputId = "A_start_time_rdata_files",
+          #               label = "A: start time",
+          #               choices = "",
+          #               selected = NULL
+          #             )
+          #           ),
+          #           shiny::column(4,
+          #              shiny::selectInput(
+          #               inputId = "A_end_time_rdata_files",
+          #               label = "A: end time",
+          #               choices = "",
+          #               selected = NULL
+          #             )
+          #           )
+          #         )
+          #       ),
+          #       shiny::conditionalPanel(condition = "output.fileUploaded_rdata_B & input.selectdata == 'Upload data'
+          #                               & input.impswitch == '*.RData files (two files)'",
+          #         shiny::fluidRow(
+          #           shiny::column(4,
+          #              shiny::selectInput(
+          #               inputId = "B_subjectid_rdata_files",
+          #               label = "B: subjectid",
+          #               choices = "",
+          #               selected = NULL
+          #             )
+          #           ),
+          #           shiny::column(4,
+          #             shiny::selectInput(
+          #               inputId = "B_event_time_rdata_files",
+          #               label = "B: event_time",
+          #               choices = "",
+          #               selected = NULL
+          #             )
+          #           )
+          #         )
+          #       ),
+          #       shiny::column(4,
+          #         shiny::conditionalPanel(condition = "input.selectdata == 'Upload saved data'",
+          #           shiny::fileInput(
+          #             inputId = 'setting_file',
+          #             label = HTML(
+          #               '<p> Upload previous Session Settings (.rds) </p>'
+          #             ),
+          #             multiple = FALSE,
+          #             accept = '.rds'
+          #           ),
+          #           shiny::helpText(
+          #             'Please upload the data set of the last session which
+          #             was saved via the "Save Session Settings"-button
+          #             in the MegaPlot-tab.'
+          #           )
+          #         )
+          #       )
+          #     )
+          #   ),
+          #   shiny::br(),
+          #   shiny::fluidRow(
+          #     shiny::column(3,
+          #       shiny::uiOutput('select.ev1'),
+          #       shiny::uiOutput('select_ev_lev1_button'),
+          #       shiny::conditionalPanel(condition = "input.select_ev_lev1_button == true",
+          #         shiny::uiOutput('select.ev.lev1')
+          #       )
+          #     ),
+          #     shiny::column(3,
+          #       shiny::uiOutput('select.ev2'),
+          #       shiny::uiOutput('select_ev_lev2_button'),
+          #       shiny::conditionalPanel(condition = "input.select_ev_lev2_button == true",
+          #         shiny::uiOutput('select.ev.lev2')
+          #       )
+          #     ),
+          #     shiny::column(3,
+          #       shiny::uiOutput('select.ev3'),
+          #       shiny::uiOutput('select_ev_lev3_button'),
+          #       shiny::conditionalPanel(condition = "input.select_ev_lev3_button == true",
+          #         shiny::uiOutput('select.ev.lev3')
+          #       )
+          #     ),
+          #     shiny::column(3,
+          #       shiny::uiOutput('select.ev4'),
+          #       shiny::uiOutput('select_ev_lev4_button'),
+          #       shiny::conditionalPanel(condition = "input.select_ev_lev4_button == true",
+          #         shiny::uiOutput('select.ev.lev4')
+          #       )
+          #     )
+          #   ),
+          #   shiny::fluidRow(
+          #     shiny::htmlOutput("err_message"),
+          #     tags$head(
+          #       tags$style(
+          #        "#err_message{color: red;
+          #        font-size: 12px;
+          #        margin-size: 20px;
+          #        }"
+          #       )
+          #     )
+          #   ),
+          #   shiny::br(),
+          #   shiny::br(),
+          #   shiny::fluidRow(
+          #     shiny::column(3,
+          #       shinyWidgets::actionBttn(
+          #         inputId = 'import.button',
+          #         label = 'Submit...',
+          #         style = 'gradient',
+          #         # color = 'primary',
+          #         size = 'sm',
+          #         no_outline = FALSE,
+          #         block = TRUE
+          #       ),
+          #       shiny::helpText('Please upload a data set first or use the demo data set to submit.')
+          #     )
+          #   )
+          #   )
+          # ),
           shinydashboard::tabItem(
             'data_specification',
             mod_data_specification_ui("data_spec")
@@ -868,30 +871,30 @@ app_ui <- function(request) {
             "$('body').addClass('sidebar-mini');"
           )
         ),
-        shiny::tags$head(
-          shiny::tags$style(
-            HTML(
-              '.myClass {
-              font-size: 25px;
-              line-height: 42px;
-              text-align: left;
-              font-family: "Arial Black", Gadget, sans-serif;
-              padding: 0 5px;
-              overflow: hidden;
-              color: white;
-              }
-              .skin-blue .main-header .navbar .sidebar-toggle {color:#222d32;}
-              .skin-blue .main-header .navbar .sidebar-toggle:hover {color:#222d32;}
-              '
-            )
-          )
-        ),
+        # shiny::tags$head(
+        #   shiny::tags$style(
+        #     HTML(
+        #       '.myClass {
+        #       font-size: 25px;
+        #       line-height: 42px;
+        #       text-align: left;
+        #       font-family: "Arial Black", Gadget, sans-serif;
+        #       padding: 0 5px;
+        #       overflow: hidden;
+        #       color: white;
+        #       }
+        #       .skin-blue .main-header .navbar .sidebar-toggle {color:#222d32;}
+        #       .skin-blue .main-header .navbar .sidebar-toggle:hover {color:#222d32;}
+        #       '
+        #     )
+        #   )
+        # ),
         shiny::tags$script(
           HTML(
             paste0(
               '
               $(document).ready(function() {
-              $("header").find("nav").append(\'<span, style = "color: black;font-size: 80%;", class="myClass"> <img src="www/megaplot_logo_blue_white.png" width=282 height=36></span>',
+              $("header").find("nav").append(\'<span, class="myClass"> <img src="www/megaplot-logo.png" height=30></span>',
               ' \');
               })
               '
@@ -902,8 +905,8 @@ app_ui <- function(request) {
           type = 'text/css',
                           ".selectize-dropdown-content {max-height: 150px;}"
         ),
-        shiny::tags$style(type = 'text/css',
-                          ".selectize-input { background-color: #3c8dbc;}")
+        # shiny::tags$style(type = 'text/css',
+        #                   ".selectize-input { background-color: #3c8dbc;}")
       )
     )
   )

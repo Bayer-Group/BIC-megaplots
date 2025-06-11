@@ -2,28 +2,11 @@
 #'
 #' @param megaplot_data list with megaplot data A and B
 #' @param select_color character vector with color definition ("plot.bg","plot.lines","plot.wp","plot.id","axleg.bg","cont.bg")
-#' @param par_settings list with par settings ("mar","grLab")
-#' @param background_stripes logical value if background stripes should be drawn
-#' @param background_stripes_length integer value of background stripes length
-#' @param event_levels character vector with event levels
-#' @param range numeric vector with x-axis range
-#' @param lines_instead_symbols logical if lines should be displayed for events
-#' @param line_width numeric value for line width for subject time lines
-#' @param lines_options character for line option (two options available: Adjecent or Overlaying)
-#' @param y_axis_label character for y axis label
-#' @param reference_line_1 logical if  vertical reference line should be displayed
-#' @param reference_line_1_value integer where the vertical reference line should be displayed
-#' @param reference_line_2 logical if  vertical reference line should be displayed
-#' @param reference_line_2_value integer where the vertical reference line should be displayed
-#' @param reference_line_3 logical if  vertical reference line should be displayed
-#' @param reference_line_3_value integer where the vertical reference line should be displayed
-#' @param select_events character vector with event names
-#' @param color_subject_line_by_first_event logical if only first event should be displayed as colored line
 #'
 
 draw_megaplot_legend <- function(
-    megaplot_data, #v
-    select_color#v
+    megaplot_data,
+    select_color
 ){
 
   par(mar = c(0, 0, 0, 0), bg = select_color['plot.bg'])

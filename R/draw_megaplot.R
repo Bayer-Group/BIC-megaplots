@@ -6,7 +6,8 @@
 #' @param background_stripes logical value if background stripes should be drawn
 #' @param background_stripes_length integer value of background stripes length
 #' @param event_levels character vector with event levels
-#' @param range numeric vector with x-axis range
+#' @param xlim numeric vector with x-axis range
+#' @param ylim numeric vector with y-axis range
 #' @param lines_instead_symbols logical if lines should be displayed for events
 #' @param line_width numeric value for line width for subject time lines
 #' @param lines_options character for line option (two options available: Adjecent or Overlaying)
@@ -28,7 +29,8 @@ draw_megaplot <- function(
     background_stripes,
     background_stripes_length,
     event_levels,
-    range,
+    xlim,
+    ylim,
     lines_instead_symbols,
     line_width,
     lines_options,
@@ -48,8 +50,8 @@ draw_megaplot <- function(
     par(mar = par_settings$mar, bg = select_color['plot.bg'], lheight = 0.8)
 
     # x- and y-limits
-    xlim <- c(range[1], range[2])
-    ylim <- range(megaplot_data$A$subject) + c(-1.5, 1.5)
+    # xlim <- c(range[1], range[2])
+    # ylim <- range(megaplot_data$A$subject) + c(-1.5, 1.5)
 
     #### Initialize plot ####
     plot(NULL, xlim = xlim, ylim = ylim, xlab = '', ylab = '', axes = FALSE, yaxs = 'i')
