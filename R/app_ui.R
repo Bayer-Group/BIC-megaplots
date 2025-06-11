@@ -366,6 +366,16 @@ app_ui <- function(request) {
               value = "Time",
               placeholder = "Time"
             ),
+            shiny::tags$br(),
+            shinyWidgets::actionBttn(
+                inputId = "reset_draggable_panel_positions",
+                label = "Reset panel positions",
+                 style = "gradient",
+                color = "primary",
+                size = 'xs',
+                no_outline = FALSE,
+                icon = icon("refresh")
+              ),
             shiny::tags$br()
           ),
           shinydashboard::menuItem(

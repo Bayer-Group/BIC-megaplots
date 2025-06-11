@@ -18,10 +18,13 @@ updates_variables_selection_file <- function(
     utils::tail(strsplit(file$datapath, ".", fixed = TRUE)[[1]], n = 1) %in% c("RData","rdata","Rdata")
   ) {
   load(file$datapath)
+
     A2 <- numeric_to_integer(A)
     B2 <- numeric_to_integer(B)
 
-    integers_A <- names(which(unlist(lapply(A2,is.integer))))
+    integers_A <- names(which(unlist(lapply(A2,is.numeric))))
+
+
     shiny::updateSelectInput(
       session,
       inputId = "A_subjectid_rdata",
@@ -40,7 +43,7 @@ updates_variables_selection_file <- function(
       choices = integers_A,
       selected = integers_A[3]
     )
-    integers_B <- names(which(unlist(lapply(B2,is.integer))))
+    integers_B <- names(which(unlist(lapply(B2,is.numeric))))
     shiny::updateSelectInput(
       session,
       inputId = "B_subjectid_rdata",

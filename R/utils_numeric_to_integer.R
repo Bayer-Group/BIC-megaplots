@@ -13,17 +13,17 @@ numeric_to_integer <- function(df) {
       if (dim(df)[1] != 0) {
         df <- data.frame(df)
         for(i in 1:dim(df)[2]) {
-          if (!is.character(df[,i])) {
+          # if (!is.character(df[,i])) {
             if (all(!is.na(df[,i]))) {
               #check if values are smaller than machines maximal integer
               if (all(df[,i] <= .Machine$integer.max)) {
-                if (all(stats::na.omit(df[,i] == as.integer(df[,i])))) {
-                  df[,i] <- as.integer(df[,i])
+                if (all(stats::na.omit(df[,i] == as.numeric(df[,i])))) {
+                  df[,i] <- as.numeric(df[,i])
                 }
               }
               # create note for cases where integer.max is reached
             }
-          }
+          # }
         }
       }
     }
