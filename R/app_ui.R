@@ -18,7 +18,7 @@ app_ui <- function(request) {
   tagList(
     golem_add_external_resources(),
     shinydashboard::dashboardPage(
-      shinydashboard::dashboardHeader(title = ''),
+      shinydashboard::dashboardHeader(title = img(src = 'www/megaplot_logo_white.png', width = '200px')),
       shinydashboard::dashboardSidebar(
         collapsed = FALSE,
         disable = FALSE,

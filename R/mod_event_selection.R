@@ -1,10 +1,9 @@
-#' Event selection ui function
+#' Event Selection Module - User Interface Part
 #'
 #' @param id Shiny Session id
 #'
 #' @return No return
 #'
-#' @rawNamespace import(shiny, except=c(dataTableOutput, renderDataTable))
 #' @noRd
 #' @keywords internal
 
@@ -20,11 +19,14 @@ event_selection_ui <- function(id) {
   )
 }
 
-#' Seriation Server Function
+#' Event Selection Module - Server Part
 #'
-#' @param id Shiny Session id
+#' @param input,output,session Internal parameters for {shiny}
+#' @param event_number integer value between 1-4 for event number
+#' @param preprocessed_data reactive object with preprocessed data
+#' @param event.info reactive object with vector of character variables names
+#' @param selectdata reactive input of data type selection (rdata/cvs)
 #'
-#' @rawNamespace import(shiny, except=c(dataTableOutput, renderDataTable))
 #' @noRd
 #' @keywords internal
 event_selection_server <- function(input, output, session, event_number, preprocessed_data, event.info, selectdata) {
