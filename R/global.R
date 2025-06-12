@@ -98,6 +98,7 @@ dark_theme <- fresh::create_theme(
     black = "#222d32"#
   ),
   fresh::adminlte_sidebar(
+    width = "275px",
     dark_bg = "#222d32",#Background color (dark mode).
     dark_hover_bg = "#0091DF",#Background hover color (dark mode).
     dark_color = "#dce4e8",#Text color (dark mode).

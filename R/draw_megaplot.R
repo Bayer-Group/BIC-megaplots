@@ -68,7 +68,7 @@ draw_megaplot <- function(
           tmp <- seq(min_tmp, max_tmp + background_stripes_length, by = background_stripes_length)
         }
         for (i in seq(1, length(tmp), 2)) {
-          rect( tmp[i], -1000, tmp[i + 1], 1000, col = ifelse(coltheme$col_sel != 'grey (app version)', "#e6e6e6", "#475257"), xpd = NA, border = NA)
+          rect( tmp[i], -1000, tmp[i + 1], 1000, col = select_color['cont.bg'], xpd = NA, border = NA)
         }
       }
     }

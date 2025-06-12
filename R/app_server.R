@@ -32,12 +32,6 @@ app_server <- function(input, output, session) {
   # set maximu‚m data upload size to 750MB
   options(shiny.maxRequestSize = 750 * 1024^2)
 
-  # Wed Jun 11 10:07:29 2025 ------------------------------
-  uploaded_files <- shiny::callModule(
-    data_upload_server,
-    "data_upload"
-  )
-
   # #### DATA UPLOAD ####
   # # disable/enable import button if data are missing/available
   shiny::observe({
@@ -46,623 +40,26 @@ app_server <- function(input, output, session) {
     #if uploaded data are available and preprocessed enable import button
     if (!is.null(df)) { shinyjs::enable(id = 'data_upload-import.button', selector = NULL) }
   })
-  #
-  # # update variables selection if Rdata file is uploaded
-  # shiny::observeEvent(uploaded_files$file(), {‚
-  #   #requirement
-  #   shiny::req(uploaded_files$file())
-  #   if (uploaded_files$impswitch() == '*.RData file') {
-  #     updates_variables_selection_file(file = uploaded_files$file(), session = session)
-  #   }
-  # })
-  #
-  # # update variables selection if csv (A) file is uploaded
-  # shiny::observeEvent(uploaded_files$csvA(), {
-  #   #requirement
-  #   shiny::req(uploaded_files$csvA())
-  #   if (!is.null(uploaded_files$csvA())) {
-  #     updates_variables_selection_csvA(
-  #       file = uploaded_files$csvA(),
-  #       session = session,
-  #       csvA_sep = input$sep,
-  #       csvA_quote = input$quote,
-  #       csvA_dec = input$dec
-  #     )
-  #   }
-  # })
-  #
-  # #update variables selection if csv (B) file is uploaded
-  # shiny::observeEvent(uploaded_files$csvB(), {
-  #   #requirement
-  #   shiny::req(uploaded_files$csvB())
-  #   if (!is.null(uploaded_files$csvB())) {
-  #     updates_variables_selection_csvB(
-  #       file = uploaded_files$csvB(),
-  #       session = session,
-  #       csvB_sep = input$sep,
-  #       csvB_quote = input$quote,
-  #       csvB_dec = input$dec
-  #     )
-  #   }
-  # })
-  #
-  # #update variables selection if RData (A) file is uploaded
-  # shiny::observeEvent(c(input$rdataA), {
-  #   #requirement
-  #   shiny::req(input$rdataA)
-  #   if (!is.null(input$rdataA)) {
-  #     updates_variables_selection_rdataA(
-  #       file = input$rdataA,
-  #       session = session
-  #     )
-  #   }
-  # })
-  #
-  # #update variables selection if RData (B) file is uploaded
-  # shiny::observeEvent(c(input$rdataB), {
-  #   #requirement
-  #   shiny::req(input$rdataB)
-  #   if (!is.null(input$rdataB)) {
-  #     updates_variables_selection_rdataB(
-  #       file = input$rdataB,
-  #       session = session
-  #     )
-  #   }
-  # })
-  #
-  #   ## ui elements in the side bar
-  # output$impdata <- shiny::renderUI({
-  #
-  #   if (uploaded_files$impswitch() == '*.RData file') {
-  #     shiny::fileInput(
-  #       inputId = 'file',
-  #       label = "Choose RData file with a list including data sets A and B",
-  #       multiple = FALSE,
-  #       accept = '.RData'
-  #     )
-  #   } else if (uploaded_files$impswitch() == '*.CSV files') {
-  #     shiny::tagList(
-  #       shiny::fixedRow(
-  #         shiny::column(6,
-  #           shiny::fileInput(
-  #             inputId = 'csvA',
-  #             label = "Choose csv file with data set A (subject information)",
-  #             multiple = TRUE,
-  #             accept = c(
-  #               'text/csv',
-  #               'text/comma-separated-values,text/plain',
-  #               '.csv'
-  #             )
-  #           ),
-  #           shiny::fileInput(
-  #             inputId = 'csvB',
-  #             label = "Choose csv file with data set B (event information)",
-  #             multiple = TRUE,
-  #             accept = c(
-  #               'text/csv',
-  #               'text/comma-separated-values,text/plain',
-  #               '.csv'
-  #             )
-  #           )
-  #         ),
-  #         shiny::column(6,
-  #           shiny::radioButtons(
-  #             inputId = 'sep',
-  #             label = HTML('<p style ="color:white;> Select separator </p>'),
-  #             inline = TRUE,
-  #             choices = c(
-  #               'Comma' = ',',
-  #               'Semicolon' = ';',
-  #               'Tab' = '\t'
-  #             ),
-  #             selected = ','
-  #           ),
-  #           shiny::radioButtons(
-  #             inputId = 'quote',
-  #             label = HTML('<p style ="color:white;> Select quote </p>'),
-  #             inline = TRUE,
-  #             choices = c(
-  #               None = '',
-  #               'Double Quote (")' = '"',
-  #               "Single Quote (')" = "'"
-  #             ),
-  #             selected = '"'
-  #           ),
-  #           shiny::radioButtons(
-  #             inputId = 'dec',
-  #             label = HTML('<p style ="color:white;> Select decimal character</p>'),
-  #             inline = TRUE,
-  #             choices = c('Point (.)' = '.',
-  #                         'Comma (,)' = ','),
-  #             selected = '.'
-  #           )
-  #         )
-  #       )
-  #     )
-  #   } else if ( uploaded_files$impswitch() == "*.RData files (two files)"){
-  #     shiny::tagList(
-  #       shiny::fixedRow(
-  #         shiny::fileInput(
-  #
-  #           inputId = 'rdataA',
-  #           label = "Choose RData file with data set A (subject information)",
-  #           multiple = TRUE,
-  #           accept = c('.RData','.rdata','.Rdata')
-  #         ),
-  #         shiny::fileInput(
-  #           inputId = 'rdataB',
-  #           label = "Choose RData file with data set B (event information)",
-  #           multiple = TRUE,
-  #           accept = c('.RData','.rdata','.Rdata')
-  #         )
-  #       )
-  #     )
-  #   }
-  # })
-  #
-  # output$fileUploaded_rdata <- shiny::reactive({
-  #   return(!is.null(uploaded_files$file()$datapath))
-  # })
-  # outputOptions(output, 'fileUploaded_rdata', suspendWhenHidden = FALSE)
-  #
-  # output$fileUploaded_csv_A <- shiny::reactive({
-  #   return(!is.null(uploaded_files$csvA()))
-  # })
-  # outputOptions(output, 'fileUploaded_csv_A', suspendWhenHidden = FALSE)
-  #
-  # output$fileUploaded_csv_B <- shiny::reactive({
-  #   return(!is.null(uploaded_files$csvB()))
-  # })
-  # outputOptions(output, 'fileUploaded_csv_B', suspendWhenHidden = FALSE)
-  #
-  # output$fileUploaded_rdata_A <- shiny::reactive({
-  #   return(!is.null(input$rdataA))
-  # })
-  # outputOptions(output, 'fileUploaded_rdata_A', suspendWhenHidden = FALSE)
-  #
-  # output$fileUploaded_rdata_B <- shiny::reactive({
-  #   return(!is.null(input$rdataB))
-  # })
-  # outputOptions(output, 'fileUploaded_rdata_B', suspendWhenHidden = FALSE)
-  #
 
+  #### PROCESSING DATA ####
+  # 0. 'preprocessed_data' = standardized object in which the uploaded data are
+  # preprocessed to get desired structure for data used in megaplots (within module data_upload_server)
+  # can be called via 'uploaded_files$preprocess_data()'
 
- #  # Wed Jun 11 10:20:37 2025 ------------------------------
+  #server part of module data upload - save options as uploaded_files
+  uploaded_files <- shiny::callModule(
+    data_upload_server,
+    "data_upload"
+  )
 
-  shiny::observeEvent(uploaded_files$import.button(), {
-    collectSeq$varSeq <- NULL
-    collectSeq$methSer <- NULL
-
-    if (uploaded_files$selectdata()== "Upload saved data") {
-      shiny::updateRadioButtons(
-        session,
-        inputId = "selection_button",
-        selected = uploaded_files$preprocess_data()$megaplot_data$saved$selection_button
-      )
-      shinyWidgets::updatePickerInput(
-        session,
-        inputId = "select.device",
-        selected = uploaded_files$preprocess_data()$megaplot_data$saved$select.device
-      )
-    }
-
-    shinyWidgets::updatePickerInput(
-      session,
-      inputId = "specific_ids",
-      selected = NULL,
-      choices = uploaded_files$preprocess_data()$megaplot_data$A$megaplots_selected_subjectid,
-    )
-
-    if (uploaded_files$selectdata()== "Upload saved data") {
-      shinyWidgets::updatePickerInput(
-        session,
-        inputId = "specific_ids",
-        selected = uploaded_files$preprocess_data()$megaplot_data$saved$specific_ids
-      )
-    }
-
-    if (uploaded_files$selectdata()== "Upload saved data") {
-      shinyWidgets::updatePickerInput(
-        session,
-        inputId = "select.col",
-        selected = uploaded_files$preprocess_data()$megaplot_data$saved$select.col
-      )
-    }
-
-    if (uploaded_files$selectdata()== "Upload saved data") {
-      shiny::updateNumericInput(
-        session,
-        inputId = "seedset",
-        value = uploaded_files$preprocess_data()$megaplot_data$saved$seedset
-      )
-
-      inputB1$nshow <- uploaded_files$preprocess_data()$megaplot_data$saved$random
-      inputB1$start <- uploaded_files$preprocess_data()$megaplot_data$saved$startsubj
-      inputB1$randet <- uploaded_files$preprocess_data()$megaplot_data$saved$selection_button
-      inputB1$seed <- uploaded_files$preprocess_data()$megaplot_data$saved$seedset
-
-      shiny::updateSliderInput(
-        session,
-        inputId = "thick",
-        value = uploaded_files$preprocess_data()$megaplot_data$saved$thick.line
-      )
-
-      shiny::updateCheckboxInput(
-        session,
-        inputId = "inc.ev.subj",
-        value = uploaded_files$preprocess_data()$megaplot_data$saved$inc.ev.subj
-      )
-
-      shiny::updateCheckboxInput(
-        session,
-        inputId = "lines_instead_symbols",
-        value = uploaded_files$preprocess_data()$megaplot_data$saved$lines_instead_symbols
-      )
-
-      shiny::updateCheckboxInput(
-        session,
-        inputId = "det.xaxt",
-        value = uploaded_files$preprocess_data()$megaplot_data$saved$det.xaxt
-      )
-
-      shiny::updateCheckboxInput(
-        session,
-        inputId = "incr.font",
-        value = uploaded_files$preprocess_data()$megaplot_data$saved$incr.font
-      )
-    }
-
-    if (uploaded_files$selectdata()== "Upload saved data") {
-      shinyWidgets::updatePickerInput(
-        session,
-        inputId = "methSer",
-        selected = uploaded_files$preprocess_data()$megaplot_data$saved$methSer
-      )
-      shinyWidgets::updatePickerInput(
-        session,
-        inputId = "varSeq",
-        selected = uploaded_files$preprocess_data()$megaplot_data$saved$varSeq
-      )
-      shiny::updateCheckboxInput(
-        session,
-        inputId = "multiple_distmeasures",
-        value = uploaded_files$preprocess_data()$megaplot_data$saved$multiple_distmeasures
-      )
-    }
-
-
-    shiny::req(uploaded_files$preprocess_data()$megaplot_data)
-    inputIMP$name <- uploaded_files$preprocess_data()$megaplot_data$name
-
-    choices <- unlist(data_w_event_and_group_information()$event.lev,
-                      use.names = FALSE)
-    tmp <- data_w_event_and_group_information()$event.lev.n
-    choices.lab <- rep(data_w_event_and_group_information()$event,
-                       tmp)
-    choices.sym <- rep('glyphicon-cloud',
-                       length(choices.lab))
-    choices.col <- paste('color:',
-                         unlist(data_w_event_and_group_information()$col.ev[data_w_event_and_group_information()$event],
-                                use.names = FALSE))
-    choices <- paste0(choices.lab, ' = ', choices)
-
-    selected <- choices
-
-    if (uploaded_files$selectdata()== "Upload saved data") {
-      selected <- uploaded_files$preprocess_data()$megaplot_data$saved$event.levels
-    }
-
-    # Wed Jun 11 12:36:51 2025 ------------------------------
-
-    shinyWidgets::updatePickerInput(
-      session,
-      inputId = "event.levels",
-      choices = choices,
-      selected = selected,
-      choicesOpt = list(
-        `icon` = choices.sym,
-        `style` = choices.col
-      )
-    )
-
-    shiny::req(data_w_event_and_group_information())
-    min1 <- min(data_w_event_and_group_information()$A$megaplots_selected_start_time)
-    max1 <- max(data_w_event_and_group_information()$A$megaplots_selected_end_time)
-
-    if (uploaded_files$selectdata()== "Upload saved data") {
-      shiny::updateSliderInput(
-        session,
-        inputId = "range",
-        min = min1,
-        max = max1,
-        value = c(
-          uploaded_files$preprocess_data()$megaplot_data$saved$zoom.range[1],
-          uploaded_files$preprocess_data()$megaplot_data$saved$zoom.range[2]
-        )
-      )
-    } else {
-      shiny::updateSliderInput(
-        session,
-        inputId = "range",
-        min = min1,
-        max = max1,
-        value = c(min1, max1)
-      )
-    }
-
-    shiny::req(data_w_event_and_group_information())
-    # min1 <- min(data_w_event_and_group_information()$A$megaplots_selected_start_time)
-    # max1 <- max(data_w_event_and_group_information()$A$megaplots_selected_end_time)
-    if (uploaded_files$selectdata()== "Upload saved data") {
-      #1
-      if(!is.null(uploaded_files$preprocess_data()$megaplot_data$saved$reference_line_1)) {
-        shiny::updateCheckboxInput(
-          session,
-          inputId = 'reference_line_1',
-          label = 'Add reference line',
-          value =  uploaded_files$preprocess_data()$megaplot_data$saved$reference_line_1
-        )
-        shiny::updateNumericInput(
-          inputId = "reference_line_1_value",
-          label = "Reference line (1)",
-          value = uploaded_files$preprocess_data()$megaplot_data$saved$reference_line_1_value
-        )
-      }
-      #2
-      if(!is.null(uploaded_files$preprocess_data()$megaplot_data$saved$reference_line_2)) {
-        shiny::updateCheckboxInput(
-          session,
-          inputId = 'reference_line_2',
-          label = 'Add reference line',
-          value =  uploaded_files$preprocess_data()$megaplot_data$saved$reference_line_2
-        )
-        shiny::updateNumericInput(
-          inputId = "reference_line_2_value",
-          label = "Reference line (2)",
-          value = uploaded_files$preprocess_data()$megaplot_data$saved$reference_line_2_value
-        )
-      }
-      #3
-      if(!is.null(uploaded_files$preprocess_data()$megaplot_data$saved$reference_line_3)) {
-        shiny::updateCheckboxInput(
-          session,
-          inputId = 'reference_line_3',
-          label = 'Add reference line',
-          value =  uploaded_files$preprocess_data()$megaplot_data$saved$reference_line_3
-        )
-        shiny::updateNumericInput(
-          inputId = "reference_line_3_value",
-          label = "Reference line (3)",
-          value = uploaded_files$preprocess_data()$megaplot_data$saved$reference_line_3_value
-        )
-      }
-
-      if(!is.null(uploaded_files$preprocess_data()$megaplot_data$saved$reference_line)) {
-        shiny::updateCheckboxInput(
-          session,
-          inputId = 'reference_line_1',
-          label = 'Add reference line',
-          value =  TRUE
-        )
-        shiny::updateNumericInput(
-          inputId = "reference_line_1_value",
-          label = "Reference line (1)",
-          value = uploaded_files$preprocess_data()$megaplot_data$saved$reference_line[1]
-        )
-        shiny::updateCheckboxInput(
-          session,
-          inputId = 'reference_line_2',
-          label = 'Add reference line',
-          value =  TRUE
-        )
-        shiny::updateNumericInput(
-          inputId = "reference_line_2_value",
-          label = "Reference line (2)",
-          value = uploaded_files$preprocess_data()$megaplot_data$saved$reference_line[2]
-        )
-      }
-      # sel_min1 <- uploaded_files$preprocess_data()$megaplot_data$saved$reference_line[1]
-      # sel_max1 <- uploaded_files$preprocess_data()$megaplot_data$saved$reference_line[2]
-      # shiny::updateSliderInput(
-      #   session,
-      #   inputId = "refdate",
-      #   min = min1,
-      #   max = max1,
-      #   value = c(sel_min1, sel_max1)
-      # )
-    } #else {
-    #   shiny::updateSliderInput(
-    #     session,
-    #     inputId = "refdate",
-    #     min = min1,
-    #     max = max1
-    #   )
-    # }
-
-    if (uploaded_files$selectdata()== 'Upload saved data') {
-      selected <- uploaded_files$preprocess_data()$megaplot_data$saved$select.grouping
-      choices <- uploaded_files$preprocess_data()$megaplot_data$saved$choiceGroup
-
-      shiny::updateSelectizeInput(
-        session,
-        inputId = "select.grouping",
-        selected = selected,
-        choices = choices
-      )
-    }
-    inputIMP$select.grouping <- NULL
-
-    if (uploaded_files$selectdata()== 'Upload saved data') {
-      selected <- uploaded_files$preprocess_data()$megaplot_data$saved$select.sorting
-      choices <- uploaded_files$preprocess_data()$megaplot_data$saved$choiceSort
-
-      shinyWidgets::updatePickerInput(
-        session,
-        inputId = "select.sorting",
-        selected = selected,
-        choices = choices
-      )
-
-    }
+  #update tab to megaplot tab if import button is clicked
+  observeEvent(uploaded_files$import.button(), {
     newtab <- switch(input$sidebarmenu, "dashboard")
     shinydashboard::updateTabItems(session, "sidebarmenu", newtab)
   })
 
-  #### PROCESSING DATA ####
-  # 1. 'preprocessed_data' = standardized object in which the uploaded data are
-  # preprocessed to get desired structure for data used in megaplots
 
-
-  # preprocessed_data <-shiny::reactive({
-  #
-  #   #read & preprocess data in desired format
-  #   preprocessed_df <- preprocess_data_frame(
-  #     selectdata = uploaded_files$selectdata(),
-  #     impswitch = uploaded_files$impswitch(),
-  #     file = uploaded_files$file(),
-  #     csvA = uploaded_files$csvA(),
-  #     csvB = uploaded_files$csvB(),
-  #     rdataA = uploaded_files$rdataA(),
-  #     rdataB = uploaded_files$rdataB(),
-  #     A_subjectid_rdata = uploaded_files$A_subjectid_rdata(),
-  #     A_start_time_rdata = uploaded_files$A_start_time_rdata(),
-  #     A_end_time_rdata = uploaded_files$A_end_time_rdata(),
-  #     B_subjectid_rdata = uploaded_files$B_subjectid_rdata(),
-  #     B_event_time_rdata = uploaded_files$B_event_time_rdata(),
-  #     A_subjectid_csv= uploaded_files$A_subjectid_csv(),
-  #     A_start_time_csv = uploaded_files$A_start_time_csv(),
-  #     A_end_time_csv = uploaded_files$A_end_time_csv(),
-  #     B_subjectid_csv = uploaded_files$B_subjectid_csv(),
-  #     B_event_time_csv = uploaded_files$B_event_time_csv(),
-  #     A_subjectid_rdata_files = uploaded_files$A_subjectid_rdata_files(),
-  #     A_start_time_rdata_files = uploaded_files$A_start_time_rdata_files(),
-  #     A_end_time_rdata_files = uploaded_files$A_end_time_rdata_files(),
-  #     B_subjectid_rdata_files = uploaded_files$B_subjectid_rdata_files(),
-  #     B_event_time_rdata_files = uploaded_files$B_event_time_rdata_files(),
-  #     csv_sep = uploaded_files$sep(),
-  #     csv_quote = uploaded_files$quote(),
-  #     csv_dec = uploaded_files$dec(),
-  #     setting_file = uploaded_files$setting_file()
-  #   )
-  #
-  #   # remove optional variables with only one value/category
-  #   if (!is.null(preprocessed_df$megaplot_data)) {
-  #     #get removable variables
-  #     remove_variables <- names(which(apply(
-  #       preprocessed_df$megaplot_data$A %>% dplyr::select(-c(megaplots_selected_subjectid,megaplots_selected_start_time,megaplots_selected_end_time)),
-  #       2,
-  #       function(x) {length(unique(x)) == 1})))
-  #     #deselect removable variables
-  #     preprocessed_df$megaplot_data$A <- preprocessed_df$megaplot_data$A %>%
-  #       dplyr::select(-dplyr::all_of(remove_variables))
-  #
-  #
-  #     #transform Missings to character "NA"
-  #     for(i in 1:dim(preprocessed_df$megaplot_data$A)[2]) {
-  #       if (is.numeric(preprocessed_df$megaplot_data$A[,i]) | is.numeric(preprocessed_df$megaplot_data$A[,i])) {
-  #       } else if (
-  #         inherits(preprocessed_df$megaplot_data$A[,i], 'Date')
-  #         ){
-  #         preprocessed_df$megaplot_data$A[,i] <- as.numeric(preprocessed_df$megaplot_data$A[,i])
-  #       } else {
-  #         preprocessed_df$megaplot_data$A[,i] <- as.character(preprocessed_df$megaplot_data$A[,i])
-  #         preprocessed_df$megaplot_data$A[,i][is.na(preprocessed_df$megaplot_data$A[,i])] <- "NA"
-  #         preprocessed_df$megaplot_data$A[,i][preprocessed_df$megaplot_data$A[,i] == ""] <- "NA"
-  #       }
-  #     }
-  #   }
-  #   preprocessed_df
-  # })
-
-  #### Update all widgets when data are uploaded ####
-  shiny::observeEvent(uploaded_files$preprocess_data()$megaplot_data, {
-    if (uploaded_files$selectdata()== "Upload saved data") {
-      saved_file <- readRDS(input$setting_file$datapath)
-      shinyWidgets::updatePickerInput(
-        session,
-        inputId = "select.ev1",
-        selected = saved_file$select.ev1
-      )
-      shinyWidgets::updatePickerInput(
-        session,
-        inputId = "select.ev2",
-        selected = saved_file$select.ev2
-      )
-      shinyWidgets::updatePickerInput(
-        session,
-        inputId = "select.ev3",
-        selected = saved_file$select.ev3
-      )
-      shinyWidgets::updatePickerInput(
-        session,
-        inputId = "select.ev4",
-        selected = saved_file$select.ev4
-      )
-      ## update order
-      shinyjqui::updateOrderInput(
-        session,
-        inputId = "select.ev.lev1",
-        items = saved_file$select.ev.lev1
-      )
-      shinyjqui::updateOrderInput(
-        session,
-        inputId = "select.ev.lev2",
-        items = saved_file$select.ev.lev2
-      )
-      shinyjqui::updateOrderInput(
-        session,
-        inputId = "select.ev.lev3",
-        items = saved_file$select.ev.lev3
-      )
-      shinyjqui::updateOrderInput(
-        session,
-        inputId = "select.ev.lev4",
-        items = saved_file$select.ev.lev4
-      )
-      shinyWidgets::updatePickerInput(
-        session,
-        inputId = 'select.pal1',
-        selected = uploaded_files$preprocess_data()$megaplot_data$saved$select.pal1,
-      )
-      shinyWidgets::updatePickerInput(
-        session,
-        inputId = 'select.pal2',
-        selected = uploaded_files$preprocess_data()$megaplot_data$saved$select.pal2,
-      )
-      shinyWidgets::updatePickerInput(
-        session,
-        inputId = 'select.pal3',
-        selected = uploaded_files$preprocess_data()$megaplot_data$saved$select.pal3,
-      )
-      shinyWidgets::updatePickerInput(
-        session,
-        inputId = 'select.pal4',
-        selected = uploaded_files$preprocess_data()$megaplot_data$saved$select.pal4,
-      )
-      shiny::updateTextInput(
-        session,
-        inputId = "y_axis_label",
-        label = "y axis label",
-        value = uploaded_files$preprocess_data()$megaplot_data$saved$y_label
-      )
-      shiny::updateTextInput(
-        session,
-        inputId = "x_axis_label",
-        label = "x axis label",
-        value = uploaded_files$preprocess_data()$megaplot_data$saved$x_label
-      )
-    }
-  })
-
-
-  output$err_message <- shiny::renderText({
-    if (!is.null(uploaded_files$preprocess_data()$megaplot_error_message)) {
-      str1 <- uploaded_files$preprocess_data()$megaplot_error_message
-      paste(str1)
-    }
-  })
-
-  # 1b. calculate aggregated stats for sequencing and clustering after clicking import button
+  # 1. calculate aggregated stats for sequencing and clustering after clicking import button
   summary_statistics_data <-shiny::eventReactive(uploaded_files$import.button(), {
     # function to summarise_megaplot_data and save results as list object with
     # entries 'total' and 'detail'
@@ -724,42 +121,13 @@ app_server <- function(input, output, session) {
     )
   })
 
-  shiny::observeEvent(c(uploaded_files$import.button(), data_w_event_and_group_information()), {
-
-    shiny::req(data_w_event_and_group_information())
-    choices <- shiny::isolate(data_w_event_and_group_information()$event)
-    if (is.null(isolate(data_w_event_and_group_information()$event))) {
-      selected <- choices
-    } else {
-      selected <- shiny::isolate(data_w_event_and_group_information()$event)
-    }
-
-    if (uploaded_files$selectdata()== "Upload saved data") {
-      selected <- uploaded_files$preprocess_data()$megaplot_data$saved$select.events
-
-    }
-    shiny::updateSelectizeInput(
-      session,
-      inputId = "select.events",
-      choices = choices,
-      selected = selected
-    )
-  })
 
   ## AI FUNCTIONALITY ##
-  #initialize reactivevalue aiButton$seq
-  aiButton <- shiny::reactiveValues(seq = 0 )
-
-  shiny::observeEvent(input$seq.button, {
-    if (input$seq.button > 0) {
-      aiButton$seq <- input$seq.button
-    }
-  })
 
   # 3. 'data_w_ai_information' = copy from 'data_w_event_and_group_information'
   # that will be reactively modified based on the AI selections
   # from the user
-  data_w_ai_information <- shiny::eventReactive(c(data_w_event_and_group_information(), aiButton$seq), {
+  data_w_ai_information <- shiny::eventReactive(c(data_w_event_and_group_information(),input$seq.button), { # aiButton$seq), {
     data_w_ai_information <- shiny::req(data_w_event_and_group_information())
     if (!is.null(collectSeq$varSeq)) {
       # Call the sequencing function with all the corresponding parameters:
@@ -768,90 +136,53 @@ app_server <- function(input, output, session) {
         collectSeq$varSeq,
         input_seriation(),
         collectSeq$methSer,
-        group = input$select.grouping,
+        group = main_settings$select.grouping(),
         multiple_distmeasures = input$multiple_distmeasures
       )
     }
     data_w_ai_information
   })
 
-  shiny::observeEvent(data_w_ai_information(), {
-    shiny::req(data_w_ai_information())
-
-    choices <- unlist(data_w_ai_information()$group.lev, use.names = FALSE)
-    choices.lab <- rep(data_w_ai_information()$group, sapply(data_w_ai_information()$group.lev, FUN = length))
-    choices <- paste0(choices.lab, ' = ', choices)
-
-    if (uploaded_files$selectdata()== "Upload saved data") {
-      choices <-
-        unlist(uploaded_files$preprocess_data()$megaplot_data$saved$group.lev, use.names = FALSE)
-      choices.lab <-
-        rep(
-          uploaded_files$preprocess_data()$megaplot_data$saved$group,
-          sapply(uploaded_files$preprocess_data()$megaplot_data$saved$group.lev, FUN = length)
-        )
-      choices <- paste0(choices.lab, ' = ', choices)
-
-      selected <- uploaded_files$preprocess_data()$megaplot_data$saved$select.subsetting
-    } else {
-      selected <- choices
-    }
-
-    shinyWidgets::updatePickerInput(
-      session,
-      inputId = "select.subsetting",
-      choices = choices,
-      selected = selected
-    )
-  })
 
   # 4. 'data_grouped_and_sorted' = copy from 'data_w_ai_information' that will be reactively modified
   #           in the sorting/grouping part based on user input (preparation for the plotting)
   #
   data_grouped_and_sorted <- shiny::reactive({
-    input$selection_button
-    input$subset.button
+    displayed_subjects$selection_button()
+    displayed_subjects$subset.button()
 
-    if (uploaded_files$selectdata()== "Upload saved data") {
-      if (upload_indicator$dat == 1) {
-        shinyjs::click("apply.color")
-        upload_indicator$dat <- 2
-      }
-    }
+    # if (uploaded_files$selectdata()== "Upload saved data") {
+    #   if (upload_indicator$dat == 1) {
+    #     shinyjs::click("apply.color")
+    #     upload_indicator$dat <- 2
+    #   }
+    # }
 
     add_sorting_information(
       data_frame = data_w_ai_information(),
-      select_subsetting = input$select.subsetting,
-      randet = inputB1$randet,
-      seed =inputB1$seed,
-      nshow =inputB1$nshow,
-      start =inputB1$start,
-      random = input$random,
+      select_subsetting = main_settings$select.subsetting(),
+      randet = displayed_subjects$selection_button(),
+      seed =displayed_subjects$seedset(),
+      nshow =displayed_subjects$random(),
+      start =displayed_subjects$startsubj(),
+      random = displayed_subjects$random(),
       specific_ids = input$specific_ids,
-      event_levels = input$event.levels,
-      select_sorting = input$select.sorting,
-      select_grouping = inputIMP$select.grouping,
-      select_events = inputIMP$select.events
+      event_levels = main_settings$event.levels(),
+      select_sorting = main_settings$select.sorting(),
+      select_grouping = main_settings$select.grouping(),
+      select_events = main_settings$select.events()
     )
   })
 
   #initialize reactive value upload_indicator$dat
-  upload_indicator <- shiny::reactiveValues(dat = 1)
+  # upload_indicator <- shiny::reactiveValues(dat = 1)
 
-  shiny::observeEvent(uploaded_files$import.button(), {
-    if (uploaded_files$selectdata()== "Upload saved data") {
-      if (upload_indicator$dat == 2) {
-        #simulate click on apply button to change color selection
-        shinyjs::click("apply.color")
-      }
-    }
-  })
 
   # create reactive plotting object
   # 5. 'data_w_plot_info' = add plot information to data set (zoom/range and colors)
 
   data_w_plot_info <- shiny::reactive({
-    session$clientData[["image1"]]
+    # session$clientData[["image1"]]
     #requirements
     shiny::req(data_grouped_and_sorted(), data_w_ai_information(), data_w_event_and_group_information())
 
@@ -859,22 +190,16 @@ app_server <- function(input, output, session) {
     data_w_plot_info <- data_grouped_and_sorted()
     data_w_event_and_group_information <- data_w_event_and_group_information()
     # constrain to selected x-range
-    data_w_plot_info$A$megaplots_selected_start_time <- pmax(data_w_plot_info$A$megaplots_selected_start_time, input$range[1])
+    data_w_plot_info$A$megaplots_selected_start_time <- pmax(data_w_plot_info$A$megaplots_selected_start_time, settings$range()[1])
     data_w_plot_info$A$megaplots_selected_end_time <-
-      pmin(pmax(data_w_plot_info$A$megaplots_selected_end_time, input$range[1]), input$range[2])
+      pmin(pmax(data_w_plot_info$A$megaplots_selected_end_time, settings$range()[1]), settings$range()[2])
     data_w_plot_info$B <-
-      subset(data_w_plot_info$B, megaplots_selected_event_time >= input$range[1] & megaplots_selected_event_time <= input$range[2])
+      subset(data_w_plot_info$B, megaplots_selected_event_time >= settings$range()[1] & megaplots_selected_event_time <= settings$range()[2])
 
     # set plotting colors
     col.ev <- list()
     type.ev <- list()
 
-    # for (i in 1:4) {
-    #   if (!is.na(data_w_event_and_group_information$event[i])) {
-    #     col.ev[[i]] <- (eval(rlang::sym(paste0("color_pal",i))))$val[1:length(data_w_event_and_group_information$event.lev[[data_w_event_and_group_information$event[i]]])]
-    #     type.ev[[i]] <- (eval(rlang::sym(paste0("color_pal",i))))$val[length(color_pal1$val)]
-    #   }
-    # }
     if (!is.na(data_w_event_and_group_information$event[1])) {
       col.ev[[1]] <- color_pal1$val[1:length(data_w_event_and_group_information$event.lev[[data_w_event_and_group_information$event[1]]])]
     }
@@ -936,39 +261,40 @@ app_server <- function(input, output, session) {
   # Plot Megaplots
   output$image1 <- shiny::renderPlot({
     #reactivity
-    input$height_slider
-    session$clientData[["image1"]]
-    choiceGroup()
+    shiny::req(settings$height_slider())
+    #session$clientData[["image1"]]
+    session$clientData$output_image1_width
+    # main_settings$event.levels()
+    # main_settings$select.grouping()
     #requirements
     shiny::req(data_w_plot_info(), data_grouped_and_sorted(), data_w_ai_information(), data_w_event_and_group_information())
-
     draw_megaplot(
       megaplot_data = data_w_plot_info(),
       select_color = select.col(),
       par_settings = plot_par_settings(),
-      background_stripes = input$background_stripes,
-      background_stripes_length = input$background.stripes.length,
-      event_levels = input$event.levels,
-      xlim = c(input$range[1], input$range[2]),
+      background_stripes = settings$background_stripes(),
+      background_stripes_length = settings$background.stripes.length(),
+      event_levels = main_settings$event.levels(),
+      xlim = c(settings$range()[1], settings$range()[2]),
       ylim = range(data_w_plot_info()$A$subject) + c(-1.5, 1.5),
-      lines_instead_symbols = input$lines_instead_symbols,
-      lines_options = input$lines_options,
-      line_width = subl$thick,
-      y_axis_label = input$y_axis_label,
-      reference_line_1 = input$reference_line_1,
-      reference_line_1_value = input$reference_line_1_value,
-      reference_line_2 = input$reference_line_2,
-      reference_line_2_value = input$reference_line_2_value,
-      reference_line_3 = input$reference_line_3,
-      reference_line_3_value = input$reference_line_3_value,
-      select_events = inputIMP$select.events,
-      color_subject_line_by_first_event = input.incev$inc.ev.subj
+      lines_instead_symbols = settings$lines_instead_symbols(),
+      lines_options = settings$lines_options(),
+      line_width = settings$thick(),
+      y_axis_label = settings$y_axis_label(),
+      reference_line_1 = settings$reference_line_1(),
+      reference_line_1_value = settings$reference_line_1_value(),
+      reference_line_2 = settings$reference_line_2(),
+      reference_line_2_value = settings$reference_line_2_value(),
+      reference_line_3 = settings$reference_line_3(),
+      reference_line_3_value = settings$reference_line_3_value(),
+      select_events = main_settings$select.events(),
+      color_subject_line_by_first_event = settings$inc.ev.subj()
     )
   },
   # function for UI auto height resizing
   height = function() {
     # calculate height based on selected subject number
-    (max(c(1, shiny::req(data_grouped_and_sorted())$A$'subject')) * 12) * shiny::req(input$height_slider)
+    (max(c(1, data_grouped_and_sorted())$A$'subject') * 12) * settings$height_slider()
   })
 
 
@@ -988,25 +314,25 @@ app_server <- function(input, output, session) {
   #### Plot x-axis ####
   output$image1Axis <- shiny::renderPlot({
     # reactivity
-    input$x_axis_label
+    settings$x_axis_label()
 
     #requirements
-    shiny::req(input$range)
+    shiny::req(settings$range())
 
     draw_megaplot_x_axis(
-      range = input$range,
+      range = settings$range(),
       select_color = select.col(),
       megaplot_axis_width = session$clientData$output_image1Axis_width,
-      megaplot_width = session$clientData$output_image1_width,
+      megaplot_width = shiny::req(session$clientData$output_image1_width),
       plot_par_settings = plot_par_settings(),
-      axis_ticks = input.xaxt$det.xaxt,
-      x_axis_label = input$x_axis_label,
-      reference_line_1 = input$reference_line_1,
-      reference_line_1_value = input$reference_line_1_value,
-      reference_line_2 = input$reference_line_2,
-      reference_line_2_value = input$reference_line_2_value,
-      reference_line_3 = input$reference_line_3,
-      reference_line_3_value = input$reference_line_3_value
+      axis_ticks = settings$det.xaxt(),
+      x_axis_label = settings$x_axis_label(),
+      reference_line_1 = settings$reference_line_1(),
+      reference_line_1_value = settings$reference_line_1_value(),
+      reference_line_2 = settings$reference_line_2(),
+      reference_line_2_value = settings$reference_line_2_value(),
+      reference_line_3 = settings$reference_line_3(),
+      reference_line_3_value = settings$reference_line_3_value()
     )
   })
 
@@ -1058,11 +384,11 @@ app_server <- function(input, output, session) {
   # updates to 30 to 60).
 
   output$check_slider_used <- shiny::reactive({
-    shiny::req(data_w_event_and_group_information(), input$range)
+    shiny::req(data_w_event_and_group_information(), settings$range())
     min1 <- min(data_w_event_and_group_information()$A$megaplots_selected_start_time)
     max1 <- max(data_w_event_and_group_information()$A$megaplots_selected_end_time)
-    rangemin1 <- input$range[1]
-    rangemax1 <- input$range[2]
+    rangemin1 <- settings$range()[1]
+    rangemax1 <- settings$range()[2]
 
     if (min1 != rangemin1 | max1 != rangemax1) {
       tmp <- TRUE
@@ -1156,23 +482,23 @@ app_server <- function(input, output, session) {
         megaplot_data = data_w_plot_info(),
         select_color = select.col(),
         par_settings = plot_par_settings(),
-        background_stripes = input$background_stripes,
-        background_stripes_length = input$background.stripes.length,
-        event_levels = input$event.levels,
+        background_stripes = settings$background_stripes(),
+        background_stripes_length = settings$background.stripes.length(),
+        event_levels = main_settings$event.levels(),
         xlim = brush_coord$x,
         ylim = brush_coord$y + c(-1.5, 1.5),
-        lines_instead_symbols = input$lines_instead_symbols,
-        lines_options = input$lines_options,
-        line_width = subl$thick,
-        y_axis_label = input$y_axis_label,
-        reference_line_1 = input$reference_line_1,
-        reference_line_1_value = input$reference_line_1_value,
-        reference_line_2 = input$reference_line_2,
-        reference_line_2_value = input$reference_line_2_value,
-        reference_line_3 = input$reference_line_3,
-        reference_line_3_value = input$reference_line_3_value,
-        select_events = inputIMP$select.events,
-        color_subject_line_by_first_event = input.incev$inc.ev.subj
+        lines_instead_symbols = settings$lines_instead_symbols(),
+        lines_options = settings$lines_options(),
+        line_width = settings$thick(),
+        y_axis_label = settings$y_axis_label(),
+        reference_line_1 = settings$reference_line_1(),
+        reference_line_1_value = settings$reference_line_1_value(),
+        reference_line_2 = settings$reference_line_2(),
+        reference_line_2_value = settings$reference_line_2_value(),
+        reference_line_3 = settings$reference_line_3(),
+        reference_line_3_value = settings$reference_line_3_value(),
+        select_events = main_settings$select.events(),
+        color_subject_line_by_first_event = settings$inc.ev.subj()
       )
 
     } else {
@@ -1239,7 +565,7 @@ app_server <- function(input, output, session) {
   max_legend_char <- shiny::reactiveVal({270})
 
   # re-create panels after reset panel click to display them when hidden
-  shiny::observeEvent(input$reset_draggable_panel_positions, {
+  shiny::observeEvent(settings$reset_draggable_panel_positions(), {
    output$hoverpanel <- shiny::renderUI({
       shiny::absolutePanel(
         id = "hoverpanel",
@@ -1305,10 +631,10 @@ app_server <- function(input, output, session) {
     })
 
     output$hover_legend <- shiny::renderUI({
-      leg.height <- paste0(40*length(data_w_plot_info()$event),'px')
-      if (input.fontsize$fontsize) {
+      # leg.height <- paste0(40*length(data_w_plot_info()$event),'px')
+      # if (input.fontsize$fontsize) {
         leg.height <- paste0(60*length(data_w_plot_info()$event),'px')
-      }
+      # }
       shiny::absolutePanel(
         id = "hover_legend",
         class = "modal-content",
@@ -1333,10 +659,10 @@ app_server <- function(input, output, session) {
 
 
   output$hover_legend <- shiny::renderUI({
-    leg.height <- paste0(40*length(data_w_plot_info()$event),'px')
-    if (input.fontsize$fontsize) {
+    # leg.height <- paste0(40*length(data_w_plot_info()$event),'px')
+    # if (input.fontsize$fontsize) {
       leg.height <- paste0(60*length(data_w_plot_info()$event),'px')
-    }
+    # }
     shiny::absolutePanel(
       id = "hover_legend",
       class = "modal-content",
@@ -1382,70 +708,6 @@ app_server <- function(input, output, session) {
 
 
   #### REACTIVES & OBSERVERS ####
-
-  #Reactives
-  # ...
-  inputIMP <- shiny::reactiveValues(select.events = NULL, select.grouping = NULL,name = '')
-  # ...
-  selected.event.levels <- shiny::reactiveValues(val = NULL)
-  # sorting
-  choiceSort <- shiny::eventReactive(c(data_w_event_and_group_information(), aiButton$seq), {
-    data_w_ai_information()$nume_A[!is.na(data_w_ai_information()$nume_A)]
-  })
-
-
-  inputB1 <- shiny::reactiveValues(nshow = 150, start = 1, randet = 'deterministic', seed = 2006)
-
-  #### ObserveEvents ####
-  shiny::observeEvent(input$select.events, ignoreNULL = FALSE, {
-    inputIMP$select.events <- input$select.events
-  })
-
-  shiny::observeEvent(input$event.levels, {
-    selected.event.levels$val <- input$event.levels
-  })
-
-  # grouping
-  choiceGroup <- shiny::eventReactive(c(data_w_event_and_group_information()), {
-    if (uploaded_files$selectdata()== "Upload saved data") {
-      uploaded_files$preprocess_data()$megaplot_data$saved$select.grouping
-    } else {
-      data_w_ai_information()$group
-    }
-  })
-  shiny::observeEvent(choiceGroup(), {
-    choices <- shiny::req(choiceGroup())
-    selected <- NULL
-
-    shiny::updateSelectizeInput(
-      session,
-      inputId = "select.grouping",
-      selected = selected,
-      choices = choices
-    )
-  })
-
-  shiny::observeEvent(input$select.grouping, ignoreNULL = FALSE, {
-    inputIMP$select.grouping <- input$select.grouping
-  })
-
-  shiny::observeEvent(choiceSort(), {
-    choices <- choiceSort()
-
-    selected <- 'megaplots_selected_subjectid'
-    if (any(choices == 'SEQUENCING'))
-      selected <- utils::tail(choices, 1)
-
-    if (uploaded_files$selectdata()== 'Upload saved data') {
-      selected <- uploaded_files$preprocess_data()$megaplot_data$saved$select.sorting
-    }
-    shinyWidgets::updatePickerInput(
-      session,
-      inputId = "select.sorting",
-      choices = choices,
-      selected = selected
-    )
-  })
 
   loaded_sel_pal1 <- shiny::reactiveValues(dat = FALSE)
 
@@ -1501,165 +763,6 @@ app_server <- function(input, output, session) {
       uploaded_files$select.ev4()
   })
 
-  subset.flag <- shiny::reactiveValues(val = FALSE)
-
-  output$check_subset <- shiny::reactive({
-    subset.flag$val
-  })
-
-  shiny::outputOptions(output, "check_subset", suspendWhenHidden = FALSE)
-
-  shiny::observeEvent(c(input$random, uploaded_files$selectdata()), {
-    shiny::req(uploaded_files$preprocess_data())
-    nmax <- length(unique(uploaded_files$preprocess_data()$megaplot_data$A$megaplots_selected_subjectid))
-    if (!is.null(nmax)) {
-      subset.flag$val <-  nmax == input$random
-    }
-  })
-
-  shiny::observeEvent(c(uploaded_files$selectdata(), uploaded_files$import.button()), {
-    nmax <- length(unique(uploaded_files$preprocess_data()$megaplot_data$A$megaplots_selected_subjectid))
-    if (uploaded_files$selectdata()== "Upload saved data") {
-      nmax <- uploaded_files$preprocess_data()$megaplot_data$saved$random
-    }
-
-    num_sub <- length(unique(uploaded_files$preprocess_data()$megaplot_data$A$megaplots_selected_subjectid))
-
-    if (uploaded_files$selectdata()== "Upload saved data") {
-      shiny::updateSliderInput(
-        session,
-        inputId = 'random',
-        label = paste("Number of displayed subjects"),
-        min = 1,
-        value = uploaded_files$preprocess_data()$megaplot_data$saved$random,
-        max = num_sub,
-        step = 1
-      )
-    } else {
-      shiny::updateSliderInput(
-        session,
-        inputId = 'random',
-        label = paste("Number of displayed subjects"),
-        min = 1,
-        #value = min(num_sub, 150),
-        value = num_sub,
-        max = num_sub,
-        step = 1
-      )
-    }
-  })
-
-  shiny::observeEvent(c(input$random, uploaded_files$import.button()), {
-    shiny::req(input$random)
-
-    nmax <- length(unique(uploaded_files$preprocess_data()$megaplot_data$A$megaplots_selected_subjectid))
-    if (uploaded_files$selectdata()== "Upload saved data") {
-      nmax <- uploaded_files$preprocess_data()$saved$random
-    }
-
-    shiny::updateNumericInput(
-      session,
-      inputId = "startsubj",
-      max = nmax - input$random + 1,
-      value = ifelse(
-        uploaded_files$selectdata()== "Upload saved data",
-        uploaded_files$preprocess_data()$megaplot_data$saved$startsubj,
-        1
-      )
-    )
-  })
-
-  # shiny::observeEvent(input$user.device, {
-  #   shinyWidgets::updatePickerInput(
-  #     session,
-  #     inputId = "select.device",
-  #     selected = input$user.device
-  #   )
-  # })
-
-  shiny::observeEvent(input$selection_button, {
-    shiny::updateTabsetPanel(
-      inputId = "Change_input_for_deterministic_or_random",
-      selected = input$selection_button
-    )
-  })
-
-  shiny::observeEvent(c(uploaded_files$import.button(), input$subset.button, input$random),{
-    inputB1$nshow <- input$random
-    inputB1$start <- input$startsubj
-    inputB1$randet <- input$selection_button
-    inputB1$seed <- input$seedset
-  })
-
-  # setting history tables
-  seedhist <- shiny::reactiveValues(
-    'curval' = data.frame(
-      'Seed' = NA,
-      'Subjects' = NA,
-      'Start' = NA
-    ),
-    'histval' = NULL
-  )
-
-  shiny::observeEvent(uploaded_files$import.button(), {
-    seedhist$curval <- data.frame(
-      'Seed' = ifelse(
-        shiny::req(input$selection_button) != 'deterministic',
-        input$seedset,
-        NA
-      ),
-      'Subjects' = ifelse(
-        uploaded_files$selectdata()== "Upload saved data",
-        uploaded_files$preprocess_data()$megaplot_data$saved$random,
-        min(input$random, 150)
-      ),
-      'Start' = ifelse(
-        shiny::req(input$selection_button) == 'deterministic',
-        input$startsubj,
-        NA
-      )
-    )
-  })
-
-  # device settings
-  # thickness of subject lines
-  subl <- shiny::reactiveValues(thick = 0.05)
-
-  shiny::observeEvent(input$thick, {
-    subl$thick <- input$thick
-  })
-
-  # detailed axis ticks
-  input.xaxt <- shiny::reactiveValues(det.xaxt = TRUE)
-
-  shiny::observeEvent(input$det.xaxt, {
-    input.xaxt$det.xaxt <- input$det.xaxt
-  })
-
-  # first event is part of subject line
-  input.incev <- shiny::reactiveValues(inc.ev.subj = FALSE)
-
-  shiny::observeEvent(input$inc.ev.subj, {
-    input.incev$inc.ev.subj <- input$inc.ev.subj
-  })
-
-  # increase font size (30%)
-  input.fontsize <- shiny::reactiveValues(fontsize = FALSE)
-
-  output$fontsize <- shiny::renderUI({
-    NULL
-  })
-
-  # shiny::observeEvent(input$incr.font, ignoreInit = TRUE, {
-  #   input.fontsize$fontsize <- input$incr.font
-  #   output$fontsize <- shiny::renderUI({
-  #     if (input$incr.font) {
-  #       tags$head(tags$style(HTML('* {font-size: 18px;}')))
-  #     } else {
-  #       tags$head(tags$style(HTML('* {font-size: 14px;}')))
-  #     }
-  #   })
-  # })
 
   # set color theme
   coltheme <- shiny::reactiveValues(col_sel = 'grey (app version)')
@@ -1693,29 +796,17 @@ app_server <- function(input, output, session) {
     col_sel
   })
 
-  select.device <- shiny::reactive({
-    if (is.null(input$select.device)) {
-      dev.out <- input$user.device
-    } else{
-      dev.out <- input$select.device
-    }
-    dev.out
-  })
 
-
-
-  collectSeq <- shiny::reactiveValues(
-    varSeq = NULL,
-    methSer = NULL
-  )
 
   # shiny::observeEvent(input$distmeasure, {
   #   shiny::updateTabsetPanel(inputId = "Change_input_for_seq_metod", selected = input$distmeasure)
   # })
 
 
-
-
+  collectSeq <- shiny::reactiveValues(
+    varSeq = NULL,
+    methSer = NULL
+  )
 
   shiny::observeEvent(input$seq.button, {
     collectSeq$varSeq <- input$varSeq
@@ -1737,8 +828,8 @@ app_server <- function(input, output, session) {
   })
 
   shiny::observeEvent(input$btn1, {
-    start_val1 <- input$range[1]
-    start_val2 <- input$range[2]
+    start_val1 <- settings$range()[1]
+    start_val2 <- settings$range()[2]
     min1 <- min(data_w_event_and_group_information()$A$megaplots_selected_start_time)
     max1 <- max(data_w_event_and_group_information()$A$megaplots_selected_end_time)
     diff_val <- start_val2 - start_val1
@@ -1759,8 +850,8 @@ app_server <- function(input, output, session) {
   })
 
   shiny::observeEvent(input$btn2, {
-    start_val1 <- input$range[1]
-    start_val2 <- input$range[2]
+    start_val1 <- settings$range()[1]
+    start_val2 <- settings$range()[2]
     min1 <- min(data_w_event_and_group_information()$A$megaplots_selected_start_time)
     max1 <- max(data_w_event_and_group_information()$A$megaplots_selected_end_time)
     diff_val <- start_val2 - start_val1
@@ -1869,21 +960,21 @@ app_server <- function(input, output, session) {
 
     shiny::req(summary_statistics$val)
     tmp <- summary_statistics$val
-    if (!is.null(tmp) & !is.null(input$select.events) & !is.null(input$event.levels)) {
+    if (!is.null(tmp) & !is.null(main_settings$select.events()) & !is.null(main_settings$event.levels())) {
 
       #filter data and colors for selected events & selected levels
-      tmp <- tmp[tmp$EVENT %in% input$select.events,]
+      tmp <- tmp[tmp$EVENT %in% main_settings$select.events(),]
 
-      data_w_plot_info_col <- data_w_plot_info()$col.ev[names(data_w_plot_info()$col.ev) %in% input$select.events]
+      data_w_plot_info_col <- data_w_plot_info()$col.ev[names(data_w_plot_info()$col.ev) %in% main_settings$select.events()]
 
-      summary_color <- unlist(data_w_plot_info_col)[names(unlist(data_w_plot_info_col)) %in% gsub(" = ", ".",input$event.levels)]
+      summary_color <- unlist(data_w_plot_info_col)[names(unlist(data_w_plot_info_col)) %in% gsub(" = ", ".",main_settings$event.levels())]
 
       #filter for selected levels
       tmp$filter <- paste0(tmp$EVENT," = ", tmp$LEVEL)
-      tmp <- tmp[tmp$filter %in% input$event.levels,]
+      tmp <- tmp[tmp$filter %in% main_settings$event.levels(),]
 
       tmp <- tmp %>%
-        dplyr::arrange(`GROUP BY`,match(filter, input$event.levels))
+        dplyr::arrange(`GROUP BY`,match(filter, main_settings$event.levels()))
       if (!is.null(tmp)) {
         text <- c()
 
@@ -2121,6 +1212,10 @@ app_server <- function(input, output, session) {
     }
   })
 
+  observe({
+    collectSeq$varSeq <- NULL
+    collectSeq$methSer <- NULL
+  })
   #### Datatable ####
   output$indivtable <- DT::renderDataTable({
     shiny::req(data_grouped_and_sorted())
@@ -2153,82 +1248,198 @@ app_server <- function(input, output, session) {
 
 
   #### SAVE(D) SETTINGS ####
-  output$save_setting2 <- shiny::downloadHandler(
-    filename = function() {
-      paste("Megaplot_Session", gsub(":", "-", Sys.time()), ".rds", sep = "")
-    },
-    content = function(file) {
-      saveRDS(settings(), file)
-    }
+
+  #   shiny::observeEvent(uploaded_files$import.button(), {
+  #   if (uploaded_files$selectdata()== "Upload saved data") {
+  #     if (upload_indicator$dat == 2) {
+  #       #simulate click on apply button to change color selection
+  #       shinyjs::click("apply.color")
+  #     }
+  #   }
+  # })
+
+    #### Update all widgets when data are uploaded ####
+  # shiny::observeEvent(uploaded_files$preprocess_data()$megaplot_data, {
+    # if (uploaded_files$selectdata()== "Upload saved data") {
+    #   saved_file <- readRDS(input$setting_file$datapath)
+    #   shinyWidgets::updatePickerInput(
+    #     session,
+    #     inputId = "select.ev1",
+    #     selected = saved_file$select.ev1
+    #   )
+    #   shinyWidgets::updatePickerInput(
+    #     session,
+    #     inputId = "select.ev2",
+    #     selected = saved_file$select.ev2
+    #   )
+    #   shinyWidgets::updatePickerInput(
+    #     session,
+    #     inputId = "select.ev3",
+    #     selected = saved_file$select.ev3
+    #   )
+    #   shinyWidgets::updatePickerInput(
+    #     session,
+    #     inputId = "select.ev4",
+    #     selected = saved_file$select.ev4
+    #   )
+    #   ## update order
+    #   shinyjqui::updateOrderInput(
+    #     session,
+    #     inputId = "select.ev.lev1",
+    #     items = saved_file$select.ev.lev1
+    #   )
+    #   shinyjqui::updateOrderInput(
+    #     session,
+    #     inputId = "select.ev.lev2",
+    #     items = saved_file$select.ev.lev2
+    #   )
+    #   shinyjqui::updateOrderInput(
+    #     session,
+    #     inputId = "select.ev.lev3",
+    #     items = saved_file$select.ev.lev3
+    #   )
+    #   shinyjqui::updateOrderInput(
+    #     session,
+    #     inputId = "select.ev.lev4",
+    #     items = saved_file$select.ev.lev4
+    #   )
+    #   shinyWidgets::updatePickerInput(
+    #     session,
+    #     inputId = 'select.pal1',
+    #     selected = uploaded_files$preprocess_data()$megaplot_data$saved$select.pal1,
+    #   )
+    #   shinyWidgets::updatePickerInput(
+    #     session,
+    #     inputId = 'select.pal2',
+    #     selected = uploaded_files$preprocess_data()$megaplot_data$saved$select.pal2,
+    #   )
+    #   shinyWidgets::updatePickerInput(
+    #     session,
+    #     inputId = 'select.pal3',
+    #     selected = uploaded_files$preprocess_data()$megaplot_data$saved$select.pal3,
+    #   )
+    #   shinyWidgets::updatePickerInput(
+    #     session,
+    #     inputId = 'select.pal4',
+    #     selected = uploaded_files$preprocess_data()$megaplot_data$saved$select.pal4,
+    #   )
+    #   shiny::updateTextInput(
+    #     session,
+    #     inputId = "y_axis_label",
+    #     label = "y axis label",
+    #     value = uploaded_files$preprocess_data()$megaplot_data$saved$y_label
+    #   )
+    #   shiny::updateTextInput(
+    #     session,
+    #     inputId = "x_axis_label",
+    #     label = "x axis label",
+    #     value = uploaded_files$preprocess_data()$megaplot_data$saved$x_label
+    #   )
+    # }
+  # })
+
+
+  # output$save_setting2 <- shiny::downloadHandler(
+  #   filename = function() {
+  #     paste("Megaplot_Session", gsub(":", "-", Sys.time()), ".rds", sep = "")
+  #   },
+  #   content = function(file) {
+  #     saveRDS(settings(), file)
+  #   }
+  # )
+  #
+  # settings <- shiny::reactive({
+  #   shiny::req(uploaded_files$preprocess_data()$megaplot_data)
+  #   param <- list(
+  #     A = uploaded_files$preprocess_data()$megaplot_data$A,
+  #     B = uploaded_files$preprocess_data()$megaplot_data$B,
+  #     A_data_w_plot_info = data_w_plot_info()$A,
+  #     B_data_w_plot_info = data_w_plot_info()$B,
+  #     name = uploaded_files$preprocess_data()$name,
+  #     select.ev1 = uploaded_files$select.ev1(),
+  #     select.ev2 = uploaded_files$select.ev2(),
+  #     select.ev3 = uploaded_files$select.ev3(),
+  #     select.ev4 = uploaded_files$select.ev4(),
+  #     select.ev.lev1 = uploaded_files$select.ev.lev1(),
+  #     select.ev.lev2 = uploaded_files$select.ev.lev2(),
+  #     select.ev.lev3 = uploaded_files$select.ev.lev3(),
+  #     select.ev.lev4 = uploaded_files$select.ev.lev4(),
+  #     # megaplot
+  #     select.events = main_settings$select.events(),
+  #     select.grouping = main_settings$select.grouping(),
+  #     select.sorting = main_settings$select.sorting(),
+  #     reference_line_1 = settings$reference_line_1(),
+  #     reference_line_1_value = settings$reference_line_1_value(),
+  #     reference_line_2 = settings$reference_line_2(),
+  #     reference_line_2_value = settings$reference_line_2_value(),
+  #     reference_line_3 = settings$reference_line_3(),
+  #     reference_line_3_value = settings$reference_line_3_value(),
+  #     event.levels = main_settings$event.levels(),
+  #     select.subsetting = main_settings$select.subsetting(),
+  #     zoom.range = settings$range(),
+  #     # displayed subjects
+  #     random = displayed_subjects$random(),
+  #     selection_button = displayed_subjects$selection_button(),
+  #     startsubj = displayed_subjects$startsubj(),
+  #     seedset = displayed_subjects$seedset(),
+  #     specific_ids = input$specific_ids,
+  #     # settings
+  #     select.device = input$select.device,
+  #     select.col = input$select.col,
+  #     thick.line = input$thick,
+  #     inc.ev.subj = settings$inc.ev.subj(),
+  #     lines_instead_symbols = settings$lines_instead_symbols()
+  #     det.xaxt = input$det.xaxt,
+  #     incr.font = input$incr.font,
+  #     # color options...
+  #     color.pal1 = color_pal1$val,
+  #     color.pal2 = color_pal2$val,
+  #     color.pal3 = color_pal3$val,
+  #     color.pal4 = color_pal4$val,
+  #     choiceGroup = main_settings$select.grouping(),
+  #     choiceSort = choiceSort(),
+  #     A_da = data_w_ai_information()$A,
+  #     group_da = data_w_ai_information()$group,
+  #     sequencing = data_w_ai_information()$A$'SEQUENCING',
+  #     group = data_w_ai_information()$group,
+  #     group.lev = data_w_ai_information()$group.lev,
+  #     # seriation
+  #     varSeq = input$varSeq,
+  #     methSer = input$methSer,
+  #     group_seriation = main_settings$select.grouping(),
+  #     multiple_distmeasures = input$multiple_distmeasures,
+  #     parameters_seriation = input_seriation(),
+  #     #plot labels
+  #     y_label = settings$y_axis_label(),
+  #     x_label = settings$x_axis_label()
+  #   )
+  #   param
+  # })
+
+
+
+  #### Megaplots Module ####
+  main_settings <- shiny::callModule(
+    main_option_server,
+    "megaplots",
+    shiny::reactive({data_w_event_and_group_information()}),
+    shiny::reactive({data_w_ai_information()}),
+    shiny::reactive({uploaded_files$selectdata()}),
+    shiny::reactive({input$seq.button})
   )
 
-  settings <- shiny::reactive({
-    shiny::req(uploaded_files$preprocess_data()$megaplot_data)
-    param <- list(
-      A = uploaded_files$preprocess_data()$megaplot_data$A,
-      B = uploaded_files$preprocess_data()$megaplot_data$B,
-      A_data_w_plot_info = data_w_plot_info()$A,
-      B_data_w_plot_info = data_w_plot_info()$B,
-      name = uploaded_files$preprocess_data()$name,
-      select.ev1 = uploaded_files$select.ev1(),
-      select.ev2 = uploaded_files$select.ev2(),
-      select.ev3 = uploaded_files$select.ev3(),
-      select.ev4 = uploaded_files$select.ev4(),
-      select.ev.lev1 = uploaded_files$select.ev.lev1(),
-      select.ev.lev2 = uploaded_files$select.ev.lev2(),
-      select.ev.lev3 = uploaded_files$select.ev.lev3(),
-      select.ev.lev4 = uploaded_files$select.ev.lev4(),
-      # megaplot
-      select.events = input$select.events,
-      select.grouping = input$select.grouping,
-      select.sorting = input$select.sorting,
-      reference_line_1 = input$reference_line_1,
-      reference_line_1_value = input$reference_line_1_value,
-      reference_line_2 = input$reference_line_2,
-      reference_line_2_value = input$reference_line_2_value,
-      reference_line_3 = input$reference_line_3,
-      reference_line_3_value = input$reference_line_3_value,
-      event.levels = input$event.levels,
-      select.subsetting = input$select.subsetting,
-      zoom.range = input$range,
-      # displayed subjects
-      random = input$random,
-      selection_button = input$selection_button,
-      startsubj = input$startsubj,
-      seedset = input$seedset,
-      specific_ids = input$specific_ids,
-      # settings
-      select.device = input$select.device,
-      select.col = input$select.col,
-      thick.line = input$thick,
-      inc.ev.subj = input$inc.ev.subj,
-      lines_instead_symbols = input$lines_instead_symbols,
-      det.xaxt = input$det.xaxt,
-      incr.font = input$incr.font,
-      # color options...
-      color.pal1 = color_pal1$val,
-      color.pal2 = color_pal2$val,
-      color.pal3 = color_pal3$val,
-      color.pal4 = color_pal4$val,
-      choiceGroup = choiceGroup(),
-      choiceSort = choiceSort(),
-      A_da = data_w_ai_information()$A,
-      group_da = data_w_ai_information()$group,
-      sequencing = data_w_ai_information()$A$'SEQUENCING',
-      group = data_w_ai_information()$group,
-      group.lev = data_w_ai_information()$group.lev,
-      # seriation
-      varSeq = input$varSeq,
-      methSer = input$methSer,
-      group_seriation = input$select.grouping,
-      multiple_distmeasures = input$multiple_distmeasures,
-      parameters_seriation = input_seriation(),
-      #plot labels
-      y_label = input$y_axis_label,
-      x_label = input$x_axis_label
-    )
-    param
-  })
+  settings <- shiny::callModule(
+    settings_server,
+    "settings",
+    shiny::reactive({data_w_event_and_group_information()})
+  )
+
+
+  displayed_subjects <- shiny::callModule(
+    displayed_subjects_server,
+    "displayed_subjects",
+    preprocess_data = shiny::reactive({uploaded_files$preprocess_data()})
+  )
 
   #### Seriation Module ####
   shiny::callModule(mod_data_specification_server, "data_spec")
@@ -2247,4 +1458,5 @@ app_server <- function(input, output, session) {
     reactive(uploaded_files$preprocess_data()$megaplot_data$saved$parameters_seriation),
     reactive(uploaded_files$selectdata())
   )
+
 }
