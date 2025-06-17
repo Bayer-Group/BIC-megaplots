@@ -234,7 +234,7 @@ data_upload_ui <- function(id) {
       event_selection_ui(ns("select_ev.1")),
       event_selection_ui(ns("select_ev.2")),
       event_selection_ui(ns("select_ev.3")),
-      event_selection_ui(ns("select_ev.4")),
+      event_selection_ui(ns("select_ev.4"))
     ),
     shiny::fluidRow(
       shiny::htmlOutput(ns("err_message")),

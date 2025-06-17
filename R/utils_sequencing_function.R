@@ -29,26 +29,26 @@ sequencing_var_app <- function(
       # Get the data into a wide format
       B_wide <- get_B_wide(da, var, par$methMissing, par)[[1]]
       par <- get_B_wide(da, var, par$methMissing, par)[[2]]
-      
+
       # Get the alphabet for the sequencing object
       alphab <- get_alphab(da, B_wide, var, par$methMissing)
-      
+
       # No grouping:
       if (is.null(group)) {
         # Define the sequencing object
         seq <-
           suppressMessages(TraMineR::seqdef(B_wide, 2:ncol(B_wide), labels = alphab))
-        
+
         # Get the parameters for the distance function
         seqargs_all <- get_parameters(seq, par)
-        
+
         # Calculate pairwise distances:
         dist <-
           suppressMessages(do.call(TraMineR::seqdist, seqargs_all))
-        
+
         ddist <-
           stats::as.dist(dist) # the following needs it to be a dist object
-        
+
         # Use the seriation package to compute the order
         sq <- suppressMessages(seriation::seriate(ddist, method = sermethod))
       }
@@ -56,7 +56,7 @@ sequencing_var_app <- function(
         sq <- sq_grouping(da, var, par, sermethod, group, B_wide, alphab)
       }
     }
-    
+
     # More than one variable
     else{
       # if all variables use the same distance measure
@@ -71,29 +71,29 @@ sequencing_var_app <- function(
             # Get the data into a wide format
             B_wide <- get_B_wide(da, vari, par$methMissing, par)[[1]]
             par <- get_B_wide(da, vari, par$methMissing, par)[[2]]
-            
-            
+
+
             # Get the alphabet for the sequencing object
             alphab <- get_alphab(da, B_wide, vari, par$methMissing)
-            
+
             # Define the sequencing object
             seq <-
               suppressMessages(TraMineR::seqdef(B_wide, 2:ncol(B_wide), labels = alphab))
-            
+
             # Get the parameters for the distance function
             seqargs_all <- get_parameters(seq, par)
-            
+
             # Calculate the pairwise distances for this variable:
             dist_list[[vari]] <-
               suppressMessages(do.call(TraMineR::seqdist, seqargs_all))
-            
+
           }
           dist <- Reduce(`+`, dist_list)
-          
+
           ddist <-
             stats::as.dist(dist) # the following needs it to be a dist object
-          
-          
+
+
           # Use the seriation package to compute the order
           sq <- suppressMessages(seriation::seriate(ddist, method = sermethod))
         }
@@ -103,7 +103,7 @@ sequencing_var_app <- function(
             sq_grouping_var(da, var, par, sermethod, group, multiple_distmeasures)
         }
       }
-      
+
       # different distance measures for the variables
       else{
         # no grouping:
@@ -114,32 +114,32 @@ sequencing_var_app <- function(
             vari <- var[i]
             pari <- lapply(par, function(x)
               x[i])
-            
+
             # Get the data into a wide format
             B_wide <-
               get_B_wide(da, vari, pari$methMissing, pari)[[1]]
             pari <- get_B_wide(da, vari, pari$methMissing, pari)[[2]]
-            
-            
+
+
             # Get the alphabet for the sequencing object
             alphab <- get_alphab(da, B_wide, vari, pari$methMissing)
-            
+
             # Define the sequencing object
             seq <-
               suppressMessages(TraMineR::seqdef(B_wide, 2:ncol(B_wide), labels = alphab))
-            
+
             # Get the parameters for the distance function
             seqargs_all <- get_parameters(seq, pari)
-            
+
             # Calculate the pairwise distances for this variable:
             dist_list[[vari]] <-
               suppressMessages(do.call(TraMineR::seqdist, seqargs_all))
           }
           dist <- Reduce(`+`, dist_list)
-          
+
           ddist <-
             stats::as.dist(dist) # the following needs it to be a dist object
-          
+
           # Use the seriation package to compute the order
           sq <- suppressMessages(seriation::seriate(ddist, method = sermethod))
         }
@@ -150,16 +150,16 @@ sequencing_var_app <- function(
         }
       }
     }
-    
+
     ## Input the sequencing in the da object:
     da$A <- da$A[order(da$A$megaplots_selected_subjectid),]
     da$A <- suppressMessages(seriation::permute(da$A, order = sq, margin = 1))
     da$A$'SEQUENCING' <- 1:nrow(da$A)
     da$A <- da$A[order(da$A$megaplots_selected_subjectid),]
     da$nume_A <- c(da$nume_A, 'SEQUENCING')
-    
+
     da
-    
+
   }
 
 #' Sequencing with grouping
@@ -176,7 +176,7 @@ sequencing_var_app <- function(
 #'
 #' @return Ordered sequence of the subjects
 #' @noRd
-#' 
+#'
 #' @importFrom dplyr arrange select group_by count filter n_distinct mutate ungroup row_number
 #' @importFrom stats as.dist
 #' @importFrom TraMineR seqdef seqdist
@@ -190,11 +190,11 @@ sq_grouping <- function(
   group,
   B_wide,
   alphab) {
-    
+
     method_missing <- par$methMissing
     distmeasure <- par$distmeasure
     id_seq <- data.frame("megaplots_selected_subjectid" = sort(da$A$megaplots_selected_subjectid), "sequencing" = NA)
-    
+
     # one grouping variable
     if (length(group) == 1) {
       group_levels <- levels(da$A[, group])
@@ -209,7 +209,7 @@ sq_grouping <- function(
       group_levels <- expand.grid(levels)
       n <- nrow(group_levels)
     }
-    
+
     # For each group level
     for (i in 1:n) {
       # Get subset within the group level
@@ -226,7 +226,7 @@ sq_grouping <- function(
       if (sum(ids_index) == 0) {
         next
       }
-      
+
       B_wide_group <-
         B_wide[B_wide$megaplots_selected_subjectid %in% da$A$megaplots_selected_subjectid[ids_index], ]
       id_seq_group <-
@@ -240,50 +240,50 @@ sq_grouping <- function(
         id_seq_group$sequencing <- 1 + i
         id_seq$sequencing[id_seq$megaplots_selected_subjectid %in% id_seq_group$megaplots_selected_subjectid] <-
           id_seq_group$sequencing
-        
+
         next
       }
-      
-      
+
+
       alphabg <- alphab[sort(unique(as.vector(as.matrix(B_wide_group[, -1]))) + 1)]
-      
+
       #Define the sequencing object
       seq_group <-
         suppressMessages(TraMineR::seqdef(B_wide_group, 2:ncol(B_wide_group), labels = alphabg))
-      
-      
+
+
       # Check if all subjects have only one state:
       if (all(apply(seq_group, 2, function(x)
         dplyr::n_distinct(x) == 1))) {
         # sequencing doesn't make a difference since all subjects have the same trajectory
         id_seq_group$sequencing <- 1:nrow(id_seq_group)
-        
+
       }
       else{
         # Get the parameters for the distance function
         seqargs_all_group <- get_parameters(seq_group, par)
-        
+
         # Calculate pairwise distances:
         dist_group <- suppressMessages(do.call(TraMineR::seqdist, seqargs_all_group))
-        
+
         ddist_group <- stats::as.dist(dist_group)
-        
+
         # Use the seriation package to compute the order
         sq_group <-
           suppressMessages(seriation::seriate(ddist_group, method = sermethod))
-        
+
         # save the order within the group in the dataframe id_seq_group
         id_seq_group <- suppressMessages(seriation::permute(id_seq_group, order = sq_group, margin = 1))
         id_seq_group$sequencing <- 1:nrow(id_seq_group)
         id_seq_group <- id_seq_group[order(id_seq_group$megaplots_selected_subjectid), ]
       }
-      
+
       # save the order overall in the dataframe
       i <- sum(!is.na(id_seq$sequencing)) # number of elements that are already ordered
       id_seq_group$sequencing <- id_seq_group$sequencing + i
       id_seq$sequencing[id_seq$megaplots_selected_subjectid %in% id_seq_group$megaplots_selected_subjectid] <-
         id_seq_group$sequencing
-      
+
     }
     sq <- order(id_seq$sequencing)
   }
@@ -302,7 +302,7 @@ sq_grouping <- function(
 #'
 #' @return Ordered sequence of the subjects
 #' @noRd
-#' 
+#'
 #' @importFrom seriation seriate permute
 #' @keywords internal
 
@@ -316,7 +316,7 @@ sq_grouping_var <-
     id_seq <-
       data.frame("megaplots_selected_subjectid" = sort(da$A$megaplots_selected_subjectid),
                  "sequencing" = NA)
-    
+
     # one grouping variable
     if (length(group) == 1) {
       group_levels <- levels(da$A[, group])
@@ -331,8 +331,8 @@ sq_grouping_var <-
       group_levels <- expand.grid(levels)
       n <- nrow(group_levels)
     }
-    
-    
+
+
     # For each group level
     for (i in 1:n) {
       # Get subset within the group level
@@ -345,21 +345,21 @@ sq_grouping_var <-
         ids_index <- apply(da$A[, group], 1, function(x)
           all(x == lev))
       }
-      
+
       # no subjects in this group: skip
       if (sum(ids_index) == 0) {
         next
       }
-      
+
       # Get da in the right format
       da_group <- da
       da_group$A <- da$A[ids_index, ]
       da_group$B <- da$B[da$B$megaplots_selected_subjectid %in% da_group$A$megaplots_selected_subjectid, ]
-      
+
       id_seq_group <-
         data.frame("megaplots_selected_subjectid" = sort(da$A$megaplots_selected_subjectid[ids_index]),
                    "sequencing" = NA)
-      
+
       # if only one subject in the group:
       if (sum(ids_index) == 1) {
         # save the order overall in the dataframe
@@ -368,10 +368,10 @@ sq_grouping_var <-
         id_seq_group$sequencing <- 1 + i
         id_seq$sequencing[id_seq$megaplots_selected_subjectid %in% id_seq_group$megaplots_selected_subjectid] <-
           id_seq_group$sequencing
-        
+
         next
       }
-      
+
       dist_list <- list()
       for (vari in var) {
         if (multiple_distmeasures) {
@@ -384,25 +384,25 @@ sq_grouping_var <-
           method_missing <- par$methMissing
           pari <- par
         }
-        
+
         # Get the data into a wide format
         B_wide <-
           get_B_wide(da_group, vari, method_missing, pari)[[1]]
         pari <- get_B_wide(da_group, vari, method_missing, pari)[[2]]
-        
-        
+
+
         # Get the alphabet for the sequencing object
         alphab <- get_alphab(da_group, B_wide, vari, pari$methMissing)
         alphabg <-
           alphab[sort(unique(as.vector(as.matrix(B_wide[, -1]))) + 1)]
-        
+
         # Define the sequencing object
         seq <-
           suppressMessages(TraMineR::seqdef(B_wide, 2:ncol(B_wide), labels = alphabg))
-        
+
         # Get the parameters for the distance function
         seqargs_all <- get_parameters(seq, pari)
-        
+
         # Check if all subjects have only one state:
         if (all(apply(seq, 2, function(x)
           dplyr::n_distinct(x) == 1))) {
@@ -411,7 +411,7 @@ sq_grouping_var <-
             matrix(rep(0, nrow(B_wide) ^ 2),
                    nrow = nrow(B_wide),
                    ncol = nrow(B_wide))
-          
+
         }
         else{
           # Calculate the pairwise distances for this variable:
@@ -420,26 +420,26 @@ sq_grouping_var <-
         }
       }
       dist <- Reduce(`+`, dist_list)
-      
+
       ddist_group <- stats::as.dist(dist)
-      
-      
+
+
       # Use the seriation package to compute the order
       sq_group <- suppressMessages(seriation::seriate(ddist_group, method = sermethod))
-      
+
       # save the order within the group in the dataframe id_seq_group
       id_seq_group <-
         suppressMessages(seriation::permute(id_seq_group, order = sq_group, margin = 1))
       id_seq_group$sequencing <- 1:nrow(id_seq_group)
       id_seq_group <- id_seq_group[order(id_seq_group$megaplots_selected_subjectid), ]
-      
+
       # save the order overall in the dataframe
       i <-
         sum(!is.na(id_seq$sequencing)) # number of elements that are already ordered
       id_seq_group$sequencing <- id_seq_group$sequencing + i
       id_seq$sequencing[id_seq$megaplots_selected_subjectid %in% id_seq_group$megaplots_selected_subjectid] <-
         id_seq_group$sequencing
-      
+
     }
     sq <- order(id_seq$sequencing)
     return(sq)
@@ -457,7 +457,7 @@ sq_grouping_var <-
 #' @param par list of parameters for the distance measure
 #'
 #' @return named list as an input for the seqdist function
-#' 
+#'
 #' @importFrom TraMineR alphabet
 #'
 #' @noRd
@@ -469,7 +469,7 @@ get_parameters <- function(seq, par) {
     "with.missing" = TRUE
   )
   distmeasure <- par$distmeasure
-  
+
   if (distmeasure %in% c('OM', 'OMloc', 'OMslen', 'OMspell', 'OMstran', 'HAM', 'TWED')) {
     if (par$sm == "ORDINAL") {
       if (any(seq == "*")) {
@@ -547,8 +547,9 @@ get_parameters <- function(seq, par) {
     else{
       seqargs_all["sm"] <- par$smDHD
     }
-    
+
   }
+
   if (distmeasure %in% c(
     'OM',
     'OMloc',
@@ -574,7 +575,7 @@ get_parameters <- function(seq, par) {
     else{
       seqargs_all["indel"] <- par$indel
     }
-    
+
   }
   if (distmeasure %in% c('OMloc', 'OMspell')) {
     seqargs_all["expcost"] <- as.numeric(par$expcost)
@@ -591,7 +592,7 @@ get_parameters <- function(seq, par) {
     seqargs_all["otto"] <- par$otto
     seqargs_all["previous"] <- as.logical(par$previous)
     seqargs_all["add.column"] <- as.logical(par$add.column)
-    
+
   }
   if (distmeasure %in% c("OMloc", "NMSMST", "SVRspell")) {
     seqargs_all["tpow"] <- par$tpow
@@ -603,10 +604,10 @@ get_parameters <- function(seq, par) {
   if (distmeasure %in% "CHI2") {
     seqargs_all["weighted"] <- as.logical(par$weighted)
   }
-  
-  
+
+
   return(seqargs_all)
-  
+
 }
 
 
@@ -634,7 +635,7 @@ get_alphab <- function(da, B_wide, var, method_missing) {
     alphab <- alphab[!is.na(alphab)]
     alphab <- as.character(alphab)
   }
-  
+
   return(alphab)
 }
 
@@ -659,8 +660,8 @@ get_B_wide <- function(da, var, method_missing, par) {
   # Are there non-unqiue subjectid and ev_day combinations?
   # If yes, select only the first subjectid - ev_day combination
   if (any(duplicated(da$B[, c("megaplots_selected_subjectid", "megaplots_selected_event_time")]))) {
-    B <- da$B %>% 
-      dplyr::right_join(da$A %>% dplyr::select(megaplots_selected_subjectid), by = "megaplots_selected_subjectid") %>% 
+    B <- da$B %>%
+      dplyr::right_join(da$A %>% dplyr::select(megaplots_selected_subjectid), by = "megaplots_selected_subjectid") %>%
       dplyr::group_by(megaplots_selected_subjectid, megaplots_selected_event_time) %>%
       dplyr::mutate(row_num = dplyr::row_number()) %>%
       dplyr::filter(row_num == 1) %>%
@@ -669,7 +670,7 @@ get_B_wide <- function(da, var, method_missing, par) {
   else{
     B <- da$B
   }
-  
+
   # If the dataset has missing values/days where nothing happens:
   if (any(is.na(B))) {
     # Get the dataframe B in a wide format with a column for every day
@@ -677,7 +678,7 @@ get_B_wide <- function(da, var, method_missing, par) {
       dplyr::select(megaplots_selected_subjectid, megaplots_selected_event_time, dplyr::all_of(var)) %>% # select only the columns of interest
       tidyr::pivot_wider(names_from = megaplots_selected_event_time, values_from = dplyr::all_of(var)) %>% # pivot the data
       dplyr::rename_with( ~ paste(var, "_", .x, sep = ""),-megaplots_selected_subjectid)
-    
+
     # Sort the columns:
     numeric_suffixes <-
       as.numeric(sub(".*[^0-9](\\d+)$", "\\1", colnames(B_wide)[-1]))
@@ -694,13 +695,13 @@ get_B_wide <- function(da, var, method_missing, par) {
       B_wide <- cbind(B_wide, add_col_dat)
       numeric_suffixes <- c(numeric_suffixes, add_col_id)
     }
-    
+
     # Sort the column names based on the numeric suffixes
     sorted_column_names <-
       colnames(B_wide)[-1][order(numeric_suffixes)]
     # Reorder the columns in the dataframe
     B_wide <- B_wide[, c("megaplots_selected_subjectid", sorted_column_names)]
-    
+
     # Has the dataset subjects, that do not have any event?
     if (!all(da$A$megaplots_selected_subjectid %in% B_wide$megaplots_selected_subjectid)) {
       # add the rows to the B_wide data:
@@ -710,7 +711,7 @@ get_B_wide <- function(da, var, method_missing, par) {
       add_B$megaplots_selected_subjectid <- subj
       B_wide <- rbind(B_wide, add_B)
     }
-    
+
     # Check for OMloc and empty sequences
     if (par$distmeasure == "OMloc" &
         any(apply(B_wide[, -1], 1, function(x)
@@ -718,9 +719,8 @@ get_B_wide <- function(da, var, method_missing, par) {
       method_missing <- "new state"
       par$methMissing <- "new state"
     }
-    
+
     # Two different missing methods:
-    
     if (method_missing == "last observed state") {
       # Method 1: if a subject does not have a state at a time x, the last state from
       #           before is taken -> all subjects have always a state (starting from start point)
@@ -734,10 +734,10 @@ get_B_wide <- function(da, var, method_missing, par) {
       # Method 2: set all NAs to a new state
       B_wide <- B_wide %>%
         dplyr::mutate(dplyr::across(colnames(B_wide)[grep(var, colnames(B_wide))], as.numeric))
-      
+
       B_wide[is.na(B_wide)] <- 0
     }
-    
+
   }
   # If the dataset is without missing values/days where nothing happens:
   else{
@@ -747,10 +747,10 @@ get_B_wide <- function(da, var, method_missing, par) {
       tidyr::pivot_wider(names_from = megaplots_selected_event_time, values_from = dplyr::all_of(var)) %>% # pivot the data
       dplyr::rename_with( ~ paste(var, "_", .x, sep = ""),-megaplots_selected_subjectid)
   }
-  
-  
+
+
   B_wide <- B_wide %>%
     dplyr::mutate_if(is.factor, as.numeric)
-  
+
   return(list(B_wide, par))
 }
