@@ -153,7 +153,7 @@ app_server <- function(input, output, session) {
         dplyr::select(-dplyr::all_of(remove_variables))
       #transform Missings to character "NA"
       for(i in 1:dim(tmp$megaplot_data$A)[2]) {
-        if (is.numeric(tmp$megaplot_data$A[,i]) | is.numeric(tmp$megaplot_data$A[,i])) {
+        if (is.numeric(tmp$megaplot_data$A[,i])) {
         } else if (
           inherits(tmp$megaplot_data$A[,i], 'Date')
           ){
