@@ -32,7 +32,7 @@ data_upload_ui <- function(id) {
           shiny::column(4,
             shinyWidgets::prettyRadioButtons(
               inputId =ns('selectdata'),
-              label = HTML('<p style ="color:white;"> Select data</p>'),
+              label = "Select data",
               shape = 'round',
               animation = 'smooth',
               choices =c("Upload data", "Use demo data")#, "Upload saved data")
@@ -42,7 +42,7 @@ data_upload_ui <- function(id) {
             shiny::column(4,
               shinyWidgets::prettyRadioButtons(
                 inputId = ns('impswitch'),
-                label = HTML('<p style ="color:white;"> Select file format</p>'),
+                label = HTML('<p> Select file format</p>'),
                 shape = 'square',
                 animation = 'smooth',
                 choices = c(
@@ -496,6 +496,7 @@ data_upload_server <- function(input, output, session){
   })
 
   # reactive object preprocessed_data with uploaded data and renamed variables
+
   preprocessed_data <-shiny::reactive({
 
     #read & preprocess data in desired format

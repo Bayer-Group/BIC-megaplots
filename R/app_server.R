@@ -58,14 +58,17 @@ app_server <- function(input, output, session) {
     shinydashboard::updateTabItems(session, "sidebarmenu", newtab)
   })
 
-
   # 1. calculate aggregated stats for sequencing and clustering after clicking import button
-  summary_statistics_data <-shiny::eventReactive(uploaded_files$import.button(), {
+  summary_statistics_data <- shiny::eventReactive(c(uploaded_files$import.button(), uploaded_files$impswitch()), {
     # function to summarise_megaplot_data and save results as list object with
     # entries 'total' and 'detail'
-    summarise_megaplot_data(data = uploaded_files$preprocess_data())
+    shiny::req(uploaded_files$preprocess_data())
+    if(!is.null(uploaded_files$preprocess_data()$megaplots_data$A)){
+      summarise_megaplot_data(data = uploaded_files$preprocess_data())
+    } else {
+      NULL
+    }
   })
-
 
   # 2. 'data_w_event_and_group_information' = standardized object in which the original data is stored
   #           together with information on the grouping and event variables
@@ -75,9 +78,7 @@ app_server <- function(input, output, session) {
   data_w_event_and_group_information <- shiny::eventReactive(
     c(summary_statistics_data(),uploaded_files$select.ev.lev1(),uploaded_files$select.ev.lev2(),uploaded_files$select.ev.lev3(),uploaded_files$select.ev.lev4()),{
 
-    # uploaded_files$select.ev.lev1() uploaded_data$select.ev.lev1
     shiny::req(uploaded_files$preprocess_data())
-   # shiny::req(c(uploaded_files$select.ev.lev1(),uploaded_files$select.ev.lev2(),uploaded_files$select.ev.lev3(),uploaded_files$select.ev.lev4()))
 
     #add grouping and event information to preprocessed data
     add_event_and_group_information(
@@ -103,6 +104,8 @@ app_server <- function(input, output, session) {
   # from the user
 
   data_w_ai_information <- shiny::eventReactive(c(data_w_event_and_group_information(),artificial_intelligence$seq.button()), { # aiButton$seq), {
+
+    shiny::req(uploaded_files$preprocess_data())
     data_w_ai_information <- shiny::req(data_w_event_and_group_information())
 
     if (!is.null(artificial_intelligence$varSeq())) {
@@ -124,15 +127,10 @@ app_server <- function(input, output, session) {
   #           in the sorting/grouping part based on user input (preparation for the plotting)
   #
   data_grouped_and_sorted <- shiny::reactive({
+    shiny::req(uploaded_files$preprocess_data())
+
     displayed_subjects$selection_button()
     displayed_subjects$subset.button()
-
-    # if (uploaded_files$selectdata()== "Upload saved data") {
-    #   if (upload_indicator$dat == 1) {
-    #     shinyjs::click("apply.color")
-    #     upload_indicator$dat <- 2
-    #   }
-    # }
 
     add_sorting_information(
       data_frame = data_w_ai_information(),
@@ -150,9 +148,6 @@ app_server <- function(input, output, session) {
     )
   })
 
-  #initialize reactive value upload_indicator$dat
-  # upload_indicator <- shiny::reactiveValues(dat = 1)
-
 
   # create reactive plotting object
   # 5. 'data_w_plot_info' = add plot information to data set (zoom/range and colors)
@@ -161,7 +156,7 @@ app_server <- function(input, output, session) {
     # session$clientData[["image1"]]
     #requirements
     shiny::req(data_grouped_and_sorted(), data_w_ai_information(), data_w_event_and_group_information())
-
+    shiny::req(uploaded_files$preprocess_data())
     # create plotting data based on user selections
     data_w_plot_info <- data_grouped_and_sorted()
     data_w_event_and_group_information <- data_w_event_and_group_information()
@@ -216,8 +211,6 @@ app_server <- function(input, output, session) {
 
 
   #### REACTIVES & OBSERVERS ####
-
-
   # connect to submit button (in UI)
   update_select.ev1 <- shiny::eventReactive(c(uploaded_files$import.button(), uploaded_files$preprocess_data()$megaplot_data), {
       uploaded_files$select.ev1()
@@ -236,8 +229,57 @@ app_server <- function(input, output, session) {
   # set color theme
   coltheme <- shiny::reactiveValues(col_sel = 'grey (app version)')
 
-  shiny::observeEvent(input$select.col, {
-    coltheme$col_sel <- input$select.col
+  shiny::observeEvent(color_options$select.col(), {
+    coltheme$col_sel <- color_options$select.col()
+  })
+
+  #update theme depending on select in color menuitem (grey or white verison)
+  output$theme <- renderUI({
+      if (color_options$select.col() == 'grey (app version)') {
+        fresh::use_theme(
+          fresh::create_theme(
+          fresh::adminlte_color(
+            light_blue = "#0091DF",
+            black = "#222d32"#
+          ),
+          fresh::adminlte_sidebar(
+            width = "275px",
+            dark_bg = "#222d32",#Background color (dark mode).
+            dark_hover_bg = "#0091DF",#Background hover color (dark mode).
+            dark_color = "#dce4e8",#Text color (dark mode).
+            dark_hover_color ="#dce4e8",#Text hover color (dark mode).
+            light_color = "#dce4e8",
+            light_hover_color = "#dce4e8"
+          ),
+          fresh::adminlte_global(
+            content_bg = "#404A4E", # Background color of the body.
+            box_bg = "#222d32",#Default background color for boxes.
+            info_box_bg = "#222d32"#Default background color for info boxes.
+          )
+        ))
+      } else {
+         fresh::use_theme(
+          fresh::create_theme(
+          fresh::adminlte_color(
+            light_blue = "#0091DF",
+            black = "#9c9a9a"#
+          ),
+          fresh::adminlte_sidebar(
+            width = "275px",
+            dark_bg = "#9c9a9a",#Background color (dark mode).
+            dark_hover_bg = "#0091DF",#Background hover color (dark mode).
+            dark_color = "#222d32",#Text color (dark mode).
+            dark_hover_color ="#222d32",#Text hover color (dark mode).
+            light_color = "#222d32",
+            light_hover_color ="#222d32"
+          ),
+          fresh::adminlte_global(
+            content_bg = "#ffffff", # Background color of the body.
+            box_bg = "#9c9a9a",#Default background color for boxes.
+            info_box_bg = "#222d32"#Default background color for info boxes.
+          )
+        ))
+     }
   })
 
   select.col <- shiny::reactive({
@@ -252,29 +294,18 @@ app_server <- function(input, output, session) {
       )
     } else if (coltheme$col_sel == 'white (print version)') {
       col_sel <- c(
-        'plot.bg' = '#dce4e8',
+        'plot.bg' = '#ffffff',
         'plot.lines' = '#404A4E',
-        'plot.wp' = '#dce4e8',
+        'plot.wp' = '#ffffff',
         'plot.id' = 'black',
-        'axleg.bg' = '#dce4e8',
-        'cont.bg' = '#dce4e8'
+        'axleg.bg' = '#ffffff',
+        'cont.bg' = '#ffffff'
       )
     } else {
       col_sel <- "red"
     }
     col_sel
   })
-
-
-
-  # shiny::observeEvent(input$distmeasure, {
-  #   shiny::updateTabsetPanel(inputId = "Change_input_for_seq_metod", selected = input$distmeasure)
-  # })
-
-
-
-
-
 
   shiny::observeEvent(input$btn1, {
     start_val1 <- settings$range()[1]
@@ -321,9 +352,6 @@ app_server <- function(input, output, session) {
       }
     }
   })
-
-
-
 
   #### Megaplots Module ####
   main_settings <- shiny::callModule(
@@ -388,7 +416,7 @@ app_server <- function(input, output, session) {
   )
 
   #### Data Spec Module ####
-  shiny::callModule(mod_data_specification_server, "data_spec")
+  shiny::callModule(mod_data_specification_server, "data_spec",select_color = shiny::reactive({select.col()}))
 
   shiny::callModule(
     mega_plot_server,

@@ -83,18 +83,18 @@ main_option_ui <- function(id) {
             `style` = 'background: btn-primary',
             `header` = 'Select item'
           )
-        ),
-        "Save settings as .rds file:",
-        shinyWidgets::downloadBttn(
-          outputId = ns("save_setting2"),
-          label = "Save Session Settings",
-          style = 'gradient',
-          color = 'primary',
-          size = 'sm',
-          no_outline = FALSE,
-          block = FALSE
-        )
-      ),
+        )#,
+        # "Save settings as .rds file:",
+        # shinyWidgets::downloadBttn(
+        #   outputId = ns("save_setting2"),
+        #   label = "Save Session Settings",
+        #   style = 'gradient',
+        #   color = 'primary',
+        #   size = 'sm',
+        #   no_outline = FALSE,
+        #   block = FALSE
+        # )
+      )#,
     )
     # ,
     # shiny::tags$head(

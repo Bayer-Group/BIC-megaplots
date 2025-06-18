@@ -91,11 +91,13 @@ mega_plot_server <- function(input, output, session,
   #### PLOTTING ####
   # Plot Megaplots
   output$image1 <- shiny::renderPlot({
-    #reactivity
-    shiny::req(settings()$height_slider())
+    # reactivity
+    shiny::req(image1_plot_height())
+    #shiny::req(settings()$height_slider())
     session$clientData[["output_mega_plot-image1"]]
     # main_settings()$event.levels()
     # main_settings()$select.grouping()
+    main_settings()$event.levels()
     #requirements
     shiny::req(data_w_plot_info(), data_grouped_and_sorted(), data_w_ai_information(), data_w_event_and_group_information())
     draw_megaplot(
@@ -122,11 +124,11 @@ mega_plot_server <- function(input, output, session,
     )
   },
   # function for UI auto height resizing
-  height = function() {
-    # calculate height based on selected subject number
+  height = function(){image1_plot_height()})
+
+  image1_plot_height <- shiny::reactive({
     (max(c(1, data_grouped_and_sorted())$A$'subject') * 12) * settings()$height_slider()
   })
-
 
   #### Plot Legend ####
   output$image1Legend <- shiny::renderPlot({
@@ -171,16 +173,16 @@ mega_plot_server <- function(input, output, session,
   output$megaplot <- shiny::renderUI({
       shiny::plotOutput(
         outputId = ns('image1'),
-        dblclick = shiny::clickOpts(id = "dblclick_scatter"),
+        dblclick = shiny::clickOpts(id = ns("dblclick_scatter")),
         brush = shiny::brushOpts(
-          id = "image1_brush",
+          id = ns("image1_brush"),
           fill = "#ffffff",
           stroke = "#036",
           opacity = 0.25,
           delay = 300
         ),
         hover = shiny::hoverOpts(
-          "image1_hover",
+          ns("image1_hover"),
           delay = 300,
           delayType = "debounce"
         ),
@@ -204,7 +206,6 @@ mega_plot_server <- function(input, output, session,
     brush_coord$x <- NULL
     brush_coord$y <- NULL
   })
-
 
   # Create a logical value output "check_slider_used", used in the conditional panel in the user interface.
   # If the Zoom slider is used, two buttons on the top right side of the app appear, which can be used to
@@ -301,12 +302,10 @@ mega_plot_server <- function(input, output, session,
   #### Hover Panel ####
   # Hover plot output$hover
   output$hover <- shiny::renderPlot({
-    shiny::req(data_w_plot_info())
+    # shiny::req(data_w_plot_info())
     color_bg <- select.col()
     data_w_plot_info <- data_w_plot_info()
-
     if (!is.null(brush_coord$x) & !is.null(brush_coord$y)) {
-
       draw_megaplot(
         megaplot_data = data_w_plot_info(),
         select_color = select.col(),
@@ -385,7 +384,7 @@ mega_plot_server <- function(input, output, session,
       shiny::tags$div(
         id = 'demo',
         class = "collapse",
-        shiny::plotOutput('hover')
+        shiny::plotOutput(ns('hover'))
       ),
       style = "z-index: 10;"
     )

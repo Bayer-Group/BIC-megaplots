@@ -92,41 +92,4 @@ colChoice <- list(
   )
 
 
-dark_theme <- fresh::create_theme(
-  fresh::adminlte_color(
-    light_blue = "#0091DF",
-    black = "#222d32"#
-  ),
-  fresh::adminlte_sidebar(
-    width = "275px",
-    dark_bg = "#222d32",#Background color (dark mode).
-    dark_hover_bg = "#0091DF",#Background hover color (dark mode).
-    dark_color = "#dce4e8",#Text color (dark mode).
-    dark_hover_color ="#dce4e8",#Text hover color (dark mode).
-  ),
-  fresh::adminlte_global(
-    content_bg = "#404A4E", # Background color of the body.
-    box_bg = "#222d32",#Default background color for boxes.
-    info_box_bg = "#222d32"#Default background color for info boxes.
-  )
-)
-
-light_theme <- fresh::create_theme(
-  fresh::adminlte_color(
-    light_blue = "#0091DF"# "#0091DFFF"#v
-  ),
-  fresh::adminlte_sidebar(
-    dark_bg = "#222d32",#Background color (dark mode).
-    dark_hover_bg = "#0091DF",#Background hover color (dark mode).
-    dark_color = "#dce4e8",#Text color (dark mode).
-    dark_hover_color ="#dce4e8",#Text hover color (dark mode).
-  ),
-  fresh::adminlte_global(
-    content_bg = "#dce4e8", # Background color of the body.
-    box_bg = "#222d32",#Default background color for boxes.
-    info_box_bg = "#222d32"#Default background color for info boxes.
-  )
-)
-
-
-utils::globalVariables(c('colChoice','megaplots_demo_data','dark_theme'))
+utils::globalVariables(c('colChoice','megaplots_demo_data'))

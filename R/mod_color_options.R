@@ -315,6 +315,7 @@ color_options_server <- function(input, output, session, import.button, select.e
     color_pal1 = shiny::reactive({color_pal1$val}),
     color_pal2 = shiny::reactive({color_pal2$val}),
     color_pal3 = shiny::reactive({color_pal3$val}),
-    color_pal4 = shiny::reactive({color_pal4$val})
+    color_pal4 = shiny::reactive({color_pal4$val}),
+    select.col = shiny::reactive({input$select.col})
   ))
 }
