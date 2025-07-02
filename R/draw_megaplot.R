@@ -21,6 +21,7 @@
 #' @param select_events character vector with event names
 #' @param color_subject_line_by_first_event logical if only first event should be displayed as colored line
 #'
+#'
 
 draw_megaplot <- function(
     megaplot_data,
@@ -92,7 +93,7 @@ draw_megaplot <- function(
       xright = megaplot_data$A$megaplots_selected_end_time,
       ybottom = megaplot_data$A$subject - line_width,
       ytop = megaplot_data$A$subject + line_width,
-      col = select_color[2],
+      col = select_color[3],
       border = NA
     )
 
@@ -168,7 +169,7 @@ draw_megaplot <- function(
       adj = c(1, 0.5),
       cex = cex.subjLab,
       labels = megaplot_data$A[, 'megaplots_selected_subjectid'],
-      col = select_color[4]
+      col = select_color[5]
     )
 
     # draw y-axis description
@@ -199,15 +200,15 @@ draw_megaplot <- function(
     }
 
     #### Add grouping labels ####
-    if (!is.null(par_settings$grLab)) {
-      text(
-        x = graphics::grconvertX(1.0025, from = 'npc', to = 'user'),
-        y = par_settings$grLab$POS,
-        xpd = NA,
-        adj = c(0, 0.5),
-        cex = 1.3,
-        labels = par_settings$grLab$LABEL,
-        col = select_color[4]
-      )
-    }
+      if (!is.null(par_settings$grLab)) {
+        text(
+          x = graphics::grconvertX(1.0025, from = 'npc', to = 'user'),
+          y = par_settings$grLab$POS,
+          xpd = NA,
+          adj = c(0, 0.5),
+          cex = 1.3,
+          labels = par_settings$grLab$LABEL,
+          col = select_color[5]
+        )
+      }
 }

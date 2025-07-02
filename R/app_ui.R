@@ -47,19 +47,19 @@ app_ui <- function(request) {
             displayed_subjects_ui("displayed_subjects"),
             shiny::tags$br()
           ),
-          shinydashboard::menuItem(
-            text = 'Artificial intelligence...',
-            icon = icon('rocket'),
-            tabName = 'artint',
-            startExpanded = FALSE,
+          # shinydashboard::menuItem(
+          #   text = 'Artificial intelligence...',
+          #   icon = icon('rocket'),
+          #   tabName = 'artint',
+          #   startExpanded = FALSE,
             shinydashboard::menuItem(
               text = 'Sequencing...',
               icon = icon('random', lib = 'font-awesome'),
               tabName = 'sequencing',
-
+              startExpanded = FALSE,
               #### Module call: artifical intelligence
               artificial_intelligence_ui("ai")
-            )
+            # )
           ),
           shinydashboard::menuItem(
             text = 'Settings...',

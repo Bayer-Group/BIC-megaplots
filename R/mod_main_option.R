@@ -18,83 +18,119 @@ main_option_ui <- function(id) {
       title = HTML('<p style ="color:white;"> Main options </p>'),
       solidHeader = TRUE,
       collapsible = TRUE,
-      shiny::column(
-        3,
-        shiny::selectizeInput(
-          inputId = ns('select.events'),
-          label = HTML('<p style ="color:white;"> Select events</p>'),
-          choices = NULL,
-          selected = NULL,
-          multiple = TRUE,
-          options = list('plugins' = list('remove_button', 'drag_drop'))
+      column(12,
+        column(3,
+          shiny::selectizeInput(
+            inputId = ns('select.events'),
+            label = HTML('<p style ="color:white;"> Select events</p>'),
+            choices = NULL,
+            selected = NULL,
+            multiple = TRUE,
+            options = list('plugins' = list('remove_button', 'drag_drop'))
+          )
         ),
-        shinyWidgets::pickerInput(
-          inputId = ns('event.levels'),
-          label = HTML('<p style ="color:white;"> Select event levels</p>'),
-          choices = NULL,
-          multiple = TRUE,
-          selected = NULL,
-          options = list(
-            `actions-box` = TRUE,
-            `selected-text-format` = 'count > 0',
-            `count-selected-text` = '{0} selected (of {1})',
-            `live-search` = TRUE,
-            `style` = 'background: btn-primary',
-            `header` = 'Select multiple items',
-            `none-selected-text` = 'Please select'
+        column(3,
+          shiny::selectizeInput(
+            inputId = ns('select.grouping'),
+            label = HTML('<p style ="color:white;"> Select grouping </p>'),
+            choices = NULL,
+            selected = NULL,
+            multiple = TRUE,
+            options = list('plugins' = list('remove_button', 'drag_drop'))
+          )
+        ),
+        column(3,
+          shinyWidgets::pickerInput(
+            inputId = ns('select.sorting'),
+            label = HTML('<p style ="color:white;"> Sort (descending) </p>'),
+            choices = NULL,
+            selected = NULL,
+            multiple = FALSE,
+            options = list(
+              `live-search` = TRUE,
+              `style` = 'background: btn-primary',
+              `header` = 'Select item'
+            )
           )
         )
       ),
-      shiny::column(3,
-        shiny::selectizeInput(
-          inputId = ns('select.grouping'),
-          label = HTML('<p style ="color:white;"> Select grouping </p>'),
-          choices = NULL,
-          selected = NULL,
-          multiple = TRUE,
-          options = list('plugins' = list('remove_button', 'drag_drop'))
+      shiny::column(12,
+        column(3,
+          shinyWidgets::pickerInput(
+            inputId = ns('event.levels'),
+            label = HTML('<p style ="color:white;"> Select event levels</p>'),
+            choices = NULL,
+            multiple = TRUE,
+            selected = NULL,
+            options = list(
+              `actions-box` = TRUE,
+              `selected-text-format` = 'count > 0',
+              `count-selected-text` = '{0} selected (of {1})',
+              `live-search` = TRUE,
+              `style` = 'background: btn-primary',
+              `header` = 'Select multiple items',
+              `none-selected-text` = 'Please select'
+            )
+          )
         ),
-        shinyWidgets::pickerInput(
-          inputId = ns('select.subsetting'),
-          label = HTML('<p style ="color:white;"> Select subsets</p>'),
-          choices = NULL,
-          multiple = TRUE,
-          selected = NULL,
-          options = list(
-            `actions-box` = TRUE,
-            `selected-text-format` = 'count > 0',
-            `count-selected-text` = '{0} selected (of {1})',
-            `live-search` = TRUE,
-            `style` = 'background: btn-primary',
-            `header` = '(For every factor at least one value must be selected)',
-            `none-selected-text` = 'All dropped!'
+        column(3,
+          shinyWidgets::pickerInput(
+            inputId = ns('select.subsetting'),
+            label = HTML('<p style ="color:white;"> Select subsets</p>'),
+            choices = NULL,
+            multiple = TRUE,
+            selected = NULL,
+            options = list(
+              `actions-box` = TRUE,
+              `selected-text-format` = 'count > 0',
+              `count-selected-text` = '{0} selected (of {1})',
+              `live-search` = TRUE,
+              `style` = 'background: btn-primary',
+              `header` = '(For every factor at least one value must be selected)',
+              `none-selected-text` = 'All dropped!'
+            )
           )
+        ),
+        column(3,
+        HTML('<p style ="color:white;"> Save settings as .rds file:</p>'),
+        shinyWidgets::downloadBttn(
+          outputId = ns("save_settings"),
+          label = "Save Session Settings",
+          style = 'gradient',
+          color = 'primary',
+          size = 'sm',
+          no_outline = FALSE,
+          block = FALSE
         )
-      ),
-      shiny::column(3,
-        shinyWidgets::pickerInput(
-          inputId = ns('select.sorting'),
-          label = HTML('<p style ="color:white;"> Sort (descending) </p>'),
-          choices = NULL,
-          selected = NULL,
-          multiple = FALSE,
-          options = list(
-            `live-search` = TRUE,
-            `style` = 'background: btn-primary',
-            `header` = 'Select item'
+        ),
+        column(3,
+          column(4,
+          shinyWidgets::materialSwitch(
+            inputId = ns('save_settings_switch'),
+            label = HTML('<p style ="color:white;"> Use saved app settings </p>'),
+            status = 'primary'
           )
-        )#,
-        # "Save settings as .rds file:",
-        # shinyWidgets::downloadBttn(
-        #   outputId = ns("save_setting2"),
-        #   label = "Save Session Settings",
-        #   style = 'gradient',
-        #   color = 'primary',
-        #   size = 'sm',
-        #   no_outline = FALSE,
-        #   block = FALSE
-        # )
-      )#,
+        ),
+        shiny::conditionalPanel(condition = "input.save_settings_switch == true",
+            column(8,
+            shiny::fileInput(
+              inputId = ns('setting_file'),
+              label = HTML(
+                '<p style ="color:white;"> Upload app settings file (.rds) </p>'
+              ),
+              multiple = FALSE,
+              accept = '.rds'
+            )#,
+            # shiny::helpText(
+            #   'Please upload the data set of the last session which
+            #   was saved via the "Save Session Settings"-button
+            #   in the MegaPlot-tab.'
+            # )
+            ),
+            ns = NS(id)
+        )
+        )
+      )
     )
     # ,
     # shiny::tags$head(
@@ -132,7 +168,8 @@ main_option_ui <- function(id) {
 #' @noRd
 #' @keywords internal
 
-main_option_server <- function(input, output, session, data_w_event_and_group_information,data_w_ai_information, selectdata,seq.button){
+main_option_server <- function(input, output, session, data_w_event_and_group_information,data_w_ai_information, selectdata,seq.button, displayed_subjects_settings, settings,color_options,
+                               var, par, sermethod){
 
   ns <- session$ns
 
@@ -277,7 +314,65 @@ main_option_server <- function(input, output, session, data_w_event_and_group_in
     )
   })
 
+  main_option_settings <- shiny::reactive({
+    param <- list(
+       select.events = input$select.events,
+       select.grouping = input$select.grouping,
+       select.sorting = input$select.sorting,
+       select.sorting.choices = choiceSort(),
+       select.event.levels = input$event.levels,
+       select.subsetting = input$select.subsetting
+    )
+    param
+  })
 
+
+  shiny::observeEvent(input$setting_file, {
+    if (!is.null(input$setting_file)) {
+      saved_file <- readRDS(input$setting_file$datapath)
+      if (is.list(saved_file)) {
+        #update main options
+        shiny::updateSelectizeInput(
+          session,
+          inputId = "select.events",
+          selected = saved_file$select.events
+        )
+        shiny::updateSelectizeInput(
+          session,
+          inputId = "select.grouping",
+          selected = saved_file$select.grouping,
+        )
+        shinyWidgets::updatePickerInput(
+          session,
+          inputId = "select.sorting",
+          selected = saved_file$select.sorting,
+          choices = saved_file$select.sorting.choices
+        )
+        shinyWidgets::updatePickerInput(
+          session,
+          inputId = "event.levels",
+          selected = saved_file$select.event.levels
+        )
+        shinyWidgets::updatePickerInput(
+          session,
+          inputId = "select.subsetting",
+          selected = saved_file$select.subsetting
+        )
+      }
+    }
+  })
+
+  output$save_settings <- shiny::downloadHandler(
+    filename = function() {
+      paste("Megaplot_Session", gsub(":", "-", Sys.time()), ".rds", sep = "")
+    },
+    content = function(file) {
+      saveRDS(
+        c(main_option_settings(),displayed_subjects_settings(),settings(),color_options(),list(par = par()),list(var = var()),list(sermethod = sermethod()))
+        , file
+      )
+    }
+  )
   # #### reactiveValue inputIMP ####
   # inputIMP <- shiny::reactiveValues(select.events = NULL, select.grouping = NULL,name = '')
   #
@@ -301,6 +396,7 @@ return(list(
   select.grouping = shiny::reactive({input$select.grouping}),
   select.sorting = shiny::reactive({input$select.sorting}),
   event.levels = shiny::reactive({input$event.levels}),
-  select.subsetting = shiny::reactive({input$select.subsetting})
+  select.subsetting = shiny::reactive({input$select.subsetting}),
+  setting_file = shiny::reactive({input$setting_file})
 ))
 }

@@ -92,7 +92,7 @@ displayed_subjects_ui <- function(id) {
 #' @noRd
 #' @keywords internal
 
-displayed_subjects_server <- function(input, output, session, preprocess_data) {
+displayed_subjects_server <- function(input, output, session, preprocess_data, setting_file) {
 
   ns <- session$ns
 
@@ -183,12 +183,59 @@ displayed_subjects_server <- function(input, output, session, preprocess_data) {
     )
   })
 
+  displayed_subjects_settings <- shiny::reactive({
+    param <- list(
+       random = input$random,
+       selection_button = input$selection_button,
+       startsubj = input$startsubj,
+       seedset = input$seedset,
+       specific_ids = input$specific_ids
+    )
+    param
+  })
+
+
+  shiny::observeEvent(setting_file(), {
+    if (!is.null(setting_file())) {
+      saved_file <- readRDS(setting_file()$datapath)
+      if (is.list(saved_file)) {
+        #update main options
+        shiny::updateSliderInput(
+          session,
+          inputId = "random",
+          value = saved_file$random
+        )
+        shiny::updateRadioButtons(
+          session,
+          inputId = "selection_button",
+          selected = saved_file$selection_button
+        )
+         shiny::updateNumericInput(
+            session,
+            inputId = "startsubj",
+            value = saved_file$startsubj
+          )
+        updateNumericInput(
+          session,
+          inputId = "seedset",
+          value = saved_file$seedset
+        )
+        shinyWidgets::updatePickerInput(
+          session,
+          inputId = "specific_ids",
+          selected = saved_file$specific_ids
+        )
+      }
+    }
+  })
+
   return(list(
     random = shiny::reactive({input$random}),
     selection_button = shiny::reactive({input$selection_button}),
     startsubj = shiny::reactive({input$startsubj}),
     seedset = shiny::reactive({input$seedset}),
     specific_ids = shiny::reactive({input$specific_ids}),
-    subset.button = shiny::reactive({input$subset.button})
+    subset.button = shiny::reactive({input$subset.button}),
+    displayed_subjects_settings = shiny::reactive({displayed_subjects_settings()})
   ))
 }

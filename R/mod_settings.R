@@ -162,7 +162,7 @@ settings_ui <- function(id) {
 #' @noRd
 #' @keywords internal
 
-settings_server <- function(input, output, session, data_w_event_and_group_information) {
+settings_server <- function(input, output, session, data_w_event_and_group_information, setting_file) {
 
   ns <- session$ns
 
@@ -185,27 +185,148 @@ settings_server <- function(input, output, session, data_w_event_and_group_infor
     # shinydashboard::updateTabItems(session, "sidebarmenu", newtab)
   })
 
+    settings <- shiny::reactive({
+    param <- list(
+      range = input$range,
+      height_slider = input$height_slider,
+      thick = input$thick,
+      inc.ev.subj = input$inc.ev.subj,
+      lines_instead_symbols = input$lines_instead_symbols,
+      lines_options = input$lines_options,
+      det.xaxt = input$det.xaxt,
+      # incr.font = input$incr.font,
+      background_stripes= input$background_stripes,
+      background.stripes.length = input$background.stripes.length,
+      reset_draggable_panel_positions = input$reset_draggable_panel_positions,
+      reference_line_1 = input$reference_line_1,
+      reference_line_1_value = input$reference_line_1_value,
+      reference_line_2 = input$reference_line_2,
+      reference_line_2_value = input$reference_line_2_value,
+      reference_line_3 =input$reference_line_3,
+      reference_line_3_value = input$reference_line_3_value,
+      y_axis_label = input$y_axis_label,
+      x_axis_label = input$x_axis_label
+    )
+    param
+  })
+
+
+  shiny::observeEvent(setting_file(), {
+    if (!is.null(setting_file())) {
+      saved_file <- readRDS(setting_file()$datapath)
+      if (is.list(saved_file)) {
+        #update main options
+        shiny::updateSliderInput(
+          session,
+          inputId = "range",
+          value = saved_file$range
+        )
+        shiny::updateSliderInput(
+          session,
+          inputId = "height_slider",
+          value = saved_file$height_slider
+        )
+        shiny::updateSliderInput(
+          session,
+          inputId = "thick",
+          value = saved_file$thick
+        )
+        updateCheckboxInput(
+          session,
+          inputId = "inc.ev.subj",
+          value = saved_file$inc.ev.subj
+        )
+        updateCheckboxInput(
+          session,
+          inputId = "lines_instead_symbols",
+          value = saved_file$lines_instead_symbols
+        )
+        updateCheckboxInput(
+          session,
+          inputId = "det.axt",
+          value = saved_file$det.axt
+        )
+        updateCheckboxInput(
+          session,
+          inputId = "background_stripes",
+          value = saved_file$background_stripes
+        )
+        updateCheckboxInput(
+          session,
+          inputId = "reference_line_1",
+          value = saved_file$reference_line_1
+        )
+        updateCheckboxInput(
+          session,
+          inputId = "reference_line_2",
+          value = saved_file$reference_line_2
+        )
+        updateCheckboxInput(
+          session,
+          inputId = "reference_line_3",
+          value = saved_file$reference_line_3
+        )
+        updateRadioButtons(
+          session,
+          inputId = "lines_options",
+          selected = saved_file$lines_options
+        )
+        updateNumericInput(
+          session,
+          inputId = "background.stripes.length",
+          value = saved_file$background.stripes.length
+        )
+        updateNumericInput(
+          session,
+          inputId = "reference_line_1_value",
+          value = saved_file$reference_line_1_value
+        )
+        updateNumericInput(
+          session,
+          inputId = "reference_line_2_value",
+          value = saved_file$reference_line_2_value
+        )
+        updateNumericInput(
+          session,
+          inputId = "reference_line_3_value",
+          value = saved_file$reference_line_3_value
+        )
+        updateTextInput(
+          session,
+          inputId = "y_axis_label",
+          value = saved_file$y_axis_label
+        )
+        updateTextInput(
+          session,
+          inputId = "x_axis_label",
+          value = saved_file$x_axis_label
+        )
+      }
+    }
+  })
 
   return(list(
-    range = shiny::reactive({input$range}),
-    height_slider = shiny::reactive({input$height_slider}),
-    thick = shiny::reactive({input$thick }),
-    inc.ev.subj = shiny::reactive({input$inc.ev.subj}),
-    lines_instead_symbols = shiny::reactive({input$lines_instead_symbols}),
-    lines_options = shiny::reactive({input$lines_options}),
-    det.xaxt = shiny::reactive({input$det.xaxt}),
-    # incr.font = shiny::reactive({input$incr.font}),
-    background_stripes= shiny::reactive({input$background_stripes}),
-    background.stripes.length = shiny::reactive({input$background.stripes.length}),
-    reset_draggable_panel_positions = shiny::reactive({input$reset_draggable_panel_positions}),
-    reference_line_1 = shiny::reactive({input$reference_line_1}),
-    reference_line_1_value = shiny::reactive({input$reference_line_1_value}),
-    reference_line_2 = shiny::reactive({input$reference_line_2}),
-    reference_line_2_value = shiny::reactive({input$reference_line_2_value}),
-    reference_line_3 = shiny::reactive({input$reference_line_3}),
-    reference_line_3_value = shiny::reactive({input$reference_line_3_value}),
-    y_axis_label = shiny::reactive({input$y_axis_label}),
-    x_axis_label = shiny::reactive({input$x_axis_label})
+    # range = shiny::reactive({input$range}),
+    # height_slider = shiny::reactive({input$height_slider}),
+    # thick = shiny::reactive({input$thick }),
+    # inc.ev.subj = shiny::reactive({input$inc.ev.subj}),
+    # lines_instead_symbols = shiny::reactive({input$lines_instead_symbols}),
+    # lines_options = shiny::reactive({input$lines_options}),
+    # det.xaxt = shiny::reactive({input$det.xaxt}),
+    # # incr.font = shiny::reactive({input$incr.font}),
+    # background_stripes= shiny::reactive({input$background_stripes}),
+    # background.stripes.length = shiny::reactive({input$background.stripes.length}),
+    # reset_draggable_panel_positions = shiny::reactive({input$reset_draggable_panel_positions}),
+    # reference_line_1 = shiny::reactive({input$reference_line_1}),
+    # reference_line_1_value = shiny::reactive({input$reference_line_1_value}),
+    # reference_line_2 = shiny::reactive({input$reference_line_2}),
+    # reference_line_2_value = shiny::reactive({input$reference_line_2_value}),
+    # reference_line_3 = shiny::reactive({input$reference_line_3}),
+    # reference_line_3_value = shiny::reactive({input$reference_line_3_value}),
+    # y_axis_label = shiny::reactive({input$y_axis_label}),
+    # x_axis_label = shiny::reactive({input$x_axis_label}),
+
+    settings = shiny::reactive({settings()})
   ))
 
 }

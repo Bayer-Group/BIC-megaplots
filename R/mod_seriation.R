@@ -334,8 +334,9 @@ make_parameter_ui <- function(id, var, name) {
 
 seriation_ui <- function(id) {
   ns <- NS(id)
-
-  uiOutput(ns("parameters"))
+  tagList(
+    uiOutput(ns("parameters"))
+  )
 }
 
 
@@ -352,11 +353,13 @@ seriation_ui <- function(id) {
 #' @noRd
 #' @keywords internal
 
-seriation_server <- function(id,varSeq, multiple_distmeasures, select_data, seq.button){
+seriation_server <- function(id,varSeq, multiple_distmeasures, select_data, seq.button, setting_file){
 
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
-    observe({
+
+
+    shiny::observe({
       # make the inputs for the parameters:
       if ((length(varSeq()) > 1) & multiple_distmeasures()) {
         output$parameters <- renderUI({
@@ -367,6 +370,226 @@ seriation_server <- function(id,varSeq, multiple_distmeasures, select_data, seq.
         output$parameters <- renderUI({
           make_parameter_ui(ns(id), var = varSeq()[[1]], name = "")
         })
+      }
+    })
+
+    shiny::observeEvent(setting_file(), {
+      if (!is.null(setting_file())) {
+        saved_file <- readRDS(setting_file()$datapath)
+        if (is.list(saved_file)) {
+          if ((length(varSeq()) > 1) & multiple_distmeasures()) {
+            for (i in seq_along(varSeq())) {
+              var <- varSeq()[[i]]
+              shinyWidgets::updatePickerInput(session,
+                                              inputId = paste0("parametersModule-",var, "_distmeasure"),
+                                              selected = saved_file[["distmeasure"]][i])
+              input[[paste0("parametersModule-",var, "_distmeasure")]]
+
+              shinyWidgets::updatePickerInput(session,
+                                              inputId = paste0("parametersModule-",var, "_sm"),
+                                              selected = saved_file[["sm"]][i])
+              input[[paste0("parametersModule-",var, "_sm")]]
+
+              shinyWidgets::updatePickerInput(session,
+                                              inputId = paste0("parametersModule-",var, "_smDHD"),
+                                              selected = saved_file[["smDHD"]][i])
+              input[[paste0("parametersModule-",var, "_smDHD")]]
+
+              shinyWidgets::updatePickerInput(session,
+                                              inputId = paste0("parametersModule-",var, "_norm"),
+                                              selected = saved_file[["norm"]][i])
+              input[[paste0("parametersModule-",var, "_norm")]]
+
+              shinyWidgets::updatePickerInput(session,
+                                              inputId = paste0("parametersModule-",var, "_norm2"),
+                                              selected = saved_file[["norm2"]][i])
+              input[[paste0("parametersModule-",var, "_norm2")]]
+
+              shinyWidgets::updatePickerInput(session,
+                                              inputId = paste0("parametersModule-",var, "_indel"),
+                                              selected = saved_file[["indel"]][i])
+              input[[paste0("parametersModule-",var, "_indel")]]
+
+              shiny::updateNumericInput(session,
+                                        inputId = paste0("parametersModule-",var, "_indel_numeric"),
+                                        value = saved_file[["indel_numeric"]][i])
+              input[[paste0("parametersModule-",var, "_indel_numeric")]]
+
+              shinyWidgets::updatePickerInput(session,
+                                              inputId = paste0("parametersModule-",var, "_expcost"),
+                                              selected = saved_file[["expcost"]][i])
+              input[[paste0("parametersModule-",var, "_expcost")]]
+
+              shinyWidgets::updatePickerInput(session,
+                                              inputId = paste0("parametersModule-",var, "_context"),
+                                              selected = saved_file[["context"]][i])
+              input[[paste0("parametersModule-",var, "_context")]]
+
+              shinyWidgets::updatePickerInput(session,
+                                              inputId = paste0("parametersModule-",var, "_link"),
+                                              selected = saved_file[["link"]][i])
+              input[[paste0("parametersModule-",var, "_link")]]
+
+              shinyWidgets::updatePickerInput(session,
+                                              inputId = paste0("parametersModule-",var, "_h_OMslen"),
+                                              selected = saved_file[["h_OMslen"]][i])
+              input[[paste0("parametersModule-",var, "_h_OMslen")]]
+
+              shinyWidgets::updatePickerInput(session,
+                                              inputId = paste0("parametersModule-",var, "_transindel"),
+                                              selected = saved_file[["transindel"]][i])
+              input[[paste0("parametersModule-",var, "_transindel")]]
+
+              shinyWidgets::updatePickerInput(session,
+                                              inputId = paste0("parametersModule-",var, "_tpow"),
+                                              selected = saved_file[["tpow"]][i])
+              input[[paste0("parametersModule-",var, "_tpow")]]
+
+              shinyWidgets::updatePickerInput(session,
+                                              inputId = paste0("parametersModule-",var, "_otto"),
+                                              selected = saved_file[["otto"]][i])
+              input[[paste0("parametersModule-",var, "_otto")]]
+
+              shinyWidgets::updatePickerInput(session,
+                                              inputId = paste0("parametersModule-",var, "_previous"),
+                                              selected = saved_file[["previous"]][i])
+              input[[paste0("parametersModule-",var, "_previous")]]
+
+              shinyWidgets::updatePickerInput(session,
+                                              inputId = paste0("parametersModule-",var, "_add.column"),
+                                              selected = saved_file[["add.column"]][i])
+              input[[paste0("parametersModule-",var, "_add.column")]]
+
+              shinyWidgets::updatePickerInput(session,
+                                              inputId = paste0("parametersModule-",var, "_overlap"),
+                                              selected = saved_file[["overlap"]][i])
+              input[[paste0("parametersModule-",var, "_overlap")]]
+
+              shinyWidgets::updatePickerInput(session,
+                                              inputId = paste0("parametersModule-",var, "_step"),
+                                              selected = saved_file[["step"]][i])
+              input[[paste0("parametersModule-",var, "_step")]]
+
+              shinyWidgets::updatePickerInput(session,
+                                              inputId = paste0("parametersModule-",var, "_weighted"),
+                                              selected = saved_file[["weighted"]][i])
+              input[[paste0("parametersModule-",var, "_weighted")]]
+
+              shinyWidgets::updatePickerInput(session,
+                                              inputId = paste0("parametersModule-",var, "_methMissing"),
+                                              selected = saved_file[["methMissing"]][i])
+              input[[paste0("parametersModule-",var, "_methMissing")]]
+
+            }
+          } else {
+            var <- varSeq()[[1]]
+            i <- 1
+
+            shinyWidgets::updatePickerInput(
+              session,
+              inputId = paste0("parametersModule-",var, "_distmeasure"),
+              selected = saved_file[["distmeasure"]][i]
+            )
+
+            input[[paste0("parametersModule-",var, "_distmeasure")]]
+
+            shinyWidgets::updatePickerInput(session,
+                                            inputId = paste0("parametersModule-",var, "_sm"),
+                                            selected = saved_file[["sm"]][i])
+            input[[paste0("parametersModule-",var, "_sm")]]
+
+            shinyWidgets::updatePickerInput(session,
+                                            inputId = paste0("parametersModule-",var, "_smDHD"),
+                                            selected = saved_file[["smDHD"]][i])
+            input[[paste0("parametersModule-",var, "_smDHD")]]
+
+            shinyWidgets::updatePickerInput(session,
+                                            inputId = paste0("parametersModule-",var, "_norm"),
+                                            selected = saved_file[["norm"]][i])
+            input[[paste0("parametersModule-",var, "_norm")]]
+
+            shinyWidgets::updatePickerInput(session,
+                                            inputId = paste0("parametersModule-",var, "_norm2"),
+                                            selected = saved_file[["norm2"]][i])
+            input[[paste0("parametersModule-",var, "_norm2")]]
+
+            shinyWidgets::updatePickerInput(session,
+                                            inputId = paste0("parametersModule-",var, "_indel"),
+                                            selected = saved_file[["indel"]][i])
+            input[[paste0("parametersModule-",var, "_indel")]]
+
+            shiny::updateNumericInput(session,
+                                      inputId = paste0("parametersModule-",var, "_indel_numeric"),
+                                      value = saved_file[["indel_numeric"]][i])
+            input[[paste0("parametersModule-",var, "_indel_numeric")]]
+
+            shinyWidgets::updatePickerInput(session,
+                                            inputId = paste0("parametersModule-",var, "_expcost"),
+                                            selected = saved_file[["expcost"]][i])
+            input[[paste0("parametersModule-",var, "_expcost")]]
+
+            shinyWidgets::updatePickerInput(session,
+                                            inputId = paste0("parametersModule-",var, "_context"),
+                                            selected = saved_file[["context"]][i])
+            input[[paste0("parametersModule-",var, "_context")]]
+
+            shinyWidgets::updatePickerInput(session,
+                                            inputId = paste0("parametersModule-",var, "_link"),
+                                            selected = saved_file[["link"]][i])
+            input[[paste0("parametersModule-",var, "_link")]]
+
+            shinyWidgets::updatePickerInput(session,
+                                            inputId = paste0("parametersModule-",var, "_h_OMslen"),
+                                            selected = saved_file[["h_OMslen"]][i])
+            input[[paste0("parametersModule-",var, "_h_OMslen")]]
+
+            shinyWidgets::updatePickerInput(session,
+                                            inputId = paste0("parametersModule-",var, "_transindel"),
+                                            selected = saved_file[["transindel"]][i])
+            input[[paste0("parametersModule-",var, "_transindel")]]
+
+            shinyWidgets::updatePickerInput(session,
+                                            inputId = paste0("parametersModule-",var, "_tpow"),
+                                            selected = saved_file[["tpow"]][i])
+            input[[paste0("parametersModule-",var, "_tpow")]]
+
+            shinyWidgets::updatePickerInput(session,
+                                            inputId = paste0("parametersModule-",var, "_otto"),
+                                            selected = saved_file[["otto"]][i])
+            input[[paste0("parametersModule-",var, "_otto")]]
+
+            shinyWidgets::updatePickerInput(session,
+                                            inputId = paste0("parametersModule-",var, "_previous"),
+                                            selected = saved_file[["previous"]][i])
+            input[[paste0("parametersModule-",var, "_previous")]]
+
+            shinyWidgets::updatePickerInput(session,
+                                            inputId = paste0("parametersModule-",var, "_add.column"),
+                                            selected = saved_file[["add.column"]][i])
+            input[[paste0("parametersModule-",var, "_add.column")]]
+
+            shinyWidgets::updatePickerInput(session,
+                                            inputId = paste0("parametersModule-",var, "_overlap"),
+                                            selected = saved_file[["overlap"]][i])
+            input[[paste0("parametersModule-",var, "_overlap")]]
+
+            shinyWidgets::updatePickerInput(session,
+                                            inputId = paste0("parametersModule-",var, "_step"),
+                                            selected = saved_file[["step"]][i])
+            input[[paste0("parametersModule-",var, "_step")]]
+
+            shinyWidgets::updatePickerInput(session,
+                                            inputId = paste0("parametersModule-",var, "_weighted"),
+                                            selected = saved_file[["weighted"]][i])
+            input[[paste0("parametersModule-",var, "_weighted")]]
+
+            shinyWidgets::updatePickerInput(session,
+                                            inputId = paste0("parametersModule-",var, "_methMissing"),
+                                            selected = saved_file[["methMissing"]][i])
+            input[[paste0("parametersModule-",var, "_methMissing")]]
+
+          }
+        }
       }
     })
 
@@ -643,5 +866,4 @@ seriation_server <- function(id,varSeq, multiple_distmeasures, select_data, seq.
       )
     )
   })
-
 }

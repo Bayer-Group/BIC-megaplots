@@ -69,7 +69,7 @@ shiny::tagList(
 
 
 color_options_server <- function(input, output, session, import.button, select.ev1, select.ev2, select.ev3, select.ev4,
-                                 select.ev.lev1, select.ev.lev2, select.ev.lev3, select.ev.lev4, selectdata) {
+                                 select.ev.lev1, select.ev.lev2, select.ev.lev3, select.ev.lev4, selectdata,setting_file) {
 
   ns <- session$ns
 
@@ -310,12 +310,92 @@ color_options_server <- function(input, output, session, import.button, select.e
       color_pal4$val <- NULL
     }
   })
+#
 
-  return(list(
-    color_pal1 = shiny::reactive({color_pal1$val}),
-    color_pal2 = shiny::reactive({color_pal2$val}),
-    color_pal3 = shiny::reactive({color_pal3$val}),
-    color_pal4 = shiny::reactive({color_pal4$val}),
-    select.col = shiny::reactive({input$select.col})
-  ))
+  shiny::observeEvent(setting_file(), {
+    if (!is.null(setting_file())) {
+      saved_file <- readRDS(setting_file()$datapath)
+      if (is.list(saved_file)) {
+        custom_colour <- mod_colour_palette_server(
+          "color_palette1",
+          event = shiny::reactive({
+            select.ev1()
+          }),
+          level = shiny::reactive({
+            select.ev.lev1()
+          }),
+          colors = shiny::reactive({saved_file$color_pal1})
+        )
+
+        shiny::observe({
+          color_pal1$val <- custom_colour$colors()
+        })
+
+         custom_colour2 <- mod_colour_palette_server(
+          "color_palette2",
+          event = shiny::reactive({
+            select.ev2()
+          }),
+          level = shiny::reactive({
+            select.ev.lev2()
+          }),
+          colors = shiny::reactive({
+            colChoice[["color palette 2"]]$col
+          })
+        )
+        observe({
+          color_pal2$val <- custom_colour2$colors()
+        })
+
+         custom_colour3 <- mod_colour_palette_server(
+          "color_palette3",
+          event = shiny::reactive({
+            select.ev3()
+          }),
+          level = shiny::reactive({
+            select.ev.lev3()
+          }),
+          colors = shiny::reactive({
+            colChoice[["color palette 3"]]$col
+          })
+        )
+        observe({
+          color_pal3$val <- custom_colour3$colors()
+        })
+
+         custom_colour4 <- mod_colour_palette_server(
+          "color_palette4",
+          event = shiny::reactive({
+            select.ev4()
+          }),
+          level = shiny::reactive({
+            select.ev.lev4()
+          }),
+          colors = shiny::reactive({
+            colChoice[["color palette 4"]]$col
+          })
+        )
+        observe({
+          color_pal4$val <- custom_colour4$colors()
+        })
+      }
+    }
+  })
+
+  color_infos <- shiny::reactive({
+    param <- list(
+      color_pal1 = color_pal1$val,
+      color_pal2 = color_pal2$val,
+      color_pal3 = color_pal3$val,
+      color_pal4 = color_pal4$val,
+      select.col = input$select.col
+    )
+    param
+  })
+
+  return(
+    list(
+      color_infos = shiny::reactive({color_infos()})
+    )
+  )
 }

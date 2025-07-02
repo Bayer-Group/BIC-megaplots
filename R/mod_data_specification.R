@@ -16,7 +16,7 @@ mod_data_specification_ui <- function(id) {
       width = NULL,
       solidHeader = TRUE,
       collapsible = FALSE,
-    shiny::uiOutput(ns("data_specification"))
+      shiny::uiOutput(ns("data_specification"))
     )
   )
 }
@@ -151,17 +151,6 @@ mod_data_specification_server <- function(input, output, session, select_color) 
             }
             table {
               width: 100px;
-            }
-            td, th {
-              border: 1px solid ", '#424242', ";
-              text-align: left;
-              padding: 8px;
-            }
-            tr:nth-child(odd) {
-              background-color: ", '#e3e3e3', ";
-            }
-            tr:nth-child(even) {
-              background-color: ", '#e0e0e0', ";
             }
           </style>
 

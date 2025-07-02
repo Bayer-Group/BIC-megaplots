@@ -12,11 +12,15 @@ raw_data_ui <- function(id) {
 
   ns <- NS(id)
 
-shiny::tagList(
-    shiny::br(),
-    shiny::uiOutput(ns('select.raw')),
-    shiny::br(),
-    DT::DTOutput(ns('rawtable'))
+  shiny::tagList(
+    shinydashboard::box(
+      width = NULL,
+      solidHeader = TRUE,
+      collapsible = FALSE,
+      shiny::uiOutput(ns('select.raw')),
+      shiny::br(),
+      DT::DTOutput(ns('rawtable'))
+    )
   )
 }
 
@@ -30,7 +34,7 @@ shiny::tagList(
 #' @keywords internal
 #'
 
-raw_data_server <- function(input, output, session, preprocess_data, data_w_ai_information) {
+raw_data_server <- function(input, output, session, preprocess_data, data_w_ai_information, select_color) {
 
   ns <- session$ns
 
@@ -56,7 +60,34 @@ raw_data_server <- function(input, output, session, preprocess_data, data_w_ai_i
   output$rawtable = DT::renderDT({
     rd <- shiny::req(rawData())
     rd <- rd[, setdiff(colnames(rd), c('Group_ID', 'Group_ID_char', 'subject'))]
-    rd <- DT::datatable(rd, rownames = FALSE)
+    rd_length <- ncol(rd)
+    rd <- DT::datatable(rd,
+          options = list(
+            initComplete = DT::JS(
+            "function(settings, json) {",
+            paste0(
+              "$(this.api().table().header()).css({'background-color': '",
+                   select_color()['plot.bg2'],
+                   "', 'color': '",
+                   select_color()['plot.id'],
+                   "'});"
+              ),"}"
+            ),
+            dom = 'Brtip',
+            class = 'cell-border stripe'
+          ), rownames = FALSE)
+
+
+        col.tabFont <- select_color()['plot.id']
+        rd <- DT::formatStyle(
+          table = rd,
+          columns = 1:(rd_length + 1),
+          target = "cell",
+          color = col.tabFont,
+          backgroundColor = select_color()['plot.bg'],
+          border = paste0('.5px solid ', select_color()['plot.bg'])
+        )
+
     rd
   })
 }

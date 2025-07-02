@@ -209,24 +209,24 @@ data_upload_ui <- function(id) {
           ),
           ns = NS(id)
         ),
-        shiny::column(4,
-          shiny::conditionalPanel(condition = "input.selectdata == 'Upload saved data'",
-            shiny::fileInput(
-              inputId = ns('setting_file'),
-              label = HTML(
-                '<p> Upload previous Session Settings (.rds) </p>'
-              ),
-              multiple = FALSE,
-              accept = '.rds'
-            ),
-            shiny::helpText(
-              'Please upload the data set of the last session which
-              was saved via the "Save Session Settings"-button
-              in the MegaPlot-tab.'
-            ),
-            ns = NS(id)
-          )
-        )
+        # shiny::column(4,
+        #   shiny::conditionalPanel(condition = "input.selectdata == 'Upload saved data'",
+        #     shiny::fileInput(
+        #       inputId = ns('setting_file'),
+        #       label = HTML(
+        #         '<p> Upload previous Session Settings (.rds) </p>'
+        #       ),
+        #       multiple = FALSE,
+        #       accept = '.rds'
+        #     ),
+        #     shiny::helpText(
+        #       'Please upload the data set of the last session which
+        #       was saved via the "Save Session Settings"-button
+        #       in the MegaPlot-tab.'
+        #     ),
+        #     ns = NS(id)
+        #   )
+        # )
       )
     ),
     shiny::br(),
@@ -249,6 +249,32 @@ data_upload_ui <- function(id) {
     ),
     shiny::br(),
     shiny::br(),
+    # shiny::fluidRow(
+    #   shiny::column(9,
+    #     shinyWidgets::materialSwitch(
+    #       inputId = ns('save_settings_switch'),
+    #       label = 'Use saved app settings',
+    #       status = 'primary'
+    #     ),
+    #     shiny::conditionalPanel(condition = "input.save_settings_switch == true",
+    #         shiny::fileInput(
+    #           inputId = ns('setting_file'),
+    #           label = HTML(
+    #             '<p> Upload previous Session Settings (.rds) </p>'
+    #           ),
+    #           multiple = FALSE,
+    #           accept = '.rds'
+    #         ),
+    #         shiny::helpText(
+    #           'Please upload the data set of the last session which
+    #           was saved via the "Save Session Settings"-button
+    #           in the MegaPlot-tab.'
+    #         ),
+    #         ns = NS(id)
+    #     )
+    #   )
+    # ),
+    # br(),
     shiny::fluidRow(
       shiny::column(3,
         shinyWidgets::actionBttn(

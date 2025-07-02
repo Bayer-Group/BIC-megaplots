@@ -15,6 +15,7 @@ mega_plot_ui <- function(id) {
   shiny::tagList(
     shiny::uiOutput(ns('hover_legend')),
     shiny::uiOutput(ns('megaplot')),
+    p("", style = "margin-bottom: 40px;"),
     fixedPanel(
       shiny::uiOutput(ns('axisbox')),
       bottom = 1,
@@ -88,6 +89,14 @@ mega_plot_server <- function(input, output, session,
     list('mar' = c(0, mar2, 0, mar4), 'grLab' = grLab)
   })
 
+  plot_par_settings_zoom <- shiny::reactive({
+    shiny::req(data_w_plot_info(), data_w_event_and_group_information(), data_grouped_and_sorted())
+    mar2 <- 5
+    grLab <- NULL
+    mar4 <- 1
+    list('mar' = c(0, mar2, 0, mar4), 'grLab' = grLab)
+  })
+
   #### PLOTTING ####
   # Plot Megaplots
   output$image1 <- shiny::renderPlot({
@@ -104,30 +113,30 @@ mega_plot_server <- function(input, output, session,
       megaplot_data = data_w_plot_info(),
       select_color = select.col(),
       par_settings = plot_par_settings(),
-      background_stripes = settings()$background_stripes(),
-      background_stripes_length = settings()$background.stripes.length(),
+      background_stripes = settings()$background_stripes,
+      background_stripes_length = settings()$background.stripes.length,
       event_levels = main_settings()$event.levels(),
-      xlim = c(settings()$range()[1], settings()$range()[2]),
+      xlim = c(settings()$range[1], settings()$range[2]),
       ylim = range(data_w_plot_info()$A$subject) + c(-1.5, 1.5),
-      lines_instead_symbols = settings()$lines_instead_symbols(),
-      lines_options = settings()$lines_options(),
-      line_width = settings()$thick(),
-      y_axis_label = settings()$y_axis_label(),
-      reference_line_1 = settings()$reference_line_1(),
-      reference_line_1_value = settings()$reference_line_1_value(),
-      reference_line_2 = settings()$reference_line_2(),
-      reference_line_2_value = settings()$reference_line_2_value(),
-      reference_line_3 = settings()$reference_line_3(),
-      reference_line_3_value = settings()$reference_line_3_value(),
+      lines_instead_symbols = settings()$lines_instead_symbols,
+      lines_options = settings()$lines_options,
+      line_width = settings()$thick,
+      y_axis_label = settings()$y_axis_label,
+      reference_line_1 = settings()$reference_line_1,
+      reference_line_1_value = settings()$reference_line_1_value,
+      reference_line_2 = settings()$reference_line_2,
+      reference_line_2_value = settings()$reference_line_2_value,
+      reference_line_3 = settings()$reference_line_3,
+      reference_line_3_value = settings()$reference_line_3_value,
       select_events = main_settings()$select.events(),
-      color_subject_line_by_first_event = settings()$inc.ev.subj()
+      color_subject_line_by_first_event = settings()$inc.ev.subj
     )
   },
   # function for UI auto height resizing
   height = function(){image1_plot_height()})
 
   image1_plot_height <- shiny::reactive({
-    (max(c(1, data_grouped_and_sorted())$A$'subject') * 12) * settings()$height_slider()
+    (max(c(1, data_grouped_and_sorted())$A$'subject') * 12) * settings()$height_slider
   })
 
   #### Plot Legend ####
@@ -146,24 +155,24 @@ mega_plot_server <- function(input, output, session,
   #### Plot x-axis ####
   output$image1Axis <- shiny::renderPlot({
     # reactivity
-    settings()$x_axis_label()
+    settings()$x_axis_label
 
     #requirements
-    shiny::req(settings()$range())
+    shiny::req(settings()$range)
     draw_megaplot_x_axis(
-      range = settings()$range(),
+      range = settings()$range,
       select_color = select.col(),
       megaplot_axis_width = session$clientData[["output_mega_plot-image1Axis_width"]],
       megaplot_width = shiny::req(session$clientData[["output_mega_plot-image1_width"]]),
       plot_par_settings = plot_par_settings(),
-      axis_ticks = settings()$det.xaxt(),
-      x_axis_label = settings()$x_axis_label(),
-      reference_line_1 = settings()$reference_line_1(),
-      reference_line_1_value = settings()$reference_line_1_value(),
-      reference_line_2 = settings()$reference_line_2(),
-      reference_line_2_value = settings()$reference_line_2_value(),
-      reference_line_3 = settings()$reference_line_3(),
-      reference_line_3_value = settings()$reference_line_3_value()
+      axis_ticks = settings()$det.xaxt,
+      x_axis_label = settings()$x_axis_label,
+      reference_line_1 = settings()$reference_line_1,
+      reference_line_1_value = settings()$reference_line_1_value,
+      reference_line_2 = settings()$reference_line_2,
+      reference_line_2_value = settings()$reference_line_2_value,
+      reference_line_3 = settings()$reference_line_3,
+      reference_line_3_value = settings()$reference_line_3_value
     )
   })
 
@@ -214,11 +223,11 @@ mega_plot_server <- function(input, output, session,
   # updates to 30 to 60).
 
   output$check_slider_used <- shiny::reactive({
-    shiny::req(data_w_event_and_group_information(), settings()$range())
+    shiny::req(data_w_event_and_group_information(), settings()$range)
     min1 <- min(data_w_event_and_group_information()$A$megaplots_selected_start_time)
     max1 <- max(data_w_event_and_group_information()$A$megaplots_selected_end_time)
-    rangemin1 <- settings()$range()[1]
-    rangemax1 <- settings()$range()[2]
+    rangemin1 <- settings()$range[1]
+    rangemax1 <- settings()$range[2]
 
     if (min1 != rangemin1 | max1 != rangemax1) {
       tmp <- TRUE
@@ -237,7 +246,7 @@ mega_plot_server <- function(input, output, session,
       fixed = TRUE,
       draggable = TRUE,
       HTML(paste0(
-        "<div style='background-color: #222d32'>"
+        "<div style='background-color: ",select.col()['plot.bg'],"'>"
       )),
       top = 300,
       left = "auto",
@@ -271,7 +280,7 @@ mega_plot_server <- function(input, output, session,
       fixed = TRUE,
       draggable = TRUE,
         HTML(paste0(
-          "<div style='background-color: #222d32'>"
+          "<div style='background-color: ",select.col()['plot.bg'],"'>"
         )
       ),
       HTML(
@@ -309,24 +318,24 @@ mega_plot_server <- function(input, output, session,
       draw_megaplot(
         megaplot_data = data_w_plot_info(),
         select_color = select.col(),
-        par_settings = plot_par_settings(),
-        background_stripes = settings()$background_stripes(),
-        background_stripes_length = settings()$background.stripes.length(),
+        par_settings = plot_par_settings_zoom(),
+        background_stripes = settings()$background_stripes,
+        background_stripes_length = settings()$background.stripes.length,
         event_levels = main_settings()$event.levels(),
         xlim = brush_coord$x,
         ylim = brush_coord$y + c(-1.5, 1.5),
-        lines_instead_symbols = settings()$lines_instead_symbols(),
-        lines_options = settings()$lines_options(),
-        line_width = settings()$thick(),
-        y_axis_label = settings()$y_axis_label(),
-        reference_line_1 = settings()$reference_line_1(),
-        reference_line_1_value = settings()$reference_line_1_value(),
-        reference_line_2 = settings()$reference_line_2(),
-        reference_line_2_value = settings()$reference_line_2_value(),
-        reference_line_3 = settings()$reference_line_3(),
-        reference_line_3_value = settings()$reference_line_3_value(),
+        lines_instead_symbols = settings()$lines_instead_symbols,
+        lines_options = settings()$lines_options,
+        line_width = settings()$thick,
+        y_axis_label = settings()$y_axis_label,
+        reference_line_1 = settings()$reference_line_1,
+        reference_line_1_value = settings()$reference_line_1_value,
+        reference_line_2 = settings()$reference_line_2,
+        reference_line_2_value = settings()$reference_line_2_value,
+        reference_line_3 = settings()$reference_line_3,
+        reference_line_3_value = settings()$reference_line_3_value,
         select_events = main_settings()$select.events(),
-        color_subject_line_by_first_event = settings()$inc.ev.subj()
+        color_subject_line_by_first_event = settings()$inc.ev.subj
       )
 
     } else {
@@ -369,7 +378,7 @@ mega_plot_server <- function(input, output, session,
       fixed = TRUE,
       draggable = TRUE,
       HTML(paste0(
-        "<div style='background-color: #222d32'>"
+        "<div style='background-color: ",select.col()['plot.bg'],"'>"
       )),
       HTML('<button style ="background: #0091DF;color:#ffffff",
         data-toggle="collapse" data-target="#demo" style="color:white;">
@@ -393,7 +402,7 @@ mega_plot_server <- function(input, output, session,
   max_legend_char <- shiny::reactiveVal({270})
 
   # re-create panels after reset panel click to display them when hidden
-  shiny::observeEvent(settings()$reset_draggable_panel_positions(), {
+  shiny::observeEvent(settings()$reset_draggable_panel_positions, {
    output$hoverpanel <- shiny::renderUI({
       shiny::absolutePanel(
         id = ns("hoverpanel"),
@@ -401,7 +410,7 @@ mega_plot_server <- function(input, output, session,
         fixed = TRUE,
         draggable = TRUE,
         HTML(paste0(
-          "<div style='background-color: #222d32'>"
+          "<div style='background-color: ",select.col()['plot.bg'],"'>"
         )),
         HTML(
           '
@@ -434,7 +443,7 @@ mega_plot_server <- function(input, output, session,
         fixed = TRUE,
         draggable = TRUE,
           HTML(paste0(
-            "<div style='background-color: #222d32'>"
+            "<div style='background-color: ",select.col()['plot.bg'],"'>"
           )
         ),
         HTML('<button style = "background: #0091DF; color:#ffffff",
@@ -469,7 +478,7 @@ mega_plot_server <- function(input, output, session,
         fixed = TRUE,
         draggable = TRUE,
         HTML(paste0(
-          "<div style='background-color: #404A4E'>"
+          "<div style='background-color: ",select.col()['plot.bg'],"'>"
         )),
         top = 333,
         left = "auto",
@@ -497,7 +506,7 @@ mega_plot_server <- function(input, output, session,
       fixed = TRUE,
       draggable = TRUE,
       HTML(paste0(
-        "<div style='background-color: #404A4E'>"
+        "<div style='background-color: ",select.col()['plot.bg'],"'>"
       )),
       top = 333,
       left = "auto",

@@ -99,7 +99,7 @@ artificial_intelligence_ui <- function(id) {
 #' @keywords internal
 #'
 
-artificial_intelligence_server <- function(input, output, session, preprocess_data, selectdata,data_w_event_and_group_information) {
+artificial_intelligence_server <- function(input, output, session, preprocess_data, selectdata, data_w_event_and_group_information, setting_file) {
 
   ns <- session$ns
 
@@ -115,8 +115,8 @@ artificial_intelligence_server <- function(input, output, session, preprocess_da
     shiny::reactive({input$varSeq}),
     shiny::reactive({input$multiple_distmeasures}),
     shiny::reactive({selectdata()}),
-    shiny::reactive({input$seq.button})
-
+    shiny::reactive({input$seq.button}),
+    shiny::reactive({setting_file()})
   )
 
    collectSeq <- shiny::reactiveValues(
@@ -142,6 +142,28 @@ artificial_intelligence_server <- function(input, output, session, preprocess_da
       selected = selected
     )
   })
+
+
+    shiny::observeEvent(setting_file(), {
+      if (!is.null(setting_file())) {
+        saved_file <- readRDS(setting_file()$datapath)
+        if (is.list(saved_file)) {
+
+            shinyWidgets::updatePickerInput(
+              session,
+              inputId = "varSeq",
+              selected = saved_file$var
+            )
+
+            shinyWidgets::updatePickerInput(
+              session,
+              inputId ='methSer',
+              label = 'Seriation method',
+              selected = saved_file$sermethod
+            )
+        }
+      }
+    })
 
   return(list(
     varSeq = shiny::reactive({collectSeq$varSeq}),

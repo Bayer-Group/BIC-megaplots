@@ -12,12 +12,16 @@ summary_statistics_ui <- function(id) {
 
   ns <- NS(id)
 
-shiny::tagList(
-    shiny::br(),
-    DT::DTOutput(ns('sumtable')),
-    shiny::br(),
-    shiny::br(),
-    DT::DTOutput(ns('indivtable'))
+  shiny::tagList(
+    shinydashboard::box(
+      width = NULL,
+      solidHeader = TRUE,
+      collapsible = FALSE,
+      DT::DTOutput(ns('sumtable')),
+      shiny::br(),
+      shiny::br(),
+      DT::DTOutput(ns('indivtable'))
+    )
   )
 }
 
@@ -31,7 +35,7 @@ shiny::tagList(
 #' @keywords internal
 #'
 
-summary_statistics_server <- function(input, output, session,data_w_plot_info, data_grouped_and_sorted, import.button, select.events, event.levels) {
+summary_statistics_server <- function(input, output, session,data_w_plot_info, data_grouped_and_sorted, import.button, select.events, event.levels, select_color) {
 
   ns <- session$ns
 
@@ -42,7 +46,36 @@ summary_statistics_server <- function(input, output, session,data_w_plot_info, d
 
     if (!is.null(mel.sum)) {
       if (nrow(mel.sum) > 0) {
-        mel.sum <- DT::datatable(mel.sum, rownames = FALSE, filter = 'top')
+
+        mel.sum <- DT::datatable(
+          mel.sum,
+          options = list(
+            initComplete = DT::JS(
+            "function(settings, json) {",
+            paste0(
+              "$(this.api().table().header()).css({'background-color': '",
+                   select_color()['plot.bg2'],
+                   "', 'color': '",
+                   select_color()['plot.id'],
+                   "'});"
+              ),"}"
+            ),
+            dom = 'Brtip',
+            class = 'cell-border stripe'
+          ),
+          rownames = FALSE, filter = 'top'
+        )
+
+        col.tabFont <- select_color()['plot.id']
+        mel.sum<- DT::formatStyle(
+          table = mel.sum,
+          columns = 1:(ncol(summary_statistics$val) + 1),
+          target = "cell",
+          color = col.tabFont,
+          backgroundColor = select_color()['plot.bg'],
+          border = paste0('.5px solid ', select_color()['plot.bg'])
+        )
+
         mel.sum <- DT::formatRound(mel.sum, columns = 'MEAN COUNT PER SUBJECT', digits = 1)
         mel.sum
       }
@@ -152,7 +185,7 @@ summary_statistics_server <- function(input, output, session,data_w_plot_info, d
               ifelse(group != "", group, "Overall"),
               " (N = ", unique(tmp[tmp$`GROUP BY` == group,]$NUMBER) ,")",
               "</u>",
-              paste("<p> <mark style = 'color: white; text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black; background:",summary_color,";'>",
+              paste("<p style ='color: white; text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;'> <mark style = 'color: white; text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black; background:",summary_color,";'>",
                 tmp[tmp$`GROUP BY` == group,]$LEVEL,
                 "</mark>  Events = ",
                 tmp[tmp$`GROUP BY` == group,]$`NUMBER EVENTS BY GROUP`,
@@ -194,10 +227,36 @@ summary_statistics_server <- function(input, output, session,data_w_plot_info, d
         stats::aggregate(megaplots_selected_event_time ~ megaplots_selected_subjectid + EVENT + LEVEL,
                          data = B.long,
                          FUN = length)
+      length_B.sum <- ncol(B.sum)
       colnames(B.sum)[colnames(B.sum) == 'megaplots_selected_event_time'] <- 'COUNT'
       B.sum <- dplyr::arrange(B.sum, megaplots_selected_subjectid, EVENT, LEVEL)
 
-      B.sum <- DT::datatable(B.sum, rownames = FALSE)
+      B.sum <- DT::datatable(B.sum,
+          options = list(
+            initComplete = DT::JS(
+            "function(settings, json) {",
+            paste0(
+              "$(this.api().table().header()).css({'background-color': '",
+                   select_color()['plot.bg2'],
+                   "', 'color': '",
+                   select_color()['plot.id'],
+                   "'});"
+              ),"}"
+            ),
+            dom = 'Brtip',
+            class = 'cell-border stripe'
+          ), rownames = FALSE)
+
+        col.tabFont <- select_color()['plot.id']
+        B.sum <- DT::formatStyle(
+          table = B.sum,
+          columns = 1:(length_B.sum + 1),
+          target = "cell",
+          color = col.tabFont,
+          backgroundColor = select_color()['plot.bg'],
+          border = paste0('.5px solid ', select_color()['plot.bg'])
+        )
+
 
       B.sum
     }
