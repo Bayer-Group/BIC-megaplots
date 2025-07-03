@@ -13,6 +13,23 @@ settings_ui <- function(id) {
   ns <- NS(id)
 
   shiny::tagList(
+    shiny::conditionalPanel(condition = "output.check_slider_used == true",
+      column(6,
+      shinyWidgets::circleButton(
+        inputId = ns("btn1"),
+        icon = icon("step-backward"),
+        status = "default",
+        size = "xs"
+      )),
+      column(6,
+      shinyWidgets::circleButton(
+        inputId = ns("btn2"),
+        icon = icon("step-forward"),
+        status = "default",
+        size = "xs"
+      )),
+      ns = NS(id)
+    ),
     shiny::sliderInput(
       inputId = ns("range"),
       label = "Zoom",
@@ -300,6 +317,76 @@ settings_server <- function(input, output, session, data_w_event_and_group_infor
           session,
           inputId = "x_axis_label",
           value = saved_file$x_axis_label
+        )
+      }
+    }
+  })
+
+
+   shiny::observeEvent(input$btn1, {
+    start_val1 <- input$range[1]
+    start_val2 <- input$range[2]
+    min1 <- min(data_w_event_and_group_information()$A$megaplots_selected_start_time)
+    max1 <- max(data_w_event_and_group_information()$A$megaplots_selected_end_time)
+    diff_val <- start_val2 - start_val1
+
+    if (start_val1 > min1) {
+      if ((start_val1 - diff_val) < min1) {
+        shiny::updateSliderInput(session,
+                                 inputId = "range",
+                                 value = c(min1, min1 + diff_val))
+      } else {
+        shiny::updateSliderInput(
+          session,
+          inputId = "range",
+          value = c(start_val1, start_val2) - diff_val
+        )
+      }
+    }
+  })
+
+
+   # Create a logical value output "check_slider_used", used in the conditional panel in the user interface.
+  # If the Zoom slider is used, two buttons on the top right side of the app appear, which can be used to
+  # move forward the x-axis by the range of the zoom slider
+  # (e.g. zoom slider is set from 0 to 30 and the user click on the 'next/forward' button, the slider
+  # updates to 30 to 60).
+
+  output$check_slider_used <- shiny::reactive({
+    shiny::req(data_w_event_and_group_information(), input$range)
+    min1 <- min(data_w_event_and_group_information()$A$megaplots_selected_start_time)
+    max1 <- max(data_w_event_and_group_information()$A$megaplots_selected_end_time)
+    rangemin1 <- input$range[1]
+    rangemax1 <- input$range[2]
+
+    if (min1 != rangemin1 | max1 != rangemax1) {
+      tmp <- TRUE
+    } else {
+      tmp <- FALSE
+    }
+    tmp
+  })
+
+  shiny::outputOptions(output, "check_slider_used", suspendWhenHidden = FALSE)
+
+  shiny::observeEvent(input$btn2, {
+    start_val1 <- input$range[1]
+    start_val2 <- input$range[2]
+    min1 <- min(data_w_event_and_group_information()$A$megaplots_selected_start_time)
+    max1 <- max(data_w_event_and_group_information()$A$megaplots_selected_end_time)
+    diff_val <- start_val2 - start_val1
+    if (start_val2 < max1) {
+      if ((start_val2 + diff_val) > max1) {
+        shiny::updateSliderInput(
+          session,
+          inputId = "range",
+          value = c(max1 - diff_val, max1 + diff_val)
+        )
+      } else {
+        shiny::updateSliderInput(
+          session,
+          inputId = "range",
+          value = c(start_val1, start_val2) + diff_val
         )
       }
     }

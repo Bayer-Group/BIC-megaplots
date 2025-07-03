@@ -32,8 +32,121 @@ app_server <- function(input, output, session) {
   # set maximu‚m data upload size to 750MB
   options(shiny.maxRequestSize = 750 * 1024^2)
 
-  # #### DATA UPLOAD ####
-  # # disable/enable import button if data are missing/available
+  #### MODULE CALLS ####
+
+  # Data upload module (server part)
+  uploaded_files <- shiny::callModule(
+    data_upload_server,
+    "data_upload"
+  )
+
+  # Main settings module (server part) (box at top of the megaplots)
+  main_settings <- shiny::callModule(
+    main_option_server,
+    "megaplots",
+    shiny::reactive({data_w_event_and_group_information()}),
+    shiny::reactive({data_w_ai_information()}),
+    shiny::reactive({uploaded_files$selectdata()}),
+    shiny::reactive({artificial_intelligence$seq.button()}),
+    shiny::reactive({displayed_subjects$displayed_subjects_settings()}),
+    settings = shiny::reactive({settings$settings()}),
+    color_options = shiny::reactive({color_options$color_info()}),
+    var = shiny::reactive({artificial_intelligence$varSeq()}),
+    par = shiny::reactive({artificial_intelligence$input_seriation()}),
+    sermethod = shiny::reactive({artificial_intelligence$methSer()})
+  )
+
+  #  Megaplot module (server part)
+  shiny::callModule(
+    mega_plot_server,
+    "mega_plot",
+    data_w_plot_info = shiny::reactive({data_w_plot_info()}),
+    data_w_event_and_group_information = shiny::reactive({data_w_event_and_group_information()}),
+    data_grouped_and_sorted = shiny::reactive({data_grouped_and_sorted()}),
+    data_w_ai_information = shiny::reactive({data_w_ai_information()}),
+    selectdata = shiny::reactive({uploaded_files$selectdata()}),
+    seq.button = shiny::reactive({artificial_intelligence$seq.button()}),
+    select.col= shiny::reactive({select.col()}),
+    main_settings = shiny::reactive({main_settings}),
+    settings = shiny::reactive({settings$settings()}),
+    summary_statistics = shiny::reactive({summary_statistics})
+  )
+
+  # displayed subjects settings module (server part)
+  displayed_subjects <- shiny::callModule(
+    displayed_subjects_server,
+    "displayed_subjects",
+    preprocess_data = shiny::reactive({uploaded_files$preprocess_data()}),
+    setting_file = shiny::reactive({main_settings$setting_file()})
+  )
+
+  # Settings module (server part) (sidebar)
+  settings <- shiny::callModule(
+    settings_server,
+    "settings",
+    shiny::reactive({data_w_event_and_group_information()}),
+    setting_file = shiny::reactive({main_settings$setting_file()})
+  )
+
+  # summary statistics module (server part)
+  summary_statistics <- shiny::callModule(
+    summary_statistics_server,
+    "summary_statistics",
+    shiny::reactive({data_w_plot_info()}),
+    shiny::reactive({data_grouped_and_sorted()}),
+    shiny::reactive({uploaded_files$import.button()}),
+    shiny::reactive({main_settings$select.events()}),
+    shiny::reactive({main_settings$event.levels()}),
+    select_color = shiny::reactive({select.col()})
+  )
+
+  # raw data module (server part)
+  raw_data <- shiny::callModule(
+    raw_data_server,
+    "raw_data",
+    preprocess_data = shiny::reactive({uploaded_files$preprocess_data()}),
+    data_w_ai_information = shiny::reactive({data_w_ai_information()}),
+    select_color = shiny::reactive({select.col()})
+  )
+
+  # color options module (server part)
+  color_options <- shiny::callModule(
+    color_options_server,
+    "color_options",
+    shiny::reactive({uploaded_files$import.button()}),
+    shiny::reactive({uploaded_files$select.ev1()}),
+    shiny::reactive({uploaded_files$select.ev2()}),
+    shiny::reactive({uploaded_files$select.ev3()}),
+    shiny::reactive({uploaded_files$select.ev4()}),
+    shiny::reactive({uploaded_files$select.ev.lev1()}),
+    shiny::reactive({uploaded_files$select.ev.lev2()}),
+    shiny::reactive({uploaded_files$select.ev.lev3()}),
+    shiny::reactive({uploaded_files$select.ev.lev4()}),
+    shiny::reactive({uploaded_files$selectdata()}),
+    setting_file = shiny::reactive({main_settings$setting_file()})
+  )
+
+  #sequencing/ai module (server part)
+  artificial_intelligence <- shiny::callModule(
+    artificial_intelligence_server,
+    "ai",
+    shiny::reactive({uploaded_files$preprocess_data()}),
+    shiny::reactive({uploaded_files$selectdata()}),
+    shiny::reactive({data_w_event_and_group_information()}),
+    setting_file = shiny::reactive({main_settings$setting_file()})
+  )
+
+  # data specification module (server part)
+  shiny::callModule(
+    mod_data_specification_server,
+    "data_spec",
+    select_color = shiny::reactive({select.col()})
+  )
+
+
+
+  #### DATA UPLOAD ####
+  # disable/enable import button if data are missing/available
   shiny::observe({
     shinyjs::disable(id = 'data_upload-import.button', selector = NULL)
     df <- shiny::req(uploaded_files$preprocess_data()$megaplot_data)
@@ -41,24 +154,15 @@ app_server <- function(input, output, session) {
     if (!is.null(df)) { shinyjs::enable(id = 'data_upload-import.button', selector = NULL) }
   })
 
-  #### PROCESSING DATA ####
-  # 0. 'preprocessed_data' = standardized object in which the uploaded data are
-  # preprocessed to get desired structure for data used in megaplots (within module data_upload_server)
-  # can be called via 'uploaded_files$preprocess_data()'
-
-  #server part of module data upload - save options as uploaded_files
-  uploaded_files <- shiny::callModule(
-    data_upload_server,
-    "data_upload"
-  )
-
   #update tab to megaplot tab if import button is clicked
   observeEvent(uploaded_files$import.button(), {
     newtab <- switch(input$sidebarmenu, "dashboard")
     shinydashboard::updateTabItems(session, "sidebarmenu", newtab)
   })
 
+  #### PROCESSING DATA ####
   # 1. calculate aggregated stats for sequencing and clustering after clicking import button
+
   summary_statistics_data <- shiny::eventReactive(c(uploaded_files$import.button(), uploaded_files$impswitch()), {
     # function to summarise_megaplot_data and save results as list object with
     # entries 'total' and 'detail'
@@ -98,20 +202,19 @@ app_server <- function(input, output, session) {
 
 
   ## AI FUNCTIONALITY ##
-
   # 3. 'data_w_ai_information' = copy from 'data_w_event_and_group_information'
   # that will be reactively modified based on the AI selections
   # from the user
 
   data_w_ai_information_reacVal <- reactiveValues(df = NULL)
 
-  observeEvent(data_w_event_and_group_information(), {
+  shiny::observeEvent(data_w_event_and_group_information(), {
     shiny::req(uploaded_files$preprocess_data())
     data_w_ai_information <- shiny::req(data_w_event_and_group_information())
     data_w_ai_information_reacVal$df <- data_w_ai_information
   })
 
-  observeEvent(artificial_intelligence$seq.button(),{
+  shiny::observeEvent(artificial_intelligence$seq.button(),{
     shiny::req(uploaded_files$preprocess_data())
     data_w_ai_information <- shiny::req(data_w_event_and_group_information())
 
@@ -136,6 +239,7 @@ app_server <- function(input, output, session) {
     if (!is.null(main_settings$setting_file())) {
       saved_file <- readRDS(main_settings$setting_file()$datapath)
       if (is.list(saved_file)) {
+        if(!is.null(saved_file$var) & !is.null(saved_file$sermethod)){
           #Call the sequencing function with all the corresponding parameters:
           data_w_ai_information <- sequencing_var_app(
             da = data_w_ai_information,
@@ -145,6 +249,7 @@ app_server <- function(input, output, session) {
             group = main_settings$select.grouping(),
             multiple_distmeasures = input$multiple_distmeasures
           )
+        }
       }
     }
       data_w_ai_information_reacVal$df <- data_w_ai_information
@@ -152,22 +257,8 @@ app_server <- function(input, output, session) {
 
 
   data_w_ai_information <- shiny::eventReactive(data_w_ai_information_reacVal$df, {
-
     shiny::req(uploaded_files$preprocess_data())
     data_w_ai_information <- data_w_ai_information_reacVal$df
-    # data_w_ai_information <- shiny::req(data_w_event_and_group_information())
-    #
-    # if (!is.null(artificial_intelligence$varSeq())) {
-    #   # Call the sequencing function with all the corresponding parameters:
-    #   data_w_ai_information <- sequencing_var_app(
-    #     da = data_w_ai_information,
-    #     var = artificial_intelligence$varSeq(),
-    #     par = artificial_intelligence$input_seriation(),
-    #     sermethod = artificial_intelligence$methSer(),
-    #     group = main_settings$select.grouping(),
-    #     multiple_distmeasures = input$multiple_distmeasures
-    #   )
-    # }
     data_w_ai_information
   })
 
@@ -355,147 +446,4 @@ app_server <- function(input, output, session) {
     }
     col_sel
   })
-
-  shiny::observeEvent(input$btn1, {
-    start_val1 <- settings$settings()$range[1]
-    start_val2 <- settings$settings()$range[2]
-    min1 <- min(data_w_event_and_group_information()$A$megaplots_selected_start_time)
-    max1 <- max(data_w_event_and_group_information()$A$megaplots_selected_end_time)
-    diff_val <- start_val2 - start_val1
-
-    if (start_val1 > min1) {
-      if ((start_val1 - diff_val) < min1) {
-        shiny::updateSliderInput(session,
-                                 inputId = "range",
-                                 value = c(min1, min1 + diff_val))
-      } else {
-        shiny::updateSliderInput(
-          session,
-          inputId = "range",
-          value = c(start_val1, start_val2) - diff_val
-        )
-      }
-    }
-  })
-
-  shiny::observeEvent(input$btn2, {
-    start_val1 <- settings$settings()$range[1]
-    start_val2 <- settings$settings()$range[2]
-    min1 <- min(data_w_event_and_group_information()$A$megaplots_selected_start_time)
-    max1 <- max(data_w_event_and_group_information()$A$megaplots_selected_end_time)
-    diff_val <- start_val2 - start_val1
-
-    if (start_val2 < max1) {
-      if ((start_val2 + diff_val) > max1) {
-        shiny::updateSliderInput(
-          session,
-          inputId = "range",
-          value = c(max1 - diff_val, max1 + diff_val)
-        )
-      } else {
-        shiny::updateSliderInput(
-          session,
-          inputId = "range",
-          value = c(start_val1, start_val2) + diff_val
-        )
-      }
-    }
-  })
-
-  #### Megaplots Module ####
-  main_settings <- shiny::callModule(
-    main_option_server,
-    "megaplots",
-    shiny::reactive({data_w_event_and_group_information()}),
-    shiny::reactive({data_w_ai_information()}),
-    shiny::reactive({uploaded_files$selectdata()}),
-    shiny::reactive({artificial_intelligence$seq.button()}),
-    shiny::reactive({displayed_subjects$displayed_subjects_settings()}),
-    settings = shiny::reactive({settings$settings()}),
-    color_options = shiny::reactive({color_options$color_info()}),
-    var = shiny::reactive({artificial_intelligence$varSeq()}),
-    par = shiny::reactive({artificial_intelligence$input_seriation()}),
-    sermethod = shiny::reactive({artificial_intelligence$methSer()})
-  )
-
-  settings <- shiny::callModule(
-    settings_server,
-    "settings",
-    shiny::reactive({data_w_event_and_group_information()}),
-    setting_file = shiny::reactive({main_settings$setting_file()})
-  )
-
-  summary_statistics <- shiny::callModule(
-    summary_statistics_server,
-    "summary_statistics",
-    shiny::reactive({data_w_plot_info()}),
-    shiny::reactive({data_grouped_and_sorted()}),
-    shiny::reactive({uploaded_files$import.button()}),
-    shiny::reactive({main_settings$select.events()}),
-    shiny::reactive({main_settings$event.levels()}),
-    select_color = shiny::reactive({select.col()})
-  )
-
-  raw_data <- shiny::callModule(
-    raw_data_server,
-    "raw_data",
-    preprocess_data = shiny::reactive({uploaded_files$preprocess_data()}),
-    data_w_ai_information = shiny::reactive({data_w_ai_information()}),
-    select_color = shiny::reactive({select.col()})
-  )
-
-  color_options <- shiny::callModule(
-    color_options_server,
-    "color_options",
-    shiny::reactive({uploaded_files$import.button()}),
-    shiny::reactive({uploaded_files$select.ev1()}),
-    shiny::reactive({uploaded_files$select.ev2()}),
-    shiny::reactive({uploaded_files$select.ev3()}),
-    shiny::reactive({uploaded_files$select.ev4()}),
-    shiny::reactive({uploaded_files$select.ev.lev1()}),
-    shiny::reactive({uploaded_files$select.ev.lev2()}),
-    shiny::reactive({uploaded_files$select.ev.lev3()}),
-    shiny::reactive({uploaded_files$select.ev.lev4()}),
-    shiny::reactive({uploaded_files$selectdata()}),
-    setting_file = shiny::reactive({main_settings$setting_file()})
-  )
-
-  artificial_intelligence <- shiny::callModule(
-    artificial_intelligence_server,
-    "ai",
-    shiny::reactive({uploaded_files$preprocess_data()}),
-    shiny::reactive({uploaded_files$selectdata()}),
-    shiny::reactive({data_w_event_and_group_information()}),
-    setting_file = shiny::reactive({main_settings$setting_file()})
-  )
-
-  displayed_subjects <- shiny::callModule(
-    displayed_subjects_server,
-    "displayed_subjects",
-    preprocess_data = shiny::reactive({uploaded_files$preprocess_data()}),
-    setting_file = shiny::reactive({main_settings$setting_file()})
-  )
-
-  #### Data Spec Module ####
-  shiny::callModule(
-    mod_data_specification_server,
-    "data_spec",
-    select_color = shiny::reactive({select.col()})
-  )
-
-  shiny::callModule(
-    mega_plot_server,
-    "mega_plot",
-    data_w_plot_info = shiny::reactive({data_w_plot_info()}),
-    data_w_event_and_group_information = shiny::reactive({data_w_event_and_group_information()}),
-    data_grouped_and_sorted = shiny::reactive({data_grouped_and_sorted()}),
-    data_w_ai_information = shiny::reactive({data_w_ai_information()}),
-    selectdata = shiny::reactive({uploaded_files$selectdata()}),
-    seq.button = shiny::reactive({artificial_intelligence$seq.button()}),
-    select.col= shiny::reactive({select.col()}),
-    main_settings = shiny::reactive({main_settings}),
-    settings = shiny::reactive({settings$settings()}),
-    summary_statistics = shiny::reactive({summary_statistics})
-  )
-
 }

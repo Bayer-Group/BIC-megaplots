@@ -118,27 +118,6 @@ color_options_server <- function(input, output, session, import.button, select.e
   shiny::observeEvent(c(import.button()), {
     shiny::req(import.button())
     if (!is.null(select.ev.lev1())) {
-      # if (uploaded_files$selectdata()== "Upload saved data") {
-      #   if (!is.null(input$setting_file$datapath)) {
-      #     saved_file <- readRDS(input$setting_file$datapath)
-      #     custom_colour <- mod_colour_palette_server(
-      #       "color_palette1",
-      #       event = shiny::reactive({
-      #         uploaded_files$select.ev1()
-      #       }),
-      #       level = shiny::reactive({
-      #         uploaded_files$select.ev.lev1()
-      #       }),
-      #       colors = shiny::reactive({
-      #         saved_file$color.pal1
-      #       })
-      #     )
-      #
-      #     shiny::observe({
-      #       color_pal1$val <- custom_colour$colors()
-      #     })
-      #   }
-      #  } else
       if (selectdata()== "Use demo data") {
       custom_colour <- mod_colour_palette_server(
           "color_palette1",
@@ -178,26 +157,6 @@ color_options_server <- function(input, output, session, import.button, select.e
   color_pal2 <- shiny::reactiveValues(val = NULL)
   shiny::observeEvent(c(import.button()), {
     if (!is.null(select.ev.lev2())) {
-      # if (selectdata()== "Upload saved data") {
-      #   if (!is.null(input$setting_file$datapath)) {
-      #     saved_file <- readRDS(input$setting_file$datapath)
-      #     custom_colour2 <- mod_colour_palette_server(
-      #       "color_palette2",
-      #       event = shiny::reactive({
-      #         uploaded_files$select.ev2()
-      #       }),
-      #       level = shiny::reactive({
-      #         uploaded_files$select.ev.lev2()
-      #       }),
-      #       colors = shiny::reactive({
-      #         saved_file$color.pal2
-      #       })
-      #     )
-      #     observe({
-      #       color_pal2$val <- custom_colour2$colors()
-      #     })
-      #   }
-      # } else {
         custom_colour2 <- mod_colour_palette_server(
           "color_palette2",
           event = shiny::reactive({
@@ -222,27 +181,6 @@ color_options_server <- function(input, output, session, import.button, select.e
   color_pal3 <- shiny::reactiveValues(val = NULL)
   shiny::observeEvent(c(import.button()), {
     if (!is.null(select.ev.lev3())) {
-      # if (selectdata()== "Upload saved data") {
-      #   if (!is.null(input$setting_file$datapath)) {
-      #     saved_file <- readRDS(input$setting_file$datapath)
-      #
-      #     custom_colour3 <- mod_colour_palette_server(
-      #       "color_palette3",
-      #       event = shiny::reactive({
-      #         select.ev3()
-      #       }),
-      #       level = shiny::reactive({
-      #         select.ev.lev3()
-      #       }),
-      #       colors = shiny::reactive({
-      #         saved_file$color.pal3
-      #       })
-      #     )
-      #     observe({
-      #       color_pal3$val <- custom_colour3$colors()
-      #     })
-      #   }
-      # } else {
         custom_colour3 <- mod_colour_palette_server(
           "color_palette3",
           event = shiny::reactive({
@@ -268,27 +206,6 @@ color_options_server <- function(input, output, session, import.button, select.e
   color_pal4 <- shiny::reactiveValues(val = NULL)
   shiny::observeEvent(c(import.button()), {
     if (!is.null(select.ev.lev4())) {
-      # if (selectdata()== "Upload saved data") {
-      #   if (!is.null(input$setting_file$datapath)) {
-      #     saved_file <- readRDS(input$setting_file$datapath)
-      #
-      #     custom_colour4 <- mod_colour_palette_server(
-      #       "color_palette4",
-      #       event = shiny::reactive({
-      #         select.ev4()
-      #       }),
-      #       level = shiny::reactive({
-      #         select.ev.lev4()
-      #       }),
-      #       colors = shiny::reactive({
-      #         saved_file$color.pal4
-      #       })
-      #     )
-      #     observe({
-      #       color_pal4$val <- custom_colour4$colors()
-      #     })
-      #   }
-      # } else {
         custom_colour4 <- mod_colour_palette_server(
           "color_palette4",
           event = shiny::reactive({
@@ -316,6 +233,7 @@ color_options_server <- function(input, output, session, import.button, select.e
     if (!is.null(setting_file())) {
       saved_file <- readRDS(setting_file()$datapath)
       if (is.list(saved_file)) {
+
         custom_colour <- mod_colour_palette_server(
           "color_palette1",
           event = shiny::reactive({
@@ -339,9 +257,7 @@ color_options_server <- function(input, output, session, import.button, select.e
           level = shiny::reactive({
             select.ev.lev2()
           }),
-          colors = shiny::reactive({
-            colChoice[["color palette 2"]]$col
-          })
+          colors = shiny::reactive({saved_file$color_pal2})
         )
         observe({
           color_pal2$val <- custom_colour2$colors()
@@ -355,9 +271,7 @@ color_options_server <- function(input, output, session, import.button, select.e
           level = shiny::reactive({
             select.ev.lev3()
           }),
-          colors = shiny::reactive({
-            colChoice[["color palette 3"]]$col
-          })
+          colors = shiny::reactive({saved_file$color_pal3})
         )
         observe({
           color_pal3$val <- custom_colour3$colors()
@@ -371,9 +285,7 @@ color_options_server <- function(input, output, session, import.button, select.e
           level = shiny::reactive({
             select.ev.lev4()
           }),
-          colors = shiny::reactive({
-            colChoice[["color palette 4"]]$col
-          })
+          colors = shiny::reactive({saved_file$color_pal4})
         )
         observe({
           color_pal4$val <- custom_colour4$colors()

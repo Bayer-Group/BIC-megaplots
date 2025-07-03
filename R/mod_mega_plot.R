@@ -23,11 +23,11 @@ mega_plot_ui <- function(id) {
       height = 42
     ),
     shiny::uiOutput(ns('hoverpanel')),
-    shiny::uiOutput(ns('summarypanel')),
-    shiny::conditionalPanel(condition = "output.check_slider_used == true",
-      shiny::uiOutput(ns('next_buttons')),
-      ns = NS(id)
-    )
+    shiny::uiOutput(ns('summarypanel'))#,
+    # shiny::conditionalPanel(condition = "output.check_slider_used == true",
+    #   shiny::uiOutput(ns('next_buttons')),
+    #   ns = NS(id)
+    # )
   )
 }
 
@@ -216,61 +216,40 @@ mega_plot_server <- function(input, output, session,
     brush_coord$y <- NULL
   })
 
-  # Create a logical value output "check_slider_used", used in the conditional panel in the user interface.
-  # If the Zoom slider is used, two buttons on the top right side of the app appear, which can be used to
-  # move forward the x-axis by the range of the zoom slider
-  # (e.g. zoom slider is set from 0 to 30 and the user click on the 'next/forward' button, the slider
-  # updates to 30 to 60).
 
-  output$check_slider_used <- shiny::reactive({
-    shiny::req(data_w_event_and_group_information(), settings()$range)
-    min1 <- min(data_w_event_and_group_information()$A$megaplots_selected_start_time)
-    max1 <- max(data_w_event_and_group_information()$A$megaplots_selected_end_time)
-    rangemin1 <- settings()$range[1]
-    rangemax1 <- settings()$range[2]
 
-    if (min1 != rangemin1 | max1 != rangemax1) {
-      tmp <- TRUE
-    } else {
-      tmp <- FALSE
-    }
-    tmp
-  })
-
-  shiny::outputOptions(output, "check_slider_used", suspendWhenHidden = FALSE)
-
-  output$next_buttons <- shiny::renderUI({
-    shiny::absolutePanel(
-      id = ns("next_buttons"),
-      class = "modal-content",
-      fixed = TRUE,
-      draggable = TRUE,
-      HTML(paste0(
-        "<div style='background-color: ",select.col()['plot.bg'],"'>"
-      )),
-      top = 300,
-      left = "auto",
-      right = 50,
-      bottom = "auto",
-      width = 60,
-      height = "auto",
-      shiny::fluidRow(
-        shinyWidgets::circleButton(
-          inputId = ns("btn1"),
-          icon = icon("step-backward"),
-          status = "default",
-          size = "xs"
-        ),
-        shinyWidgets::circleButton(
-          inputId = ns("btn2"),
-          icon = icon("step-forward"),
-          status = "default",
-          size = "xs"
-        )
-      ),
-      style = "z-index: 10;"
-    )
-  })
+  # output$next_buttons <- shiny::renderUI({
+  #   shiny::absolutePanel(
+  #     id = ns("next_buttons"),
+  #     class = "modal-content",
+  #     fixed = TRUE,
+  #     draggable = TRUE,
+  #     HTML(paste0(
+  #       "<div style='background-color: ",select.col()['plot.bg'],"'>"
+  #     )),
+  #     top = 300,
+  #     left = "auto",
+  #     right = 50,
+  #     bottom = "auto",
+  #     width = 60,
+  #     height = "auto",
+  #     shiny::fluidRow(
+  #       shinyWidgets::circleButton(
+  #         inputId = ns("btn1"),
+  #         icon = icon("step-backward"),
+  #         status = "default",
+  #         size = "xs"
+  #       ),
+  #       shinyWidgets::circleButton(
+  #         inputId = ns("btn2"),
+  #         icon = icon("step-forward"),
+  #         status = "default",
+  #         size = "xs"
+  #       )
+  #     ),
+  #     style = "z-index: 10;"
+  #   )
+  # })
 
   #### Summary Panel ####
   output$summarypanel <- shiny::renderUI({
