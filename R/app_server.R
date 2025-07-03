@@ -167,7 +167,7 @@ app_server <- function(input, output, session) {
     # function to summarise_megaplot_data and save results as list object with
     # entries 'total' and 'detail'
     shiny::req(uploaded_files$preprocess_data())
-    if(!is.null(uploaded_files$preprocess_data()$megaplots_data$A)){
+    if(!is.null(uploaded_files$preprocess_data()$megaplot_data$A)){
       summarise_megaplot_data(data = uploaded_files$preprocess_data())
     } else {
       NULL
