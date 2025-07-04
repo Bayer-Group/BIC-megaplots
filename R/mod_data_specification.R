@@ -23,6 +23,9 @@ mod_data_specification_ui <- function(id) {
 
 #' Modul Data Specification Server Function
 #'
+#' @param input,output,session Internal parameters for {shiny}
+#' @param select_color character value of font color code
+#'
 #' @rawNamespace import(shiny, except=c(dataTableOutput, renderDataTable))
 #'
 #' @noRd

@@ -140,20 +140,6 @@ main_option_ui <- function(id) {
     #     )
     #   )
     # ),
-    # shiny::uiOutput(ns('hover_legend')),
-    # shiny::uiOutput(ns('megaplot')),
-    # fixedPanel(
-    #   shiny::uiOutput(ns('axisbox')),
-    #   bottom = 1,
-    #   width = "100%",
-    #   height = 42
-    #
-    # ),
-    # shiny::uiOutput(ns('hoverpanel')),
-    # shiny::uiOutput(ns('summarypanel')),
-    # shiny::conditionalPanel(condition = "output.check_slider_used == true",
-    #   shiny::uiOutput('next_buttons')
-    # )
   )
 }
 
@@ -161,15 +147,26 @@ main_option_ui <- function(id) {
 #' Megaplot Main Option Module - Server Part
 #'
 #' @param input,output,session Internal parameters for {shiny}
-#' @param data_w_event_and_group_information
+#' @param data_w_event_and_group_information list with groupeddata information from server
 #'
 #' @return List with 'Main option'-inputs
 #'
 #' @noRd
 #' @keywords internal
 
-main_option_server <- function(input, output, session, data_w_event_and_group_information,data_w_ai_information, selectdata,seq.button, displayed_subjects_settings, settings,color_options,
-                               var, par, sermethod){
+main_option_server <- function(
+    input,
+    output,
+    session,
+    data_w_event_and_group_information,
+    data_w_ai_information,
+    selectdata,seq.button,
+    displayed_subjects_settings,
+    settings,color_options,
+    var,
+    par,
+    sermethod
+  ){
 
   ns <- session$ns
 
@@ -187,9 +184,6 @@ main_option_server <- function(input, output, session, data_w_event_and_group_in
       selected <- shiny::isolate(data_w_event_and_group_information()$event)
     }
 
-    # if (uploaded_files$selectdata()== "Upload saved data") {
-    #   selected <- uploaded_files$preprocess_data()$megaplot_data$saved$select.events
-    # }
     shiny::updateSelectizeInput(
       session,
       inputId = "select.events",
@@ -200,11 +194,7 @@ main_option_server <- function(input, output, session, data_w_event_and_group_in
 
   ####... select.grouping ####
   choiceGroup <- shiny::eventReactive(c(data_w_event_and_group_information()), {
-    # if (uploaded_files$selectdata()== "Upload saved data") {
-    #   uploaded_files$preprocess_data()$megaplot_data$saved$select.grouping
-    # } else {
       data_w_event_and_group_information()$group
-    # }
   })
 
   shiny::observeEvent(choiceGroup(), {
@@ -219,10 +209,6 @@ main_option_server <- function(input, output, session, data_w_event_and_group_in
     )
   })
 
-  # shiny::observeEvent(input$select.grouping, ignoreNULL = FALSE, {
-  #   inputIMP$select.grouping <- input$select.grouping
-  # })
-
   ####... select.sorting ####
   choiceSort <- shiny::eventReactive(c(data_w_ai_information(), seq.button()), {
     data_w_ai_information()$nume_A[!is.na(data_w_ai_information()$nume_A)]
@@ -236,9 +222,6 @@ main_option_server <- function(input, output, session, data_w_event_and_group_in
     if (any(choices == 'SEQUENCING'))
       selected <- utils::tail(choices, 1)
 
-    # if (uploaded_files$selectdata()== 'Upload saved data') {
-    #   selected <- uploaded_files$preprocess_data()$megaplot_data$saved$select.sorting
-    # }
     shinyWidgets::updatePickerInput(
       session,
       inputId = "select.sorting",
@@ -250,7 +233,6 @@ main_option_server <- function(input, output, session, data_w_event_and_group_in
   ####... event.levels ####
 
   shiny::observeEvent(data_w_event_and_group_information(), {
-   # inputIMP$name <- data_w_event_and_group_information()$megaplot_data$name
 
     choices <- unlist(data_w_event_and_group_information()$event.lev,
                       use.names = FALSE)
@@ -265,10 +247,6 @@ main_option_server <- function(input, output, session, data_w_event_and_group_in
     choices <- paste0(choices.lab, ' = ', choices)
 
     selected <- choices
-
-    # if (uploaded_files$selectdata()== "Upload saved data") {
-    #   selected <- uploaded_files$preprocess_data()$megaplot_data$saved$event.levels
-    # }
 
     shinyWidgets::updatePickerInput(
       session,
@@ -291,20 +269,7 @@ main_option_server <- function(input, output, session, data_w_event_and_group_in
     choices.lab <- rep(data_w_ai_information()$group, sapply(data_w_ai_information()$group.lev, FUN = length))
     choices <- paste0(choices.lab, ' = ', choices)
 
-    # if (uploaded_files$selectdata()== "Upload saved data") {
-    #   choices <-
-    #     unlist(uploaded_files$preprocess_data()$megaplot_data$saved$group.lev, use.names = FALSE)
-    #   choices.lab <-
-    #     rep(
-    #       uploaded_files$preprocess_data()$megaplot_data$saved$group,
-    #       sapply(uploaded_files$preprocess_data()$megaplot_data$saved$group.lev, FUN = length)
-    #     )
-    #   choices <- paste0(choices.lab, ' = ', choices)
-    #
-    #   selected <- uploaded_files$preprocess_data()$megaplot_data$saved$select.subsetting
-    # } else {
-      selected <- choices
-    # }
+    selected <- choices
 
     shinyWidgets::updatePickerInput(
       session,
@@ -389,7 +354,6 @@ main_option_server <- function(input, output, session, data_w_event_and_group_in
   # shiny::observeEvent(input$select.grouping, ignoreNULL = FALSE, {
   #   inputIMP$select.grouping <- input$select.grouping
   # })
-
 
 return(list(
   select.events = shiny::reactive({input$select.events}),

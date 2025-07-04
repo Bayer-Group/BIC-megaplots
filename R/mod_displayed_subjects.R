@@ -86,6 +86,8 @@ displayed_subjects_ui <- function(id) {
 #' Displayed Subjects (Sidebar Option Panel) Module - Server Part
 #'
 #' @param input,output,session Internal parameters for {shiny}
+#' @param preprocess_data list with uploaded data from module mod_data_upload
+#' @param setting_file list with saved settings information
 #'
 #' @return List with preprocessed data and upload panel inputs
 #'
@@ -100,23 +102,8 @@ displayed_subjects_server <- function(input, output, session, preprocess_data, s
     shiny::observe({
 
     nmax <- length(unique(preprocess_data()$megaplot_data$A$megaplots_selected_subjectid))
-    # if (uploaded_files$selectdata()== "Upload saved data") {
-    #   nmax <- preprocess_data()$megaplot_data$saved$random
-    # }
 
     num_sub <- length(unique(preprocess_data()$megaplot_data$A$megaplots_selected_subjectid))
-#
-#     if (uploaded_files$selectdata()== "Upload saved data") {
-#       shiny::updateSliderInput(
-#         session,
-#         inputId = 'random',
-#         label = paste("Number of displayed subjects"),
-#         min = 1,
-#         value = preprocess_data()$megaplot_data$saved$random,
-#         max = num_sub,
-#         step = 1
-#       )
-#     } else {
 
       shiny::updateSliderInput(
         session,
@@ -127,7 +114,6 @@ displayed_subjects_server <- function(input, output, session, preprocess_data, s
         max = num_sub,
         step = 1
       )
-    # }
   })
 
  subset.flag <- shiny::reactiveValues(val = FALSE)
@@ -160,19 +146,12 @@ displayed_subjects_server <- function(input, output, session, preprocess_data, s
     shiny::req(input$random)
 
     nmax <- length(unique(preprocess_data()$megaplot_data$A$megaplots_selected_subjectid))
-    # if (uploaded_files$selectdata()== "Upload saved data") {
-    #   nmax <- uploaded_files$preprocess_data()$saved$random
-    # }
 
     shiny::updateNumericInput(
       session,
       inputId = "startsubj",
       max = nmax - input$random + 1,
-      value = #ifelse(
-        #uploaded_files$selectdata()== "Upload saved data",
-        #preprocess_data()$megaplot_data$saved$startsubj,
-        1
-      # )
+      value = 1
     )
   })
 

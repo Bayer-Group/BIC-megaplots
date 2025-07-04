@@ -61,6 +61,17 @@ shiny::tagList(
 #' Color Options Module - Server Part
 #'
 #' @param input,output,session Internal parameters for {shiny}
+#' @param import.button reactive actionButton information
+#' @param select.ev1 character value of selected event 1
+#' @param select.ev2 character value of selected event 2
+#' @param select.ev3 character value of selected event 3
+#' @param select.ev4 character value of selected event 4
+#' @param select.ev.lev1 character vector of event levels from event 1
+#' @param select.ev.lev2 character vector of event levels from event 2
+#' @param select.ev.lev3 character vector of event levels from event 3
+#' @param select.ev.lev4 character vector of event levels from event 4
+#' @param selectdata character of data upload method ("Use demo data"/"Data upload")
+#' @param setting_file list with saved settings information
 #'
 #' @return List with preprocessed data and upload panel inputs
 #'
@@ -68,8 +79,22 @@ shiny::tagList(
 #' @keywords internal
 
 
-color_options_server <- function(input, output, session, import.button, select.ev1, select.ev2, select.ev3, select.ev4,
-                                 select.ev.lev1, select.ev.lev2, select.ev.lev3, select.ev.lev4, selectdata,setting_file) {
+color_options_server <- function(
+    input,
+    output,
+    session,
+    import.button,
+    select.ev1,
+    select.ev2,
+    select.ev3,
+    select.ev4,
+    select.ev.lev1,
+    select.ev.lev2,
+    select.ev.lev3,
+    select.ev.lev4,
+    selectdata,
+    setting_file
+  ) {
 
   ns <- session$ns
 
@@ -112,7 +137,7 @@ color_options_server <- function(input, output, session, import.button, select.e
   output$load_sel_pal4 <- shiny::reactive(loaded_sel_pal4$dat)
   shiny::outputOptions(output, "load_sel_pal4", suspendWhenHidden = FALSE)
 
-   #### COLOR MODULES ####
+  #### COLOR MODULES ####
   # color module 1
   color_pal1 <- shiny::reactiveValues(val = NULL)
   shiny::observeEvent(c(import.button()), {
