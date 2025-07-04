@@ -35,25 +35,37 @@ mega_plot_ui <- function(id) {
 #' Megaplot Main Option Module - Server Part
 #'
 #' @param input,output,session Internal parameters for {shiny}
-#' @param data_w_event_and_group_information
+#' @param data_w_plot_info list with data and megaplot information from server
+#' @param data_w_event_and_group_information list with grouped data information from server
+#' @param data_grouped_and_sorted list with sorted data information from server
+#' @param data_w_ai_information list with data including sequencing information from server
+#' @param selectdata character of data upload method ("Use demo data"/"Data upload")
+#' @param seq.button reactive actionButton value for update on sequencing
+#' @param main_settings list with main options above megaplot in app
+#' @param settings list with main options above megaplot in app
+#' @param select.col color theme information
+#' @param summary_statistics reactive with summary statistics data for summary panel
 #'
 #' @return List with 'Main option'-inputs
 #'
 #' @noRd
 #' @keywords internal
 
-mega_plot_server <- function(input, output, session,
-                             data_w_plot_info,
-                             data_w_event_and_group_information,
-                             data_grouped_and_sorted,
-                             data_w_ai_information,
-                             selectdata,
-                             seq.button,
-                             select.col,
-                             main_settings,
-                             settings,
-                             summary_statistics
-                            ){
+mega_plot_server <- function(
+    input,
+    output,
+    session,
+    data_w_plot_info,
+    data_w_event_and_group_information,
+    data_grouped_and_sorted,
+    data_w_ai_information,
+    selectdata,
+    seq.button,
+    select.col,
+    main_settings,
+    settings,
+    summary_statistics
+    ){
 
   ns <- session$ns
 

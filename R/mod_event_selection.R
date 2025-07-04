@@ -25,7 +25,7 @@ event_selection_ui <- function(id) {
 #' @param event_number integer value between 1-4 for event number
 #' @param preprocessed_data reactive object with preprocessed data
 #' @param event.info reactive object with vector of character variables names
-#' @param selectdata reactive input of data type selection (rdata/cvs)
+#' @param selectdata character of data upload method ("Use demo data"/"Data upload")
 #'
 #' @noRd
 #' @keywords internal

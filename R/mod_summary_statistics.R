@@ -28,6 +28,12 @@ summary_statistics_ui <- function(id) {
 #' Summary Statistics Module  - Server Part
 #'
 #' @param input,output,session Internal parameters for {shiny}
+#' @param data_w_plot_info list with data and megaplot information from server
+#' @param data_grouped_and_sorted list with sorted data information from server
+#' @param import.button reactive actionButton information
+#' @param select.events list with selected events
+#' @param event.levels list with event.levels
+#' @param select_color character vector with color information
 #'
 #' @return List with preprocessed data and upload panel inputs
 #'
@@ -35,7 +41,17 @@ summary_statistics_ui <- function(id) {
 #' @keywords internal
 #'
 
-summary_statistics_server <- function(input, output, session,data_w_plot_info, data_grouped_and_sorted, import.button, select.events, event.levels, select_color) {
+summary_statistics_server <- function(
+    input,
+    output,
+    session,
+    data_w_plot_info,
+    data_grouped_and_sorted,
+    import.button,
+    select.events,
+    event.levels,
+    select_color
+  ) {
 
   ns <- session$ns
 

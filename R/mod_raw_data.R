@@ -27,6 +27,9 @@ raw_data_ui <- function(id) {
 #' Raw Data Module  - Server Part
 #'
 #' @param input,output,session Internal parameters for {shiny}
+#' @param preprocess_data data list with uploaded data from module mod_data_upload
+#' @param data_w_ai_information list with data including sequencing information from server
+#' @param select_color character vector with color definition ("plot.bg","plot.lines","plot.wp","plot.id","axleg.bg","cont.bg")
 #'
 #' @return List with preprocessed data and upload panel inputs
 #'
@@ -34,7 +37,14 @@ raw_data_ui <- function(id) {
 #' @keywords internal
 #'
 
-raw_data_server <- function(input, output, session, preprocess_data, data_w_ai_information, select_color) {
+raw_data_server <- function(
+    input,
+    output,
+    session,
+    preprocess_data,
+    data_w_ai_information,
+    select_color
+  ) {
 
   ns <- session$ns
 

@@ -346,6 +346,9 @@ seriation_ui <- function(id) {
 #' @param id Shiny Session id
 #' @param varSeq reactive shiny object with variables used for the seriation
 #' @param multiple_distmeasures logical. Should multiple distance measures be used for the different variables?
+#' @param select_data character of data upload method ("Use demo data"/"Data upload")
+#' @param seq.button reactive actionButton value for update on sequencing
+#' @param setting_file list with saved settings information
 #'
 #' @return Inputs of the selected distance measure and corresponding parameters
 #'
@@ -353,7 +356,14 @@ seriation_ui <- function(id) {
 #' @noRd
 #' @keywords internal
 
-seriation_server <- function(id,varSeq, multiple_distmeasures, select_data, seq.button, setting_file){
+seriation_server <- function(
+    id,
+    varSeq,
+    multiple_distmeasures,
+    select_data,
+    seq.button,
+    setting_file
+  ){
 
   moduleServer(id, function(input, output, session) {
     ns <- session$ns

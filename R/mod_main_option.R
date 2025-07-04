@@ -147,7 +147,16 @@ main_option_ui <- function(id) {
 #' Megaplot Main Option Module - Server Part
 #'
 #' @param input,output,session Internal parameters for {shiny}
-#' @param data_w_event_and_group_information list with groupeddata information from server
+#' @param data_w_event_and_group_information list with grouped data information from server
+#' @param data_w_ai_information list with data including sequencing information from server
+#' @param selectdata character of data upload method ("Use demo data"/"Data upload")
+#' @param seq.button reactive actionButton value for update on sequencing
+#' @param displayed_subjects_settings list with options from displayed subjects side bar menu
+#' @param settings list with settings from menuitem settings
+#' @param color_options list with color options from menuitem color option
+#' @param var character with variables selected for sequencing (one or multiple variables)
+#' @param par parameter list for sequencing methods
+#' @param sermethod character with sequencing method name
 #'
 #' @return List with 'Main option'-inputs
 #'
@@ -160,9 +169,11 @@ main_option_server <- function(
     session,
     data_w_event_and_group_information,
     data_w_ai_information,
-    selectdata,seq.button,
+    selectdata,
+    seq.button,
     displayed_subjects_settings,
-    settings,color_options,
+    settings,
+    color_options,
     var,
     par,
     sermethod

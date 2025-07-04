@@ -99,8 +99,8 @@ displayed_subjects_server <- function(input, output, session, preprocess_data, s
   ns <- session$ns
 
   ####... random ####
-    shiny::observe({
-
+  shiny::observe({
+    shiny::req(preprocess_data()$megaplot_data$A)
     nmax <- length(unique(preprocess_data()$megaplot_data$A$megaplots_selected_subjectid))
 
     num_sub <- length(unique(preprocess_data()$megaplot_data$A$megaplots_selected_subjectid))

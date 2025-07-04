@@ -173,13 +173,22 @@ settings_ui <- function(id) {
 #' Settings Module - Server Part
 #'
 #' @param input,output,session Internal parameters for {shiny}
+#' @param data_w_event_and_group_information
+#' @param setting_file list with saved settings information
+#' @param data_w_event_and_group_information list with grouped data information from server
 #'
 #' @return List with preprocessed data and upload panel inputs
 #'
 #' @noRd
 #' @keywords internal
 
-settings_server <- function(input, output, session, data_w_event_and_group_information, setting_file) {
+settings_server <- function(
+    input,
+    output,
+    session,
+    data_w_event_and_group_information,
+    setting_file
+  ) {
 
   ns <- session$ns
 

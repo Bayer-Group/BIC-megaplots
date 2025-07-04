@@ -30,6 +30,7 @@ Imports:
     RColorBrewer,
     reshape2,
     rlang,
+    fresh,
     seriation,
     shiny,
     shinycssloaders,

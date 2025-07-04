@@ -92,6 +92,11 @@ artificial_intelligence_ui <- function(id) {
 #' Artifical Intelligence Module  - Server Part
 #'
 #' @param input,output,session Internal parameters for {shiny}
+#' @param preprocess_data list with uploaded data from module mod_data_upload
+#' @param selectdata character of data upload method ("Use demo data"/"Data upload")
+#' @param data_w_event_and_group_information list with grouped data information from server
+#' @param setting_file list with saved settings information
+#' @param
 #'
 #' @return List with preprocessed data and upload panel inputs
 #'
@@ -99,7 +104,16 @@ artificial_intelligence_ui <- function(id) {
 #' @keywords internal
 #'
 
-artificial_intelligence_server <- function(input, output, session, preprocess_data, selectdata, data_w_event_and_group_information, setting_file) {
+artificial_intelligence_server <- function(
+    input,
+    output,
+    session,
+    preprocess_data,
+    selectdata,
+    data_w_event_and_group_information,
+    setting_file
+  ) {
+
 
   ns <- session$ns
 
