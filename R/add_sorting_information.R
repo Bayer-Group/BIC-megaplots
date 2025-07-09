@@ -12,7 +12,6 @@ add_sorting_information <- function(
   select_grouping,
   select_events
 ){
-
     ds <- data_frame
     # subset selection
     # ...by group levels
@@ -150,17 +149,19 @@ add_sorting_information <- function(
           stringsAsFactors = FALSE
         )
       # delete event levels that were not selected
+
       for (i in 1:length(ds$event)) {
         # level vector of group i
         tmp <- ds$event.lev[[ds$event[i]]]
         tmp.sel <- mt.ev[mt.ev$VAR == ds$event[i], 'LEV']
+        if(ds$event[i] %in% names(ds$event.lev)){
         # store only the selected levels in 'ds'
         ds$event.lev[[ds$event[i]]] <- tmp[tmp %in% tmp.sel]
         # replace levels that were not selected with NA
         ds$B[!ds$B[, ds$event[i]] %in% ds$event.lev[[ds$event[i]]], ds$event[i]] <-
           NA
         ds$B[, ds$event[i]] <- droplevels(ds$B[, ds$event[i]])
-      }
+      }}
     }
     # ...sorting
 
