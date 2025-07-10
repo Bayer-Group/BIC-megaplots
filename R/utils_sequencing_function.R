@@ -22,9 +22,10 @@ sequencing_var_app <- function(
   par,
   sermethod,
   group,
-  multiple_distmeasures) {
+  multiple_distmeasures
+) {
 
-    if (length(var) == 1) {
+  if (length(var) == 1) {
       par <- lapply(par, function(x) x[1])
       # Get the data into a wide format
       B_wide <- get_B_wide(da, var, par$methMissing, par)[[1]]

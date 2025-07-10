@@ -183,6 +183,7 @@ artificial_intelligence_server <- function(
     varSeq = shiny::reactive({collectSeq$varSeq}),
     methSer = shiny::reactive({collectSeq$methSer}),
     input_seriation = shiny::reactive({input_seriation$input_seriation()}),
-    seq.button = shiny::reactive({input$seq.button})
+    seq.button = shiny::reactive({input$seq.button}),
+    multiple_distmeasures = shiny::reactive({input$multiple_distmeasures})
   ))
 }

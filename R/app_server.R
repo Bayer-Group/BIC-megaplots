@@ -225,7 +225,7 @@ app_server <- function(input, output, session) {
         par = artificial_intelligence$input_seriation(),
         sermethod = artificial_intelligence$methSer(),
         group = main_settings$select.grouping(),
-        multiple_distmeasures = input$multiple_distmeasures
+        multiple_distmeasures = artificial_intelligence$multiple_distmeasures()
       )
     }
     data_w_ai_information_reacVal$df <- data_w_ai_information
