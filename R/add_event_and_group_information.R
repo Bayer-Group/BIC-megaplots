@@ -1,3 +1,18 @@
+#' Add Event Information and Group Information to Megaplot Data
+#'
+#' @param data list with megaplot data
+#' @param summary_stats list with megaplot data summary
+#' @param event1 character with first event variable
+#' @param event2 character with second event variable
+#' @param event3 character with third event variable
+#' @param event4 character with fourth event variable
+#' @param updated_event1 character with uploaded event 1
+#' @param updated_event2 character with uploaded event 2
+#' @param updated_event3 character with uploaded event 3
+#' @param updated_event4 character with uploaded event 4
+#' @param data_selection character of data upload method ("Use demo data"/"Data upload")
+#'
+
 add_event_and_group_information <- function(
     data,
     summary_stats,
@@ -14,6 +29,8 @@ add_event_and_group_information <- function(
 
     A <- data$megaplot_data$A
     B <- data$megaplot_data$B
+
+    if (!is.null(A) & !is.null(B)) {
 
     # read all character values from data set A as char_A
     char_A <- names(which(sapply(A, is.character)))
@@ -106,5 +123,5 @@ add_event_and_group_information <- function(
         nume_B = nume_B
       )
     )
-
+    }
 }
