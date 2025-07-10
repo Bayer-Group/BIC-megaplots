@@ -28,7 +28,7 @@ displayed_subjects_ui <- function(id) {
         selected = 'deterministic'
       ),
       tabsetPanel(
-        id = "Change_input_for_deterministic_or_random",
+        id = ns("Change_input_for_deterministic_or_random"),
         type = "hidden",
         tabPanel(
           "deterministic",
@@ -39,13 +39,14 @@ displayed_subjects_ui <- function(id) {
             max = 1,
             value = 1,
             step = 1
-          )
+          ),
+          uiOutput(ns("startsubj_text"))
         ),
         tabPanel(
           "random",
           shiny::numericInput(
             inputId = ns("seedset"),
-            label = "Select a seed for the random subject selection",
+            label = "Select a seed for the random subject selection (or leave it blank for seed generation)",
             min = 1,
             max = 10000,
             value = 2006,
@@ -61,12 +62,11 @@ displayed_subjects_ui <- function(id) {
         multiple = TRUE,
         options = list(
           `selected-text-format` = 'count > 0',
+          `actions-box` = TRUE,
           `count-selected-text` = '{0} selected (of {1})',
           `live-search` = TRUE,
           `header` = 'Select multiple items',
-          `max-options` = 150,
-          `max-options-text` = "No more!",
-          `none-selected-text` = 'All dropped!'
+          `none-selected-text` = 'No selection!'
         )
       ),
       shinyWidgets::actionBttn(
@@ -147,6 +147,7 @@ displayed_subjects_server <- function(input, output, session, preprocess_data, s
 
     nmax <- length(unique(preprocess_data()$megaplot_data$A$megaplots_selected_subjectid))
 
+
     shiny::updateNumericInput(
       session,
       inputId = "startsubj",
@@ -166,11 +167,31 @@ displayed_subjects_server <- function(input, output, session, preprocess_data, s
     param <- list(
        random = input$random,
        selection_button = input$selection_button,
-       startsubj = input$startsubj,
+       startsubj = start_w_subject$number,
        seedset = input$seedset,
        specific_ids = input$specific_ids
     )
     param
+  })
+
+  #initialze starting value
+  start_w_subject <- reactiveValues(
+    number = 1
+  )
+
+  shiny::observeEvent(input$startsubj, {
+    if (is.na(as.numeric(input$startsubj))) {
+
+      start_w_subject$number <- 1
+      output$startsubj_text <- renderUI({
+        HTML("<p style ='color:red;'> Error: Value must be numeric! </p>")
+      })
+    } else {
+      start_w_subject$number <- input$startsubj
+        output$startsubj_text <- renderUI({
+        HTML("")
+      })
+    }
   })
 
 
@@ -211,7 +232,7 @@ displayed_subjects_server <- function(input, output, session, preprocess_data, s
   return(list(
     random = shiny::reactive({input$random}),
     selection_button = shiny::reactive({input$selection_button}),
-    startsubj = shiny::reactive({input$startsubj}),
+    startsubj = shiny::reactive({start_w_subject$number}),
     seedset = shiny::reactive({input$seedset}),
     specific_ids = shiny::reactive({input$specific_ids}),
     subset.button = shiny::reactive({input$subset.button}),

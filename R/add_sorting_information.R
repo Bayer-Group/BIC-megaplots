@@ -1,3 +1,18 @@
+#' Add Sorting Information to Data in Megaplots
+#'
+#' @param data_frame list with megaplot data
+#' @param select_subsetting Select subsets
+#' @param randet character value ('deterministic'/'random')
+#' @param seed integer with seed number for random selection
+#' @param nshow integer with number of subjects displayed
+#' @param start integer with row selection for subsetting
+#' @param specific_ids character vector with specific subject identifier which should be displayed
+#' @param event_levels character vector with event levels
+#' @param select_sorting character with sorting variable selection
+#' @param select_grouping character vector with grouping variable(s) selection
+#' @param select_events character vector with event variable selection
+#'
+
 add_sorting_information <- function(
   data_frame,
   select_subsetting,
@@ -5,37 +20,37 @@ add_sorting_information <- function(
   seed,
   nshow,
   start,
-  random,
   specific_ids,
   event_levels,
   select_sorting,
   select_grouping,
   select_events
 ){
-    ds <- data_frame
-    # subset selection
-    # ...by group levels
-    tmp.sub <- select_subsetting
 
-    if (!is.null(tmp.sub)) {
-      mt.sub <-
-        data.frame(
-          'VAR' = sapply(
-            strsplit(tmp.sub, ' = '),
-            FUN = function(x)
-              x[1]
-          ),
-          'LEV' = sapply(
-            strsplit(tmp.sub, ' = '),
-            FUN = function(x)
-              x[2]
-          ),
-          stringsAsFactors = FALSE
-        )
+  ds <- data_frame
+  # subset selection
+  # ...by group levels
+  tmp.sub <- select_subsetting
 
-    } else {
-      mt.sub <- NULL
-    }
+  if (!is.null(tmp.sub)) {
+    mt.sub <-
+      data.frame(
+        'VAR' = sapply(
+          strsplit(tmp.sub, ' = '),
+          FUN = function(x)
+            x[1]
+        ),
+        'LEV' = sapply(
+          strsplit(tmp.sub, ' = '),
+          FUN = function(x)
+            x[2]
+        ),
+        stringsAsFactors = FALSE
+      )
+
+  } else {
+    mt.sub <- NULL
+  }
 
     # delete group levels that were not selected
     if (length(ds$group.lev) > 0) {
@@ -58,9 +73,9 @@ add_sorting_information <- function(
 
     # set seed value if the selection is 'random'
     if (shiny::req(randet) != 'deterministic') {
-      if (!is.na(as.numeric(shiny::req(seed)))) {
-        seed <- as.numeric((shiny::req(seed)))
-        set.seed(shiny::req(seed))
+      if (!is.na(as.integer(seed))) {
+        seed <- as.numeric(seed)
+        set.seed(seed)
       } else {
         seed <- sample(0:1000, 1)
         set.seed(shiny::req(seed))
@@ -73,10 +88,10 @@ add_sorting_information <- function(
       min_selected_and_shown <-
         min(len_selected_subjects, nshow, na.rm = TRUE)
       rand <- sample(ds$A$megaplots_selected_subjectid, min_selected_and_shown)
-      if (length(shiny::isolate(specific_ids[1:random])) > 0) {
+      if (length(shiny::isolate(specific_ids[1:nshow])) > 0) {
         # check if ids are valid
         valid_specific_ids <-
-          shiny::isolate(specific_ids[1:random])[shiny::isolate(specific_ids[1:random]) %in% ds$A$megaplots_selected_subjectid]
+          shiny::isolate(specific_ids[1:nshow])[shiny::isolate(specific_ids[1:nshow]) %in% ds$A$megaplots_selected_subjectid]
         if (length(valid_specific_ids) > 0) {
           valid_specific_ids_unique <-
             valid_specific_ids[!valid_specific_ids %in% rand]
@@ -98,9 +113,9 @@ add_sorting_information <- function(
 
       rand <-
         ds$A$megaplots_selected_subjectid[(start:(start + nshow - 1))[1:min_selected_and_shown]]
-      if (length(specific_ids[1:random]) > 0) {
+      if (length(specific_ids[1:nshow]) > 0) {
         valid_specific_ids <-
-          specific_ids[1:random][specific_ids[1:random] %in% ds$A$megaplots_selected_subjectid]
+          specific_ids[1:nshow][specific_ids[1:nshow] %in% ds$A$megaplots_selected_subjectid]
         if (length(valid_specific_ids) > 0) {
           valid_specific_ids_unique <-
             as.numeric(valid_specific_ids[!valid_specific_ids %in% rand])
