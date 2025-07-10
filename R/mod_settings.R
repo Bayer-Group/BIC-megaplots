@@ -145,13 +145,13 @@ settings_ui <- function(id) {
     ),
     shiny::textInput(
       inputId = ns("y_axis_label"),
-      label = "y axis label",
+      label = "y axis label (max. 20 characters)",
       value = "Subject identifier",
       placeholder = "Subject identifier"
     ),
     shiny::textInput(
       inputId = ns("x_axis_label"),
-      label = "x axis label",
+      label = "x axis label (max. 6 characters)",
       value = "Time",
       placeholder = "Time"
     ),
@@ -193,6 +193,23 @@ settings_server <- function(
   ns <- session$ns
 
 
+  x_axis_label_restricted <- reactiveValues(
+    val = "Time"
+  )
+
+  y_axis_label_restricted <- reactiveValues(
+    val = "Subject identifier"
+  )
+
+  observeEvent(input$x_axis_label, {
+    x_axis_label_restricted$val <- substr(input$x_axis_label, 1, 6)
+  })
+
+  observeEvent(input$y_axis_label, {
+    y_axis_label_restricted$val <- substr(input$y_axis_label, 1, 20)
+  })
+
+
    shiny::observeEvent(data_w_event_and_group_information(), {
 
     shiny::req(data_w_event_and_group_information())
@@ -230,8 +247,8 @@ settings_server <- function(
       reference_line_2_value = input$reference_line_2_value,
       reference_line_3 =input$reference_line_3,
       reference_line_3_value = input$reference_line_3_value,
-      y_axis_label = input$y_axis_label,
-      x_axis_label = input$x_axis_label
+      y_axis_label = y_axis_label_restricted$val,
+      x_axis_label = x_axis_label_restricted$val
     )
     param
   })

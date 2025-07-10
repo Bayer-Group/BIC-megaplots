@@ -115,7 +115,7 @@ mega_plot_server <- function(
     # reactivity
     shiny::req(image1_plot_height())
     #shiny::req(settings()$height_slider())
-    session$clientData[["output_mega_plot-image1"]]
+    session$clientData[["output_mega_plot-image1_width"]]
     # main_settings()$event.levels()
     # main_settings()$select.grouping()
     main_settings()$event.levels()
@@ -154,6 +154,7 @@ mega_plot_server <- function(
   #### Plot Legend ####
   output$image1Legend <- shiny::renderPlot({
     #requirements
+
     shiny::req(max_legend_char())
     shiny::req(data_w_plot_info(), data_grouped_and_sorted(), data_w_ai_information(), data_w_event_and_group_information())
 
@@ -169,6 +170,7 @@ mega_plot_server <- function(
     # reactivity
     settings()$x_axis_label
 
+    session$clientData[["output_mega_plot-image1_width"]]
     #requirements
     shiny::req(settings()$range)
     draw_megaplot_x_axis(

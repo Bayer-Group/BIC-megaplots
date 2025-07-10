@@ -70,7 +70,6 @@ shiny::tagList(
 #' @param select.ev.lev2 character vector of event levels from event 2
 #' @param select.ev.lev3 character vector of event levels from event 3
 #' @param select.ev.lev4 character vector of event levels from event 4
-#' @param selectdata character of data upload method ("Use demo data"/"Data upload")
 #' @param setting_file list with saved settings information
 #'
 #' @return List with preprocessed data and upload panel inputs
@@ -92,7 +91,6 @@ color_options_server <- function(
     select.ev.lev2,
     select.ev.lev3,
     select.ev.lev4,
-    selectdata,
     setting_file
   ) {
 
@@ -143,22 +141,22 @@ color_options_server <- function(
   shiny::observeEvent(c(import.button()), {
     shiny::req(import.button())
     if (!is.null(select.ev.lev1())) {
-      if (selectdata()== "Use demo data") {
-      custom_colour <- mod_colour_palette_server(
-          "color_palette1",
-          event = shiny::reactive({
-            select.ev1()
-          }),
-          level = shiny::reactive({
-            select.ev.lev1()
-          }),
-          colors = shiny::reactive({c("seagreen1", "#ffff99", "#ff7f00", "#5CACEE", "#FDBF6F", "#1F78B4", "#6A3D9A", "#FF7F00") })
-        )
-
-        shiny::observe({
-          color_pal1$val <- custom_colour$colors()
-        })
-      } else {
+      # if (selectdata()== "Use demo data") {
+      # custom_colour <- mod_colour_palette_server(
+      #     "color_palette1",
+      #     event = shiny::reactive({
+      #       select.ev1()
+      #     }),
+      #     level = shiny::reactive({
+      #       select.ev.lev1()
+      #     }),
+      #     colors = shiny::reactive({c("seagreen1", "#ffff99", "#ff7f00", "#5CACEE", "#FDBF6F", "#1F78B4", "#6A3D9A", "#FF7F00") })
+      #   )
+      #
+      #   shiny::observe({
+      #     color_pal1$val <- custom_colour$colors()
+      #   })
+      # } else {
         custom_colour <- mod_colour_palette_server(
           "color_palette1",
           event = shiny::reactive({
@@ -174,7 +172,7 @@ color_options_server <- function(
         shiny::observe({
           color_pal1$val <- custom_colour$colors()
         })
-      }
+      # }
     }
   })
 

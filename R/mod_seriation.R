@@ -3,7 +3,7 @@
 #' Function that makes the UI for the seriation, called by the module server function
 #'
 #' @param var Variable name used for seriation
-#' @param name Name used for the drop-down menue
+#' @param name Name used for the drop-down menu
 #'
 #' @return No return
 #' @rawNamespace import(shiny, except=c(dataTableOutput, renderDataTable))
@@ -118,10 +118,10 @@ make_parameter_ui <- function(id, var, name) {
           ),
           selected = 'auto',
           multiple = FALSE,
-          width = 150,
+          # width = 150,
           options = list(`live-search` = TRUE,
                          `header` = 'Select item'),
-        )
+       )
       ),
       conditionalPanel(
         condition = paste0(

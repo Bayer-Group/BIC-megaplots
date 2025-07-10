@@ -82,7 +82,7 @@ artificial_intelligence_ui <- function(id) {
       ),
       shiny::uiOutput(ns("pdfview")),
       shiny::span(shiny::HTML(gsub('\n','<br/>',stringr::str_wrap(
-        '(will appear in the sorting menue and replace the current sorting selection)',
+        '(will appear in the sorting menu and replace the current sorting selection)',
         width = 30)
       ))),
       shiny::br()

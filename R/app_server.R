@@ -122,7 +122,6 @@ app_server <- function(input, output, session) {
     shiny::reactive({uploaded_files$select.ev.lev2()}),
     shiny::reactive({uploaded_files$select.ev.lev3()}),
     shiny::reactive({uploaded_files$select.ev.lev4()}),
-    shiny::reactive({uploaded_files$selectdata()}),
     setting_file = shiny::reactive({main_settings$setting_file()})
   )
 
