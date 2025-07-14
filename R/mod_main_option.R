@@ -225,14 +225,24 @@ main_option_server <- function(
     data_w_ai_information()$nume_A[!is.na(data_w_ai_information()$nume_A)]
   })
 
-
+#
   shiny::observeEvent(choiceSort(), {
     choices <- choiceSort()
 
-    selected <- 'megaplots_selected_subjectid'
-    if (any(choices == 'SEQUENCING'))
-      selected <- utils::tail(choices, 1)
+    # selected <- 'megaplots_selected_subjectid'
+    # if (any(choices == 'SEQUENCING')) selected <- utils::tail(choices, 1)
 
+    if (!is.null(input$setting_file)) {
+      saved_file <- readRDS(input$setting_file$datapath)
+      if (is.list(saved_file)) {
+        selected <- saved_file$select.sorting
+      }} else {
+        if (any(choices == 'SEQUENCING')) {
+          selected <- utils::tail(choices, 1)
+        } else {
+          selected <- "megaplots_selected_subject"
+        }
+      }
     shinyWidgets::updatePickerInput(
       session,
       inputId = "select.sorting",
@@ -320,12 +330,6 @@ main_option_server <- function(
         )
         shinyWidgets::updatePickerInput(
           session,
-          inputId = "select.sorting",
-          selected = saved_file$select.sorting,
-          choices = saved_file$select.sorting.choices
-        )
-        shinyWidgets::updatePickerInput(
-          session,
           inputId = "event.levels",
           selected = saved_file$select.event.levels
         )
@@ -334,6 +338,19 @@ main_option_server <- function(
           inputId = "select.subsetting",
           selected = saved_file$select.subsetting
         )
+        # shinyWidgets::updatePickerInput(
+        #   session,
+        #   inputId = "select.sorting",
+        #   selected = saved_file$select.sorting#,
+        #   #choices = saved_file$select.sorting.choices
+        # )
+
+        # shinyWidgets::updatePickerInput(
+        #   session,
+        #   inputId = "select.sorting",
+        #   selected = saved_file$select.sorting,
+        #   choices = saved_file$select.sorting.choices
+        # )
       }
     }
   })

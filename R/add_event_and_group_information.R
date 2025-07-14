@@ -107,11 +107,11 @@ add_event_and_group_information <- function(
     data_group_event_list$'ai.tab' <- ai.tab
     data_group_event_list$'ai.initselect' <- colnames(summary_stats$'detail')[-1]
 
-    if (data_selection == "Upload saved data") {
-      data_group_event_list$A$'SEQUENCING' <- data$megaplot_data$saved$sequencing
-    } else {
+    # if (data_selection == "Upload saved data") {
+    #   data_group_event_list$A$'SEQUENCING' <- data$megaplot_data$saved$sequencing
+    # } else {
       data_group_event_list$A$'SEQUENCING' <- data_group_event_list$A$megaplots_selected_subjectid
-    }
+    # }
     # reactive return
     c(
       data_group_event_list,

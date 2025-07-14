@@ -56,11 +56,11 @@ event_selection_server <- function(input, output, session, event_number, preproc
     shiny::req(input$select.ev)
     choices <- unique(preprocessed_data()$megaplot_data$B[[input$select.ev]])
     choices <- sort(choices[!is.na(choices)])
-    if (selectdata()== "Upload saved data") {
-      if (all(choices %in% preprocessed_data()$megaplot_data$saved$select.ev.lev)) {
-        choices <- preprocessed_data()$megaplot_data$saved$select.ev.lev
-      }
-    }
+    # if (selectdata()== "Upload saved data") {
+    #   if (all(choices %in% preprocessed_data()$megaplot_data$saved$select.ev.lev)) {
+    #     choices <- preprocessed_data()$megaplot_data$saved$select.ev.lev
+    #   }
+    # }
     shinyjqui::orderInput(
       inputId = ns("select.ev.lev"),
       label = paste0("Select order of event (", event_number,")"),

@@ -458,47 +458,48 @@ preprocess_data_frame <- function(
       name <- "MegaPlot example data 1"
       megaplot_data <- list(A = A, B = B, name = name)
       megaplot_data
-    } else if (selectdata == "Upload saved data") {
-      shiny::req(setting_file)
-      if (!is.null(setting_file)) {
-        if (utils::tail(strsplit(setting_file$datapath, ".", fixed = TRUE)[[1]], n = 1) != "rds") {
-          megaplot_error_message <- paste0(
-            "Wrong data format for saved dataset. <br> You have selected a ",
-            utils::tail(
-              strsplit(setting_file$datapath, ".", fixed = TRUE)[[1]],
-              n = 1
-            ),
-            " file. <br> Please select a .rds file <br> or choose another upload method."
-          )
-          megaplot_data <- NULL
-        } else {
-          saved_file <- readRDS(setting_file$datapath)
-
-          if (all(c("subjectid","start_time","end_time") %in% colnames(saved_file$A)) & all(!c("megaplots_selected_subjectid","megaplots_selected_start_time","megaplots_selected_end_time") %in% colnames(saved_file$A))) {
-            saved_file$A <- saved_file$A %>%
-              dplyr::rename(
-                megaplots_selected_subjectid = "subjectid",
-                megaplots_selected_start_time = "start_time",
-                megaplots_selected_end_time = "end_time"
-              )
-          }
-
-          if (all(c("subjectid","event_time") %in% colnames(saved_file$B)) & all(!c("megaplots_selected_subjectid","megaplots_selected_event_time") %in% colnames(saved_file$B))) {
-            saved_file$B <- saved_file$B %>%
-              dplyr::rename(
-                megaplots_selected_subjectid = "subjectid",
-                megaplots_selected_event_time = "ae_time"
-              )
-          }
-          megaplot_data <- list(
-            A = saved_file$A,
-            B = saved_file$B,
-            name = saved_file$name,
-            saved = saved_file
-          )
-        }
-      }
     }
+    # } else if (selectdata == "Upload saved data") {
+    #   shiny::req(setting_file)
+    #   if (!is.null(setting_file)) {
+    #     if (utils::tail(strsplit(setting_file$datapath, ".", fixed = TRUE)[[1]], n = 1) != "rds") {
+    #       megaplot_error_message <- paste0(
+    #         "Wrong data format for saved dataset. <br> You have selected a ",
+    #         utils::tail(
+    #           strsplit(setting_file$datapath, ".", fixed = TRUE)[[1]],
+    #           n = 1
+    #         ),
+    #         " file. <br> Please select a .rds file <br> or choose another upload method."
+    #       )
+    #       megaplot_data <- NULL
+    #     } else {
+    #       saved_file <- readRDS(setting_file$datapath)
+    #
+    #       if (all(c("subjectid","start_time","end_time") %in% colnames(saved_file$A)) & all(!c("megaplots_selected_subjectid","megaplots_selected_start_time","megaplots_selected_end_time") %in% colnames(saved_file$A))) {
+    #         saved_file$A <- saved_file$A %>%
+    #           dplyr::rename(
+    #             megaplots_selected_subjectid = "subjectid",
+    #             megaplots_selected_start_time = "start_time",
+    #             megaplots_selected_end_time = "end_time"
+    #           )
+    #       }
+    #
+    #       if (all(c("subjectid","event_time") %in% colnames(saved_file$B)) & all(!c("megaplots_selected_subjectid","megaplots_selected_event_time") %in% colnames(saved_file$B))) {
+    #         saved_file$B <- saved_file$B %>%
+    #           dplyr::rename(
+    #             megaplots_selected_subjectid = "subjectid",
+    #             megaplots_selected_event_time = "ae_time"
+    #           )
+    #       }
+    #       megaplot_data <- list(
+    #         A = saved_file$A,
+    #         B = saved_file$B,
+    #         name = saved_file$name,
+    #         saved = saved_file
+    #       )
+    #     }
+    #   }
+    # }
   data <- list(
     megaplot_data = megaplot_data,
     megaplot_error_message = megaplot_error_message

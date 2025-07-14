@@ -26,13 +26,21 @@ draw_megaplot_legend <- function(
     leg.test <- legend(legX, legY, xpd = NA, pch = 15, legend = 'Why', plot = FALSE)
 
     for (i in 1:length(megaplot_data$event)) {
-      # set text color ('grey' if not shown in the plot)
-      tmp <- megaplot_data$event.lev[[megaplot_data$event[i]]]
+      tmp <- megaplot_data$col.ev[[i]]
       col.legtxt <- rep(select_color['plot.id'], length(tmp))
-      names(col.legtxt) <- tmp
-      col.legtxt[!tmp %in% megaplot_data$event.lev[[megaplot_data$event[i]]]] <- c('grey40', '#93a3ae', '#5D6A70', '#404A4E')[3]
+      names(col.legtxt) <- names(tmp)
+      col.legtxt[!names(tmp) %in% megaplot_data$event.lev[[i]]] <- '#5D6A70'
       font.legtxt <- ifelse(col.legtxt == '#5D6A70', 3, 1)
       col.leg <- megaplot_data$col.ev[[megaplot_data$event[i]]]
+      #  # set text color ('grey' if not shown in the plot)
+      # tmp <- megaplot_data$event.lev[[megaplot_data$event[i]]]
+      # col.legtxt <- rep(select_color['plot.id'], length(tmp))
+      # names(col.legtxt) <- tmp
+      # col.legtxt[!tmp %in% megaplot_data$event.lev[[megaplot_data$event[i]]]] <- '#5D6A70'
+      #
+      # font.legtxt <- ifelse(col.legtxt == '#5D6A70', 3, 1)
+      #
+      # col.leg <- megaplot_data$col.ev[[megaplot_data$event[i]]]
 
       # event name
       ltitle <- legend(
