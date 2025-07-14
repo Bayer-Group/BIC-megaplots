@@ -13,15 +13,15 @@ summary_statistics_ui <- function(id) {
   ns <- NS(id)
 
   shiny::tagList(
-    shinydashboard::box(
-      width = NULL,
-      solidHeader = TRUE,
-      collapsible = FALSE,
+    # shinydashboard::box(
+    #   width = NULL,
+    #   solidHeader = TRUE,
+    #   collapsible = FALSE,
       DT::DTOutput(ns('sumtable')),
       shiny::br(),
       shiny::br(),
       DT::DTOutput(ns('indivtable'))
-    )
+    # )
   )
 }
 
@@ -102,6 +102,8 @@ summary_statistics_server <- function(
   shiny::observeEvent(c(data_grouped_and_sorted(),import.button()), {
     ds_ <- data_grouped_and_sorted()$B[, c('megaplots_selected_subjectid', 'megaplots_selected_event_time', data_grouped_and_sorted()$event.total, "Group_ID_char")] %>%
       dplyr::mutate_if(is.factor, as.character)
+
+
     mel <- reshape2::melt(
       ds_,
       id.vars = c('megaplots_selected_subjectid', 'megaplots_selected_event_time', 'Group_ID_char'),
@@ -197,7 +199,7 @@ summary_statistics_server <- function(
           text <- c(
             text,
             paste0(
-              "<u>",
+              "<u style = 'color: white; text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;'>",
               ifelse(group != "", group, "Overall"),
               " (N = ", unique(tmp[tmp$`GROUP BY` == group,]$NUMBER) ,")",
               "</u>",

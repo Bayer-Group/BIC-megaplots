@@ -12,12 +12,12 @@
 mod_data_specification_ui <- function(id) {
   ns <- shiny::NS(id)
   tagList(
-    shinydashboard::box(
-      width = NULL,
-      solidHeader = TRUE,
-      collapsible = FALSE,
+    # shinydashboard::box(
+    #   width = NULL,
+    #   solidHeader = TRUE,
+    #   collapsible = FALSE,
       shiny::uiOutput(ns("data_specification"))
-    )
+    # )
   )
 }
 
@@ -113,13 +113,16 @@ mod_data_specification_server <- function(input, output, session, select_color) 
            </p>
         <div id='chap3'>
         <h3 style = 'color: ",select_color()['plot.id'],";'> 3. Data specification </h3>
+
           <p style = 'color: ",select_color()['plot.id'],";'>
+
             Two datasets are to be created: The subject-defining dataset (A)
             contains one record per subject. The event defining dataset (B)
             has one record for each relative day per subject on which the
             subject experienced at least one of the prespecified events.
             Both datasets have mandatory variables with prescribed names
             and format as described below:
+
             <li style = 'color: ",select_color()['plot.id'],";'>
               A: subjectid, start_time, end_time
             </li>
@@ -148,6 +151,7 @@ mod_data_specification_server <- function(input, output, session, select_color) 
           </p>
           <style style = 'color: ",select_color()['plot.id'],";'>
             table {
+              color: ",select_color()['plot.id'],";
               font-family: arial, sans-serif;
               border-collapse: collapse;
               width: 100%;
@@ -157,7 +161,7 @@ mod_data_specification_server <- function(input, output, session, select_color) 
             }
           </style>
 
-          <table>
+          <table style = 'width:100%;'>
             <tr>
               <th>   </th>
               <th> Dataset </th>
@@ -232,7 +236,8 @@ mod_data_specification_server <- function(input, output, session, select_color) 
 
            <tr>
               <td rowspan='6'> Events per study-day <br>
-                   <em> One record per relative day - if at least one event observed out of ae1, ae2, ae3,..., aeX </em>
+                   <em> One record per relative day - <br>
+                   if at least one event observed out of <br> ae1, ae2, ae3,..., aeX </em>
               </td>
               <td rowspan='6'> B
               </td>

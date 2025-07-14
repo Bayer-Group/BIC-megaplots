@@ -4,12 +4,12 @@
 #'
 summarise_megaplot_data <-  function(data) {
   B.long <- na.exclude(
-    reshape2::melt(
+    suppressWarnings(reshape2::melt(
       data$megaplot_data$B,
       id.vars = c('megaplots_selected_subjectid', 'megaplots_selected_event_time'),
       variable.name = 'EVENT',
       value.name = 'LEVEL'
-    )
+    ))
   )
 
   # calculate the counts as COUNT

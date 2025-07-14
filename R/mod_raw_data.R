@@ -13,15 +13,15 @@ raw_data_ui <- function(id) {
   ns <- NS(id)
 
   shiny::tagList(
-    shinydashboard::box(
-      width = NULL,
-      solidHeader = TRUE,
-      collapsible = FALSE,
+    # shinydashboard::box(
+    #   width = NULL,
+    #   solidHeader = TRUE,
+    #   collapsible = FALSE,
       shiny::uiOutput(ns('select.raw')),
       shiny::br(),
       DT::DTOutput(ns('rawtable'))
     )
-  )
+  # )
 }
 
 #' Raw Data Module  - Server Part
