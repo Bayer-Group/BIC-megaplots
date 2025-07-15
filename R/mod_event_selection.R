@@ -29,9 +29,20 @@ event_selection_ui <- function(id) {
 #'
 #' @noRd
 #' @keywords internal
-event_selection_server <- function(input, output, session, event_number, preprocessed_data, event.info, selectdata) {
+event_selection_server <- function(input, output, session, event_number, preprocessed_data, event.info, selectdata,setting_file) {
 
   ns <- session$ns
+
+  #   shiny::observeEvent(setting_file(), {
+  #   if (!is.null(setting_file())) {
+  #     saved_file <- readRDS(setting_file()$datapath)
+  #     if (is.list(saved_file)) {
+  #
+  #
+  #     }
+  #   }
+  # })
+
 
   output$select.ev <- shiny::renderUI({
     if (length(req(event.info())) >= event_number) {
@@ -56,11 +67,15 @@ event_selection_server <- function(input, output, session, event_number, preproc
     shiny::req(input$select.ev)
     choices <- unique(preprocessed_data()$megaplot_data$B[[input$select.ev]])
     choices <- sort(choices[!is.na(choices)])
-    # if (selectdata()== "Upload saved data") {
-    #   if (all(choices %in% preprocessed_data()$megaplot_data$saved$select.ev.lev)) {
-    #     choices <- preprocessed_data()$megaplot_data$saved$select.ev.lev
-    #   }
-    # }
+
+    if (!is.null(setting_file())) {
+      saved_file <- readRDS(setting_file()$datapath)
+      if (is.list(saved_file)) {
+        choices <- saved_file$select.event.levels[saved_file$select.event.levels %in% paste(input$select.ev,"=",choices)]
+        choices <- unlist(strsplit(paste(input$select.ev,"=",choices)," = "))[!unlist(strsplit(paste(input$select.ev,"=",choices)," = ")) %in% input$select.ev]
+      }
+    }
+
     shinyjqui::orderInput(
       inputId = ns("select.ev.lev"),
       label = paste0("Select order of event (", event_number,")"),

@@ -37,7 +37,8 @@ app_server <- function(input, output, session) {
   # Data upload module (server part)
   uploaded_files <- shiny::callModule(
     data_upload_server,
-    "data_upload"
+    "data_upload",
+    setting_file = shiny::reactive({main_settings$setting_file()})
   )
 
   # Main settings module (server part) (box at top of the megaplots)

@@ -303,7 +303,7 @@ data_upload_ui <- function(id) {
 #' @noRd
 #' @keywords internal
 
-data_upload_server <- function(input, output, session){
+data_upload_server <- function(input, output, session, setting_file){
 
   ns <- session$ns
 
@@ -504,13 +504,13 @@ data_upload_server <- function(input, output, session){
 
   #event selection modules server part
 
-  event_selection_1 <- shiny::callModule(event_selection_server, "select_ev.1", 1, shiny::reactive({preprocessed_data()}), shiny::reactive({event.info()}), shiny::reactive({input$selectdata}))
+  event_selection_1 <- shiny::callModule(event_selection_server, "select_ev.1", 1, shiny::reactive({preprocessed_data()}), shiny::reactive({event.info()}), shiny::reactive({input$selectdata}), shiny::reactive({setting_file()}))
 
-  event_selection_2 <- shiny::callModule(event_selection_server, "select_ev.2", 2, shiny::reactive({preprocessed_data()}), shiny::reactive({event.info()}), shiny::reactive({input$selectdata}))
+  event_selection_2 <- shiny::callModule(event_selection_server, "select_ev.2", 2, shiny::reactive({preprocessed_data()}), shiny::reactive({event.info()}), shiny::reactive({input$selectdata}), shiny::reactive({setting_file()}))
 
-  event_selection_3 <- shiny::callModule(event_selection_server, "select_ev.3", 3, shiny::reactive({preprocessed_data()}), shiny::reactive({event.info()}), shiny::reactive({input$selectdata}))
+  event_selection_3 <- shiny::callModule(event_selection_server, "select_ev.3", 3, shiny::reactive({preprocessed_data()}), shiny::reactive({event.info()}), shiny::reactive({input$selectdata}), shiny::reactive({setting_file()}))
 
-  event_selection_4 <- shiny::callModule(event_selection_server, "select_ev.4", 4, shiny::reactive({preprocessed_data()}), shiny::reactive({event.info()}), shiny::reactive({input$selectdata}))
+  event_selection_4 <- shiny::callModule(event_selection_server, "select_ev.4", 4, shiny::reactive({preprocessed_data()}), shiny::reactive({event.info()}), shiny::reactive({input$selectdata}), shiny::reactive({setting_file()}))
 
   # reactive object event.info with the column names of character variables
   event.info <- shiny::reactive({
