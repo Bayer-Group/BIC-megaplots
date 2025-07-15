@@ -18,7 +18,7 @@ mega_plot_ui <- function(id) {
     p("", style = "margin-bottom: 40px;"),
     fixedPanel(
       shiny::uiOutput(ns('axisbox')),
-      bottom = 1,
+      bottom = -5,
       width = "100%",
       height = 42
     ),
