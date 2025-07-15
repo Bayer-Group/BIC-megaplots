@@ -385,7 +385,8 @@ seriation_server <- function(
 
     shiny::observeEvent(setting_file(), {
       if (!is.null(setting_file())) {
-        saved_file <- readRDS(setting_file()$datapath)
+        saved_file <- setting_file()
+        #saved_file <- readRDS(setting_file()$datapath)
         if (is.list(saved_file)) {
           if ((length(varSeq()) > 1) & multiple_distmeasures()) {
             for (i in seq_along(varSeq())) {

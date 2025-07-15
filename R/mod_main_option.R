@@ -225,24 +225,24 @@ main_option_server <- function(
     data_w_ai_information()$nume_A[!is.na(data_w_ai_information()$nume_A)]
   })
 
-#
+
   shiny::observeEvent(choiceSort(), {
     choices <- choiceSort()
 
     # selected <- 'megaplots_selected_subjectid'
     # if (any(choices == 'SEQUENCING')) selected <- utils::tail(choices, 1)
-
-    if (!is.null(input$setting_file)) {
-      saved_file <- readRDS(input$setting_file$datapath)
-      if (is.list(saved_file)) {
-        selected <- saved_file$select.sorting
-      }} else {
-        if (any(choices == 'SEQUENCING')) {
-          selected <- utils::tail(choices, 1)
-        } else {
-          selected <- "megaplots_selected_subject"
-        }
+    if (!is.null(setting_file())) {
+      # saved_file <- readRDS(input$setting_file$datapath)
+      if (is.list(setting_file())) {
+        selected <- setting_file()$select.sorting
       }
+    } else {
+      if (any(choices == 'SEQUENCING')) {
+        selected <- utils::tail(choices, 1)
+      } else {
+        selected <- "megaplots_selected_subjectid"
+      }
+    }
     shinyWidgets::updatePickerInput(
       session,
       inputId = "select.sorting",
@@ -312,11 +312,20 @@ main_option_server <- function(
     param
   })
 
-
-  shiny::observeEvent(input$setting_file, {
+  setting_file <- shiny::reactive({
     if (!is.null(input$setting_file)) {
       saved_file <- readRDS(input$setting_file$datapath)
       if (is.list(saved_file)) {
+        saved_file
+      }
+    }
+  })
+
+
+  shiny::observeEvent(setting_file(), {
+
+          # saved_file <- readRDS(input$setting_file$datapath)
+      # if (is.list(saved_file)) {
         #update main options
         shiny::updateSelectizeInput(
           session,
@@ -351,8 +360,8 @@ main_option_server <- function(
         #   selected = saved_file$select.sorting,
         #   choices = saved_file$select.sorting.choices
         # )
-      }
-    }
+    #   }
+    # }
   })
 
   output$save_settings <- shiny::downloadHandler(
@@ -389,6 +398,6 @@ return(list(
   select.sorting = shiny::reactive({input$select.sorting}),
   event.levels = shiny::reactive({input$event.levels}),
   select.subsetting = shiny::reactive({input$select.subsetting}),
-  setting_file = shiny::reactive({input$setting_file})
+  setting_file = shiny::reactive({setting_file()})
 ))
 }

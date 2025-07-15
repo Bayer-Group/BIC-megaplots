@@ -22,6 +22,7 @@ shiny::tagList(
     selected = 'grey (app version)',
     choicesOpt = list(`icon` = rep('glyphicon-blackboard', 2))
   ),
+  tags$style(HTML(".dropdown-item {color: #222d32!important;")),
   #### Module call: mod_colour_palette
   mod_colour_palette_ui(ns("color_palette1")),
     shiny::conditionalPanel(condition = "output.load_sel_pal1 == true",
@@ -254,7 +255,8 @@ color_options_server <- function(
 
   shiny::observeEvent(setting_file(), {
     if (!is.null(setting_file())) {
-      saved_file <- readRDS(setting_file()$datapath)
+      saved_file <- setting_file()$datapath
+      #saved_file <- readRDS(setting_file()$datapath)
       if (is.list(saved_file)) {
 
         custom_colour <- mod_colour_palette_server(

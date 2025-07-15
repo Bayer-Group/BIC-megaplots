@@ -160,7 +160,8 @@ artificial_intelligence_server <- function(
 
     shiny::observeEvent(setting_file(), {
       if (!is.null(setting_file())) {
-        saved_file <- readRDS(setting_file()$datapath)
+        #saved_file <- readRDS(setting_file()$datapath)
+        saved_file <- setting_file()
         if (is.list(saved_file)) {
 
             shinyWidgets::updatePickerInput(

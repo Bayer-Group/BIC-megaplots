@@ -29,7 +29,7 @@ event_selection_ui <- function(id) {
 #'
 #' @noRd
 #' @keywords internal
-event_selection_server <- function(input, output, session, event_number, preprocessed_data, event.info, selectdata,setting_file) {
+event_selection_server <- function(input, output, session, event_number, preprocessed_data, event.info, selectdata, setting_file) {
 
   ns <- session$ns
 
@@ -69,10 +69,13 @@ event_selection_server <- function(input, output, session, event_number, preproc
     choices <- sort(choices[!is.na(choices)])
 
     if (!is.null(setting_file())) {
-      saved_file <- readRDS(setting_file()$datapath)
+      #saved_file <- readRDS(setting_file()$datapath)
+      saved_file <- setting_file()
       if (is.list(saved_file)) {
-        choices <- saved_file$select.event.levels[saved_file$select.event.levels %in% paste(input$select.ev,"=",choices)]
-        choices <- unlist(strsplit(paste(input$select.ev,"=",choices)," = "))[!unlist(strsplit(paste(input$select.ev,"=",choices)," = ")) %in% input$select.ev]
+        if(!is.null(saved_file$select.event.levels)){
+          choices <- saved_file$select.event.levels[saved_file$select.event.levels %in% paste(input$select.ev,"=",choices)]
+          choices <- unlist(strsplit(paste(input$select.ev,"=",choices)," = "))[!unlist(strsplit(paste(input$select.ev,"=",choices)," = ")) %in% input$select.ev]
+        }
       }
     }
 

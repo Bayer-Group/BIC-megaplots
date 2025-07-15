@@ -1,4 +1,5 @@
-<img src="inst/app/www/megaplot-logo.png" align="left"/>
+<img src="inst/app/www/megaplot-logo.png" align="left" width="60%"/> <br /> <br /> <br /> <br />
+
 
 <!-- badges: start -->
 [![CRAN status](https://www.r-pkg.org/badges/version/megaplots)](https://cran.r-project.org/package=megaplots)

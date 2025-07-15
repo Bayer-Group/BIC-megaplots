@@ -237,7 +237,7 @@ app_server <- function(input, output, session) {
     data_w_ai_information <- shiny::req(data_w_event_and_group_information())
     shiny::req(main_settings$setting_file())
     if (!is.null(main_settings$setting_file())) {
-      saved_file <- readRDS(main_settings$setting_file()$datapath)
+      saved_file <- main_settings$setting_file()
       if (is.list(saved_file)) {
         if(!is.null(saved_file$var) & !is.null(saved_file$sermethod)){
           #Call the sequencing function with all the corresponding parameters:

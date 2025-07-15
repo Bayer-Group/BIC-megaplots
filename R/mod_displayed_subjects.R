@@ -197,7 +197,8 @@ displayed_subjects_server <- function(input, output, session, preprocess_data, s
 
   shiny::observeEvent(setting_file(), {
     if (!is.null(setting_file())) {
-      saved_file <- readRDS(setting_file()$datapath)
+      #saved_file <- readRDS(setting_file()$datapath)
+      saved_file <- setting_file()$datapath
       if (is.list(saved_file)) {
         #update main options
         shiny::updateSliderInput(

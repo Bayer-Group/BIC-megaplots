@@ -206,9 +206,10 @@ draw_megaplot <- function(
           y = par_settings$grLab$POS,
           xpd = NA,
           adj = c(0, 0.5),
-          cex = 1.3,
+          cex = cex.subjLab,
           labels = par_settings$grLab$LABEL,
-          col = select_color[5]
+          col = select_color[5],
+          srt = 90
         )
       }
 }

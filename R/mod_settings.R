@@ -256,7 +256,8 @@ settings_server <- function(
 
   shiny::observeEvent(setting_file(), {
     if (!is.null(setting_file())) {
-      saved_file <- readRDS(setting_file()$datapath)
+      saved_file <- setting_file()
+      #saved_file <- readRDS(setting_file()$datapath)
       if (is.list(saved_file)) {
         #update main options
         shiny::updateSliderInput(
