@@ -1,5 +1,4 @@
-<img src="inst/app/www/megaplot-logo.png" align="left" width="75%"/> <br /> <br /> <br /> <br />
-
+<img src="inst/app/www/megaplot-logo.png" align="center" width="55%"/> 
 
 <!-- badges: start -->
 [![CRAN status](https://www.r-pkg.org/badges/version/megaplots)](https://cran.r-project.org/package=megaplots)
@@ -43,7 +42,7 @@ application through the function launch_megaplots().
 Next, upload the subject-defining and event-defining 
 datasets through the 'Data Import'-panel. 
 
-<img src="inst/app/www/Megaplots_Screenshot_Data_Upload.PNG" align="left" width="100%"/>
+<img src="inst/app/www/Megaplots_Screenshot_Data_Upload.PNG" align="center" width="60%"/>
 
 For more information on the required 
 data structure see [Input Data](#Input Data). below. If it
@@ -51,7 +50,7 @@ is of interest to sort the graphical display according to the order
 of events, it is possible to select 'Sort events' and further
 'Select order of event' in the same 'Data import' tab. 
 
-<img src="inst/app/www/Megaplots_Screenshot_Data_Upload_Eventsorting.PNG" align="left" width="100%"/>
+<img src="inst/app/www/Megaplots_Screenshot_Data_Upload_Eventsorting.PNG" align="center" width="60%"/>
 
 Once you hit 'Submit', it takes you to 
 the 'Megaplot' panel which is the actual graphical display of 
@@ -61,7 +60,7 @@ The horizontal lines against the subject IDs show when and which
 event has occurred, including the event level and multiple events
 on the same day.
 
-<img src="inst/app/www/Megaplots_Screenshot_Megaplot.PNG" align="left" width="100%"/>
+<img src="inst/app/www/Megaplots_Screenshot_Megaplot.PNG" align="center" width="100%"/>
 
 The 'Main options' panel on the top helps navigate 
 this plot interactively, e.g., selecting/deselecting events and their
@@ -71,7 +70,7 @@ and/or sorting help in detecting patterns among subjects and events.
 There is also a reference line that by default is set at 
 'time zero' and may be changed as needed. 
 
-<img src="inst/app/www/Megaplots_Screenshot_Main_Options.PNG" align="left" width="100%"/>
+<img src="inst/app/www/Megaplots_Screenshot_Main_Options.PNG" align="center" width="60%"/>
 
 Finally, the Zoom feature helps to zoom in any portion of the plot to read it in 
 greater detail. 
