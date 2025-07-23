@@ -97,6 +97,7 @@ app_ui <- function(request) {
       ),
       shinydashboard::dashboardBody(
         # individual color_theme defined in file global.R
+         shiny::uiOutput("includeCSS"),
          fresh::use_theme(
           fresh::create_theme(
           fresh::adminlte_color(

@@ -32,6 +32,20 @@ app_server <- function(input, output, session) {
   # set maximu‚m data upload size to 750MB
   options(shiny.maxRequestSize = 750 * 1024^2)
 
+  #change font colors of dataTables
+  output$includeCSS <- shiny::renderUI({
+    col <- ifelse(coltheme$col_sel == 'grey (app version)',"#ffffff","#000000")
+    shiny::tags$style(
+      shiny::HTML(
+        paste0(
+          ".dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_filter, .dataTables_wrapper .dataTables_info, .dataTables_wrapper .dataTables_processing,.dataTables_wrapper .dataTables_paginate .paginate_button, .dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
+          color: ",col," !important;
+          }"
+        )
+      )
+    )
+  })
+
   #### MODULE CALLS ####
 
   # Data upload module (server part)

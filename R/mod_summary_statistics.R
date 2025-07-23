@@ -69,9 +69,7 @@ summary_statistics_server <- function(
             initComplete = DT::JS(
             "function(settings, json) {",
             paste0(
-              "$(this.api().table().header()).css({'background-color': '",
-                   select_color()['plot.bg2'],
-                   "', 'color': '",
+              "$(this.api().table().header()).css({'color': '",
                    select_color()['plot.id'],
                    "'});"
               ),"}"
@@ -254,9 +252,7 @@ summary_statistics_server <- function(
             initComplete = DT::JS(
             "function(settings, json) {",
             paste0(
-              "$(this.api().table().header()).css({'background-color': '",
-                   select_color()['plot.bg2'],
-                   "', 'color': '",
+              "$(this.api().table().header()).css({'color': '",
                    select_color()['plot.id'],
                    "'});"
               ),"}"

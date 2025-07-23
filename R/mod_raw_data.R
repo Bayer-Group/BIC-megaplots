@@ -52,7 +52,7 @@ raw_data_server <- function(
     choices <- names(req(preprocess_data()$megaplot_data))[c(1, 2)]
     shinyWidgets::pickerInput(
       inputId = ns('select.raw'),
-      label = 'Select data set based on main options:',
+      label = HTML(paste0("<p style ='color: ",select_color()['plot.id'],";'> Select data set based on main options:</p>")),
       choices = choices,
       width = 'fit',
       multiple = FALSE,
@@ -76,9 +76,7 @@ raw_data_server <- function(
             initComplete = DT::JS(
             "function(settings, json) {",
             paste0(
-              "$(this.api().table().header()).css({'background-color': '",
-                   select_color()['plot.bg2'],
-                   "', 'color': '",
+              "$(this.api().table().header()).css({'color': '",
                    select_color()['plot.id'],
                    "'});"
               ),"}"
