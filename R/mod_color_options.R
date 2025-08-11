@@ -92,7 +92,8 @@ color_options_server <- function(
     select.ev.lev2,
     select.ev.lev3,
     select.ev.lev4,
-    setting_file
+    setting_file,
+    update_saved_settings
   ) {
 
   ns <- session$ns
@@ -253,21 +254,19 @@ color_options_server <- function(
   })
 #
 
-  shiny::observeEvent(setting_file(), {
+  shiny::observeEvent(update_saved_settings(), {
     if (!is.null(setting_file())) {
-      saved_file <- setting_file()$datapath
-      #saved_file <- readRDS(setting_file()$datapath)
-      if (is.list(saved_file)) {
+      if (is.list(setting_file())) {
 
         custom_colour <- mod_colour_palette_server(
           "color_palette1",
           event = shiny::reactive({
-            select.ev1()
+            setting_file()$select.ev1
           }),
           level = shiny::reactive({
-            select.ev.lev1()
+            setting_file()$select.ev.lev1
           }),
-          colors = shiny::reactive({saved_file$color_pal1})
+          colors = shiny::reactive({setting_file()$color_pal1})
         )
 
         shiny::observe({
@@ -277,12 +276,12 @@ color_options_server <- function(
          custom_colour2 <- mod_colour_palette_server(
           "color_palette2",
           event = shiny::reactive({
-            select.ev2()
+            setting_file()$select.ev2
           }),
           level = shiny::reactive({
-            select.ev.lev2()
+            setting_file()$select.ev.lev2
           }),
-          colors = shiny::reactive({saved_file$color_pal2})
+          colors = shiny::reactive({setting_file()$color_pal2})
         )
         observe({
           color_pal2$val <- custom_colour2$colors()
@@ -291,12 +290,12 @@ color_options_server <- function(
          custom_colour3 <- mod_colour_palette_server(
           "color_palette3",
           event = shiny::reactive({
-            select.ev3()
+            setting_file()$select.ev3
           }),
           level = shiny::reactive({
-            select.ev.lev3()
+            setting_file()$select.ev.lev3
           }),
-          colors = shiny::reactive({saved_file$color_pal3})
+          colors = shiny::reactive({setting_file()$color_pal3})
         )
         observe({
           color_pal3$val <- custom_colour3$colors()
@@ -305,12 +304,12 @@ color_options_server <- function(
          custom_colour4 <- mod_colour_palette_server(
           "color_palette4",
           event = shiny::reactive({
-            select.ev4()
+            setting_file()$select.ev4
           }),
           level = shiny::reactive({
-            select.ev.lev4()
+            setting_file()$select.ev.lev4
           }),
-          colors = shiny::reactive({saved_file$color_pal4})
+          colors = shiny::reactive({setting_file()$color_pal4})
         )
         observe({
           color_pal4$val <- custom_colour4$colors()

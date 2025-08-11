@@ -47,12 +47,12 @@ app_server <- function(input, output, session) {
   })
 
   #### MODULE CALLS ####
-
   # Data upload module (server part)
   uploaded_files <- shiny::callModule(
     data_upload_server,
     "data_upload",
-    setting_file = shiny::reactive({main_settings$setting_file()})
+    setting_file = shiny::reactive({main_settings$setting_file()}),
+    use_saved_settings_button = shiny::reactive({main_settings$use_saved_settings_button()})
   )
 
   # Main settings module (server part) (box at top of the megaplots)
@@ -65,10 +65,12 @@ app_server <- function(input, output, session) {
     shiny::reactive({artificial_intelligence$seq.button()}),
     shiny::reactive({displayed_subjects$displayed_subjects_settings()}),
     settings = shiny::reactive({settings$settings()}),
+    upload_settings = shiny::reactive({uploaded_files$upload_settings()}),
     color_options = shiny::reactive({color_options$color_info()}),
     var = shiny::reactive({artificial_intelligence$varSeq()}),
     par = shiny::reactive({artificial_intelligence$input_seriation()}),
-    sermethod = shiny::reactive({artificial_intelligence$methSer()})
+    sermethod = shiny::reactive({artificial_intelligence$methSer()}),
+    update_saved_settings =shiny::reactive({uploaded_files$update_on_button_click()})
   )
 
   #  Megaplot module (server part)
@@ -137,7 +139,8 @@ app_server <- function(input, output, session) {
     shiny::reactive({uploaded_files$select.ev.lev2()}),
     shiny::reactive({uploaded_files$select.ev.lev3()}),
     shiny::reactive({uploaded_files$select.ev.lev4()}),
-    setting_file = shiny::reactive({main_settings$setting_file()})
+    setting_file = shiny::reactive({main_settings$setting_file()}),
+    update_saved_settings =shiny::reactive({uploaded_files$update_on_button_click()})
   )
 
   #sequencing/ai module (server part)
@@ -206,13 +209,14 @@ app_server <- function(input, output, session) {
       event2 = uploaded_files$select.ev.lev2(),
       event3 = uploaded_files$select.ev.lev3(),
       event4 = uploaded_files$select.ev.lev4(),
-      updated_event1 = update_select.ev1(),
-      updated_event2 = update_select.ev2(),
-      updated_event3 = update_select.ev3(),
-      updated_event4 = update_select.ev4(),
+      updated_event1 = uploaded_files$select.ev1(),
+      updated_event2 = uploaded_files$select.ev2(),
+      updated_event3 = uploaded_files$select.ev3(),
+      updated_event4 = uploaded_files$select.ev4(),
       data_selection = uploaded_files$selectdata()
     )
   })
+
 
 
   ## AI FUNCTIONALITY ##
@@ -246,7 +250,8 @@ app_server <- function(input, output, session) {
     data_w_ai_information_reacVal$df <- data_w_ai_information
   })
 
-  shiny::observeEvent(main_settings$setting_file(),{
+  shiny::observeEvent(uploaded_files$update_on_button_click(),{
+  #shiny::observeEvent(main_settings$setting_file(),{
     shiny::req(uploaded_files$preprocess_data())
     data_w_ai_information <- shiny::req(data_w_event_and_group_information())
     shiny::req(main_settings$setting_file())
@@ -365,18 +370,18 @@ app_server <- function(input, output, session) {
 
   #### REACTIVES & OBSERVERS ####
   # connect to submit button (in UI)
-  update_select.ev1 <- shiny::eventReactive(c(uploaded_files$import.button(), uploaded_files$preprocess_data()$megaplot_data), {
-      uploaded_files$select.ev1()
-  })
-  update_select.ev2 <- shiny::eventReactive(c(uploaded_files$import.button(), uploaded_files$preprocess_data()$megaplot_data), {
-      uploaded_files$select.ev2()
-  })
-  update_select.ev3 <- shiny::eventReactive(c(uploaded_files$import.button(), uploaded_files$preprocess_data()$megaplot_data), {
-      uploaded_files$select.ev3()
-  })
-  update_select.ev4 <- shiny::eventReactive(c(uploaded_files$import.button(), uploaded_files$preprocess_data()$megaplot_data), {
-      uploaded_files$select.ev4()
-  })
+  # update_select.ev1 <- shiny::eventReactive(c(uploaded_files$import.button(), uploaded_files$preprocess_data()$megaplot_data), {
+  #   uploaded_files$select.ev1()
+  # })
+  # update_select.ev2 <- shiny::eventReactive(c(uploaded_files$import.button(), uploaded_files$preprocess_data()$megaplot_data), {
+  #     uploaded_files$select.ev2()
+  # })
+  # update_select.ev3 <- shiny::eventReactive(c(uploaded_files$import.button(), uploaded_files$preprocess_data()$megaplot_data), {
+  #     uploaded_files$select.ev3()
+  # })
+  # update_select.ev4 <- shiny::eventReactive(c(uploaded_files$import.button(), uploaded_files$preprocess_data()$megaplot_data), {
+  #     uploaded_files$select.ev4()
+  # })
 
 
   # set color theme

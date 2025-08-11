@@ -120,12 +120,19 @@ main_option_ui <- function(id) {
               ),
               multiple = FALSE,
               accept = '.rds'
-            )#,
-            # shiny::helpText(
-            #   'Please upload the data set of the last session which
-            #   was saved via the "Save Session Settings"-button
-            #   in the MegaPlot-tab.'
-            # )
+            ),
+            shinyWidgets::actionBttn(
+              inputId = ns('test'),
+              label = "Use saved settings",
+              style = 'gradient',
+              color = 'primary',
+              size = 'sm',
+              no_outline = FALSE,
+              block = TRUE
+            ),
+            shiny::helpText(
+              'Note: When updating the events order, please press twice to ensure that the settings have been loaded.'
+            )
             ),
             ns = NS(id)
         )
@@ -173,16 +180,18 @@ main_option_server <- function(
     seq.button,
     displayed_subjects_settings,
     settings,
+    upload_settings,
     color_options,
     var,
     par,
-    sermethod
+    sermethod,
+    update_saved_settings
   ){
 
   ns <- session$ns
 
   #### MAIN OPTIONS ####
-
+  choices_events <- shiny::reactiveValues(val = NULL)
   ####... select.events ####
   shiny::observeEvent(c(data_w_event_and_group_information()), {
 
@@ -194,7 +203,7 @@ main_option_server <- function(
     } else {
       selected <- shiny::isolate(data_w_event_and_group_information()$event)
     }
-
+    choices_events$val <- choices
     shiny::updateSelectizeInput(
       session,
       inputId = "select.events",
@@ -226,7 +235,7 @@ main_option_server <- function(
   })
 
 
-  shiny::observeEvent(choiceSort(), {
+  shiny::observeEvent(update_saved_settings(), {
     choices <- choiceSort()
 
     # selected <- 'megaplots_selected_subjectid'
@@ -251,12 +260,48 @@ main_option_server <- function(
     )
   })
 
+
+  shiny::observeEvent(choiceSort(), {
+    choices <- choiceSort()
+
+    # selected <- 'megaplots_selected_subjectid'
+    # if (any(choices == 'SEQUENCING')) selected <- utils::tail(choices, 1)
+    # if (!is.null(setting_file())) {
+    #   # saved_file <- readRDS(input$setting_file$datapath)
+    #   if (is.list(setting_file())) {
+    #     selected <- setting_file()$select.sorting
+    #   }
+    # } else {
+      if (any(choices == 'SEQUENCING')) {
+        selected <- utils::tail(choices, 1)
+      } else {
+        selected <- "megaplots_selected_subjectid"
+      }
+    # }
+    shinyWidgets::updatePickerInput(
+      session,
+      inputId = "select.sorting",
+      choices = choices,
+      selected = selected
+    )
+  })
+
   ####... event.levels ####
 
+  choices_event_levels <- shiny::reactiveValues(val = NULL)
   shiny::observeEvent(data_w_event_and_group_information(), {
 
+    # choices <- unlist(lapply(data_w_event_and_group_information()$ai.initselect, function(x){unlist(strsplit(x, " = ")[[1]][2])}))
     choices <- unlist(data_w_event_and_group_information()$event.lev,
                       use.names = FALSE)
+    # lev.ev <- list()
+    # lev.ev.n <- list()
+    # for (i in 1:length(test_w_event$event)) {
+    #   lev.ev[[i]] <- levels(test_w_event$B[, test_w_event$event[i]])
+    #   lev.ev.n[[i]] <- nlevels(test_w_event$B[, test_w_event$event[i]])
+    # }
+    #
+
     tmp <- data_w_event_and_group_information()$event.lev.n
     choices.lab <- rep(data_w_event_and_group_information()$event,
                        tmp)
@@ -267,6 +312,7 @@ main_option_server <- function(
                                 use.names = FALSE))
     choices <- paste0(choices.lab, ' = ', choices)
 
+    choices_event_levels$val <- choices
     selected <- choices
 
     shinyWidgets::updatePickerInput(
@@ -282,14 +328,15 @@ main_option_server <- function(
   })
 
 
+  choices_subsetting <- shiny::reactiveValues(val = NULL)
   ####... select.subsetting ####
     shiny::observeEvent(data_w_ai_information(), {
     shiny::req(data_w_ai_information())
-
     choices <- unlist(data_w_ai_information()$group.lev, use.names = FALSE)
     choices.lab <- rep(data_w_ai_information()$group, sapply(data_w_ai_information()$group.lev, FUN = length))
     choices <- paste0(choices.lab, ' = ', choices)
 
+    choices_subsetting$val <- choices
     selected <- choices
 
     shinyWidgets::updatePickerInput(
@@ -303,11 +350,14 @@ main_option_server <- function(
   main_option_settings <- shiny::reactive({
     param <- list(
        select.events = input$select.events,
+       choices.events = choices_events$val,
        select.grouping = input$select.grouping,
        select.sorting = input$select.sorting,
-       select.sorting.choices = choiceSort(),
+       choices.sorting = choiceSort(),
        select.event.levels = input$event.levels,
-       select.subsetting = input$select.subsetting
+       choices.event.levels = choices_event_levels$val,
+       select.subsetting = input$select.subsetting,
+       choices.subsetting = choices_subsetting$val
     )
     param
   })
@@ -322,43 +372,53 @@ main_option_server <- function(
   })
 
 
-  shiny::observeEvent(setting_file(), {
+  shiny::observeEvent(update_saved_settings(), {
 
-          # saved_file <- readRDS(input$setting_file$datapath)
-      # if (is.list(saved_file)) {
         #update main options
         shiny::updateSelectizeInput(
           session,
           inputId = "select.events",
-          selected = saved_file$select.events
+          choices = setting_file()$choices_events,
+          selected = setting_file()$select.events
         )
         shiny::updateSelectizeInput(
           session,
           inputId = "select.grouping",
-          selected = saved_file$select.grouping,
+          selected = setting_file()$select.grouping,
         )
         shinyWidgets::updatePickerInput(
           session,
           inputId = "event.levels",
-          selected = saved_file$select.event.levels
+          choices = setting_file()$choices.event.levels,
+          selected = setting_file()$select.event.levels
+
         )
         shinyWidgets::updatePickerInput(
           session,
           inputId = "select.subsetting",
-          selected = saved_file$select.subsetting
+          choices = setting_file()$choices.subsetting,
+          selected = setting_file()$select.subsetting
         )
+
+        # choices <- setting_file()[[paste0("select.ev.lev",2)]]
+        #   print("TRIGGER UPDATE SAVED")
+        #   shinyjqui::updateOrderInput(
+        #     session,
+        #     inputId = "data_upload-select_ev.2-select.ev.lev",
+        #     items = choices
+        #   )
         # shinyWidgets::updatePickerInput(
         #   session,
         #   inputId = "select.sorting",
-        #   selected = saved_file$select.sorting#,
-        #   #choices = saved_file$select.sorting.choices
+        #   selected = setting_file()$select.sorting#,
+        #   #choices = setting_file()$select.sorting.choices
         # )
 
         # shinyWidgets::updatePickerInput(
         #   session,
         #   inputId = "select.sorting",
-        #   selected = saved_file$select.sorting,
-        #   choices = saved_file$select.sorting.choices
+        #   selected = setting_file()$select.sorting,
+        #   choices = setting_file()$select.sorting.choices
         # )
     #   }
     # }
@@ -370,7 +430,7 @@ main_option_server <- function(
     },
     content = function(file) {
       saveRDS(
-        c(main_option_settings(),displayed_subjects_settings(),settings(),color_options(),list(par = par()),list(var = var()),list(sermethod = sermethod()))
+        c(main_option_settings(),upload_settings(),displayed_subjects_settings(),settings(),color_options(),list(par = par()),list(var = var()),list(sermethod = sermethod()))
         , file
       )
     }
@@ -398,6 +458,7 @@ return(list(
   select.sorting = shiny::reactive({input$select.sorting}),
   event.levels = shiny::reactive({input$event.levels}),
   select.subsetting = shiny::reactive({input$select.subsetting}),
-  setting_file = shiny::reactive({setting_file()})
+  setting_file = shiny::reactive({setting_file()}),
+  use_saved_settings_button = shiny::reactive({input$test})
 ))
 }

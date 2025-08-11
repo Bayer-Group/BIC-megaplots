@@ -27,6 +27,7 @@ add_event_and_group_information <- function(
     data_selection
     ) {
 
+  if(!is.null(event1)){
     A <- data$megaplot_data$A
     B <- data$megaplot_data$B
 
@@ -42,6 +43,7 @@ add_event_and_group_information <- function(
 
     # selected events
     char_B.sel <-unique(base::intersect(c(updated_event1, updated_event2, updated_event3, updated_event4),char_B))
+    # char_B.sel <-unique(base::intersect(c(updated_event1, updated_event2, updated_event3, updated_event4),char_B))
 
     data_group_event_list <- list('A' = A, 'B' = B, 'group' = char_A, 'event' = char_B.sel, 'event.total' = char_B)
 
@@ -123,5 +125,6 @@ add_event_and_group_information <- function(
         nume_B = nume_B
       )
     )
+    }
     }
 }

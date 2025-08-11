@@ -231,10 +231,10 @@ data_upload_ui <- function(id) {
     ),
     shiny::br(),
     shiny::fluidRow(
-      event_selection_ui(ns("select_ev.1")),
-      event_selection_ui(ns("select_ev.2")),
-      event_selection_ui(ns("select_ev.3")),
-      event_selection_ui(ns("select_ev.4"))
+      event_selection_ui(ns("select_ev.1"),event_number = 1),
+      event_selection_ui(ns("select_ev.2"),event_number = 2),
+      event_selection_ui(ns("select_ev.3"),event_number = 3),
+      event_selection_ui(ns("select_ev.4"),event_number = 4)
     ),
     shiny::fluidRow(
       shiny::htmlOutput(ns("err_message")),
@@ -303,7 +303,8 @@ data_upload_ui <- function(id) {
 #' @noRd
 #' @keywords internal
 
-data_upload_server <- function(input, output, session, setting_file){
+data_upload_server <- function(input, output, session, setting_file, use_saved_settings_button){
+
 
   ns <- session$ns
 
@@ -319,7 +320,6 @@ data_upload_server <- function(input, output, session, setting_file){
   shiny::observeEvent(input$file, {
     #requirement
     shiny::req(input$file)
-
     if (input$impswitch == '*.RData file') {
       updates_variables_selection_file(file = input$file, session = session)
     }
@@ -503,14 +503,21 @@ data_upload_server <- function(input, output, session, setting_file){
 
 
   #event selection modules server part
+  update_on_button_click <- shiny::reactiveValues(val = 0)
 
-  event_selection_1 <- shiny::callModule(event_selection_server, "select_ev.1", 1, shiny::reactive({preprocessed_data()}), shiny::reactive({event.info()}), shiny::reactive({input$selectdata}), shiny::reactive({setting_file()}))
+  event_selection_1 <- shiny::callModule(event_selection_server, "select_ev.1", 1, shiny::reactive({preprocessed_data()}), shiny::reactive({event.info()}), shiny::reactive({input$selectdata}), shiny::reactive({setting_file()}), shiny::reactive({use_saved_settings_button()}))
 
-  event_selection_2 <- shiny::callModule(event_selection_server, "select_ev.2", 2, shiny::reactive({preprocessed_data()}), shiny::reactive({event.info()}), shiny::reactive({input$selectdata}), shiny::reactive({setting_file()}))
+  event_selection_2 <- shiny::callModule(event_selection_server, "select_ev.2", 2, shiny::reactive({preprocessed_data()}), shiny::reactive({event.info()}), shiny::reactive({input$selectdata}), shiny::reactive({setting_file()}), shiny::reactive({use_saved_settings_button()}))
 
-  event_selection_3 <- shiny::callModule(event_selection_server, "select_ev.3", 3, shiny::reactive({preprocessed_data()}), shiny::reactive({event.info()}), shiny::reactive({input$selectdata}), shiny::reactive({setting_file()}))
+  event_selection_3 <- shiny::callModule(event_selection_server, "select_ev.3", 3, shiny::reactive({preprocessed_data()}), shiny::reactive({event.info()}), shiny::reactive({input$selectdata}), shiny::reactive({setting_file()}), shiny::reactive({use_saved_settings_button()}))
 
-  event_selection_4 <- shiny::callModule(event_selection_server, "select_ev.4", 4, shiny::reactive({preprocessed_data()}), shiny::reactive({event.info()}), shiny::reactive({input$selectdata}), shiny::reactive({setting_file()}))
+  event_selection_4 <- shiny::callModule(event_selection_server, "select_ev.4", 4, shiny::reactive({preprocessed_data()}), shiny::reactive({event.info()}), shiny::reactive({input$selectdata}), shiny::reactive({setting_file()}), shiny::reactive({use_saved_settings_button()}))
+
+
+  observeEvent(c(event_selection_1$event_update (),event_selection_2$event_update (),event_selection_3$event_update (),event_selection_4$event_update ()),{
+    update_on_button_click$val <- update_on_button_click$val +1
+
+  })
 
   # reactive object event.info with the column names of character variables
   event.info <- shiny::reactive({
@@ -584,6 +591,19 @@ data_upload_server <- function(input, output, session, setting_file){
     preprocessed_df
   })
 
+  upload_settings <- shiny::reactive({
+    param <- list(
+      select.ev1 = event_selection_1$select.ev(),
+      select.ev2 = event_selection_2$select.ev(),
+      select.ev3 = event_selection_3$select.ev(),
+      select.ev4 = event_selection_4$select.ev(),
+      select.ev.lev1 = event_selection_1$select.ev.lev(),
+      select.ev.lev2 = event_selection_2$select.ev.lev(),
+      select.ev.lev3 = event_selection_3$select.ev.lev(),
+      select.ev.lev4 = event_selection_4$select.ev.lev()
+    )
+  })
+
    #return list of module data_upload
    return(
     list(
@@ -598,7 +618,9 @@ data_upload_server <- function(input, output, session, setting_file){
       select.ev.lev2 = shiny::reactive({event_selection_2$select.ev.lev()}),
       select.ev.lev3 = shiny::reactive({event_selection_3$select.ev.lev()}),
       select.ev.lev4 = shiny::reactive({event_selection_4$select.ev.lev()}),
-      preprocess_data = shiny::reactive({preprocessed_data()})
+      upload_settings = shiny::reactive({upload_settings()}),
+      preprocess_data = shiny::reactive({preprocessed_data()}),
+      update_on_button_click = shiny::reactive({update_on_button_click$val})
     )
   )
 }
