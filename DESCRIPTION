@@ -1,51 +1,26 @@
-Package: megaplots
-Title: A 'shiny' Application for Pattern Detection
-Version: 1.1.9
-Authors@R: c(
-    person("Madhurima", "Majumder", role = "aut"),
-    person("Susanne", "Lippert", role = "aut"),
-    person("Bastian", "Becker", role = "aut"),
-    person("Steffen", "Jeske", , "steffen.jeske.ext@bayer.com", role = c("cre", "aut")),
-    person("Svenja", "Jedhoff", role = "aut"),
-    person("Silke", "Janitza", role = "aut"),
-    person("Hermann", "Kulmann", role = "aut")
-  )
-Description: Depicts individual study courses per day.  Pre-specified
-    events on certain days, for example drug intake, efficacy, or safety
-    events, are indicated by different symbols.  The detection of patterns
-    in the data or the temporal connection of study procedures and outcome
-    events is supported by several functions, such as sorting, grouping,
-    and changing the complexity of the graphical display.
-License: GPL (>= 3)
-Depends: 
-    R (>= 3.5.0)
+Package: Megaplots
+Title: An Amazing Shiny App
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "firstname",
+           family = "lastname",
+           role = c("aut", "cre"),
+           email = "your@email.com")
+Description: What the package does (one paragraph).
+License: What license is it under?
 Imports: 
-    colourpicker,
+    bsicons,
+    bslib,
     config,
     dplyr,
-    DT,
     golem,
-    graphics,
-    plyr,
-    RColorBrewer,
-    reshape2,
-    rlang,
-    seriation,
-    shiny,
-    shinycssloaders,
-    shinydashboard,
-    shinyjqui,
-    shinyjs,
-    shinyWidgets,
-    stats,
-    stringr,
-    magrittr,
-    tidyr,
-    TraMineR,
-    utils
+    plotly,
+    shiny
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.2.3
+RoxygenNote: 7.1.1
 Suggests: 
+    spelling,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
+Language: en-US
