@@ -89,7 +89,18 @@ app_ui <- function(request) {
           title = "MEGAPLOTS",
           bslib::nav_panel("Megaplots", icon =  bsicons::bs_icon("filter-left"), plotly::plotlyOutput("mega_plots")),
           bslib::nav_panel("Event Summary", plotly::plotlyOutput("event_summary")),
-          bslib::nav_panel("Subgroup Summary", plotOutput("subgroup_summary"))
+          bslib::nav_panel("Kaplan Meier",
+             shiny::fluidRow(
+               shinyWidgets::pickerInput(
+                 inputId = 'select_event_kaplan_meier',
+                 label = "Select event(s)",
+                 choices = NULL,
+                 selected = NULL,
+                 multiple = FALSE,
+                 options = list('actions-box' = TRUE)
+               )
+             ),
+             plotly::plotlyOutput("kaplan_meier"))
         )
       )
     )
