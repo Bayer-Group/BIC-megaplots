@@ -28,6 +28,12 @@ app_server <- function(input, output, session) {
       choices = colnames(megaplot_data)[sapply(megaplot_data,class) %in% c("factor","character")],
       selected = NULL
     )
+    shinyWidgets::updatePickerInput(
+      session,
+      inputId = "select_strata_var",
+      choices = colnames(megaplot_data)[sapply(megaplot_data,class) %in% c("factor","character")],
+      selected = NULL
+    )
 
     # update choices of events based on uploaded data
     #
@@ -60,7 +66,7 @@ app_server <- function(input, output, session) {
   )
 
 
-
+  ##### megaplot_prepared_data ####
   megaplot_prepared_data <- shiny::reactive({
 
     megaplot_data_raw <- shiny::req(uploaded_data$val)
@@ -72,6 +78,7 @@ app_server <- function(input, output, session) {
     )
   })
 
+  #### megaplot_filtered_data ####
   megaplot_filtered_data <- shiny::reactive({
 
     shiny::req(input$select.events)
@@ -86,7 +93,16 @@ app_server <- function(input, output, session) {
   })
 
 
+  #### mega_plots ####
   output$mega_plots <- plotly::renderPlotly({
+
+    megaplot_color <- c(
+      "#e43157", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#ffff33",
+      "#a65628", "#f781bf", "#21d4de", "#91d95b", "#b8805f", "#cbbeeb",
+      "#ffffff", "#999999", "#aaffc3", "#ffd8b1", "#4363d8", "#000075",
+      "#469990", "#808000", "#800000", "#bfef45", "#f032e6", "#fffac8",
+      "#fabed4", "#4263d8"
+    )
 
     megaplot_prepared_data <- megaplot_prepared_data()
     megaplot_filtered_data <- megaplot_filtered_data()
@@ -107,7 +123,7 @@ app_server <- function(input, output, session) {
         showlegend = FALSE
       )
 
-    p_2 <- p_1  %>%
+    p_2 <- p_1 %>%
       plotly::add_segments(
         data = plotly::highlight_key(megaplot_filtered_data, ~event),
         name = ~ event,
@@ -116,7 +132,6 @@ app_server <- function(input, output, session) {
         y = ~subjectid_n_jittered,
         yend = ~subjectid_n_jittered,
         line = list(color = ~ event_color, width = 3),
-        legendgroup = ~ event_group,
         showlegend = TRUE,
         legendgroup = ~ event_group,
         legendgrouptitle = list(text = ~ " ")
@@ -125,7 +140,7 @@ app_server <- function(input, output, session) {
 
     if (!is.null(input$select.grouping)) {
       label_df <- megaplot_prepared_data %>%
-        dplyr::select(subject_index, subjectid_n, group_index, sex, treatment) %>%
+        #dplyr::select(subject_index, subjectid_n, group_index, sex, treatment) %>%
         group_by(group_index) %>%
         dplyr::mutate(text_position_y = max(subjectid_n) + 2) %>%
         dplyr::filter(dplyr::row_number() == 1) %>%
@@ -142,7 +157,7 @@ app_server <- function(input, output, session) {
           text_snippet_1 = paste(input$select.grouping, collapse = " "),
           text_snippet_2 = paste(!!!rlang::syms(input$select.grouping))
         ) %>%
-        dplyr::mutate(text_snippet_total = paste(unlist(strsplit(text_snippet_2," ")), unlist(strsplit(text_snippet_2, " ")), sep = ": ", collapse = " & ")) %>%
+        dplyr::mutate(text_snippet_total = paste(unlist(strsplit(text_snippet_1," ")), unlist(strsplit(text_snippet_2, " ")), sep = ": ", collapse = " & ")) %>%
         dplyr::mutate(event_color = "black")
 
       p_2 <- p_2 %>% plotly::add_trace(
@@ -189,9 +204,6 @@ app_server <- function(input, output, session) {
         font = list(family = "Agency FB", color = "#FFFFFF"),
         barmode = "overlay"
       )
-
-    # layout(p_4,shapes = lines)
-
   })
 
 
@@ -204,96 +216,42 @@ app_server <- function(input, output, session) {
       "#fabed4", "#4263d8"
     )
 
+    megaplot_prepared_data <- megaplot_prepared_data()
+    megaplot_filtered_data <- megaplot_filtered_data()
 
-    megaplot_data_total <<- shiny::req(uploaded_data$val)
-    # megaplot_data_total <- megaplot_data_total %>%
-    #   dplyr::filter(event %in% input$select.events)
+    # megaplot_prepared_data_ <<- megaplot_prepared_data
+    # megaplot_filtered_data_ <<- megaplot_filtered_data
 
-    test <- split(megaplot_data_total, megaplot_data_total$event_group)
-    for(i in 1:length(test)) {
-      test[[i]] <- test[[i]] %>% dplyr::group_by(event) %>% dplyr::mutate(
-        event_id = dplyr::cur_group_id(),
-        event_group_id = i
-      )
-      test[[i]] <- test[[i]] %>% dplyr::mutate(
-        max_event_id = max(test[[i]]$event_id)
-      )
-    }
+    megaplot_data_splitted_by_event <- split(megaplot_filtered_data, megaplot_filtered_data$event)
 
-    color_func <- function(x,y,z) {
-      colorRampPalette(
-        c(colorRampPalette(c("white",megaplot_color[y]))(100)[85],
-          colorRampPalette(c(megaplot_color[y],"black"))(100)[15]
-        )) (z)[x]
-    }
-
-    test2 <- do.call("rbind",test)
-    test3 <- test2 %>% dplyr::select(event,event_group,max_event_id,event_group_id, event_id) %>% distinct() %>% ungroup() %>%
-      dplyr::mutate( jitter_event_time = seq(-0.1,0.1,length = nrow(.))[dplyr::row_number()]) %>%
-      dplyr::rowwise() %>%
-      dplyr::mutate(
-        event_color = color_func(event_id,event_group_id,max_event_id)
-      ) %>%
-      dplyr::select(
-        event,event_color,jitter_event_time
-      )
-
-    megaplot_jitter_and_color <- test3
-    # megaplot_jitter_and_color <- megaplot_data_total %>%
-    #   dplyr::filter(event != "NA" & event_group != "NA" & !is.na(event_group) & !is.na(event))%>%
-    #   dplyr::select(event,event_group) %>%
-    #   distinct() %>%
-    #   ungroup() %>%
-    #   mutate(
-    #     jitter_event_time = seq(-0.1,0.1,length = nrow(.))[dplyr::row_number()],
-    #     event_color = megaplot_color[dplyr::row_number()]
-    #   )
-    #### ####
-
-    grouping_vars <- input$select.grouping
-
-    tmp <- megaplot_data_total
-    tmp <- arrange(tmp, !!!rlang::syms(grouping_vars))
-    levels(tmp$subjectid) <- unique(arrange(tmp, !!!rlang::syms(grouping_vars))$subjectid)
-    tmp <- tmp %>% group_by(!!!rlang::syms(grouping_vars),subjectid)%>% dplyr::mutate(subject_index = dplyr::cur_group_id())%>% ungroup()
-    tmp <- tmp %>% group_by(!!!rlang::syms(grouping_vars))%>% dplyr::mutate(group_index = dplyr::cur_group_id())%>% ungroup()
-    tmp <- tmp  %>%
-      dplyr::mutate(subjectid_n = subject_index + (group_index-1)*10) %>%
-      dplyr::left_join(megaplot_jitter_and_color, by = c("event"))%>%
-      dplyr::mutate(subjectid_n_jittered = subjectid_n + jitter_event_time)
-
-    tmp_filtered <- tmp %>%
-      dplyr::filter(event %in% input$select.events) %>%
-      dplyr::filter(event != "NA" & event_group != "NA" & !is.na(event_group) & !is.na(event))
-
-    tmp_new <<- tmp
-    tmp_fil_new <<- tmp_filtered
-
-    tmp_test_list <- split(tmp_filtered,tmp_filtered$event)
-
-    time_vector <-  min(c(tmp_filtered$start_time,tmp_filtered$event_time)) : max(c(tmp_filtered$end_time,tmp_filtered$event_time_end))
+    time_vector <-  min(c(megaplot_filtered_data$start_time, megaplot_filtered_data$event_time)) : max(c(megaplot_filtered_data$end_time, megaplot_filtered_data$event_time_end))
 
     df <- data.frame(day = time_vector)
-    for(i in 1:length(tmp_test_list)){
-
+    for(i in 1:length(megaplot_data_splitted_by_event)) {
       numbers <- rep(0,length(time_vector))
-
-      for(j in 1:nrow(tmp_test_list[[i]])) {
-        tmp_test_list[[i]][j,]$event_time : tmp_test_list[[i]][j,]$event_time_end
-        numbers[which(time_vector %in% tmp_test_list[[i]][j,]$event_time : tmp_test_list[[i]][j,]$event_time_end)] <- numbers[which(time_vector %in% tmp_test_list[[i]][j,]$event_time : tmp_test_list[[i]][j,]$event_time_end)]+1
+      for(j in 1:nrow(megaplot_data_splitted_by_event[[i]])) {
+        megaplot_data_splitted_by_event[[i]][j,]$event_time : megaplot_data_splitted_by_event[[i]][j,]$event_time_end
+        numbers[which(time_vector %in% megaplot_data_splitted_by_event[[i]][j,]$event_time : megaplot_data_splitted_by_event[[i]][j,]$event_time_end)] <- numbers[which(time_vector %in% megaplot_data_splitted_by_event[[i]][j,]$event_time : megaplot_data_splitted_by_event[[i]][j,]$event_time_end)]+1
       }
-      name <- (paste0(names(tmp_test_list)[i]))
+      name <- (paste0(names(megaplot_data_splitted_by_event)[i]))
       df <- cbind(df,  name = numbers)
       names(df)[which(names(df) == "name")] <- name
-
     }
 
-    fig <- plot_ly(data = df, x = ~day)
+    fig <- plot_ly(data = df, x = ~ day)
 
     for(i in 2:ncol(df)) {
       fig <- fig %>%
-        plotly::add_lines(y = df[,i], color = I(tmp%>%dplyr::filter(event == names(df)[i]) %>% dplyr::pull(event_color)%>% unique()),line = list(shape = "linear"), name = names(df)[i])
+        plotly::add_lines(
+          y = df[,i],
+          color = I(megaplot_filtered_data %>% dplyr::filter(event == names(df)[i]) %>% dplyr::pull(event_color) %>% unique()),
+          line = list(shape = "linear"),
+          name = names(df)[i],
+          legendgroup = names(df)[i],
+          legendgrouptitle = megaplot_filtered_data %>% dplyr::filter(event == names(df)[i]) %>% dplyr::pull(event_group) %>% unique()
+        )
     }
+
     fig <- fig %>%
       plotly::layout(
         plot_bgcolor = "#404A4E",
@@ -326,84 +284,33 @@ app_server <- function(input, output, session) {
     )
 
 
-    megaplot_data_total <- shiny::req(uploaded_data$val)
-    # megaplot_data_total <- megaplot_data_total %>%
-    #   dplyr::filter(event %in% input$select.events)
-
-    test <- split(megaplot_data_total, megaplot_data_total$event_group)
-    for(i in 1:length(test)) {
-      test[[i]] <- test[[i]] %>% dplyr::group_by(event) %>% dplyr::mutate(
-        event_id = dplyr::cur_group_id(),
-        event_group_id = i
-      )
-      test[[i]] <- test[[i]] %>% dplyr::mutate(
-        max_event_id = max(test[[i]]$event_id)
-      )
-    }
-
-    color_func <- function(x,y,z) {
-      colorRampPalette(
-        c(colorRampPalette(c("white",megaplot_color[y]))(100)[85],
-          colorRampPalette(c(megaplot_color[y],"black"))(100)[15]
-        )) (z)[x]
-    }
-
-    test2 <- do.call("rbind",test)
-    test3 <- test2 %>% dplyr::select(event,event_group,max_event_id,event_group_id, event_id) %>% distinct() %>% ungroup() %>%
-      dplyr::mutate( jitter_event_time = seq(-0.1,0.1,length = nrow(.))[dplyr::row_number()]) %>%
-      dplyr::rowwise() %>%
-      dplyr::mutate(
-        event_color = color_func(event_id,event_group_id,max_event_id)
-      ) %>%
-      dplyr::select(
-        event,event_color,jitter_event_time
-      )
-
-    megaplot_jitter_and_color <- test3
-    # megaplot_jitter_and_color <- megaplot_data_total %>%
-    #   dplyr::filter(event != "NA" & event_group != "NA" & !is.na(event_group) & !is.na(event))%>%
-    #   dplyr::select(event,event_group) %>%
-    #   distinct() %>%
-    #   ungroup() %>%
-    #   mutate(
-    #     jitter_event_time = seq(-0.1,0.1,length = nrow(.))[dplyr::row_number()],
-    #     event_color = megaplot_color[dplyr::row_number()]
-    #   )
-    #### ####
+    megaplot_prepared_data <- megaplot_prepared_data()
+    megaplot_filtered_data <- megaplot_filtered_data()
 
     grouping_vars <- input$select.grouping
 
-    tmp <- megaplot_data_total
-    tmp <- arrange(tmp, !!!rlang::syms(grouping_vars))
-    levels(tmp$subjectid) <- unique(arrange(tmp, !!!rlang::syms(grouping_vars))$subjectid)
-    tmp <- tmp %>% group_by(!!!rlang::syms(grouping_vars),subjectid)%>% dplyr::mutate(subject_index = dplyr::cur_group_id())%>% ungroup()
-    tmp <- tmp %>% group_by(!!!rlang::syms(grouping_vars))%>% dplyr::mutate(group_index = dplyr::cur_group_id())%>% ungroup()
-    tmp <- tmp  %>%
-      dplyr::mutate(subjectid_n = subject_index + (group_index-1)*10) %>%
-      dplyr::left_join(megaplot_jitter_and_color, by = c("event"))%>%
-      dplyr::mutate(subjectid_n_jittered = subjectid_n + jitter_event_time)
-
-    tmp_filtered <- tmp %>%
-      dplyr::filter(event %in% input$select.events) %>%
-      dplyr::filter(event != "NA" & event_group != "NA" & !is.na(event_group) & !is.na(event))
-
-    tmp_filtered
     level <- input$select_event_kaplan_meier
-    tmp_tte <- tmp_filtered %>%
+
+    time_to_first_event <- megaplot_filtered_data %>%
       dplyr::select(
-        subjectid,subjectid_n,
+        subjectid,
+        subjectid_n,
         event_time,
-        event #event
+        event
       ) %>%
       dplyr::filter(event == level) %>%
       dplyr::group_by(subjectid) %>%
+      dplyr::arrange(event_time) %>%
       dplyr::slice_head(n = 1)%>%
-      dplyr::mutate(!!paste0("time_to_first") := event_time)%>%
+      dplyr::mutate(!!paste0("time_to_first") := event_time) %>%
       dplyr::select(subjectid, !!paste0("time_to_first"))
 
-    tmp_tte2 <- tmp_tte %>% dplyr::right_join(tmp%>% dplyr::select(subjectid,subjectid_n,end_time,sex,treatment) %>% distinct(), by ="subjectid")
+    megaplot_data_w_time_to_first_event <- time_to_first_event %>%
+      dplyr::right_join(
+        megaplot_filtered_data,
+      by ="subjectid")
 
-    tmp_tte3 <- tmp_tte2 %>%
+    megaplot_data_for_survfit <- megaplot_data_w_time_to_first_event %>%
       dplyr::mutate(
         time = dplyr::case_when(is.na(time_to_first) ~ end_time,
                                 !is.na(time_to_first) ~ time_to_first),
@@ -411,13 +318,24 @@ app_server <- function(input, output, session) {
                                   !is.na(time_to_first) ~ 2)
       )
 
-    event_color <- tmp %>% dplyr::filter(event == level) %>% dplyr::pull(event_color) %>% as.character %>% unique()
+    event_color <- megaplot_filtered_data %>% dplyr::filter(event == level) %>% dplyr::pull(event_color) %>% as.character %>% unique()
 
-    fit  <-survfit(Surv(time,status) ~treatment, data = tmp_tte3)
 
-    # g <- ggplot2::autoplot(fit)
-    g <- ggsurv(fit, CI = FALSE,cens.col = c("#FFFFFF50"),surv.col = c(event_color,event_color)) + theme_dark() + theme(axis.title = element_text(
-      color= "white"))
+    if(is.null(input$select_strata_var)){
+      strata <- "1"
+    } else {
+      strata <- input$select_strata_var
+    }
+
+    fit  <-survfit(as.formula(paste0("Surv(time,status) ~", paste(strata, collapse  = "+"))), data = megaplot_data_for_survfit)
+
+    g <- ggsurv(
+        fit,
+        CI = FALSE,
+        cens.col = c("#FFFFFF50"),
+        surv.col = rep(event_color, ifelse(length(fit$strata)>0,length(fit$strata),1))
+      ) + theme_dark() + theme(axis.title = element_text(color= "white"))
+
     ggplotly(g) %>% plotly::layout(
       plot_bgcolor = "#404A4E",
       paper_bgcolor ='#404A4E',

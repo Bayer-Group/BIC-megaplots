@@ -56,8 +56,7 @@ ggsurv <- function(
                        ylab = 'Survival', main = '') {
     n <- s$strata
 
-    groups <- factor(unlist(strsplit(names
-                                     (s$strata), '='))[seq(2, 2*strata, by = 2)])
+    groups <- factor(unlist(strsplit(names(s$strata), '='))[seq(2, 2*strata, by = 2)])
     gr.name <-  unlist(strsplit(names(s$strata), '='))[1]
     gr.df <- vector('list', strata)
     ind <- vector('list', strata)

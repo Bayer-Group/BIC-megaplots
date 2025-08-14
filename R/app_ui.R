@@ -98,6 +98,14 @@ app_ui <- function(request) {
                  selected = NULL,
                  multiple = FALSE,
                  options = list('actions-box' = TRUE)
+               ),
+               shinyWidgets::pickerInput(
+                 inputId = 'select_strata_var',
+                 label = "Select stratification variable(s)",
+                 choices = NULL,
+                 selected = NULL,
+                 multiple = TRUE,
+                 options = list('actions-box' = TRUE)
                )
              ),
              plotly::plotlyOutput("kaplan_meier"))
