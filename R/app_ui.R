@@ -81,6 +81,16 @@ app_ui <- function(request) {
             multiple = TRUE,
             options = list('actions-box' = TRUE)
           )
+        ),
+        shiny::fluidRow(
+          shinyTree("tree", checkbox = TRUE#,
+           # types ="{
+           #   '#': { 'max_children' : 2, 'max_depth' : 4, 'valid_children' : ['root']},
+           #   'root' : { 'icon' : 'fa fa-allergies', 'valid_children' :  ['file']},
+           #   'default' : { 'icon' : 'fa fa-map-signs', 'valid_children' :  ['default','file']},
+           #   'file' : {'glyphicon', 'glyphicon-leaf' :  'valid_children' : []}
+           # }"
+          )
         )
       ),
       bslib::nav_panel(
