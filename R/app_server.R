@@ -34,26 +34,25 @@ app_server <- function(input, output, session) {
       choices = colnames(megaplot_data)[sapply(megaplot_data,class) %in% c("factor","character")],
       selected = NULL
     )
-
-    # update choices of events based on uploaded data
-    #
-    shinyWidgets::updatePickerInput(
-      inputId = 'select.events',
-      choices = unique(megaplot_data$event),
-      selected = NULL,
-    )
   })
 
   #update kaplan meier event selection based on selected events
-  shiny::observeEvent(input$select.events, {
-    shiny::req(input$select.events)
+  shiny::observeEvent(input$tree, {
+    shiny::req(input$tree)
+
+
     shinyWidgets::updatePickerInput(
       inputId = 'select_event_kaplan_meier',
-      choices = unique(input$select.events),
+      choices = unlist(shinyTree::get_selected(input$tree, format=c("classid"))),
       selected = NULL,
     )
   })
 
+
+  # observe({
+  #   #colnames(mp_B) <- gsub("[[:punct:][:space:]]+", "_", colnames(mp_B))
+  #   print( gsub("[[:punct:][:space:]]+", "_", names(as.data.frame(shinyTree::get_selected(input$tree, format="slices")))))
+  # })
 
   # color vector with different color and shades
   # replace this color vector when upload page is finished
@@ -81,12 +80,15 @@ app_server <- function(input, output, session) {
   #### megaplot_filtered_data ####
   megaplot_filtered_data <- shiny::reactive({
 
-    shiny::req(input$select.events)
+    shiny::req(input$tree)
+
+
+    selected.events <- unlist(shinyTree::get_selected(input$tree, format=c("classid")))
 
     prepared_data <- megaplot_prepared_data()
 
     filtered_data <- prepared_data  %>%
-      dplyr::filter(event %in% input$select.events) %>%
+      dplyr::filter(event %in% selected.events) %>%
       dplyr::filter(event != "NA" & event_group != "NA" & !is.na(event_group) & !is.na(event))
 
     filtered_data <- filtered_data %>%
@@ -96,316 +98,83 @@ app_server <- function(input, output, session) {
   })
 
 
-  output$tree <- renderTree({
-    reduced_event_data <- megaplot_prepared_data_ %>% dplyr::select(event_group,event) %>% distinct()
+  #### Data Upload / Event selection ####
+  output$tree <- shinyTree::renderTree({
 
-    unique_event_groups <- reduced_event_data %>% dplyr::pull(event_group) %>% unique()
-    sss <- vector(mode = 'list', length(unique_event_groups))
+    megaplot_data_raw <- shiny::req(uploaded_data$val)
+
+    reduced_event_data <- megaplot_data_raw %>%
+      dplyr::filter(!is.na(event)) %>%
+      dplyr::select(event_group,event) %>%
+      dplyr::distinct()
+
+    unique_event_groups <- reduced_event_data %>%
+      dplyr::pull(event_group) %>%
+      unique()
+
+
+    event_list <- vector(mode = 'list', length(unique_event_groups))
+
     for(i in 1:length(unique_event_groups)) {
-      events <- reduced_event_data %>% dplyr::filter(event_group == unique_event_groups[i]) %>% pull(event)
-      tmp_list <- vector(mode ='list', length=length(events))
-      names(tmp_list) <- events
-      for (j in 1:length(events)){
-        tmp_list[[j]] <- j
-      }
-      sss[[i]] <-  structure(tmp_list, stopened = TRUE,sttype = "file")
-      # names(sss[[i]]) <- unique_event_groups[[i]]
-    }
-    names(sss) <- unique_event_groups
+      events <- reduced_event_data %>%
+        dplyr::filter(event_group == unique_event_groups[i]) %>%
+        dplyr::pull(event)
 
-    sss <- list( "Uploaded data" = sss)
-    # attr(sss[[1]], "stopened")  TRUE
-    sss
+      tmp_list <- vector(mode ='list', length = length(events))
+
+      names(tmp_list) <- events
+
+      for (j in 1:length(events)) {
+        tmp_list[[j]] <-structure(j)
+      }
+      event_list[[i]] <-  structure(tmp_list, stopened = FALSE)
+    }
+    names(event_list) <- unique_event_groups
+
+    event_list <- structure(event_list)
+    event_list <- list( "Select all event (groups)" = event_list)
+    attr(event_list[[1]], "stopened") <- TRUE
+
+    event_list
   })
 
   #### mega_plots ####
   output$mega_plots <- plotly::renderPlotly({
 
-    megaplot_color <- c(
-      "#e43157", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#ffff33",
-      "#a65628", "#f781bf", "#21d4de", "#91d95b", "#b8805f", "#cbbeeb",
-      "#ffffff", "#999999", "#aaffc3", "#ffd8b1", "#4363d8", "#000075",
-      "#469990", "#808000", "#800000", "#bfef45", "#f032e6", "#fffac8",
-      "#fabed4", "#4263d8"
+    shiny::req(megaplot_prepared_data())
+    #shiny::req(megaplot_filtered_data())
+    draw_mega_plot(
+      megaplot_prepared_data = megaplot_prepared_data(),
+      megaplot_filtered_data = megaplot_filtered_data(),
+      select.grouping = input$select.grouping
     )
-
-    megaplot_prepared_data <- megaplot_prepared_data()
-    megaplot_filtered_data <- megaplot_filtered_data()
-
-
-    p_1 <- megaplot_prepared_data %>%
-      plotly::plot_ly(                            #create empty plot_ly object
-        source = "plotSource",
-        color = ~I(event_color),
-        type ="scatter",
-        mode = "lines+markers"
-      ) %>%
-      plotly::add_segments(
-        y = ~subjectid_n,
-        yend ~subjectid_n,
-        x  = ~start_time,
-        xend = ~end_time,
-        line = list(color = "#2c3336", width = 1),
-        showlegend = FALSE
-      )
-
-    p_2 <- p_1 %>%
-      plotly::add_segments(
-        data = plotly::highlight_key(megaplot_filtered_data, ~event),
-        name = ~ event,
-        x = ~event_time - 0.45,
-        xend =~event_time_end + 0.45,
-        y = ~subjectid_n_jittered,
-        yend = ~subjectid_n_jittered,
-        line = list(color = ~ event_color, width = 3),
-        showlegend = TRUE,
-        legendgroup = ~ event_group,
-        legendgrouptitle = list(text = ~ " ")
-      ) %>%
-      plotly::highlight(~ event, on = "plotly_click", off="plotly_doubleclick")
-
-    if (!is.null(input$select.grouping)) {
-      label_df <- megaplot_prepared_data %>%
-        #dplyr::select(subject_index, subjectid_n, group_index, sex, treatment) %>%
-        dplyr::group_by(group_index) %>%
-        dplyr::mutate(text_position_y = max(subjectid_n) + 2) %>%
-        dplyr::filter(dplyr::row_number() == 1) %>%
-        dplyr::ungroup() %>%
-        dplyr::select(subjectid_n,group_index,text_position_y)
-
-      megaplot_prepared_data_w_group_text <- megaplot_prepared_data  %>%
-        dplyr::left_join(label_df, by = c("group_index", "subjectid_n")) %>%
-        dplyr::group_by(text_position_y) %>%
-        dplyr::filter(dplyr::row_number() == 1) %>%
-        dplyr::filter(!is.na(text_position_y)) %>%
-        dplyr::rowwise() %>%
-        dplyr::mutate(
-          text_snippet_1 = paste(input$select.grouping, collapse = " "),
-          text_snippet_2 = paste(!!!rlang::syms(input$select.grouping))
-        ) %>%
-        dplyr::mutate(text_snippet_total = paste(unlist(strsplit(text_snippet_1," ")), unlist(strsplit(text_snippet_2, " ")), sep = ": ", collapse = " & ")) %>%
-        dplyr::mutate(event_color = "black")
-
-      p_2 <- p_2 %>% plotly::add_trace(
-        data = megaplot_prepared_data_w_group_text,
-        type = "scatter",
-        mode = "text",
-        text = ~text_snippet_total,
-        textfont = list(color = "white"),
-        textposition = "middle right",
-        x = 1,
-        y = ~text_position_y,
-        showlegend = FALSE
-      )
-
-    }
-
-    #Plotly configuration of modebar
-    p_3 <- p_2 %>% plotly::config(
-      scrollZoom = TRUE,                  #Enable Scroll Zoom
-      displayModeBar = TRUE,              #Forcing the modebar always to be visible
-      displaylogo = FALSE,                #Hiding the plotly logo on the modebar
-      modeBarButtonsToRemove =            #Remove not needed buttons from modebar
-        c("hoverClosestCartesian","hoverCompareCartesian","zoomIn2d","zoomOut2d","select2d","lasso2d")
-    )
-
-    p_4 <- p_3 %>%
-      plotly::layout(
-        plot_bgcolor = "#404A4E",
-        paper_bgcolor ='#404A4E',
-        xaxis = list(
-          color='#FFFFFF',
-          title = "Study Day",
-          zeroline = FALSE
-        ),
-        yaxis = list(
-          color='#FFFFFF',
-          showgrid = FALSE,
-          title ="Subject identifier",
-          categoryarray = ~subjectid,
-          zeroline = FALSE,
-          autotick = FALSE,
-          showticklabels = FALSE
-        ),
-        font = list(family = "Agency FB", color = "#FFFFFF"),
-        barmode = "overlay"
-      )
   })
 
-
+  #### event_summary ####
   output$event_summary <- plotly::renderPlotly({
-    megaplot_color <- c(
-      "#e43157", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#ffff33",
-      "#a65628", "#f781bf", "#21d4de", "#91d95b", "#b8805f", "#cbbeeb",
-      "#ffffff", "#999999", "#aaffc3", "#ffd8b1", "#4363d8", "#000075",
-      "#469990", "#808000", "#800000", "#bfef45", "#f032e6", "#fffac8",
-      "#fabed4", "#4263d8"
+
+    shiny::req(megaplot_prepared_data())
+    shiny::req(megaplot_filtered_data())
+    draw_event_summary(
+      megaplot_prepared_data = megaplot_prepared_data(),
+      megaplot_filtered_data = megaplot_filtered_data(),
+      select.grouping = input$select.grouping
     )
 
-    megaplot_prepared_data <- megaplot_prepared_data()
-    megaplot_filtered_data <- megaplot_filtered_data()
-
-    if(!is.null(input$select.grouping)) {
-      grouping_vars <- input$select.grouping
-
-      number_group_levels <-  max(megaplot_filtered_data$group_index)
-
-      # megaplot_filtered_data <- megaplot_filtered_data %>%
-      #   dplyr::right_join(group_ids, by = grouping_vars)
-    } else {
-      number_group_levels <- 1
-      # megaplot_filtered_data <- megaplot_filtered_data %>%
-      #   dplyr::mutate(group_id = 1)
-    }
-
-    figure_list <- list()
-    max_y_range <- c()
-    for(k in 1:number_group_levels) {
-
-      megaplot_filtered_data_group <- megaplot_filtered_data %>%
-        dplyr::filter(group_index == k) %>%
-        dplyr::arrange(event_group)
-
-
-      megaplot_data_splitted_by_event <- split(megaplot_filtered_data_group, megaplot_filtered_data_group$event)
-
-      time_vector <-  min(c(megaplot_filtered_data$start_time, megaplot_filtered_data$event_time)) : max(c(megaplot_filtered_data$end_time, megaplot_filtered_data$event_time_end))
-
-      df <- data.frame(day = time_vector)
-      for(i in 1:length(megaplot_data_splitted_by_event)) {
-        numbers <- rep(0,length(time_vector))
-        for(j in 1:nrow(megaplot_data_splitted_by_event[[i]])) {
-          megaplot_data_splitted_by_event[[i]][j,]$event_time : megaplot_data_splitted_by_event[[i]][j,]$event_time_end
-          numbers[which(time_vector %in% megaplot_data_splitted_by_event[[i]][j,]$event_time : megaplot_data_splitted_by_event[[i]][j,]$event_time_end)] <- numbers[which(time_vector %in% megaplot_data_splitted_by_event[[i]][j,]$event_time : megaplot_data_splitted_by_event[[i]][j,]$event_time_end)]+1
-        }
-        name <- (paste0(names(megaplot_data_splitted_by_event)[i]))
-        df <- cbind(df,  name = numbers)
-        names(df)[which(names(df) == "name")] <- name
-
-      }
-
-      max_y_range <- max(max_y_range, df %>% dplyr::select(-day)%>%max())
-
-      fig <- plot_ly(data = df, x = ~ day)
-
-      for(i in 2:ncol(df)) {
-        fig <- fig %>%
-          plotly::add_lines(
-            #showlegend = ifelse(k == 1, TRUE, FALSE),
-            y = df[,i],
-            color = I(megaplot_filtered_data %>% dplyr::filter(event == names(df)[i]) %>% dplyr::pull(event_color) %>% unique()),
-            line = list(shape = "linear"),
-            name = names(df)[i],
-            # legendgroup = names(df)[i],
-            legendgroup = megaplot_filtered_data %>% dplyr::filter(event == names(df)[i]) %>% dplyr::pull(event_group) %>% unique(),
-
-            # legendgroup = ~ event_group,
-            legendgrouptitle = list(text = ~ " ")
-          )
-      }
-
-      fig <- fig %>%
-        plotly::layout(
-          plot_bgcolor = "#404A4E",
-          paper_bgcolor ='#404A4E',
-          xaxis = list(
-            color='#FFFFFF',
-            title = "Study Day",
-            zeroline = FALSE
-          ),
-          yaxis = list(
-            color='#FFFFFF',
-            showgrid = FALSE,
-            title ="Event frequency",
-            zeroline = FALSE,
-            autotick = FALSE,
-            showticklabels = FALSE
-          ),
-
-          font = list(family = "Agency FB", color = "#FFFFFF"),
-          barmode = "overlay"
-        )
-      figure_list[[k]] <- fig
-    }
-    for(k in 1:number_group_levels) {
-      figure_list[[k]] <- figure_list[[k]] %>%
-        plotly::layout(yaxis = list(range = c(0,max_y_range)))
-    }
-    subplot(rev(figure_list), shareY = TRUE, nrows = number_group_levels)
   })
 
+  #### kaplan meier ####
   output$kaplan_meier <- plotly::renderPlotly({
-    megaplot_color <- c(
-      "#e43157", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#ffff33",
-      "#a65628", "#f781bf", "#21d4de", "#91d95b", "#b8805f", "#cbbeeb",
-      "#ffffff", "#999999", "#aaffc3", "#ffd8b1", "#4363d8", "#000075",
-      "#469990", "#808000", "#800000", "#bfef45", "#f032e6", "#fffac8",
-      "#fabed4", "#4263d8"
-    )
 
+    shiny::req(megaplot_prepared_data())
+    shiny::req(megaplot_filtered_data())
 
-    megaplot_prepared_data <- megaplot_prepared_data()
-    megaplot_filtered_data <- megaplot_filtered_data()
-
-    grouping_vars <- input$select.grouping
-
-    level <- input$select_event_kaplan_meier
-
-    time_to_first_event <- megaplot_filtered_data %>%
-      dplyr::select(
-        subjectid,
-        subjectid_n,
-        event_time,
-        event
-      ) %>%
-      dplyr::filter(event == level) %>%
-      dplyr::group_by(subjectid) %>%
-      dplyr::arrange(event_time) %>%
-      dplyr::slice_head(n = 1)%>%
-      dplyr::mutate(!!paste0("time_to_first") := event_time) %>%
-      dplyr::select(subjectid, !!paste0("time_to_first"))
-
-    megaplot_data_w_time_to_first_event <- time_to_first_event %>%
-      dplyr::right_join(
-        megaplot_filtered_data,
-      by ="subjectid")
-
-    megaplot_data_for_survfit <- megaplot_data_w_time_to_first_event %>%
-      dplyr::mutate(
-        time = dplyr::case_when(is.na(time_to_first) ~ end_time,
-                                !is.na(time_to_first) ~ time_to_first),
-        status = dplyr::case_when(is.na(time_to_first) ~ 1,
-                                  !is.na(time_to_first) ~ 2)
-      )
-
-    event_color <- megaplot_filtered_data %>% dplyr::filter(event == level) %>% dplyr::pull(event_color) %>% as.character %>% unique()
-
-
-    if(is.null(input$select_strata_var)){
-      strata <- "1"
-    } else {
-      strata <- input$select_strata_var
-    }
-
-    fit  <-survfit(as.formula(paste0("Surv(time,status) ~", paste(strata, collapse  = "+"))), data = megaplot_data_for_survfit)
-
-    g <- ggsurv(
-        fit,
-        CI = FALSE,
-        cens.col = c("#FFFFFF50"),
-        surv.col = rep(event_color, ifelse(length(fit$strata)>0,length(fit$strata),1))
-      ) + theme_dark() + theme(axis.title = element_text(color= "white"))
-
-    ggplotly(g) %>% plotly::layout(
-      plot_bgcolor = "#404A4E",
-      paper_bgcolor ='#404A4E',
-      legend = list(
-        bgcolor = "#404A4E",
-        bordercolor = "black",
-        font = list(color="white")
-      ),
-      font = list(family = "Agency FB", color = "#FFFFFF"),
-      yaxis = list(color = "white")
+    draw_kaplan_meier(
+      megaplot_prepared_data = megaplot_prepared_data(),
+      megaplot_filtered_data = megaplot_filtered_data(),
+      select.grouping = input$select.grouping,
+      select_event_kaplan_meier = input$select_event_kaplan_meier,
+      select_strata_var = input$select_strata_var
     )
   })
 }

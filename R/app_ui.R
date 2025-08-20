@@ -8,6 +8,19 @@ app_ui <- function(request) {
   tagList(
     # Leave this function for adding external resources
     golem_add_external_resources(),
+
+    tags$style(type = 'text/css', ".btn-outline-default, .btn-default:not(.btn-primary,.btn-secondary,.btn-info,.btn-success,.btn-danger,.btn-warning,.btn-light,.btn-dark,.btn-link,[class*='btn-outline-']) {
+               --bs-btn-color: white;
+                --bs-btn-border-color: white;
+                --bs-btn-hover-border-color: white;
+                --bs-btn-hover-color: white;
+    } "),
+    ## shinyTree appearances
+    tags$style(type = 'text/css', ".jstree-default .jstree-clicked {background-color: #404A4E}"),
+    tags$style(type = 'text/css', ".jstree-default .jstree-hovered {background-color: #1d2224}"),
+    tags$style(type = 'text/css', ".jstree-default .jstree-search {
+      color: yellow;
+    }"),
     # Your application UI logic
     bslib::page_navbar(
       title = "MEGAPLOTS Rebuild",
@@ -17,13 +30,13 @@ app_ui <- function(request) {
         fg = "white",
         heading_font = "Agency FB",
         base_font = "Agency FB",
-        "input-border-color" = "#dce4e8"
+        "input-border-color" = "#d2d2d2"
       ),
       bg = "#0091DF",
       inverse = FALSE,
       # Sidebar
       sidebar = bslib::sidebar(
-        bg = "#424242",
+        #bg = "#424242",
         title = "Settings",
         bslib::accordion_panel(
           "Sorting/Grouping",
@@ -73,24 +86,10 @@ app_ui <- function(request) {
           )
         ),
         shiny::fluidRow(
-          shinyWidgets::pickerInput(
-            inputId = 'select.events',
-            label = "Select event(s)",
-            choices = NULL,
-            selected = NULL,
-            multiple = TRUE,
-            options = list('actions-box' = TRUE)
-          )
-        ),
-        shiny::fluidRow(
-          shinyTree("tree", checkbox = TRUE#,
-           # types ="{
-           #   '#': { 'max_children' : 2, 'max_depth' : 4, 'valid_children' : ['root']},
-           #   'root' : { 'icon' : 'fa fa-allergies', 'valid_children' :  ['file']},
-           #   'default' : { 'icon' : 'fa fa-map-signs', 'valid_children' :  ['default','file']},
-           #   'file' : {'glyphicon', 'glyphicon-leaf' :  'valid_children' : []}
-           # }"
-          )
+          # shiny::column(4,
+            shinyTree::shinyTree("tree", checkbox = TRUE, search= TRUE
+            )
+          # )
         )
       ),
       bslib::nav_panel(

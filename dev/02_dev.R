@@ -18,6 +18,10 @@ usethis::use_package("bslib")
 usethis::use_package("plotly")
 usethis::use_package("dplyr")
 usethis::use_package("bsicons")
+usethis::use_package("ggplot2")
+usethis::use_package("survival")
+usethis::use_package("shinyTree")
+
 ## Amend DESCRIPTION with dependencies read from package code parsing
 ## install.packages('attachment') # if needed.
 attachment::att_amend_desc()

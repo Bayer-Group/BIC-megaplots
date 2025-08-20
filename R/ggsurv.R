@@ -30,23 +30,23 @@ ggsurv <- function(
 
     col <- ifelse(surv.col == 'gg.def', 'black', surv.col)
 
-    pl <- ggplot(dat, aes(x = time, y = surv)) +
-      xlab(xlab) + ylab(ylab) + ggtitle(main) +
-      geom_step(col = col, lty = lty.est)
+    pl <- ggplot2::ggplot(dat, ggplot2::aes(x = time, y = surv)) +
+      ggplot2::xlab(xlab) + ggplot2::ylab(ylab) + ggplot2::ggtitle(main) +
+      ggplot2::geom_step(col = col, lty = lty.est)
 
     pl <- if(CI == T | CI == 'def') {
-      pl + geom_step(aes(y = up), color = col, lty = lty.ci) +
-        geom_step(aes(y = low), color = col, lty = lty.ci)
+      pl + ggplot2::geom_step(ggplot2::aes(y = up), color = col, lty = lty.ci) +
+        ggplot2::geom_step(ggplot2::aes(y = low), color = col, lty = lty.ci)
     } else (pl)
 
     pl <- if(plot.cens == T & length(dat.cens) > 0){
-      pl + geom_point(data = dat.cens, aes(y = surv), shape = cens.shape,
+      pl + ggplot2::geom_point(data = dat.cens, ggplot2::aes(y = surv), shape = cens.shape,
                       col = cens.col)
     } else if (plot.cens == T & length(dat.cens) == 0){
       stop ('There are no censored observations')
     } else(pl)
 
-    pl <- if(back.white == T) {pl + theme_bw()
+    pl <- if(back.white == T) {pl + ggplot2::theme_bw()
     } else (pl)
     pl
   }
@@ -76,23 +76,23 @@ ggsurv <- function(
     dat <- do.call(rbind, gr.df)
     dat.cens <- subset(dat, cens != 0)
 
-    pl <- ggplot(dat, aes(x = time, y = surv, group = group)) +
-      xlab(xlab) + ylab(ylab) + ggtitle(main) +
-      geom_step(aes(col = group, lty = group))
+    pl <- ggplot2::ggplot(dat, ggplot2::aes(x = time, y = surv, group = group)) +
+      ggplot2::xlab(xlab) + ggplot2::ylab(ylab) + ggplot2::ggtitle(main) +
+      ggplot2::geom_step(ggplot2::aes(col = group, lty = group))
 
     col <- if(length(surv.col == 1)){
-      scale_colour_manual(name = gr.name, values = rep(surv.col, strata))
+      ggplot2::scale_colour_manual(name = gr.name, values = rep(surv.col, strata))
     } else{
-      scale_colour_manual(name = gr.name, values = surv.col)
+      ggplot2::scale_colour_manual(name = gr.name, values = surv.col)
     }
 
     pl <- if(surv.col[1] != 'gg.def'){
       pl + col
-    } else {pl + scale_colour_discrete(name = gr.name)}
+    } else {pl + ggplot2::scale_colour_discrete(name = gr.name)}
 
     line <- if(length(lty.est) == 1){
-      scale_linetype_manual(name = gr.name, values = rep(lty.est, strata))
-    } else {scale_linetype_manual(name = gr.name, values = lty.est)}
+      ggplot2::scale_linetype_manual(name = gr.name, values = rep(lty.est, strata))
+    } else {ggplot2::scale_linetype_manual(name = gr.name, values = lty.est)}
 
     pl <- pl + line
 
@@ -101,21 +101,21 @@ ggsurv <- function(
         stop('Either surv.col or lty.est should be of length 1 in order
              to plot 95% CI with multiple strata')
       }else if((length(surv.col) > 1 | surv.col == 'gg.def')[1]){
-        pl + geom_step(aes(y = up, color = group), lty = lty.ci) +
-          geom_step(aes(y = low, color = group), lty = lty.ci)
-      } else{pl +  geom_step(aes(y = up, lty = group), col = surv.col) +
-          geom_step(aes(y = low,lty = group), col = surv.col)}
+        pl + ggplot2::geom_step(ggplot2::aes(y = up, color = group), lty = lty.ci) +
+          ggplot2::geom_step(ggplot2::aes(y = low, color = group), lty = lty.ci)
+      } else{pl +  ggplot2::geom_step(ggplot2::aes(y = up, lty = group), col = surv.col) +
+          ggplot2::geom_step(ggplot2::aes(y = low,lty = group), col = surv.col)}
     } else {pl}
 
 
     pl <- if(plot.cens == T & length(dat.cens) > 0){
-      pl + geom_point(data = dat.cens, aes(y = surv), shape = cens.shape,
+      pl + ggplot2::geom_point(data = dat.cens, ggplot2::aes(y = surv), shape = cens.shape,
                       col = cens.col)
     } else if (plot.cens == T & length(dat.cens) == 0){
       stop ('There are no censored observations')
     } else(pl)
 
-    pl <- if(back.white == T) {pl + theme_bw()
+    pl <- if(back.white == T) {pl + ggplot2::theme_bw()
     } else (pl)
     pl
   }
