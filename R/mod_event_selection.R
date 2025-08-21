@@ -68,6 +68,7 @@ event_selection_server <- function(input, output, session, event_number, preproc
     if (length(req(event.info())) >= event_number) {
       choices <- shiny::req(event.info())
       shinyWidgets::updatePickerInput(
+        session,
         inputId = 'select.ev',
         choices = choices,
         selected = choices[event_number],
