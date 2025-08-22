@@ -1,14 +1,8 @@
 prepare_megaplot_data <- function(
     megaplot_data = shiny::req(uploaded_data$val),
     grouping_vars = input$select.grouping,
-    sorting_var = input$select.sorting,
-    megaplot_color = c(
-      "#e43157", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#ffff33",
-      "#a65628", "#f781bf", "#21d4de", "#91d95b", "#b8805f", "#cbbeeb",
-      "#ffffff", "#999999", "#aaffc3", "#ffd8b1", "#4363d8", "#000075",
-      "#469990", "#808000", "#800000", "#bfef45", "#f032e6", "#fffac8",
-      "#fabed4", "#4263d8"
-    )
+    sorting_var = input$select_sorting,
+    event_colors = NULL
 ) {
   megaplot_data_splitted_by_event_group <- split(megaplot_data, megaplot_data$event_group)
 
@@ -27,32 +21,18 @@ prepare_megaplot_data <- function(
       )
   }
 
-  # colorize all events with function color_func
-  # should be removed when upload panel is finished
-  color_func <- function(x,y,z) {
-    colorRampPalette(
-      c(colorRampPalette(c("white",megaplot_color[y]))(100)[85],
-        colorRampPalette(c(megaplot_color[y],"black"))(100)[15]
-      )
-    ) (z)[x]
-  }
-
   #bind all list entries back to one data.frame
   megaplot_data_w_event_ids <- do.call("rbind",megaplot_data_splitted_by_event_group)
 
   #add variables event_color and jitter_event_time to event column
-  megaplot_data_w_color_and_jitter <- megaplot_data_w_event_ids  %>%
+  megaplot_data_w_jitter <- megaplot_data_w_event_ids  %>%
     dplyr::select(event, event_group, max_event_id, event_group_id, event_id) %>%
     dplyr::distinct() %>%
     dplyr::ungroup() %>%
-    dplyr::mutate(jitter_event_time = seq(-0.1,0.1,length = nrow(.))[dplyr::row_number()]) %>%
-    dplyr::rowwise() %>%
-    dplyr::mutate(
-      event_color = color_func(event_id, event_group_id, max_event_id)
-    ) %>%
-    dplyr::select(
-      event,event_color,jitter_event_time
-    )
+    dplyr::mutate(jitter_event_time = seq(-0.1,0.1,length = nrow(.))[dplyr::row_number()])
+
+  megaplot_data_w_color_and_jitter<- megaplot_data_w_jitter %>%
+    dplyr::left_join(event_colors, by = c("event"))
 
   megaplot_data_arranged <- dplyr::arrange(megaplot_data, !!!rlang::syms(grouping_vars), !!rlang::sym(sorting_var))
 

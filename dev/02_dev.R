@@ -21,6 +21,7 @@ usethis::use_package("bsicons")
 usethis::use_package("ggplot2")
 usethis::use_package("survival")
 usethis::use_package("shinyTree")
+usethis::use_package("colourpicker")
 
 ## Amend DESCRIPTION with dependencies read from package code parsing
 ## install.packages('attachment') # if needed.
@@ -34,7 +35,7 @@ golem::add_module(name = "name_of_module2", with_test = TRUE) # Name of the modu
 ## Add helper functions ----
 ## Creates fct_* and utils_*
 golem::add_fct("helpers", with_test = TRUE)
-golem::add_utils("helpers", with_test = TRUE)
+golem::add_utils("font_color", with_test = TRUE)
 
 ## External resources
 ## Creates .js and .css files at inst/app/www

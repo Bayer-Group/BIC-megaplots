@@ -11,6 +11,7 @@ License: What license is it under?
 Imports: 
     bsicons,
     bslib,
+    colourpicker,
     config,
     dplyr,
     ggplot2,

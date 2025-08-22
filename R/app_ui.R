@@ -5,45 +5,67 @@
 #' @import shiny
 #' @noRd
 app_ui <- function(request) {
-  tagList(
+  shiny::tagList(
     # Leave this function for adding external resources
     golem_add_external_resources(),
 
-    tags$style(type = 'text/css', ".btn-outline-default, .btn-default:not(.btn-primary,.btn-secondary,.btn-info,.btn-success,.btn-danger,.btn-warning,.btn-light,.btn-dark,.btn-link,[class*='btn-outline-']) {
-               --bs-btn-color: white;
-                --bs-btn-border-color: white;
-                --bs-btn-hover-border-color: white;
-                --bs-btn-hover-color: white;
-    } "),
+    #This function must be called in order for all other shinyjs functions to work
+    shinyjs::useShinyjs(),
+    #Add own JavaScript functions that can be called from R
+    shinyjs::extendShinyjs(
+      text = "shinyjs.init = function() {
+              $('#selected-cols-row').on('click', '.col', function(event) {
+              var colnum = $(event.target).data('colnum');
+              Shiny.onInputChange('jsColNum', [colnum]);
+            });
+
+            $('#rclosecolsSection, #allColsSection').on('click', '.rcol', function(event) {
+              var col = $(event.target).data('col');
+              Shiny.onInputChange('jsCol', [col]);
+            });
+          };",
+      functions = c("init")
+    ),
+    # Add CSS styles (overwrite color appearance of fileInput button)
+    tags$style(
+      type = 'text/css',
+      ".btn-outline-default,
+      .btn-default:not(.btn-primary,.btn-secondary,.btn-info,.btn-success,.btn-danger,.btn-warning,.btn-light,.btn-dark,.btn-link,[class*='btn-outline-']) {
+        --bs-btn-color: white;
+        --bs-btn-border-color: white;
+        --bs-btn-hover-border-color: white;
+        --bs-btn-hover-color: white;
+      }"
+    ),
+    # Add CSS styles (overwrite shinyTree hover/highlight appearance and search highlight color)
     ## shinyTree appearances
     tags$style(type = 'text/css', ".jstree-default .jstree-clicked {background-color: #404A4E}"),
     tags$style(type = 'text/css', ".jstree-default .jstree-hovered {background-color: #1d2224}"),
-    tags$style(type = 'text/css', ".jstree-default .jstree-search {
-      color: yellow;
-    }"),
-    # Your application UI logic
+    tags$style(type = 'text/css', ".jstree-default .jstree-search { color: yellow;}"),
+
+    # Use page_navbar from bslib package
     bslib::page_navbar(
       title = "MEGAPLOTS Rebuild",
+      #create color theme for user interface
       theme = bslib::bs_theme(
-        primary = "#0091DF",
-        bg = "#404A4E",
-        fg = "white",
-        heading_font = "Agency FB",
+        primary = "#0091DF",                     #primary color used for inputs
+        bg = "#404A4E",                          #background-color
+        fg = "white",                            #font-color
+        heading_font = "Agency FB",              #font
         base_font = "Agency FB",
         "input-border-color" = "#d2d2d2"
       ),
-      bg = "#0091DF",
-      inverse = FALSE,
+      bg = "#0091DF",                            #Top navbar background-color
+      inverse = FALSE,                           #FALSE for a light text color at navbar
       # Sidebar
+      # Use accordion_panels from bslib
       sidebar = bslib::sidebar(
-        #bg = "#424242",
         title = "Settings",
         bslib::accordion_panel(
           "Sorting/Grouping",
           icon = bsicons::bs_icon("sort-down"),
-
           shinyWidgets::pickerInput(
-            inputId = 'select.sorting',
+            inputId = 'select_sorting',
             label = "Sorting variable",
             choices = c("subjectid","start_time","end_time"),
             selected = NULL,
@@ -86,11 +108,41 @@ app_ui <- function(request) {
           )
         ),
         shiny::fluidRow(
-          # shiny::column(4,
-            shinyTree::shinyTree("tree", checkbox = TRUE, search= TRUE
+          shiny::column(4,
+            shiny::wellPanel(
+              id = "selectedEventsPanel",
+              style = "overflow-y:scroll;max-height: 550px;",
+              shinyTree::shinyTree(
+                "tree",
+                checkbox = TRUE,
+                search = TRUE,
+                themeIcons = FALSE
+              )
             )
-          # )
-        )
+          ),
+          shiny::column(4,
+           shiny::wellPanel(id = "selected_events_color_container_panel",
+              style ="overflow-y:scroll;max-height: 550px;",
+              div(
+                id = "header-section",
+                div(
+                  id = "selected-cols-row",
+                  uiOutput("selected_events_color_container")
+                )
+              )
+           )
+          ),
+          shiny::column(4,
+            shiny::wellPanel(
+              id = "colourPickerPanel",
+              colourpicker::colourInput(
+                inputId = "placeholder",
+                label = "placeholder",
+                value = "white"
+              )
+            )
+          )
+          )
       ),
       bslib::nav_panel(
         title = "Megaplots",
