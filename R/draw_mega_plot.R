@@ -1,7 +1,19 @@
+#' Title
+#'
+#' @param megaplot_prepared_data
+#' @param megaplot_filtered_data
+#' @param select.grouping
+#' @param line_width
+#'
+#' @return
+#' @export
+#'
+#' @examples
 draw_mega_plot <- function(
     megaplot_prepared_data = megaplot_prepared_data(),
     megaplot_filtered_data = megaplot_filtered_data(),
-    select.grouping = NULL
+    select.grouping = NULL,
+    line_width = 3
   ) {
   megaplot_prepared_data <- megaplot_prepared_data %>% dplyr::mutate(
     text_lines = paste0("Subject identifier: ", subjectid)
@@ -36,7 +48,7 @@ draw_mega_plot <- function(
       xend =~event_time_end + 0.45,
       y = ~subjectid_n_jittered,
       yend = ~subjectid_n_jittered,
-      line = list(color = ~ event_color, width = 3),
+      line = list(color = ~ event_color, width = line_width),
       showlegend = TRUE,
       hoverinfo = "text",
       hoverlabel = list(orientation = "h"),
@@ -88,7 +100,7 @@ draw_mega_plot <- function(
     displayModeBar = TRUE,              #Forcing the modebar always to be visible
     displaylogo = FALSE,                #Hiding the plotly logo on the modebar
     modeBarButtonsToRemove =            #Remove not needed buttons from modebar
-      c("hoverClosestCartesian","hoverCompareCartesian","zoomIn2d","zoomOut2d","select2d","lasso2d")
+      c("zoomIn2d","zoomOut2d","select2d","lasso2d")
   )
 
   p_4 <- p_3 %>%
@@ -110,7 +122,9 @@ draw_mega_plot <- function(
         showticklabels = FALSE
       ),
       font = list(family = "Agency FB", color = "#FFFFFF"),
-      barmode = "overlay"
+      barmode = "overlay"#,
+      #hovermode = "x unified"
     )
+
   return(p_4)
 }

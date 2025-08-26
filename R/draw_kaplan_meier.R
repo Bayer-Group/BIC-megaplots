@@ -1,3 +1,15 @@
+#' Title
+#'
+#' @param megaplot_prepared_data
+#' @param megaplot_filtered_data
+#' @param select.grouping
+#' @param select_event_kaplan_meier
+#' @param select_strata_var
+#'
+#' @return
+#' @export
+#'
+#' @examples
 draw_kaplan_meier <- function(
     megaplot_prepared_data = megaplot_prepared_data(),
     megaplot_filtered_data = megaplot_filtered_data(),

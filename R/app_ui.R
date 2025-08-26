@@ -42,6 +42,21 @@ app_ui <- function(request) {
     tags$style(type = 'text/css', ".jstree-default .jstree-clicked {background-color: #404A4E}"),
     tags$style(type = 'text/css', ".jstree-default .jstree-hovered {background-color: #1d2224}"),
     tags$style(type = 'text/css', ".jstree-default .jstree-search { color: yellow;}"),
+    #creates an reactive variable "input$dimension" with screen height as value
+    tags$head(
+      tags$script('
+        var dimension = [0];
+        $(document).on("shiny:connected", function(e) {
+        dimension[0] = window.innerHeight;
+        Shiny.onInputChange("dimension", dimension);
+        });
+        $(window).resize(function(e) {
+        dimension[0] = window.innerHeight;
+        Shiny.onInputChange("dimension", dimension);
+        });
+        '
+      )
+    ),
 
     # Use page_navbar from bslib package
     bslib::page_navbar(
@@ -72,7 +87,7 @@ app_ui <- function(request) {
             multiple = FALSE,
             options = list(
               `live-search` = TRUE,
-              `style` = 'background: btn-primary',
+              #`style` = 'background: btn-primary',
               `header` = 'Select item'
             )
           ),
@@ -85,15 +100,37 @@ app_ui <- function(request) {
             options = list('plugins' = list('remove_button', 'drag_drop'))
           )
         ),
-        bslib::accordion_panel(
-          "Sequencing",
-          icon = bsicons::bs_icon("sort-up-alt"),
-          "TBD"
-        ),
+        # bslib::accordion_panel(
+        #   "Sequencing",
+        #   icon = bsicons::bs_icon("sort-up-alt"),
+        #   "TBD"
+        # ),
         bslib::accordion_panel(
           "Plot appearance",
           icon = bsicons::bs_icon("border-width"),
-          "TBD"
+          shiny::sliderInput(
+            inputId = "line_width",
+            label = "Line width (Mega plot)",
+            min = 1,
+            max = 5,
+            value = 3,
+            step = 0.5
+          ),
+          shiny::numericInput(
+            inputId = "event_summary_cutoff",
+            label = "Display hover for counts greater than or equal to:",
+            value = 1,
+            min = 1,
+            max = NA,
+            step = 1
+          ),
+          shiny::radioButtons(
+            inputId="font_size",
+            label="Text Size:",
+            selected = "standard",
+            choiceNames = c("Small", "Standard", "Large"),
+            choiceValues = c("small", "standard", "large")
+          )
         )
       ),
       #Main area
@@ -110,8 +147,8 @@ app_ui <- function(request) {
         shiny::fluidRow(
           shiny::column(4,
             shiny::wellPanel(
-              id = "selectedEventsPanel",
-              style = "overflow-y:scroll;max-height: 550px;",
+              id = "selected_events_panel",
+              style = "overflow-y:scroll;max-height: 10000px;",
               shinyTree::shinyTree(
                 "tree",
                 checkbox = TRUE,
@@ -122,7 +159,7 @@ app_ui <- function(request) {
           ),
           shiny::column(4,
            shiny::wellPanel(id = "selected_events_color_container_panel",
-              style ="overflow-y:scroll;max-height: 550px;",
+              style ="overflow-y:scroll;max-height: 10000px;",
               div(
                 id = "header-section",
                 div(
@@ -134,10 +171,10 @@ app_ui <- function(request) {
           ),
           shiny::column(4,
             shiny::wellPanel(
-              id = "colourPickerPanel",
+              id = "colour_picker_panel",
               colourpicker::colourInput(
-                inputId = "placeholder",
-                label = "placeholder",
+                inputId = "picked_colour",
+                label = "Click colored event container and use this Picker to update any color",
                 value = "white"
               )
             )
