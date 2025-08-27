@@ -68,6 +68,7 @@ app_ui <- function(request) {
         fg = "white",                            #font-color
         heading_font = "Agency FB",              #font
         base_font = "Agency FB",
+        font_scale = 1.2,
         "input-border-color" = "#d2d2d2"
       ),
       bg = "#0091DF",                            #Top navbar background-color
@@ -123,14 +124,14 @@ app_ui <- function(request) {
             min = 1,
             max = NA,
             step = 1
-          ),
-          shiny::radioButtons(
-            inputId="font_size",
-            label="Text Size:",
-            selected = "standard",
-            choiceNames = c("Small", "Standard", "Large"),
-            choiceValues = c("small", "standard", "large")
-          )
+          )#,
+          # shiny::radioButtons(
+          #   inputId="font_size",
+          #   label="Text Size:",
+          #   selected = "standard",
+          #   choiceNames = c("Small", "Standard", "Large"),
+          #   choiceValues = c("small", "standard", "large")
+          # )
         )
       ),
       #Main area

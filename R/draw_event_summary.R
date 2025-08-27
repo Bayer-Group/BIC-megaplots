@@ -26,6 +26,9 @@ draw_event_summary <- function(
   #initialize list for figures used in subplots (when multiple groups are selected)
   figure_list <- list()
   max_y_range <- c()
+  x_min <- min(min(megaplot_prepared_data$start_time,na.rm=TRUE), min(megaplot_prepared_data$event_time,na.rm=TRUE))
+  x_max <- max(max(megaplot_prepared_data$end_time,na.rm=TRUE), max(megaplot_prepared_data$event_time_end,na.rm=TRUE))
+
 
   for(k in 1:number_group_levels) {
 
@@ -64,8 +67,8 @@ draw_event_summary <- function(
         name = ~ event,
         text = ~ tooltip_text,
         hoverinfo = ~ tooltip,
-        legendgroup = ~ event_group,
-        legendgrouptitle = list(text = ~ " ")
+        legendgroup = ~ event_group#,
+        #legendgrouptitle = ~ event_group
       )
 
     #update figure layout
@@ -103,7 +106,14 @@ draw_event_summary <- function(
 
   for(k in 1:number_group_levels) {
     figure_list[[k]] <- figure_list[[k]] %>%
-      plotly::layout(yaxis = list(range = c(0, max_y_range)))
+      plotly::layout(
+        yaxis = list(
+          range = c(0, max_y_range)
+        ),
+        xaxis = list(
+          range = c(x_min, x_max)
+        )
+      )
   }
 
   g <- plotly::subplot(
@@ -112,11 +122,6 @@ draw_event_summary <- function(
     shareX =TRUE,
     nrows = number_group_levels
   )
-
-  # g <- g %>% plotly::layout(annotations = list(
-  #   list(x = 0.5 , y = 1.05, text = "AA", showarrow = F, xref='paper', yref='paper'),
-  #   list(x = 0.5 , y = 0.55, text = "BB", showarrow = F, xref='paper', yref='paper'))
-  # )
 
   g
 

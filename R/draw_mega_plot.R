@@ -54,7 +54,7 @@ draw_mega_plot <- function(
       hoverlabel = list(orientation = "h"),
       text = ~text_events,
       legendgroup = ~ event_group,
-      legendgrouptitle = list(text = ~ " ")
+      legendgrouptitle = list(text = ~ event_group)
     ) %>%
     plotly::highlight(~ event, on = "plotly_click", off="plotly_doubleclick")
 

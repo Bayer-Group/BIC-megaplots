@@ -23,10 +23,10 @@ app_server <- function(input, output, session) {
 
   #Changing the maximum height of the upload panels depending on screen size
   shiny::observe({
-    runjs(sprintf(paste0("
-            document.getElementById('selected_events_panel').style.maxHeight = '",input$dimension-400,"px';")))
-      runjs(sprintf(paste0("
-            document.getElementById('selected-cols-row').style.maxHeight = '",input$dimension-400,"px';")))
+    shinyjs::runjs(sprintf(paste0("
+            document.getElementById('selected_events_panel').style.maxHeight = '",input$dimension-300,"px';")))
+    shinyjs::runjs(sprintf(paste0("
+            document.getElementById('selected-cols-row').style.maxHeight = '",input$dimension-300,"px';")))
   })
 
   # renderTree for event/event_group selection
@@ -380,21 +380,4 @@ app_server <- function(input, output, session) {
     )
   })
 
-  text_scale <- reactive({
-    switch(input$font_size,
-           "small" = 1.0,
-           "standard" = 1.2,
-           "large" = 1.4)
-  })
-
-
-  currentScale <- 1
-
-  shiny::observeEvent(input$font_size, {
-    scale <- text_scale()
-    the_theme <- bslib::bs_current_theme()
-    the_theme <- bslib::bs_theme_update(the_theme, font_scale = scale / currentScale)
-    session$setCurrentTheme(the_theme)
-    currentScale <<- scale
-  })
 }

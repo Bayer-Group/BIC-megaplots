@@ -22,6 +22,7 @@ usethis::use_package("ggplot2")
 usethis::use_package("survival")
 usethis::use_package("shinyTree")
 usethis::use_package("colourpicker")
+usethis::use_package("shinyjs")
 
 ## Amend DESCRIPTION with dependencies read from package code parsing
 ## install.packages('attachment') # if needed.

@@ -18,6 +18,7 @@ Imports:
     golem,
     plotly,
     shiny,
+    shinyjs,
     shinyTree
 Encoding: UTF-8
 LazyData: true
