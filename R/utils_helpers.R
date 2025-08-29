@@ -16,13 +16,8 @@ font_color <- function (hex_code) {
 }
 
 
-color_func <- function(x,y,z, megaplot_color =c(
-  "#e43157", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#ffff33",
-  "#a65628", "#f781bf", "#21d4de", "#91d95b", "#b8805f", "#cbbeeb",
-  "#ffffff", "#999999", "#aaffc3", "#ffd8b1", "#4363d8", "#000075",
-  "#469990", "#808000", "#800000", "#bfef45", "#f032e6", "#fffac8",
-  "#fabed4", "#4263d8"
-)) {
+color_func <- function(x,y,z,number_event_groups) {
+  megaplot_color <- rainbow(number_event_groups)
   if (x != 0 & z != 1) {
     return_colors <- colorRampPalette(
       c(colorRampPalette(c("white",megaplot_color[y]))(100)[50],
@@ -36,3 +31,49 @@ color_func <- function(x,y,z, megaplot_color =c(
   }
   return(return_colors)
 }
+
+
+
+get_trace_info <- function(plotly_object) {
+  plotly_build_p <- plotly::plotly_build(plotly_object)
+  plotly_build_data <- plotly_build_p$x$data
+  trace_number <- length(plotly_build_data)
+  trace_info <- data.frame(name = character(trace_number))
+  trace_info <- plotly_build_data %>%
+    seq_along() %>%
+    purrr::map_dfr(
+      ~{
+        if(is.null(plotly_build_data[[.x]]$name)){
+          .name=NA
+        } else {
+          .name=plotly_build_data[[.x]]$name
+        }
+        trace_info_data <- data.frame(
+          name=.name,
+          legendgroup=c(NA)
+        )
+        if(!is.null(plotly_build_data[[.x]]$legendgroup)) trace_info_data$legendgroup=plotly_build_data[[.x]]$legendgroup
+        trace_info_data
+      }
+    )
+  trace_info$trace <- 1:length(plotly_build_data)
+  trace_info
+}
+
+apply_trace_info <- function(trace_info, plotly_object) {
+  split_trace_info <- trace_info %>%
+    split(trace_info$legendgroup)
+
+  c(list(plotly_object), split_trace_info) %>%
+    purrr::reduce(
+      ~{
+        plotly::style(
+          .x,
+          legendgrouptitle=list(
+            text=.y$legendgroup
+          ),
+          traces=.y$trace
+        )}
+    )
+}
+

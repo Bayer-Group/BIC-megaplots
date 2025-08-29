@@ -1,9 +1,10 @@
 prepare_megaplot_data <- function(
     megaplot_data = shiny::req(uploaded_data$val),
-    grouping_vars = input$select.grouping,
+    grouping_vars = input$select_grouping,
     sorting_var = input$select_sorting,
     event_colors = NULL
 ) {
+
   megaplot_data_splitted_by_event_group <- split(megaplot_data, megaplot_data$event_group)
 
   # create a event_group id ("event_group_id") and a event id ("event_id") for every event (group)

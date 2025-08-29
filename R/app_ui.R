@@ -60,7 +60,7 @@ app_ui <- function(request) {
 
     # Use page_navbar from bslib package
     bslib::page_navbar(
-      title = "MEGAPLOTS Rebuild",
+      title = "MEGAPLOTS",
       #create color theme for user interface
       theme = bslib::bs_theme(
         primary = "#0091DF",                     #primary color used for inputs
@@ -68,7 +68,7 @@ app_ui <- function(request) {
         fg = "white",                            #font-color
         heading_font = "Agency FB",              #font
         base_font = "Agency FB",
-        font_scale = 1.2,
+        font_scale = 1.4,
         "input-border-color" = "#d2d2d2"
       ),
       bg = "#0091DF",                            #Top navbar background-color
@@ -76,7 +76,9 @@ app_ui <- function(request) {
       # Sidebar
       # Use accordion_panels from bslib
       sidebar = bslib::sidebar(
-        title = "Settings",
+
+        title =
+        div(img(src = "www/megaplot_hexsticker.png", height = "175px")),
         bslib::accordion_panel(
           "Sorting/Grouping",
           icon = bsicons::bs_icon("sort-down"),
@@ -93,7 +95,7 @@ app_ui <- function(request) {
             )
           ),
           shiny::selectizeInput(
-            inputId ='select.grouping',
+            inputId ='select_grouping',
             label = "Grouping variable",
             choices = NULL,
             selected = NULL,
@@ -177,6 +179,11 @@ app_ui <- function(request) {
                 inputId = "picked_colour",
                 label = "Click colored event container and use this Picker to update any color",
                 value = "white"
+              ),
+              shiny::checkboxInput(
+                inputId = "jitter_events",
+                label = "Jitter events for event group",
+                value = TRUE
               )
             )
           )
@@ -229,7 +236,7 @@ golem_add_external_resources <- function() {
   )
 
   tags$head(
-    favicon(),
+    favicon(ext='png'),
     bundle_resources(
       path = app_sys("app/www"),
       app_title = "Megaplots"

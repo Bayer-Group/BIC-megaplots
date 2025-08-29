@@ -36,6 +36,9 @@ golem::add_module(name = "name_of_module2", with_test = TRUE) # Name of the modu
 ## Add helper functions ----
 ## Creates fct_* and utils_*
 golem::add_fct("helpers", with_test = TRUE)
+golem::add_fct("create_unique_event_identifier", with_test = TRUE)
+golem::add_fct("create_event_tree", with_test = TRUE)
+golem::add_fct("create_color_container", with_test = TRUE)
 golem::add_utils("font_color", with_test = TRUE)
 
 ## External resources

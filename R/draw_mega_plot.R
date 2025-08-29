@@ -2,7 +2,7 @@
 #'
 #' @param megaplot_prepared_data
 #' @param megaplot_filtered_data
-#' @param select.grouping
+#' @param select_grouping
 #' @param line_width
 #'
 #' @return
@@ -12,15 +12,19 @@
 draw_mega_plot <- function(
     megaplot_prepared_data = megaplot_prepared_data(),
     megaplot_filtered_data = megaplot_filtered_data(),
-    select.grouping = NULL,
+    select_grouping = NULL,
     line_width = 3
   ) {
   megaplot_prepared_data <- megaplot_prepared_data %>% dplyr::mutate(
     text_lines = paste0("Subject identifier: ", subjectid)
   )
-  megaplot_filtered_data <- megaplot_filtered_data %>% dplyr::mutate(
-    text_events = paste0(" Subject identifier: ", subjectid, "\n Event: ", event, " (",event_group,") \n", " Start time: ",event_time, "\n End time: ", event_time_end)
-  )
+
+
+  if(!is.null(megaplot_filtered_data)) {
+    megaplot_filtered_data <- megaplot_filtered_data %>% dplyr::mutate(
+      text_events = paste0(" Subject identifier: ", subjectid, "\n Event: ", event, " (",event_group,") \n", " Start time: ",event_time, "\n End time: ", event_time_end)
+    )
+  }
 
   p_1 <- megaplot_prepared_data %>%
     plotly::plot_ly(                            #create empty plot_ly object
@@ -34,16 +38,17 @@ draw_mega_plot <- function(
       yend ~subjectid_n,
       x  = ~start_time,
       hoverinfo = "text",
-      text = ~text_lines,
-      xend = ~end_time,
+      text = ~ text_lines,
+      xend = ~ end_time,
       line = list(color = "#2c3336", width = 1),
       showlegend = FALSE
     )
-
+  if(!is.null(megaplot_filtered_data)) {
   p_2 <- p_1 %>%
     plotly::add_segments(
       data = plotly::highlight_key(megaplot_filtered_data, ~event),
-      name = ~ event,
+      legendgroup = ~ event_group,
+      name = ~ unique_event,
       x = ~event_time - 0.45,
       xend =~event_time_end + 0.45,
       y = ~subjectid_n_jittered,
@@ -51,14 +56,15 @@ draw_mega_plot <- function(
       line = list(color = ~ event_color, width = line_width),
       showlegend = TRUE,
       hoverinfo = "text",
-      hoverlabel = list(orientation = "h"),
-      text = ~text_events,
-      legendgroup = ~ event_group,
-      legendgrouptitle = list(text = ~ event_group)
+      text = ~ text_events,
+      hoverlabel = list(orientation = "h")
     ) %>%
     plotly::highlight(~ event, on = "plotly_click", off="plotly_doubleclick")
 
-  if (!is.null(select.grouping)) {
+  trace_info <- get_trace_info(p_2)
+  p_2 <- apply_trace_info(trace_info,p_2)
+
+  if (!is.null(select_grouping)) {
     label_df <- megaplot_prepared_data %>%
       #dplyr::select(subject_index, subjectid_n, group_index, sex, treatment) %>%
       dplyr::group_by(group_index) %>%
@@ -74,8 +80,8 @@ draw_mega_plot <- function(
       dplyr::filter(!is.na(text_position_y)) %>%
       dplyr::rowwise() %>%
       dplyr::mutate(
-        text_snippet_1 = paste(select.grouping, collapse = " "),
-        text_snippet_2 = paste(!!!rlang::syms(select.grouping))
+        text_snippet_1 = paste(select_grouping, collapse = " "),
+        text_snippet_2 = paste(!!!rlang::syms(select_grouping))
       ) %>%
       dplyr::mutate(text_snippet_total = paste(unlist(strsplit(text_snippet_1," ")), unlist(strsplit(text_snippet_2, " ")), sep = ": ", collapse = " & ")) %>%
       dplyr::mutate(event_color = "black")
@@ -93,14 +99,16 @@ draw_mega_plot <- function(
     )
 
   }
-
+  } else {
+    p_2 <- p_1
+  }
   #Plotly configuration of modebar
   p_3 <- p_2 %>% plotly::config(
     scrollZoom = TRUE,                  #Enable Scroll Zoom
     displayModeBar = TRUE,              #Forcing the modebar always to be visible
     displaylogo = FALSE,                #Hiding the plotly logo on the modebar
     modeBarButtonsToRemove =            #Remove not needed buttons from modebar
-      c("zoomIn2d","zoomOut2d","select2d","lasso2d")
+      c("zoomIn2d","zoomOut2d","select2d","lasso2d","hoverCompareCartesian")
   )
 
   p_4 <- p_3 %>%

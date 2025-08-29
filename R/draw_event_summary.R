@@ -17,6 +17,13 @@ draw_event_summary <- function(
     event_summary_cutoff = 1
 ) {
 
+  # megaplot_prepared_data <- megaplot_prepared_data_
+  # megaplot_filtered_data <- megaplot_filtered_data_
+
+  megaplot_filtered_data <- megaplot_filtered_data %>%
+    dplyr::select(-subjectid_n_jittered, -jitter_event_time)
+
+
   if (!is.null(select_grouping)) {
     number_group_levels <-  max(megaplot_filtered_data$group_index)
   } else {
@@ -33,19 +40,19 @@ draw_event_summary <- function(
   for(k in 1:number_group_levels) {
 
     df <- megaplot_filtered_data %>%
-      dplyr::arrange(event_group, event) %>%
+      dplyr::arrange(event_group, unique_event) %>%
       dplyr::rowwise() %>%
       dplyr::mutate(
         day = list(seq(event_time, event_time_end, by = 1))
       ) %>%
       tidyr::unnest_longer(col = day) %>%
-      dplyr::group_by(dplyr::across(all_of(c(select_grouping,"group_index","event_group","event","event_color","day")))) %>%
+      dplyr::group_by(dplyr::across(all_of(c(select_grouping,"group_index","event_group","event","unique_event","event_color","day")))) %>%
       dplyr::summarise(value = dplyr::n()) %>%
       tidyr::complete(
         day = seq(min(day)-1,max(day)+1, 1),
         fill = list(value = 0)
       ) %>%
-      dplyr::arrange(dplyr::across(dplyr::all_of(c(select_grouping,"group_index","event_group","event","event_color","day")))) %>%
+      dplyr::arrange(dplyr::across(dplyr::all_of(c(select_grouping,"group_index","event_group","event","unique_event","event_color","day")))) %>%
       dplyr::ungroup() %>%
       dplyr::mutate(
         tooltip = "x+text",
@@ -63,14 +70,16 @@ draw_event_summary <- function(
       plotly::add_lines(
         y = ~ value,
         color = ~I(event_color),
-        line = list(shape = "linear"),
-        name = ~ event,
+        line = list(shape = "linear", width = 3),
+        name = ~ unique_event,
         text = ~ tooltip_text,
         hoverinfo = ~ tooltip,
-        legendgroup = ~ event_group#,
-        #legendgrouptitle = ~ event_group
+        legendgroup = ~event_group,
+        legendgrouptitle = list(text = ~event_group)
       )
 
+    trace_info <- get_trace_info(fig2)
+    fig2 <- apply_trace_info(trace_info,fig2)
     #update figure layout
     fig3 <- fig2 %>%
       plotly::layout(

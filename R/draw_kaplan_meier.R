@@ -2,7 +2,7 @@
 #'
 #' @param megaplot_prepared_data
 #' @param megaplot_filtered_data
-#' @param select.grouping
+#' @param select_grouping
 #' @param select_event_kaplan_meier
 #' @param select_strata_var
 #'
@@ -13,11 +13,11 @@
 draw_kaplan_meier <- function(
     megaplot_prepared_data = megaplot_prepared_data(),
     megaplot_filtered_data = megaplot_filtered_data(),
-    select.grouping = NULL,
+    select_grouping = NULL,
     select_event_kaplan_meier,
     select_strata_var = NULL
 ) {
-  grouping_vars <- select.grouping
+  grouping_vars <- select_grouping
 
   level <- select_event_kaplan_meier
 
@@ -26,12 +26,12 @@ draw_kaplan_meier <- function(
       subjectid,
       subjectid_n,
       event_time,
-      event
+      unique_event
     ) %>%
-    dplyr::filter(event == level) %>%
+    dplyr::filter(unique_event == level) %>%
     dplyr::group_by(subjectid) %>%
     dplyr::arrange(event_time) %>%
-    dplyr::slice_head(n = 1)%>%
+    dplyr::slice_head(n = 1) %>%
     dplyr::mutate(!!paste0("time_to_first") := event_time) %>%
     dplyr::select(subjectid, !!paste0("time_to_first"))
 
@@ -48,7 +48,7 @@ draw_kaplan_meier <- function(
                                 !is.na(time_to_first) ~ 2)
     )
 
-  event_color <- megaplot_filtered_data %>% dplyr::filter(event == level) %>% dplyr::pull(event_color) %>% as.character %>% unique()
+  event_color <- megaplot_filtered_data %>% dplyr::filter(unique_event == level) %>% dplyr::pull(event_color) %>% as.character %>% unique()
 
 
   if(is.null(select_strata_var)){
