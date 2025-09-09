@@ -257,13 +257,22 @@ app_server <- function(input, output, session) {
   #initialize reactive value color_data with entries "all" and "selected"
   # all includes all events from uploaded data set and in selected filtered by
   # selected events in shinyTree input
-  color_data <- reactiveValues(
+  color_data <- shiny::reactiveValues(
     all = NULL,
     selected = NULL
   )
 
-  observe({color_data$all})
+  shiny::observe({color_data$all})
 
+  shiny::observeEvent(uploaded_data$val , {
+    choices <- names(which(unlist(lapply(uploaded_data$val,is.numeric))))
+    shinyWidgets::updatePickerInput(
+      session,
+      inputId = 'select_sorting',
+      choices = choices,
+
+    )
+  })
   #observer to update ColourInput based on container click
   shiny::observeEvent(input$jsColNum, {
 
@@ -599,5 +608,4 @@ app_server <- function(input, output, session) {
       select_strata_var = input$select_grouping
     )
   })
-
 }
