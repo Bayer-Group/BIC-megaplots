@@ -32,7 +32,20 @@ color_func <- function(x,y,z,number_event_groups) {
   return(return_colors)
 }
 
-
+color_func2 <- function(x,y,z,col) {
+  if (x != 0 & z != 1) {
+    return_colors <- colorRampPalette(
+      c(colorRampPalette(c("white",col))(100)[50],
+        col,
+        colorRampPalette(c(col,"black"))(100)[50]
+      )
+    ) (z)[x]
+  }
+  if(x == 0 | z == 1) {
+    return_colors <- col
+  }
+  return(return_colors)
+}
 
 get_trace_info <- function(plotly_object) {
   plotly_build_p <- plotly::plotly_build(plotly_object)

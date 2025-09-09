@@ -35,13 +35,14 @@ ggsurv <- function(
       ggplot2::geom_step(col = col, lty = lty.est)
 
     pl <- if(CI == T | CI == 'def') {
-      pl + ggplot2::geom_step(ggplot2::aes(y = up), color = col, lty = lty.ci) +
-        ggplot2::geom_step(ggplot2::aes(y = low), color = col, lty = lty.ci)
+      pl + ggplot2::geom_step(ggplot2::aes(y = up), color = "#f2f2f220", lty = lty.ci) +
+         ggplot2::geom_step(ggplot2::aes(y = low), color = "#f2f2f220", lty = lty.ci) +
+        ggplot2::geom_rect(ggplot2::aes(ymin=low, ymax= up, xmin = time, xmax = dplyr::lead(time)), fill = "#f2f2f2", alpha = 0.1)
     } else (pl)
 
-    pl <- if(plot.cens == T & length(dat.cens) > 0){
+    pl <- if (plot.cens == T & length(dat.cens) > 0) {
       pl + ggplot2::geom_point(data = dat.cens, ggplot2::aes(y = surv), shape = cens.shape,
-                      col = cens.col)
+                      col = col)
     } else if (plot.cens == T & length(dat.cens) == 0){
       stop ('There are no censored observations')
     } else(pl)
@@ -63,7 +64,7 @@ ggsurv <- function(
     n.ind <- c(0,n); n.ind <- cumsum(n.ind)
     for(i in 1:strata) ind[[i]] <- (n.ind[i]+1):n.ind[i+1]
 
-    for(i in 1:strata){
+    for(i in 1:strata) {
       gr.df[[i]] <- data.frame(
         time = c(0, s$time[ ind[[i]] ]),
         surv = c(1, s$surv[ ind[[i]] ]),
@@ -92,25 +93,35 @@ ggsurv <- function(
 
     line <- if(length(lty.est) == 1){
       ggplot2::scale_linetype_manual(name = gr.name, values = rep(lty.est, strata))
-    } else {ggplot2::scale_linetype_manual(name = gr.name, values = lty.est)}
+    } else {
+      ggplot2::scale_linetype_manual(name = gr.name, values = lty.est)
+    }
 
-    pl <- pl + line
+    # pl <- pl + line
 
     pl <- if(CI == T) {
       if(length(surv.col) > 1 && length(lty.est) > 1){
         stop('Either surv.col or lty.est should be of length 1 in order
              to plot 95% CI with multiple strata')
-      }else if((length(surv.col) > 1 | surv.col == 'gg.def')[1]){
-        pl + ggplot2::geom_step(ggplot2::aes(y = up, color = group), lty = lty.ci) +
-          ggplot2::geom_step(ggplot2::aes(y = low, color = group), lty = lty.ci)
-      } else{pl +  ggplot2::geom_step(ggplot2::aes(y = up, lty = group), col = surv.col) +
-          ggplot2::geom_step(ggplot2::aes(y = low,lty = group), col = surv.col)}
+      }else if((length(surv.col) > 1 | surv.col == 'gg.def')[1]) {
+        # + ggplot2::geom_step(ggplot2::aes(y = up), color = "#f2f2f2", lty = lty.ci) +
+        #   ggplot2::geom_step(ggplot2::aes(y = low), color = "#f2f2f2", lty = lty.ci) +
+        #   ggplot2::geom_rect(ggplot2::aes(ymin=low, ymax= up, xmin = time, xmax = dplyr::lead(time)), fill = "#f2f2f2", alpha = 0.1)
+
+        pl + #ggplot2::geom_rect(ggplot2::aes(ymin=low, ymax= up, xmin = time, xmax = dplyr::lead(time)), fill = unique(surv.col), alpha = 0.1) +
+          ggplot2::geom_step(ggplot2::aes(y = up, color = 'black'),color = "#f2f2f220", lty = lty.ci) +
+          ggplot2::geom_step(ggplot2::aes(y = low, color = 'black'),color = "#f2f2f220", lty = lty.ci)
+      } else{
+        pl +  ggplot2::geom_step(ggplot2::aes(y = up, lty = group), col = surv.col) +
+          ggplot2::geom_step(ggplot2::aes(y = low,lty = group), col = surv.col)+
+          ggplot2::geom_rect(ggplot2::aes(ymin=low, ymax= up, xmin = time, xmax = dplyr::lead(time)), fill = unique(surv.col), alpha = 0.2)
+      }
     } else {pl}
 
 
     pl <- if(plot.cens == T & length(dat.cens) > 0){
       pl + ggplot2::geom_point(data = dat.cens, ggplot2::aes(y = surv), shape = cens.shape,
-                      col = cens.col)
+                      col = unique(surv.col))
     } else if (plot.cens == T & length(dat.cens) == 0){
       stop ('There are no censored observations')
     } else(pl)

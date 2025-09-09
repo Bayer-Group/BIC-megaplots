@@ -8,10 +8,10 @@ app_ui <- function(request) {
   shiny::tagList(
     # Leave this function for adding external resources
     golem_add_external_resources(),
-
-    #This function must be called in order for all other shinyjs functions to work
+    # This function must be called in order for all other shinyjs functions to work
     shinyjs::useShinyjs(),
-    #Add own JavaScript functions that can be called from R
+    # Add own JavaScript functions that can be called from R
+    # (This function is used to get row number of which event/color container is clicked)
     shinyjs::extendShinyjs(
       text = "shinyjs.init = function() {
               $('#selected-cols-row').on('click', '.col', function(event) {
@@ -42,7 +42,8 @@ app_ui <- function(request) {
     tags$style(type = 'text/css', ".jstree-default .jstree-clicked {background-color: #404A4E}"),
     tags$style(type = 'text/css', ".jstree-default .jstree-hovered {background-color: #1d2224}"),
     tags$style(type = 'text/css', ".jstree-default .jstree-search { color: yellow;}"),
-    #creates an reactive variable "input$dimension" with screen height as value
+    # creates an reactive variable "input$dimension" with screen height as value
+    # (used for maximum wellPanel height to maximize size depending on screen size)
     tags$head(
       tags$script('
         var dimension = [0];
@@ -57,28 +58,25 @@ app_ui <- function(request) {
         '
       )
     ),
-
     # Use page_navbar from bslib package
     bslib::page_navbar(
       title = "MEGAPLOTS",
+      id = "MEGAPLOTS",
       #create color theme for user interface
       theme = bslib::bs_theme(
         primary = "#0091DF",                     #primary color used for inputs
-        bg = "#404A4E",                          #background-color
+        "navbar-bg" = "#0091DF",                 #navbar background color
+        bg = "#404A4E",                          #app background-color
         fg = "white",                            #font-color
         heading_font = "Agency FB",              #font
-        base_font = "Agency FB",
-        font_scale = 1.4,
+        base_font = "Agency FB",                 #font
+        font_scale = 1.4,                        #font size
         "input-border-color" = "#d2d2d2"
       ),
-      bg = "#0091DF",                            #Top navbar background-color
-      inverse = FALSE,                           #FALSE for a light text color at navbar
       # Sidebar
       # Use accordion_panels from bslib
       sidebar = bslib::sidebar(
-
-        title =
-        div(img(src = "www/megaplot_hexsticker.png", height = "175px")),
+        title = div(img(src = "www/megaplot_hexsticker.png", height = "175px")),
         bslib::accordion_panel(
           "Sorting/Grouping",
           icon = bsicons::bs_icon("sort-down"),
@@ -90,7 +88,6 @@ app_ui <- function(request) {
             multiple = FALSE,
             options = list(
               `live-search` = TRUE,
-              #`style` = 'background: btn-primary',
               `header` = 'Select item'
             )
           ),
@@ -103,17 +100,20 @@ app_ui <- function(request) {
             options = list('plugins' = list('remove_button', 'drag_drop'))
           )
         ),
-        # bslib::accordion_panel(
-        #   "Sequencing",
-        #   icon = bsicons::bs_icon("sort-up-alt"),
-        #   "TBD"
-        # ),
         bslib::accordion_panel(
           "Plot appearance",
           icon = bsicons::bs_icon("border-width"),
           shiny::sliderInput(
+            inputId = "line_width_subjects",
+            label = "Subject line width",
+            min = 1,
+            max = 10,
+            value = 1,
+            step = 0.5
+          ),
+          shiny::sliderInput(
             inputId = "line_width",
-            label = "Line width (Mega plot)",
+            label = "Event line width",
             min = 1,
             max = 5,
             value = 3,
@@ -126,74 +126,226 @@ app_ui <- function(request) {
             min = 1,
             max = NA,
             step = 1
-          )#,
-          # shiny::radioButtons(
-          #   inputId="font_size",
-          #   label="Text Size:",
-          #   selected = "standard",
-          #   choiceNames = c("Small", "Standard", "Large"),
-          #   choiceValues = c("small", "standard", "large")
-          # )
+          )
         )
       ),
       #Main area
       bslib::nav_panel(
+        id = "Data Upload",
         title = "Data Upload",
-        shiny::fluidRow(
-          shiny::fileInput(
-            inputId = 'file',
-            label = "Choose RData file",
-            multiple = FALSE,
-            accept = '.RData'
-          )
-        ),
-        shiny::fluidRow(
-          shiny::column(4,
-            shiny::wellPanel(
-              id = "selected_events_panel",
-              style = "overflow-y:scroll;max-height: 10000px;",
-              shinyTree::shinyTree(
-                "tree",
-                checkbox = TRUE,
-                search = TRUE,
-                themeIcons = FALSE
-              )
-            )
-          ),
-          shiny::column(4,
-           shiny::wellPanel(id = "selected_events_color_container_panel",
-              style ="overflow-y:scroll;max-height: 10000px;",
-              div(
-                id = "header-section",
-                div(
-                  id = "selected-cols-row",
-                  uiOutput("selected_events_color_container")
+        bslib::navset_card_underline(
+          title = "Upload",
+          id = "Upload",
+          bslib::nav_panel("File & variable selection", id = "File & variable selection",
+           shiny::fluidRow(
+             shiny::fileInput(
+               inputId = 'file',
+               label = "Choose RData file",
+               multiple = FALSE,
+               accept = '.RData'
+             )
+            ),
+            shiny::fluidRow(
+              shiny::column(2,
+                shiny::selectInput(
+                  inputId = "select_subjectid",
+                  label = "subjectid",
+                  choices = "subjectid",
+                  selected = "subjectid"
+                )
+              ),
+              shiny::column(2,
+                shiny::selectInput(
+                  inputId = "select_start_time",
+                  label = "start time",
+                  choices = "start_time",
+                  selected = "start_time"
+                )
+              ),
+              shiny::column(2,
+                shiny::selectInput(
+                  inputId = "select_end_time",
+                  label = "end time",
+                  choices = "end_time",
+                  selected = "end_time"
+                )
+              ),
+              shiny::column(2,
+                shiny::selectInput(
+                  inputId = "select_event_time",
+                  label = "event start time",
+                  choices = "event_time",
+                  selected = "event_time"
+                )
+              ),
+              shiny::column(2,
+                shiny::selectInput(
+                  inputId = "select_event_time_end",
+                  label = "event end time",
+                  choices = "event_time_end",
+                  selected = "event_time_end"
+                )
+              ),
+              shiny::column(2,
+                shiny::selectInput(
+                  inputId = "select_event",
+                  label = "event",
+                  choices = "event",
+                  selected = "event"
+                )
+              ),
+              shiny::column(2,
+                shiny::selectInput(
+                  inputId = "select_event_group",
+                  label = "event group",
+                  choices = "event_group",
+                  selected = "event_group"
                 )
               )
-           )
-          ),
-          shiny::column(4,
-            shiny::wellPanel(
-              id = "colour_picker_panel",
-              colourpicker::colourInput(
-                inputId = "picked_colour",
-                label = "Click colored event container and use this Picker to update any color",
-                value = "white"
-              ),
-              shiny::checkboxInput(
-                inputId = "jitter_events",
-                label = "Jitter events for event group",
-                value = TRUE
+            ),
+            shiny::fluidRow(
+              shiny::column(2,
+                shinyWidgets::actionBttn(
+                  inputId = "upload_1_next_button",
+                  label = "Next",
+                  style = "material-flat",
+                  color = "primary",
+                  icon = shiny::icon("angle-right")
+                )
               )
             )
+          ),
+          bslib::nav_panel("Event & color selection", id = "Event & color selection",
+          shiny::fluidRow(
+            shiny::column(4,
+              shiny::wellPanel(
+                id = "selected_events_panel",
+                style = "overflow-y:scroll; max-height: 10000px;", #init high value and then update max height within server.R
+                shinyTree::shinyTree(
+                "tree",
+                checkbox = TRUE,
+                dragAndDrop = TRUE,
+                search = TRUE,
+                themeIcons = FALSE
+                )
+              )
+            ),
+            shiny::column(4,
+              shiny::wellPanel(id = "selected_events_color_container_panel",
+                style ="overflow-y:scroll;max-height: 10000px;",
+                div(
+                  id = "header-section",
+                  div(
+                    id = "selected-cols-row",
+                  uiOutput("selected_events_color_container")
+                  )
+                )
+              )
+            ),
+            shiny::column(4,
+              shiny::wellPanel(id = "colour_picker_panel",
+                shiny::fluidRow(
+                  shiny::column(12,
+                    shiny::radioButtons(
+                      inputId = "color_method",
+                      label = "Select method to colorize events:",
+                      choices = c(
+                      "Color gradient (3 colors)" = "gradient",
+                      "Unique color for all events within group" = "unique",
+                      "Distinct color by selected palette" = "palette"
+                      )
+                    )
+                  ),
+                  shiny::column(12,
+                    shiny::textOutput(
+                      "colorization_selection"
+                    )
+                  ),
+                  shiny::column(4,
+                    colourpicker::colourInput(
+                      inputId = "colour_picker_panel_1",
+                      label = "Click colored event container and use this Picker to update any color",
+                      value = "white"
+                    )
+                  ),
+                  shiny::column(4,
+                    colourpicker::colourInput(
+                      inputId = "colour_picker_panel_2",
+                      label = "Color 2",
+                      value = "white"
+                    )
+                  ),
+                  shiny::column(4,
+                    colourpicker::colourInput(
+                      inputId = "colour_picker_panel_3",
+                      label = "Color 3",
+                      value = "blue"
+                    )
+                  ),
+                  shiny::column(12,
+                    shiny::column(4,
+                      colourpicker::colourInput(
+                        inputId = "colour_picker_panel_event",
+                        label = "",
+                        value = "white"
+                      )
+                    )
+                  ),
+                  shiny::column(12,
+                    shiny::column(4,
+                      colourpicker::colourInput(
+                        inputId = "colour_picker_panel_unique",
+                        label = "",
+                        value = "white"
+                      )
+                    )
+                  ),
+                  column(12,
+                    shiny::plotOutput("colour_palette", height = "40px")
+                  )
+                ),
+                shiny::actionButton(
+                  inputId = "update_color_palette",
+                  label = "Use color (color palette)",
+                  icon = icon("refresh")
+                ),
+                shiny::checkboxInput(
+                  inputId = "jitter_events",
+                  label = "Jitter events for event group",
+                  value = TRUE
+                )
+              )
+            )
+          ),
+          shiny::fluidRow(
+            shiny::column(1,
+              shinyWidgets::actionBttn(
+                inputId = "upload_2_back_button",
+                label = "Back",
+                style = "material-flat",
+                color = "primary",
+                icon = icon("angle-left")
+              )
+            ),
+            shiny::column(1,
+              shinyWidgets::actionBttn(
+                inputId = "upload_2_next_button",
+                label = "Next",
+                style = "material-flat",
+                color = "primary",
+                icon = icon("angle-right")
+              )
+            )
+            )
           )
-          )
+        )
       ),
       bslib::nav_panel(
+        id = "Megaplots",
         title = "Megaplots",
         bslib::navset_card_underline(
           title = "MEGAPLOTS",
-          bslib::nav_panel("Megaplots", icon =  bsicons::bs_icon("filter-left"), plotly::plotlyOutput("mega_plots")),
+          bslib::nav_panel("Megaplots", id = "Megaplots", icon =  bsicons::bs_icon("filter-left"), plotly::plotlyOutput("mega_plots")),
           bslib::nav_panel("Event Summary", plotly::plotlyOutput("event_summary")),
           bslib::nav_panel("Kaplan Meier",
              shiny::fluidRow(
@@ -204,19 +356,20 @@ app_ui <- function(request) {
                  selected = NULL,
                  multiple = FALSE,
                  options = list('actions-box' = TRUE)
-               ),
-               shinyWidgets::pickerInput(
-                 inputId = 'select_strata_var',
-                 label = "Select stratification variable(s)",
-                 choices = NULL,
-                 selected = NULL,
-                 multiple = TRUE,
-                 options = list('actions-box' = TRUE)
-               )
+               )#,
+               # shinyWidgets::pickerInput(
+               #   inputId = 'select_strata_var',
+               #   label = "Select stratification variable(s)",
+               #   choices = NULL,
+               #   selected = NULL,
+               #   multiple = TRUE,
+               #   options = list('actions-box' = TRUE)
+               # )
              ),
-             plotly::plotlyOutput("kaplan_meier"))
+             plotly::plotlyOutput("kaplan_meier")
+          )
         )
-      )
+     )
     )
   )
 }

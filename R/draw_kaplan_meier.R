@@ -17,6 +17,7 @@ draw_kaplan_meier <- function(
     select_event_kaplan_meier,
     select_strata_var = NULL
 ) {
+
   grouping_vars <- select_grouping
 
   level <- select_event_kaplan_meier
@@ -62,7 +63,7 @@ draw_kaplan_meier <- function(
 
   g <- ggsurv(
     fit,
-    CI = FALSE,
+    CI = TRUE,
     cens.col = c("#FFFFFF50"),
     surv.col = rep(event_color, ifelse(length(fit$strata)>0,length(fit$strata),1))
   ) + ggplot2::theme_dark() + ggplot2::theme(axis.title = ggplot2::element_text(color= "white"))
