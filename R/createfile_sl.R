@@ -1,16 +1,23 @@
 #### To do ####
-# Insert checks, warnings and messages
-# enable csv and R-dataset as input
-# enable function call with input data from environment
 # insert detailed comments
 # describe use of createFile functions
 
-# Function to create subject level megaplots dataset from ADSL (ADaM) dataset
-library(dplyr)
-library(haven)
-library(purrr)
-library(lubridate)
-
+#' Function to create subject level megaplots dataset from ADSL (ADaM) dataset
+#'
+#' @param path_adsl Path to the adsl-dataset
+#' @param id unique subject identifier.
+#' @param data_filter Subset dataset accoring to the filter conditions. Conditions should be wrapped in '' and concatenated by c()
+#' @param display_start_date
+#' @param display_end_date
+#' @param relative_day_1
+#' @param trt
+#' @param trtstdt
+#' @param trtendt
+#'
+#' @return
+#' @export
+#'
+#' @examples
 createFile.sl <- function(path_adsl,
                          id="USUBJID",
                          data_filter=NULL,
@@ -39,11 +46,11 @@ options(scipen=999)
     adsl <- path_adsl
   } else if (!is.null(path_adsl)) {
     tryCatch({
-      if (grepl("\\.sas7bdat$", path_adsl, ignore.case = TRUE)) {
+      if (base::grepl("\\.sas7bdat$", path_adsl, ignore.case = TRUE)) {
         adsl <- haven::read_sas(path_adsl)
-      } else if (grepl("\\.csv$", path_adsl, ignore.case = TRUE)) {
+      } else if (base::grepl("\\.csv$", path_adsl, ignore.case = TRUE)) {
         adsl <- read.csv(path_adsl)
-      } else if (grepl("\\.RData$", path_adsl, ignore.case = TRUE)) {
+      } else if (base::grepl("\\.RData$", path_adsl, ignore.case = TRUE)) {
         load(path_adsl)
         # Assuming the data frame is named 'adsl' in the RData file
         adsl <- get(ls()[1])  # Get the first object in the environment
@@ -62,11 +69,11 @@ options(scipen=999)
     stop(sprintf("The specified id '%s' is not a column in the dataset.", id))
   }
 
-  adsl <- adsl %>%
+    adsl <- adsl %>%
     #Filter data
     {if(!is.null(data_filter)) dplyr::filter(., !!!rlang::parse_exprs(data_filter)) else .} %>%
     #rename and relocate id-variable.
-    dplyr::mutate(subjectid = as.numeric(gsub("[^0-9.]", "", as.character(!!sym(id))))) %>%
+    dplyr::mutate(subjectid = as.numeric(base::gsub("[^0-9.]", "", as.character(!!sym(id))))) %>%
     dplyr::relocate(subjectid)
 
     display_start_date <- display_start_date[toupper(display_start_date) %in% toupper(colnames(adsl))][1]
