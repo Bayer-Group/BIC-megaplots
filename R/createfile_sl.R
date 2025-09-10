@@ -6,11 +6,27 @@
 # describe use of createFile functions
 
 # Function to create subject level megaplots dataset from ADSL (ADaM) dataset
-library(dplyr)
-library(haven)
-library(purrr)
-library(lubridate)
+# library(dplyr)
+# library(haven)
+# library(purrr)
+# library(lubridate)
 
+#' Function to create subject level megaplots dataset from ADSL (ADaM) dataset
+#'
+#' @param path_adsl Path to the adsl-dataset
+#' @param id unique subject identifier.
+#' @param data_filter Subset dataset accoring to the filter conditions. Conditions should be wrapped in '' and concatenated by c()
+#' @param display_start_date
+#' @param display_end_date
+#' @param relative_day_1
+#' @param trt
+#' @param trtstdt
+#' @param trtendt
+#'
+#' @return
+#' @export
+#'
+#' @examples
 createFile.sl <- function(path_adsl,
                          id="USUBJID",
                          data_filter=NULL,

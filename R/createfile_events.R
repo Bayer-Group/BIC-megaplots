@@ -1,15 +1,27 @@
 #### To do ####
 # Create On treatment variable
-# Add prefix option for event_group and event and make values more readable
 
+# library(dplyr)
+# library(tidyr)
+# library(haven)
+# library(purrr)
+# library(lubridate)
 
-# Function to create event level megaplots dataset from ADaM datasets
-library(dplyr)
-library(tidyr)
-library(haven)
-library(purrr)
-library(lubridate)
-
+#' Function to create event level megaplots dataset from ADaM datasets
+#'
+#' @param mp_data
+#' @param path_data
+#' @param id
+#' @param data_filter
+#' @param param
+#' @param prefix
+#' @param event_start
+#' @param event_end
+#'
+#' @return
+#' @export
+#'
+#' @examples
 createFile.events <- function(mp_data,
                               path_data,
                               id = "USUBJID",
@@ -22,7 +34,8 @@ createFile.events <- function(mp_data,
                               ),
                               prefix = NULL,
                               event_start = c("ASTDT","AESTDT","ADY"),
-                              event_end = c("AENDT","AEENDT")
+                              event_end = c("AENDT","AEENDT"),
+                              calc_time_to_first = FALSE
 ){
   # Check if mp_data is a list
   if (!is.list(mp_data)) {
@@ -30,7 +43,7 @@ createFile.events <- function(mp_data,
   }
 
   # Check if mp_data has sl and events entry
-  if (length(setdiff(c("sl", "events"), names(mp_data))) > 0) {
+  if (length((missing_names <- setdiff(c("sl", "events"), names(mp_data)))) > 0) {
     stop(paste("Error: The following required names are missing in mp_data:", paste(missing_names, collapse = ", ")))
   }
 
@@ -101,6 +114,9 @@ createFile.events <- function(mp_data,
     message("None of the input parameters in event_end are present as column names in the data.")
   }
 
+  # ?data.frame
+  #   events_tmp <- data.frame(rep(NULL)
+  #  colnames(events_tmp) <- colnames(events)
   for(i in 1:length(param)){
     entry <- param[[i]]
     pre <- prefix[[i]]
@@ -121,27 +137,36 @@ createFile.events <- function(mp_data,
       dplyr::select(-c(!!sym(event_start), !!sym(event_end), ref_date)) %>% # Drop original date columns
       relocate(subjectid, event_group, event, event_start_time, event_end_time) %>% # Rearrange columns
       distinct()
-    # data_tmp <- data %>%
-    #   mutate(event_group = paste0(entry[1], ":", !!!syms(entry)[1], "(by", entry[2], ")"),
-    #          event = paste0(!!!syms(entry)[2], "(", entry[2], ")")) %>%
-    #   dplyr::select(subjectid, event_group, event, !!sym(event_start), !!sym(event_end), ref_date, start_time, end_time) %>%
-    #   dplyr::filter(!is.na(!!sym(event_start))) %>%
-    #   arrange(subjectid, event_group, event, !!sym(event_start), !!sym(event_end)) %>%
-    #   group_by(subjectid, event_group, event) %>%
-    #   mutate(
-    #     event_start_time=as.integer(!!sym(event_start)-ref_date+1), # Calculate start time of adverse events
-    #     event_end_time = case_when(
-    #       !is.na(!!sym(event_end)) ~ as.integer(!!sym(event_end)-ref_date+1),  # Keep existing End_day if not missing
-    #       TRUE ~ as.integer(!!sym(event_start)-ref_date+1) # Set event_end_time to start_time, if missing
-    #     )
-    #   ) %>%
-    #   dplyr::select(-c(!!sym(event_start), !!sym(event_end), ref_date)) %>% # Drop original date columns
-    #   relocate(subjectid, event_group, event, event_start_time, event_end_time) %>% # Rearrange columns
-    #   distinct()
-    events <- rbind(events, data_tmp)
+
+    events_tmp <- rbind(events_tmp, data_tmp)
   }
 
-  mp_data$events <- rbind(mp_data$events, events)
+  time_to_first <- NULL
+  if(calc_time_to_first==T){
+    print("calcuating time to first event")
+    time_to_first <- events_tmp %>%
+      arrange(subjectid,event_group,event,event_start_time) %>%
+      group_by(subjectid,event_group,event) %>%
+      dplyr::mutate(first = min(as.numeric(event_start_time))) %>%
+      dplyr::ungroup() %>%
+      dplyr::select(-c(event_start_time, event_end_time, start_time, end_time)) %>%
+      distinct() %>%
+      dplyr::mutate(event_group = gsub("[[:punct:][:space:]]+", "_", event_group),
+                    event = gsub("[[:punct:][:space:]]+", "_", event)) %>%
+      pivot_wider(
+        id_cols="subjectid",
+        names_from = c("event_group","event"),
+        names_prefix = "time_to_first_",
+        names_sep = "_",
+        values_from = "first"
+      )
+    mp_data$sl <- mp_data$sl %>%
+      left_join(time_to_first, by="subjectid")
+  }
+
+  mp_data$events <- rbind(mp_data$events, events_tmp)
+
   return(mp_data)
 }
+
 

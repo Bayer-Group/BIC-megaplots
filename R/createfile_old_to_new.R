@@ -10,10 +10,15 @@
 #
 # Returns: A data frame ready for the new megaplots version
 
-library(tidyverse)
-library(haven)
-
 # Helper function to read datasets
+#' Title
+#'
+#' @param path
+#'
+#' @return
+#' @export
+#'
+#' @examples
 read_dataset <- function(path) {
   if (grepl("\\.sas7bdat$", path, ignore.case = TRUE)) {
     return(haven::read_sas(path))
@@ -27,6 +32,17 @@ read_dataset <- function(path) {
   }
 }
 
+#' Function to create megaplots file for rebuild (v??? and later) from prepared datasets for old version (v??? and earlier)
+#'
+#' @param path_data Path to the subject-level dataset
+#' @param path_data_b Path to the events dataset
+#' @param subjectid Name of the subject ID column (as a string)
+#' @param event_time Name of the event time column (as a string)
+#'
+#' @return
+#' @export
+#'
+#' @examples
 createfile.old_to_new <- function(path_data,
                                   path_data_b=NULL,
                                   subjectid="subjectid",

@@ -25,6 +25,10 @@ LazyData: true
 RoxygenNote: 7.1.1
 Suggests: 
     spelling,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    haven,
+    tidyr,
+    purrr,
+    lubridate
 Config/testthat/edition: 3
 Language: en-US
