@@ -79,6 +79,8 @@ create_unique_event_identifier <- function(
     jittered = TRUE
   )
 
+
+
   # add created color vector to reactive object color_data$all
 
   return(megaplot_event_data_w_color)

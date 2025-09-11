@@ -19,13 +19,17 @@ draw_mega_plot <- function(
   ) {
 
 
-  megaplot_prepared_data <- megaplot_prepared_data
-
-
   if (!is.null(megaplot_filtered_data)) {
     megaplot_filtered_data <- megaplot_filtered_data %>% dplyr::mutate(
       text_events = paste0(" Subject identifier: ", subjectid, "\n Event: ", event, " (",event_group,") \n", " Start time: ",event_time, "\n End time: ", event_time_end)
     )
+
+    #re-arrangement for plotly legend
+    megaplot_filtered_data <- megaplot_filtered_data %>%
+      dplyr::arrange(event_group_id, event_id)
+
+
+    megaplot_filtered_data$unique_event <- factor(megaplot_filtered_data$unique_event , levels = unique(megaplot_filtered_data$unique_event))
   }
 
   megaplot_prepared_data  <- megaplot_prepared_data %>%
@@ -35,11 +39,9 @@ draw_mega_plot <- function(
       text_lines = paste0("Subject identifier: ", subjectid)
     )
 
-  #re-arrangement for plotly legend
-  megaplot_filtered_data <- megaplot_filtered_data %>% dplyr::arrange(event_group_id, event_id)
 
 
-  megaplot_filtered_data$unique_event <- factor(megaplot_filtered_data$unique_event , levels = unique(megaplot_filtered_data$unique_event))
+
 
   p_1 <- megaplot_prepared_data %>%
     plotly::plot_ly(                            #create empty plot_ly object

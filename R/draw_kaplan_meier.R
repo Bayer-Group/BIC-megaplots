@@ -36,10 +36,11 @@ draw_kaplan_meier <- function(
     dplyr::mutate(!!paste0("time_to_first") := event_time) %>%
     dplyr::select(subjectid, !!paste0("time_to_first"))
 
-  megaplot_data_w_time_to_first_event <- time_to_first_event %>%
-    dplyr::right_join(
-      megaplot_filtered_data,
-      by ="subjectid")
+  megaplot_data_w_time_to_first_event <- megaplot_prepared_data %>%
+    dplyr::left_join(
+      time_to_first_event,
+      by ="subjectid"
+    )
 
   megaplot_data_for_survfit <- megaplot_data_w_time_to_first_event %>%
     dplyr::mutate(

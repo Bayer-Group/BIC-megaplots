@@ -7,11 +7,11 @@
 
 app_server <- function(input, output, session) {
 
-  observeEvent(input$upload_2_next_button,{
+  shiny::observeEvent(input$upload_2_next_button,{
     bslib::nav_select("MEGAPLOTS","Megaplots")
   })
 
-  observeEvent(input$upload_1_next_button,{
+  shiny::observeEvent(input$upload_1_next_button,{
     bslib::nav_select("Upload","Event & color selection")
   })
 
@@ -143,42 +143,59 @@ app_server <- function(input, output, session) {
 
   shiny::observeEvent(input$tree, {
     shinyTree::get_selected(input$tree,format="names")
-    if(is.null(input$tree)) {
+    if (is.null(input$tree)) {
       shinyjs::hideElement(id = "selected_events_color_container_panel")
-      shinyjs::hideElement(id = "colour_picker_panel_1")
-      shinyjs::showElement(id = "colour_picker_panel_2")
-      shinyjs::showElement(id = "colour_picker_panel_3")
+      # shinyjs::hideElement(id = "colour_picker_panel_1")
+      # shinyjs::showElement(id = "colour_picker_panel_2")
+      # shinyjs::showElement(id = "colour_picker_panel_3")
     } else {
       if (length(shinyTree::get_selected(input$tree,format="names")) > 0) {
         shinyjs::showElement(id = "selected_events_color_container_panel")
       } else {
         shinyjs::hideElement(id = "selected_events_color_container_panel")
-        shinyjs::hideElement(id = "colour_picker_panel_1")
-        shinyjs::hideElement(id = "colour_picker_panel_2")
-        shinyjs::hideElement(id = "colour_picker_panel_3")
-        shinyjs::hideElement(id = "update_color_palette")
+        # shinyjs::hideElement(id = "colour_picker_panel_1")
+        # shinyjs::hideElement(id = "colour_picker_panel_2")
+        # shinyjs::hideElement(id = "colour_picker_panel_3")
+        # shinyjs::hideElement(id = "update_color_palette")
       }
     }
   })
 
+  js_column <- shiny::reactiveValues(number = NULL)
+
+
   shiny::observeEvent(input$jsColNum, {
-    if(!is.null(input$jsColNum)) {
-      shinyjs::showElement(id = "colour_picker_panel_1")
-      shinyjs::showElement(id = "colour_picker_panel_2")
-      shinyjs::showElement(id = "colour_picker_panel_3")
-      shinyjs::showElement(id = "update_color_palette")
+    js_column$number <- input$jsColNum
+  })
+
+  shiny::observeEvent(input$tree, {
+    js_column$number <- NULL
+  })
+
+  shiny::observeEvent(js_column$number, {
+    if(!is.null(js_column$number)) {
+      # shinyjs::showElement(id = "colour_picker_panel_1")
+      # shinyjs::showElement(id = "colour_picker_panel_2")
+      # shinyjs::showElement(id = "colour_picker_panel_3")
+      # shinyjs::showElement(id = "update_color_palette")
+      # shinyjs::showElement(id = "color_method")
+      # shinyjs::showElement(id = "jitter_events")
     } else  {
       shinyjs::hideElement(id = "colour_picker_panel_1")
       shinyjs::hideElement(id = "colour_picker_panel_2")
       shinyjs::hideElement(id = "colour_picker_panel_3")
       shinyjs::hideElement(id = "update_color_palette")
+      shinyjs::hideElement(id = "color_method")
+      shinyjs::hideElement(id = "jitter_events")
+      shinyjs::hideElement(id = "colour_picker_panel_event")
+      shinyjs::hideElement(id = "colour_picker_panel_unique")
     }
-  })
+  }, ignoreNULL = FALSE)
 
   shiny::observe({
-    shiny::req(input$jsColNum)
+    shiny::req(js_column$number)
     shiny::req(color_data$selected)
-    if (is.na(color_data$selected[input$jsColNum,"event"])) {
+    if (is.na(color_data$selected[js_column$number,"event"])) {
       if (input$color_method == "gradient") {
         shinyjs::hideElement(id = "colour_picker_panel_event")
         shinyjs::showElement(id = "colour_picker_panel_1")
@@ -203,24 +220,29 @@ app_server <- function(input, output, session) {
       shinyjs::showElement(id = "update_color_palette")
       shinyjs::showElement(id = "color_method")
     } else {
-
-      if (input$color_method == "gradient") {
         shinyjs::showElement(id = "colour_picker_panel_event")
         shinyjs::hideElement(id = "colour_picker_panel_1")
         shinyjs::hideElement(id = "colour_picker_panel_2")
         shinyjs::hideElement(id = "colour_picker_panel_3")
-
-      } else  if (input$color_method == "unique") {
-        shinyjs::hideElement(id = "colour_picker_panel_event")
-        shinyjs::showElement(id = "colour_picker_panel_1")
-        shinyjs::showElement(id = "colour_picker_panel_2")
-        shinyjs::showElement(id = "colour_picker_panel_3")
-      } else  if (input$color_method == "palette") {
-        shinyjs::showElement(id = "colour_picker_panel_event")
-        shinyjs::showElement(id = "colour_picker_panel_1")
-        shinyjs::showElement(id = "colour_picker_panel_2")
-        shinyjs::showElement(id = "colour_picker_panel_3")
-      }
+        shinyjs::hideElement(id = "colour_picker_panel_unique")
+      # if (input$color_method == "gradient") {
+      #   shinyjs::showElement(id = "colour_picker_panel_event")
+      #   shinyjs::hideElement(id = "colour_picker_panel_1")
+      #   shinyjs::hideElement(id = "colour_picker_panel_2")
+      #   shinyjs::hideElement(id = "colour_picker_panel_3")
+      #   shinyjs::hideElement(id = "colour_picker_panel_unique")
+      #
+      # } else  if (input$color_method == "unique") {
+      #   shinyjs::hideElement(id = "colour_picker_panel_event")
+      #   shinyjs::showElement(id = "colour_picker_panel_1")
+      #   shinyjs::showElement(id = "colour_picker_panel_2")
+      #   shinyjs::showElement(id = "colour_picker_panel_3")
+      # } else  if (input$color_method == "palette") {
+      #   shinyjs::showElement(id = "colour_picker_panel_event")
+      #   shinyjs::showElement(id = "colour_picker_panel_1")
+      #   shinyjs::showElement(id = "colour_picker_panel_2")
+      #   shinyjs::showElement(id = "colour_picker_panel_3")
+      # }
       shinyjs::hideElement(id = "jitter_events")
       shinyjs::hideElement(id = "colour_palette")
       shinyjs::hideElement(id = "update_color_palette")
@@ -264,6 +286,7 @@ app_server <- function(input, output, session) {
 
   shiny::observe({color_data$all})
 
+  #### update sorting ####
   shiny::observeEvent(uploaded_data$val , {
     choices <- names(which(unlist(lapply(uploaded_data$val,is.numeric))))
     shinyWidgets::updatePickerInput(
@@ -274,44 +297,44 @@ app_server <- function(input, output, session) {
     )
   })
   #observer to update ColourInput based on container click
-  shiny::observeEvent(input$jsColNum, {
+  shiny::observeEvent(js_column$number, {
 
     output$colorization_selection <- shiny::renderText(
       ifelse(
-        is.na(color_data$selected[input$jsColNum, "event"]),
-        color_data$selected[input$jsColNum, "event_group"],
-        color_data$selected[input$jsColNum, "event"]
+        is.na(color_data$selected[js_column$number, "event"]),
+        color_data$selected[js_column$number, "event_group"],
+        color_data$selected[js_column$number, "event"]
       )
     )
     colourpicker::updateColourInput(
       session,
       inputId = "colour_picker_panel_event",
       label = "",
-      value = color_data$selected[input$jsColNum, "event_color"]
+      value = color_data$selected[js_column$number, "event_color"]
     )
     colourpicker::updateColourInput(
       session,
       inputId = "colour_picker_panel_1",
       label = "",
-      value = color_data$selected[input$jsColNum, "gradient_event_color_1"]
+      value = color_data$selected[js_column$number, "gradient_event_color_1"]
     )
     colourpicker::updateColourInput(
       session,
       inputId = "colour_picker_panel_2",
       label = "",
-      value = color_data$selected[input$jsColNum, "gradient_event_color_2"]
+      value = color_data$selected[js_column$number, "gradient_event_color_2"]
     )
     colourpicker::updateColourInput(
       session,
       inputId = "colour_picker_panel_3",
       label = "",
-      value = color_data$selected[input$jsColNum, "gradient_event_color_3"]
+      value = color_data$selected[js_column$number, "gradient_event_color_3"]
     )
     colourpicker::updateColourInput(
       session,
       inputId = "colour_picker_panel_unique",
       label = "",
-      value = color_data$selected[input$jsColNum, "gradient_event_color_2"]
+      value = color_data$selected[js_column$number, "gradient_event_color_2"]
     )
   })
 
@@ -321,24 +344,24 @@ app_server <- function(input, output, session) {
 
   shiny::observeEvent(input$jitter_events, {
     #require the selected number of colored div container list
-    shiny::req(input$jsColNum)
+    shiny::req(js_column$number)
     if (!is.null(color_data$all)) {
-      if (!is.na(color_data$selected[input$jsColNum, c("event")])) {
+      if (!is.na(color_data$selected[js_column$number, c("event")])) {
         color_data$all[
-          color_data$all$event_group == color_data$selected[input$jsColNum,c("event_group")] & color_data$all$event == color_data$selected[input$jsColNum,c("event")] & !is.na(color_data$all$event == color_data$selected[input$jsColNum,c("event")]),]$jittered <- input$jitter_events
+          color_data$all$event_group == color_data$selected[js_column$number,c("event_group")] & color_data$all$event == color_data$selected[js_column$number,c("event")] & !is.na(color_data$all$event == color_data$selected[js_column$number,c("event")]),]$jittered <- input$jitter_events
       }
-      if (is.na(color_data$selected[input$jsColNum,c("event")])) {
-        color_data$all[color_data$all$event_group == color_data$selected[input$jsColNum,c("event_group")],]$jittered <- input$jitter_events
+      if (is.na(color_data$selected[js_column$number,c("event")])) {
+        color_data$all[color_data$all$event_group == color_data$selected[js_column$number,c("event_group")],]$jittered <- input$jitter_events
       }
     }
   })
 
   shiny::observeEvent(input$colour_picker_panel_event,{
-    shiny::req(input$jsColNum)
+    shiny::req(js_column$number)
     if (!is.null(color_data$all)) {
-      if (!is.na(color_data$selected[input$jsColNum, c("event")])) {
+      if (!is.na(color_data$selected[js_column$number, c("event")])) {
         color_data$all[
-          color_data$all$event_group == color_data$selected[input$jsColNum,c("event_group")] & color_data$all$event == color_data$selected[input$jsColNum,c("event")] & !is.na(color_data$all$event == color_data$selected[input$jsColNum,c("event")]),]$event_color <- input$colour_picker_panel_event
+          color_data$all$event_group == color_data$selected[js_column$number,c("event_group")] & color_data$all$event == color_data$selected[js_column$number,c("event")] & !is.na(color_data$all$event == color_data$selected[js_column$number,c("event")]),]$event_color <- input$colour_picker_panel_event
       }
     }
   })
@@ -348,19 +371,19 @@ app_server <- function(input, output, session) {
 
   shiny::observeEvent(c(input$update_color_palette), {
     #require the selected number of colored div container list
-    shiny::req(input$jsColNum)
+    shiny::req(js_column$number)
     if (!is.null(color_data$all)) {
-      if (is.na(color_data$selected[input$jsColNum, c("event")])) {
+      if (is.na(color_data$selected[js_column$number, c("event")])) {
         #create new color for entire event group
         if(input$color_method == "gradient") {
         f_colZ <- grDevices::colorRamp(c(input$colour_picker_panel_1,input$colour_picker_panel_2,input$colour_picker_panel_3))
 
-        cds_tmp <- color_data$selected[color_data$selected$event_group == color_data$selected[input$jsColNum, c("event_group")],c("event_group","event")] %>%
+        cds_tmp <- color_data$selected[color_data$selected$event_group == color_data$selected[js_column$number, c("event_group")],c("event_group","event")] %>%
           dplyr::filter(!is.na(event)) %>%
           dplyr::mutate(new_event_id = dplyr::row_number(event_group))
 
 
-        new_event_group_color <- color_data$all[color_data$all$event_group == color_data$selected[input$jsColNum, c("event_group")],] %>%
+        new_event_group_color <- color_data$all[color_data$all$event_group == color_data$selected[js_column$number, c("event_group")],] %>%
           dplyr::filter(event_id >= 1)  %>%
           dplyr::left_join(cds_tmp, by = c("event","event_group")) %>%
           dplyr::mutate(event_id = new_event_id)
@@ -376,24 +399,24 @@ app_server <- function(input, output, session) {
           dplyr::pull(event_color)
         new_event_group_color <- c(new_event_group_color,"#404A4E")
 
-        color_data$all[color_data$all$event_group == color_data$selected[input$jsColNum,c("event_group")],]$event_color <- new_event_group_color
-        color_data$all[color_data$all$event_group == color_data$selected[input$jsColNum,c("event_group")],]$event_id <- new_group_id
-        color_data$all[color_data$all$event_group == color_data$selected[input$jsColNum,c("event_group")],]$gradient_event_color_1 <- input$colour_picker_panel_1
-        color_data$all[color_data$all$event_group == color_data$selected[input$jsColNum,c("event_group")],]$gradient_event_color_2 <- input$colour_picker_panel_2
-        color_data$all[color_data$all$event_group == color_data$selected[input$jsColNum,c("event_group")],]$gradient_event_color_3 <- input$colour_picker_panel_3
+        color_data$all[color_data$all$event_group == color_data$selected[js_column$number,c("event_group")],]$event_color <- new_event_group_color
+        color_data$all[color_data$all$event_group == color_data$selected[js_column$number,c("event_group")],]$event_id <- new_group_id
+        color_data$all[color_data$all$event_group == color_data$selected[js_column$number,c("event_group")],]$gradient_event_color_1 <- input$colour_picker_panel_1
+        color_data$all[color_data$all$event_group == color_data$selected[js_column$number,c("event_group")],]$gradient_event_color_2 <- input$colour_picker_panel_2
+        color_data$all[color_data$all$event_group == color_data$selected[js_column$number,c("event_group")],]$gradient_event_color_3 <- input$colour_picker_panel_3
         } else if (input$color_method == "unique") {
-          color_data$all[color_data$all$event_group == color_data$selected[input$jsColNum,c("event_group")],]$event_color <-  input$colour_picker_panel_unique#rep(input$colour_picker_panel_unique,color_data$all[color_data$all$event_group == color_data$selected[input$jsColNum,c("event_group")],]$max_event_id)
-          color_data$all[color_data$all$event_group == color_data$selected[input$jsColNum,c("event_group")],]$gradient_event_color_1 <- input$colour_picker_panel_unique
-          color_data$all[color_data$all$event_group == color_data$selected[input$jsColNum,c("event_group")],]$gradient_event_color_2 <- input$colour_picker_panel_unique
-          color_data$all[color_data$all$event_group == color_data$selected[input$jsColNum,c("event_group")],]$gradient_event_color_3 <- input$colour_picker_panel_unique
+          color_data$all[color_data$all$event_group == color_data$selected[js_column$number,c("event_group")],]$event_color <-  input$colour_picker_panel_unique#rep(input$colour_picker_panel_unique,color_data$all[color_data$all$event_group == color_data$selected[js_column$number,c("event_group")],]$max_event_id)
+          color_data$all[color_data$all$event_group == color_data$selected[js_column$number,c("event_group")],]$gradient_event_color_1 <- input$colour_picker_panel_unique
+          color_data$all[color_data$all$event_group == color_data$selected[js_column$number,c("event_group")],]$gradient_event_color_2 <- input$colour_picker_panel_unique
+          color_data$all[color_data$all$event_group == color_data$selected[js_column$number,c("event_group")],]$gradient_event_color_3 <- input$colour_picker_panel_unique
         } else if (input$color_method == "palette") {
-          color_data$all[color_data$all$event_group == color_data$selected[input$jsColNum,c("event_group")],]$event_color <- c(
+          color_data$all[color_data$all$event_group == color_data$selected[js_column$number,c("event_group")],]$event_color <- c(
             "#e43157", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#ffff33",
             "#a65628", "#f781bf", "#21d4de", "#91d95b", "#b8805f", "#cbbeeb",
             "#ffffff", "#999999", "#aaffc3", "#ffd8b1", "#4363d8", "#000075",
             "#469990", "#808000", "#800000", "#bfef45", "#f032e6", "#fffac8",
             "#fabed4", "#4263d8"
-          )[1:length(color_data$all[color_data$all$event_group == color_data$selected[input$jsColNum,c("event_group")],]$event_color)]
+          )[1:length(color_data$all[color_data$all$event_group == color_data$selected[js_column$number,c("event_group")],]$event_color)]
         }
       }
     }
@@ -442,10 +465,10 @@ app_server <- function(input, output, session) {
 
   output$colour_palette <- renderPlot({
 
-    if (!is.null(color_data$selected) & !is.null(input$jsColNum)) {
+    if (!is.null(color_data$selected) & !is.null(js_column$number)) {
       if( input$color_method == "gradient") {
 
-      number_events <- nrow(color_data$selected[color_data$selected$event_group == color_data$selected[input$jsColNum,"event_group"] & !is.na(color_data$selected$event),])
+      number_events <- nrow(color_data$selected[color_data$selected$event_group == color_data$selected[js_column$number,"event_group"] & !is.na(color_data$selected$event),])
 
       f_colZ <- grDevices::colorRamp(c(input$colour_picker_panel_1,input$colour_picker_panel_2,input$colour_picker_panel_3))
 
@@ -455,7 +478,7 @@ app_server <- function(input, output, session) {
       abline(h =0.602,lwd = 3, col = "#000000")
       abline(h =1.398,lwd = 3, col = "#000000")
       } else if (input$color_method == "unique") {
-        number_events <- nrow(color_data$selected[color_data$selected$event_group == color_data$selected[input$jsColNum,"event_group"] & !is.na(color_data$selected$event),])
+        number_events <- nrow(color_data$selected[color_data$selected$event_group == color_data$selected[js_column$number,"event_group"] & !is.na(color_data$selected$event),])
         par(oma=c(0,0,0,0),mar = c(0,0,0,0))
         image(1:number_events, 1, as.matrix(1:number_events),col = input$colour_picker_panel_unique, xlab = "", ylab="", xaxt="n", yaxt = "n", bty = "n")
         abline(v = 0.5:(number_events+0.5),lwd = 4, col = "#000000")
@@ -469,7 +492,7 @@ app_server <- function(input, output, session) {
           "#469990", "#808000", "#800000", "#bfef45", "#f032e6", "#fffac8",
           "#fabed4", "#4263d8"
         )
-        number_events <- nrow(color_data$selected[color_data$selected$event_group == color_data$selected[input$jsColNum,"event_group"] & !is.na(color_data$selected$event),])
+        number_events <- nrow(color_data$selected[color_data$selected$event_group == color_data$selected[js_column$number,"event_group"] & !is.na(color_data$selected$event),])
         par(oma=c(0,0,0,0),mar = c(0,0,0,0))
         image(1:number_events, 1, as.matrix(1:number_events),col = megaplot_color[1:number_events], xlab = "", ylab="", xaxt="n", yaxt = "n", bty = "n")
         abline(v = 0.5:(number_events+0.5),lwd = 4, col = "#000000")
@@ -518,6 +541,7 @@ app_server <- function(input, output, session) {
       selected = NULL
     )
   })
+
 
   # add event & event group identifier to data set and number events within group
   uploaded_data_w_ids <- shiny::reactive({
