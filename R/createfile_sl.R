@@ -1,20 +1,23 @@
 #### To do ####
-# insert detailed comments
 # describe use of createFile functions
 
-#' Function to create subject level megaplots dataset from ADSL (ADaM) dataset
+#' Function to create a subject-level megaplots dataset from an ADSL (ADaM) dataset
 #'
-#' @param path_adsl Path to the adsl-dataset
-#' @param id unique subject identifier.
-#' @param data_filter Subset dataset accoring to the filter conditions. Conditions should be wrapped in '' and concatenated by c()
-#' @param display_start_date
-#' @param display_end_date
-#' @param relative_day_1
-#' @param trt
-#' @param trtstdt
-#' @param trtendt
+#' This function reads an ADSL dataset from various file formats (SAS, CSV, RData) and processes it
+#' to create a subject-level dataset suitable for generating megaplots. It allows for filtering of
+#' the dataset based on specified conditions and computes relevant date variables.
 #'
-#' @return
+#' @param path_adsl Path to the adsl-dataset (can be a dataframe or file path).
+#' @param id Unique subject identifier (default: "USUBJID").
+#' @param data_filter Subset dataset according to the filter conditions (default: NULL). Using dplyr::filter() syntax. Conditions should be wrapped in '' and concatenated by c(). Example: data_filter='SAFFL == "Y"'
+#' @param display_start_date Columns to be used as start dates (date of the first contact to the participant). If a vector with multiple column names is given, the first one present in the provided dataset is used. Per default, the following column names are checked: "REFSTDT","RFSTDT","RFSTDTC","RFICDT","RANDDT","TRTSTDT"
+#' @param display_end_date Columns to be used as end dates (date of the last contact to the participant. If a vector with multiple column names is given, the maximum of all present in the provided dataset is used. Per default, the following column names are checked: "REFENDT","RFENDTC","RFENDT", "LVDT", "WDICDT"
+#' @param relative_day_1 Columns to be used as the reference for relative day 1.
+#' @param trt Logical indicating whether to include treatment dates (default: TRUE).
+#' @param trtstdt Columns to be used as treatment start dates.
+#' @param trtendt Columns to be used as treatment end dates.
+#'
+#' @return A list containing the processed subject level dataset and NULL for events.
 #' @export
 #'
 #' @examples
@@ -27,23 +30,11 @@ createFile.sl <- function(path_adsl,
                          trt=TRUE,
                          trtstdt=c("TRTSTDT","TRTSDT"),
                          trtendt=c("TRTENDT","TRTEDT")){
-options(scipen=999)
-# Input
-# path_adsl    Path to the adsl-dataset
-# data_filter  Subset dataset accoring to the filter conditions.
-#              Conditions should be wrapped in '' and concatenated by c()
-# id           unique subject identifier.
-# display_start_date
-# display_end_date
-# trtstdt
-# trtendt
-#
-# Output
-# dataframe with id-variable and categorized (previously continuous) variables
+options(scipen=999) # Set options to avoid scientific notation in numbers
 
   # Read adsl data ----
   if (is.data.frame(path_adsl)) {
-    adsl <- path_adsl
+    adsl <- path_adsl # If input is a dataframe, assign it directly
   } else if (!is.null(path_adsl)) {
     tryCatch({
       if (base::grepl("\\.sas7bdat$", path_adsl, ignore.case = TRUE)) {
@@ -124,7 +115,6 @@ options(scipen=999)
       across(all_of(c(display_start_date,display_end_date,relative_day_1,{if(trt){c(trtstdt, trtendt)}})),~as.Date(.x)),
       start_time = as.integer(!!sym(display_start_date) - !!sym(relative_day_1) + 1), # Calculate start time
       end_time = as.integer(pmax(!!!syms(display_end_date), na.rm = TRUE) - !!sym(relative_day_1) + 1) # Calculate end time
-    #  #{if(trt==T) treatment_duration = as.integer(!!sym(trtendt) - !!sym(trtstdt) + 1)} # Calculate treatment duration
      ) %>%
     { if (trt) {
         dplyr::mutate(., treatment_duration = as.integer(!!sym(trtendt) - !!sym(trtstdt) + 1)) %>%
