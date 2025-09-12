@@ -1,36 +1,65 @@
 # Function to create megaplots file for rebuild (v??? and later)
 # from prepared datasets for old version (v??? and earlier)
+#
+#
+# Parameters:
+# - path_data: Path to the subject-level dataset
+# - path_data_b: Path to the events dataset
+# - subjectid: Name of the subject ID column (as a string)
+# - event_time: Name of the event time column (as a string)
+#
+# Returns: A data frame ready for the new megaplots version
 
-library(tidyverse)
-library(haven)
+# Helper function to read datasets
+#' Title
+#'
+#' @param path Path to a file (.sas7bdat, .csv, .rdata). If .rdata-format the file should best contain only one dataset.
+#'
+#' @return
+#' @export
+#'
+#' @examples
+read_dataset <- function(path) {
+  if (grepl("\\.sas7bdat$", path, ignore.case = TRUE)) {
+    return(haven::read_sas(path))
+  } else if (grepl("\\.csv$", path, ignore.case = TRUE)) {
+    return(readr::read_csv(path))
+  } else if (grepl("\\.RData$", path, ignore.case = TRUE)) {
+    load(path)
+    return(get(ls()[1]))  # Assuming the data frame is named 'data'
+  } else {
+    stop("Unsupported file format. Please provide a SAS, CSV, or RData file.")
+  }
+}
 
+#' Function to create megaplots file for rebuild (v??? and later) from prepared datasets for old version (v??? and earlier)
+#'
+#' @param path_data Path to the subject-level dataset
+#' @param path_data_b Path to the events dataset
+#' @param subjectid Name of the subject ID column (as a string)
+#' @param event_time Name of the event time column (as a string)
+#'
+#' @return A data frame ready for the new megaplots version
+#' @export
+#'
+#' @examples
 createfile.old_to_new <- function(path_data,
                                   path_data_b=NULL,
-                                  subjectid=subjectid,
+                                  subjectid="subjectid",
                                   event_time){
 
+  # Validate inputs
+  if (missing(event_time)) stop("Please provide the event_time parameter.")
 
   # Read (A) data ----
   if (is.data.frame(path_data)) {
     data_A <- path_data
   } else if (!is.null(path_data)) {
-    tryCatch({
-      if (grepl("\\.sas7bdat$", path_data, ignore.case = TRUE)) {
-        data_A <- haven::read_sas(path_data)
-      } else if (grepl("\\.csv$", path_data, ignore.case = TRUE)) {
-        data_A <- read.csv(path_data)
-      } else if (grepl("\\.RData$", path_data, ignore.case = TRUE)) {
-        load(path_data)
-        # Assuming the data frame is named 'data' in the RData file
-        data_A <- get(ls()[1])  # Get the first object in the environment
-      } else {
-        stop("Unsupported file format. Please provide a SAS, CSV, or RData file.")
-      }
-    }, error = function(e) {
+    tryCatch(read_dataset(path_data), error = function(e) {
       stop("Error reading the dataset: ", e$message)
     })
   } else {
-    stop("Please provide a valid dataset or file path.")
+    stop("Please provide a valid subject level dataset or file path.")
   }
 
   # Read (B) data ----
@@ -38,26 +67,15 @@ createfile.old_to_new <- function(path_data,
     if (is.data.frame(path_data_b)) {
       data_B <- path_data_b
     } else if (!is.null(path_data_b)) {
-      tryCatch({
-        if (grepl("\\.sas7bdat$", path_data_b, ignore.case = TRUE)) {
-          data_B <- haven::read_sas(path_data_b)
-        } else if (grepl("\\.csv$", path_data_b, ignore.case = TRUE)) {
-          data_B <- read.csv(path_data_b)
-        } else if (grepl("\\.RData$", path_data_b, ignore.case = TRUE)) {
-          load(path_data_b)
-          # Assuming the data frame is named 'data' in the RData file
-          data_B <- get(ls()[1])  # Get the first object in the environment
-        } else {
-          stop("Unsupported file format. Please provide a SAS, CSV, or RData file.")
-        }
-      }, error = function(e) {
+      tryCatch(read_dataset(path_data_b), error = function(e) {
         stop("Error reading the dataset: ", e$message)
       })
     } else {
-      stop("Please provide a valid dataset or file path.")
+      stop("Please provide a valid events dataset or file path.")
     }
   }
 
+  #Process events data
   data_B_long <- data_B %>%
     dplyr::mutate(across(-c(subjectid, !!sym(event_time)), ~ na_if(., ""))) %>%
     tidyr::pivot_longer(
