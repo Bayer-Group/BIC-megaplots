@@ -16,13 +16,17 @@ Imports:
     dplyr,
     ggplot2,
     golem,
+    haven,
+    lubridate,
     plotly,
+    purrr,
     shiny,
     shinyjs,
-    shinyTree
+    shinyTree,
+    tidyr
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.1
+RoxygenNote: 7.3.2
 Suggests: 
     spelling,
     testthat (>= 3.0.0)

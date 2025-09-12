@@ -1,16 +1,26 @@
 #### To do ####
-# Insert checks, warnings and messages
-# enable csv and R-dataset as input
-# enable function call with input data from environment
-# insert detailed comments
 # describe use of createFile functions
 
-# Function to create subject level megaplots dataset from ADSL (ADaM) dataset
-library(dplyr)
-library(haven)
-library(purrr)
-library(lubridate)
-
+#' Function to create a subject-level megaplots dataset from an ADSL (ADaM) dataset
+#'
+#' This function reads an ADSL dataset from various file formats (SAS, CSV, RData) and processes it
+#' to create a subject-level dataset suitable for generating megaplots. It allows for filtering of
+#' the dataset based on specified conditions and computes relevant date variables.
+#'
+#' @param path_adsl Path to the adsl-dataset (can be a dataframe or file path).
+#' @param id Unique subject identifier (default: "USUBJID").
+#' @param data_filter Subset dataset according to the filter conditions (default: NULL). Using dplyr::filter() syntax. Conditions should be wrapped in '' and concatenated by c(). Example: data_filter='SAFFL == "Y"'
+#' @param display_start_date Columns to be used as start dates (date of the first contact to the participant). If a vector with multiple column names is given, the first one present in the provided dataset is used. Per default, the following column names are checked: "REFSTDT","RFSTDT","RFSTDTC","RFICDT","RANDDT","TRTSTDT"
+#' @param display_end_date Columns to be used as end dates (date of the last contact to the participant. If a vector with multiple column names is given, the maximum of all present in the provided dataset is used. Per default, the following column names are checked: "REFENDT","RFENDTC","RFENDT", "LVDT", "WDICDT"
+#' @param relative_day_1 Columns to be used as the reference for relative day 1.
+#' @param trt Logical indicating whether to include treatment dates (default: TRUE).
+#' @param trtstdt Columns to be used as treatment start dates.
+#' @param trtendt Columns to be used as treatment end dates.
+#'
+#' @return A list containing the processed subject level dataset and NULL for events.
+#' @export
+#'
+#' @examples
 createFile.sl <- function(path_adsl,
                          id="USUBJID",
                          data_filter=NULL,
@@ -20,112 +30,88 @@ createFile.sl <- function(path_adsl,
                          trt=TRUE,
                          trtstdt=c("TRTSTDT","TRTSDT"),
                          trtendt=c("TRTENDT","TRTEDT")){
-options(scipen=999)
-# Input
-# path_adsl    Path to the adsl-dataset
-# data_filter  Subset dataset accoring to the filter conditions.
-#              Conditions should be wrapped in '' and concatenated by c()
-# id           unique subject identifier.
-# display_start_date
-# display_end_date
-# trtstdt
-# trtendt
-#
-# Output
-# dataframe with id-variable and categorized (previously continuous) variables
+options(scipen=999) # Set options to avoid scientific notation in numbers
 
   # Read adsl data ----
   if (is.data.frame(path_adsl)) {
-    adsl <- path_adsl
+    adsl <- path_adsl # If input is a dataframe, assign it directly
   } else if (!is.null(path_adsl)) {
-    tryCatch({
-      if (grepl("\\.sas7bdat$", path_adsl, ignore.case = TRUE)) {
-        adsl <- haven::read_sas(path_adsl)
-      } else if (grepl("\\.csv$", path_adsl, ignore.case = TRUE)) {
-        adsl <- read.csv(path_adsl)
-      } else if (grepl("\\.RData$", path_adsl, ignore.case = TRUE)) {
-        load(path_adsl)
-        # Assuming the data frame is named 'adsl' in the RData file
-        adsl <- get(ls()[1])  # Get the first object in the environment
-      } else {
-        stop("Unsupported file format. Please provide a SAS, CSV, or RData file.")
-      }
-    }, error = function(e) {
-      stop("Error reading the dataset: ", e$message)
+    tryCatch(adsl <- read_dataset(path_adsl), error = function(e) {
+      stop("Error reading the dataset: ", e$message) # Catch and display any errors during reading
     })
   } else {
-    stop("Please provide a valid dataset or file path.")
+    stop("Please provide a valid dataset or file path.") # Error if no valid input is provided
   }
 
-  # Parameter validation
+  # Parameter validation for the unique subject identifier
   if (!id %in% colnames(adsl)) {
-    stop(sprintf("The specified id '%s' is not a column in the dataset.", id))
+    stop(sprintf("The specified id '%s' is not a column in the dataset.", id))  # Error if id not found in dataset
   }
 
-  adsl <- adsl %>%
-    #Filter data
-    {if(!is.null(data_filter)) dplyr::filter(., !!!rlang::parse_exprs(data_filter)) else .} %>%
-    #rename and relocate id-variable.
-    dplyr::mutate(subjectid = as.numeric(gsub("[^0-9.]", "", as.character(!!sym(id))))) %>%
-    dplyr::relocate(subjectid)
+    # Process the dataset
+    adsl <- adsl %>%
+      #Filter data
+      {if(!is.null(data_filter)) dplyr::filter(., !!!rlang::parse_exprs(data_filter)) else .} %>%
+      # Create a numeric subject ID and relocate it to the front
+      dplyr::mutate(subjectid = as.numeric(base::gsub("[^0-9.]", "", as.character(!!rlang::sym(id))))) %>%
+      dplyr::relocate(subjectid)
 
+    # Determine the appropriate reference start date
     display_start_date <- display_start_date[toupper(display_start_date) %in% toupper(colnames(adsl))][1]
-    # Provide the appropriate message
     if (!(is.null(display_start_date) | is.na(display_start_date))) {
-      message(sprintf("Reference start date: %s", display_start_date))
+      message(sprintf("Reference start date: %s", display_start_date)) # Message for reference start date
     } else {
       message("None of the input parameters in display_start_date are present as column names in the data.")
     }
 
+    # Determine the appropriate reference end dates
     display_end_date <- display_end_date[toupper(display_end_date) %in% toupper(colnames(adsl))]
-    # Provide the appropriate message
     if (!(length(display_end_date)==0)) {
-      message(sprintf("Reference end date: Maximum of %s", paste(display_end_date, collapse = ", ")))
+      message(sprintf("Reference end date: Maximum of %s", paste(display_end_date, collapse = ", "))) # Message for reference end date
     } else {
       message("None of the input parameters in display_end_date are present as column names in the data.")
     }
 
+    # Determine the appropriate relative day 1
     relative_day_1 <- relative_day_1[toupper(relative_day_1) %in% toupper(colnames(adsl))][1]
-    # Provide the appropriate message
     if (!(is.null(relative_day_1) | is.na(relative_day_1))) {
-      message(sprintf("Relative day 1: %s", relative_day_1))
+      message(sprintf("Relative day 1: %s", relative_day_1)) # Message for relative day 1
     } else {
       message("None of the input parameters in relative_day_1 are present as column names in the data.")
     }
 
+    # If treatment dates are to be included
     if(trt==T){
       trtstdt <- trtstdt[toupper(trtstdt) %in% toupper(colnames(adsl))][1]
-      # Provide the appropriate message
       if (!(is.null(trtstdt) | is.na(trtstdt))) {
-        message(sprintf("Treatment start date: %s", trtstdt))
+        message(sprintf("Treatment start date: %s", trtstdt)) # Message for treatment start date
       } else {
         message("None of the input parameters in trtstdt are present as column names in the data.")
       }
 
       trtendt <- trtendt[toupper(trtendt) %in% toupper(colnames(adsl))][1]
-      # Provide the appropriate message
       if (!(is.null(trtendt) | is.na(trtendt))) {
-        message(sprintf("Treatment end date: %s", trtendt))
+        message(sprintf("Treatment end date: %s", trtendt)) # Message for treatment end date
       } else {
         message("None of the input parameters in trtendt are present as column names in the data.")
       }
     }
 
+    # Mutate the dataset to create new date-related columns
   adsl <- adsl %>%
-    dplyr::mutate(ref_date = !!sym(relative_day_1)) %>%
+    dplyr::mutate(ref_date = !!rlang::sym(relative_day_1)) %>%
     dplyr::mutate(
-      across(all_of(c(display_start_date,display_end_date,relative_day_1,{if(trt){c(trtstdt, trtendt)}})),~as.Date(.x)),
-      start_time = as.integer(!!sym(display_start_date) - !!sym(relative_day_1) + 1), # Calculate start time
-      end_time = as.integer(pmax(!!!syms(display_end_date), na.rm = TRUE) - !!sym(relative_day_1) + 1) # Calculate end time
-    #  #{if(trt==T) treatment_duration = as.integer(!!sym(trtendt) - !!sym(trtstdt) + 1)} # Calculate treatment duration
+      across(all_of(c(display_start_date,display_end_date,relative_day_1,{if(trt){c(trtstdt, trtendt)}})),~as.Date(.x)), # Convert specified columns to Date type
+      start_time = as.integer(!!rlang::sym(display_start_date) - !!rlang::sym(relative_day_1) + 1), # Calculate start time relative to day 1
+      end_time = as.integer(pmax(!!!syms(display_end_date), na.rm = TRUE) - !!rlang::sym(relative_day_1) + 1) # Calculate end time
      ) %>%
     { if (trt) {
-        dplyr::mutate(., treatment_duration = as.integer(!!sym(trtendt) - !!sym(trtstdt) + 1)) %>%
-        dplyr::relocate(., "subjectid", "start_time", "end_time", "ref_date", "treatment_duration")  # Rearrange columns
+        dplyr::mutate(., treatment_duration = as.integer(!!rlang::sym(trtendt) - !!rlang::sym(trtstdt) + 1)) %>%
+        dplyr::relocate(., "subjectid", "start_time", "end_time", "ref_date", "treatment_duration")  # Rearrange columns if treatment is included
       } else {
-        dplyr::relocate(., "subjectid", "start_time", "end_time", "ref_date")  # Rearrange columns
+        dplyr::relocate(., "subjectid", "start_time", "end_time", "ref_date")  # Rearrange columns without treatment
       }
     }
 
- return(list(sl=adsl,events=NULL))
+ return(list(sl=adsl,events=NULL)) # Return the processed subject level dataset and NULL for events
 }

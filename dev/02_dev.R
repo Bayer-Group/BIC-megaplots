@@ -23,6 +23,10 @@ usethis::use_package("survival")
 usethis::use_package("shinyTree")
 usethis::use_package("colourpicker")
 usethis::use_package("shinyjs")
+usethis::use_package("haven")
+usethis::use_package("purrr")
+usethis::use_package("lubridate")
+usethis::use_package("tidyr")
 
 ## Amend DESCRIPTION with dependencies read from package code parsing
 ## install.packages('attachment') # if needed.

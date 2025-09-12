@@ -1,15 +1,27 @@
 #### To do ####
 # Create On treatment variable
-# Add prefix option for event_group and event and make values more readable
 
+# library(dplyr)
+# library(tidyr)
+# library(haven)
+# library(purrr)
+# library(lubridate)
 
-# Function to create event level megaplots dataset from ADaM datasets
-library(dplyr)
-library(tidyr)
-library(haven)
-library(purrr)
-library(lubridate)
-
+#' Function to create event level megaplots dataset from ADaM datasets
+#'
+#' @param mp_data
+#' @param path_data
+#' @param id
+#' @param data_filter
+#' @param param
+#' @param prefix
+#' @param event_start
+#' @param event_end
+#'
+#' @return
+#' @export
+#'
+#' @examples
 createFile.events <- function(mp_data,
                               path_data,
                               id = "USUBJID",
