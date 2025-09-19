@@ -1,7 +1,7 @@
-#' Title
+#' Draws a line chart with daily counts of events
 #'
-#' @param megaplot_prepared_data
-#' @param megaplot_filtered_data
+#' @param megaplot_prepared_data data.frame with subject information used for calculation of min and max day
+#' @param megaplot_filtered_data data.frame with event information used to create event count lines
 #' @param select_grouping character vector with grouping variables
 #' @param event_summary_cutoff numeric value used as cutoff for hover labels displayed
 #'
@@ -17,15 +17,12 @@ draw_event_summary <- function(
     event_summary_cutoff = 1
 ) {
 
-  # megaplot_prepared_data <- megaplot_prepared_data_
-  # megaplot_filtered_data <- megaplot_filtered_data_
-
   megaplot_filtered_data <- megaplot_filtered_data %>%
     dplyr::select(-subjectid_n_jittered, -jitter_event_time)
 
 
   if (!is.null(select_grouping)) {
-    number_group_levels <-  max(megaplot_filtered_data$group_index)
+    number_group_levels <-  max(megaplot_filtered_data$group_index, na.rm = TRUE)
   } else {
     number_group_levels <- 1
   }
@@ -33,14 +30,15 @@ draw_event_summary <- function(
   #initialize list for figures used in subplots (when multiple groups are selected)
   figure_list <- list()
   max_y_range <- c()
-  x_min <- min(min(megaplot_prepared_data$start_time,na.rm=TRUE), min(megaplot_prepared_data$event_time,na.rm=TRUE))
-  x_max <- max(max(megaplot_prepared_data$end_time,na.rm=TRUE), max(megaplot_prepared_data$event_time_end,na.rm=TRUE))
+  x_min <- min(min(megaplot_prepared_data$start_time,na.rm = TRUE), min(megaplot_prepared_data$event_time,na.rm=TRUE))
+  x_max <- max(max(megaplot_prepared_data$end_time,na.rm = TRUE), max(megaplot_prepared_data$event_time_end,na.rm=TRUE))
 
 
   for(k in 1:number_group_levels) {
 
     df <- megaplot_filtered_data %>%
       dplyr::arrange(event_group, unique_event) %>%
+      dplyr::filter(!is.na(event)) %>%
       dplyr::rowwise() %>%
       dplyr::mutate(
         day = list(seq(event_time, event_time_end, by = 1))

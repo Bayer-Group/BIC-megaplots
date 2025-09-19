@@ -1,4 +1,4 @@
-#' Title
+#' Draws Kaplan Meier plots with time to first event
 #'
 #' @param megaplot_prepared_data
 #' @param megaplot_filtered_data

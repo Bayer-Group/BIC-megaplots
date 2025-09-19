@@ -27,11 +27,15 @@ create_unique_event_identifier <- function(
         event_id = dplyr::cur_group_id(),
         event_group_id = i
       )
+
     #create "max_event_id"
     megaplot_data_splitted_by_event_group[[i]] <- megaplot_data_splitted_by_event_group[[i]] %>%
       dplyr::mutate(
         max_event_id = max(megaplot_data_splitted_by_event_group[[i]]$event_id)
       )
+    megaplot_data_splitted_by_event_group[[i]] <- megaplot_data_splitted_by_event_group[[i]]%>%
+      dplyr::mutate(event_n = suppressWarnings(as.numeric(event))) %>%
+      dplyr::mutate(n_flag = dplyr::case_when(event == event_n ~TRUE))
 
     # Add row for event_group with event_id = 0. This will only be used to colorize all
     # events within a group with specific color (shades).

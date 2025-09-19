@@ -24,6 +24,9 @@ usethis::use_package("shinyTree")
 usethis::use_package("colourpicker")
 usethis::use_package("shinyjs")
 usethis::use_package("tidyr")
+usethis::use_package("jsTreeR")
+usethis::use_package("waiter")
+usethis::use_package("shinycssloaders")
 
 ## Amend DESCRIPTION with dependencies read from package code parsing
 ## install.packages('attachment') # if needed.
@@ -43,6 +46,7 @@ golem::add_fct("create_color_container", with_test = TRUE)
 golem::add_fct("filter_megaplot_data", with_test = TRUE)
 golem::add_fct("prepare_megaplot_data", with_test = TRUE)
 golem::add_fct("check_megaplot_data_variables", with_test = TRUE)
+golem::add_fct("create_jsTree_input", with_test = TRUE)
 golem::add_utils("font_color", with_test = TRUE)
 
 ## External resources

@@ -133,6 +133,14 @@ app_ui <- function(request) {
       bslib::nav_panel(
         id = "Data Upload",
         title = "Data Upload",
+        waiter::useGarcon(),
+        waiter::waiterShowOnLoad(
+          tags$img(
+            src = "www/megaplot_hexsticker.png",
+            height = "175px",
+            id = "megaplot_hexsticker"
+          )
+        ),
         bslib::navset_card_underline(
           title = "Upload",
           id = "Upload",
@@ -221,12 +229,8 @@ app_ui <- function(request) {
               shiny::wellPanel(
                 id = "selected_events_panel",
                 style = "overflow-y:scroll; max-height: 10000px;", #init high value and then update max height within server.R
-                shinyTree::shinyTree(
-                "tree",
-                checkbox = TRUE,
-                dragAndDrop = TRUE,
-                search = TRUE,
-                themeIcons = FALSE
+                jsTreeR::jstreeOutput(
+                  "tree2"
                 )
               )
             ),
@@ -345,8 +349,29 @@ app_ui <- function(request) {
         title = "Megaplots",
         bslib::navset_card_underline(
           title = "MEGAPLOTS",
-          bslib::nav_panel("Megaplots", id = "Megaplots", icon =  bsicons::bs_icon("filter-left"), plotly::plotlyOutput("mega_plots")),
-          bslib::nav_panel("Event Summary", plotly::plotlyOutput("event_summary")),
+          full_screen = TRUE,
+          bslib::nav_panel("Megaplots", id = "Megaplots", icon =  bsicons::bs_icon("filter-left"),
+           bslib::as_fill_carrier(
+             shinycssloaders::withSpinner(
+               plotly::plotlyOutput("mega_plots"),
+               color = "white",
+               image = "www/megaplot_hexsticker.png",
+               image.height = "175px",
+               caption = "Loading..."
+             )
+            )
+          ),
+          bslib::nav_panel("Event Summary",
+            bslib::as_fill_carrier(
+              shinycssloaders::withSpinner(
+                ui_element = plotly::plotlyOutput("event_summary"),
+                color = "white",
+                image = "www/megaplot_hexsticker.png",
+                image.height = "175px",
+                caption = "Loading..."
+              )
+            )
+          ),
           bslib::nav_panel("Kaplan Meier",
              shiny::fluidRow(
                shinyWidgets::pickerInput(
@@ -356,15 +381,7 @@ app_ui <- function(request) {
                  selected = NULL,
                  multiple = FALSE,
                  options = list('actions-box' = TRUE)
-               )#,
-               # shinyWidgets::pickerInput(
-               #   inputId = 'select_strata_var',
-               #   label = "Select stratification variable(s)",
-               #   choices = NULL,
-               #   selected = NULL,
-               #   multiple = TRUE,
-               #   options = list('actions-box' = TRUE)
-               # )
+               )
              ),
              plotly::plotlyOutput("kaplan_meier")
           )

@@ -7,6 +7,16 @@
 
 app_server <- function(input, output, session) {
 
+  waiter::waiter_hide()
+  # g <- Garcon$new(
+  #   tags$img(
+  #     src = "www/megaplot_hexsticker.png",
+  #     height = "175px",
+  #     id = "megaplot_hexsticker"
+  #   )
+  # )
+
+  #### Observer to update selected navbar based on button click ####
   shiny::observeEvent(input$upload_2_next_button,{
     bslib::nav_select("MEGAPLOTS","Megaplots")
   })
@@ -15,10 +25,11 @@ app_server <- function(input, output, session) {
     bslib::nav_select("Upload","Event & color selection")
   })
 
-  observeEvent(input$upload_2_back_button,{
+  shiny::observeEvent(input$upload_2_back_button,{
                 bslib::nav_select("Upload","File & variable selection")
   })
-  #### Javascript Code ####
+
+  #### Javascript Code to hide/show single Widgets ####
   # shinyjs code to hide/show panels in the beginning
   shinyjs::hideElement(id = "selected_events_panel")
   shinyjs::hideElement(id = "selected_events_color_container_panel")
@@ -104,6 +115,7 @@ app_server <- function(input, output, session) {
     }
   })
 
+  #### Variable check after data upload ####
   shiny::observeEvent(
     c(uploaded_data$val,
       input$select_subjectid,
@@ -125,11 +137,11 @@ app_server <- function(input, output, session) {
       event_time = input$select_event_time,
       event_time_end = input$select_event_time_end
     )
+    # when check is successful display next button
     if (variable_check) {
       shinyjs::showElement(id = "upload_1_next_button")
     } else {
       shinyjs::hideElement(id = "upload_1_next_button")
-
     }
   })
 
@@ -141,26 +153,15 @@ app_server <- function(input, output, session) {
     }
   })
 
-  shiny::observeEvent(input$tree, {
-    shinyTree::get_selected(input$tree,format="names")
-    if (is.null(input$tree)) {
+  shiny::observeEvent(checked_data(), {
+    if (nrow(checked_data()) == 0) {
       shinyjs::hideElement(id = "selected_events_color_container_panel")
-      # shinyjs::hideElement(id = "colour_picker_panel_1")
-      # shinyjs::showElement(id = "colour_picker_panel_2")
-      # shinyjs::showElement(id = "colour_picker_panel_3")
     } else {
-      if (length(shinyTree::get_selected(input$tree,format="names")) > 0) {
-        shinyjs::showElement(id = "selected_events_color_container_panel")
-      } else {
-        shinyjs::hideElement(id = "selected_events_color_container_panel")
-        # shinyjs::hideElement(id = "colour_picker_panel_1")
-        # shinyjs::hideElement(id = "colour_picker_panel_2")
-        # shinyjs::hideElement(id = "colour_picker_panel_3")
-        # shinyjs::hideElement(id = "update_color_palette")
-      }
+      shinyjs::showElement(id = "selected_events_color_container_panel")
     }
   })
 
+  #create reactive variable for selected color container row
   js_column <- shiny::reactiveValues(number = NULL)
 
 
@@ -168,7 +169,7 @@ app_server <- function(input, output, session) {
     js_column$number <- input$jsColNum
   })
 
-  shiny::observeEvent(input$tree, {
+  shiny::observeEvent(checked_data(), {
     js_column$number <- NULL
   })
 
@@ -220,29 +221,11 @@ app_server <- function(input, output, session) {
       shinyjs::showElement(id = "update_color_palette")
       shinyjs::showElement(id = "color_method")
     } else {
-        shinyjs::showElement(id = "colour_picker_panel_event")
-        shinyjs::hideElement(id = "colour_picker_panel_1")
-        shinyjs::hideElement(id = "colour_picker_panel_2")
-        shinyjs::hideElement(id = "colour_picker_panel_3")
-        shinyjs::hideElement(id = "colour_picker_panel_unique")
-      # if (input$color_method == "gradient") {
-      #   shinyjs::showElement(id = "colour_picker_panel_event")
-      #   shinyjs::hideElement(id = "colour_picker_panel_1")
-      #   shinyjs::hideElement(id = "colour_picker_panel_2")
-      #   shinyjs::hideElement(id = "colour_picker_panel_3")
-      #   shinyjs::hideElement(id = "colour_picker_panel_unique")
-      #
-      # } else  if (input$color_method == "unique") {
-      #   shinyjs::hideElement(id = "colour_picker_panel_event")
-      #   shinyjs::showElement(id = "colour_picker_panel_1")
-      #   shinyjs::showElement(id = "colour_picker_panel_2")
-      #   shinyjs::showElement(id = "colour_picker_panel_3")
-      # } else  if (input$color_method == "palette") {
-      #   shinyjs::showElement(id = "colour_picker_panel_event")
-      #   shinyjs::showElement(id = "colour_picker_panel_1")
-      #   shinyjs::showElement(id = "colour_picker_panel_2")
-      #   shinyjs::showElement(id = "colour_picker_panel_3")
-      # }
+      shinyjs::showElement(id = "colour_picker_panel_event")
+      shinyjs::hideElement(id = "colour_picker_panel_1")
+      shinyjs::hideElement(id = "colour_picker_panel_2")
+      shinyjs::hideElement(id = "colour_picker_panel_3")
+      shinyjs::hideElement(id = "colour_picker_panel_unique")
       shinyjs::hideElement(id = "jitter_events")
       shinyjs::hideElement(id = "colour_palette")
       shinyjs::hideElement(id = "update_color_palette")
@@ -267,16 +250,51 @@ app_server <- function(input, output, session) {
     )
   })
 
+  #### jsTreeR output ####
+  output$tree2 <- jsTreeR::renderJstree({
+    #javascript code to avoid that child nodes moved into another child nodes
+    checkCallback <- JS(
+      "function(operation, node, parent, position, more) {",
+      "  if(operation === 'move_node') {",
+      "    if(parent.id === '#' || parent.type === 'child') {",
+      "      return false;",
+      "    }",
+      "  }",
+      "  return true;",
+      "}"
+    )
 
-  #### Shinytree Output ####
-  #renderTree for event/event_group selection
-  output$tree <- shinyTree::renderTree({
-    create_event_tree(reduced_event_data = shiny::req(unique_event_group_data()))
+    dnd <- list(
+      is_draggable = JS(
+        "function(node) {",
+        "  if(node[0].type !== 'child') {",
+        "    return false;",
+        "  }",
+        "  return true;",
+        "}"
+      )
+    )
+
+    #icons
+    types <- list(
+      root = list(icon = "fa-regular fa-arrow_pointer"),
+      child = list(icon = "fa-regular fa-arrow_pointer")
+    )
+
+    jsTreeR::jstree(
+      create_jsTree_input(data = shiny::req(unique_event_group_data())), #use create_jsTree_input function to create desired list input
+      dragAndDrop = TRUE,
+      search = TRUE,
+      dnd = dnd,
+      checkCallback = checkCallback,
+      types = types,
+      checkboxes = TRUE
+    )
   })
 
-  #### Reactive value color_data ####
 
-  #initialize reactive value color_data with entries "all" and "selected"
+  #### Reactive value color_data ####
+  # initialize reactive value color_data with entries "all" and "selected"
   # all includes all events from uploaded data set and in selected filtered by
   # selected events in shinyTree input
   color_data <- shiny::reactiveValues(
@@ -296,6 +314,7 @@ app_server <- function(input, output, session) {
 
     )
   })
+
   #observer to update ColourInput based on container click
   shiny::observeEvent(js_column$number, {
 
@@ -365,6 +384,7 @@ app_server <- function(input, output, session) {
       }
     }
   })
+
   # The purpose of this observer is to create/initialize a color vector for every event/event_group
   # available in the data. By default event_groups receive an own color and events within the groups
   # get color shades of group color. Color for group and single events can be changed within app.
@@ -429,19 +449,36 @@ app_server <- function(input, output, session) {
   })
 
 
+  checked_data <- shiny::eventReactive(c(input[["tree2"]],input[["tree2_checked_tree"]]),{
+
+    checked_tree <- input[["tree2_checked_tree"]]
+
+    selected_data <- data.frame(event_group = NULL, event = NULL)
+
+    if(!is.null(checked_tree)) {
+      if(length(checked_tree) > 0) {
+      for(i in 1:length(checked_tree)) {
+        for(j in 1:length(checked_tree[[i]]$children)) {
+          if (j == 1) {
+            selected_data <- rbind(selected_data, data.frame(event_group = checked_tree[[i]]$text, event = NA))
+          }
+          selected_data <- rbind(selected_data, data.frame(event_group = checked_tree[[i]]$text, event = checked_tree[[i]]$children[[j]]$text))
+        }
+      }
+      }
+    }
+    selected_data
+  })
+
   #### Color container output ####
   output$selected_events_color_container <- renderUI({
-    shiny::req(input$tree)
+     if (nrow(checked_data()) > 0)  {
 
-    if (!is.null(input$tree)) {
-      if (length(shinyTree::get_selected(input$tree, format = "names")) > 0)  {
         selected_data <- create_color_container(
-          tree = input$tree,
+          tree = checked_data(),
           color_vector = color_data$all
         )
-
         color_data$selected <- selected_data
-
         #apply through all events & event groups and create a div container for the color settings
         lapply(seq_along(selected_data$names_for_color_list), function(column_number) {
           div(
@@ -459,7 +496,7 @@ app_server <- function(input, output, session) {
           )
         })
       }
-    }
+    # }
   })
 
 
@@ -577,7 +614,7 @@ app_server <- function(input, output, session) {
   #               color option changes
   megaplot_filtered_data <- shiny::reactive({
     filter_megaplot_data(
-      tree = input$tree,
+      tree = checked_data(),
       megaplot_prepared_data = megaplot_prepared_data(),
       color_data = color_data$all
     )
@@ -585,15 +622,31 @@ app_server <- function(input, output, session) {
 
 
   #### Mega Plot ####
+
+
+
+  # w <- Waiter$new()
+
   output$mega_plots <- plotly::renderPlotly({
+
     shiny::req(megaplot_prepared_data())
-    draw_mega_plot(
+    # waiter_show(
+    # html = tagList(
+    #    tags$img(src ='www/megaplot_hexsticker.png', height = "175px"),
+    #    br(),
+    #    spin_clock(),
+    #    h4("Loading...")
+    #   ),
+    # color = "#404A4E"
+    # )
+    tmp <- draw_mega_plot(
       megaplot_prepared_data = megaplot_prepared_data(),
       megaplot_filtered_data = megaplot_filtered_data(),
       select_grouping = input$select_grouping,
       line_width = input$line_width,
       line_width_subjects = input$line_width_subjects
     )
+    tmp
   })
 
   #### Event summary ####

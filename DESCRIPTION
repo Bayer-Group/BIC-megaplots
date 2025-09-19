@@ -20,9 +20,11 @@ Imports:
     golem,
     plotly,
     shiny,
+    shinycssloaders,
     shinyjs,
     shinyTree,
-    tidyr
+    tidyr,
+    waiter
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1

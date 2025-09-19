@@ -11,21 +11,11 @@ filter_megaplot_data <- function(
     color_data
   ) {
 
-  selected_tree <- shinyTree::get_selected(tree, format = "names")
+  # selected_tree <- shinyTree::get_selected(tree, format = "names")
+  #
+   if(nrow(tree) > 0) {
 
-  if(length(selected_tree) > 0) {
-    # perform apply function for every list entry of shinyTree list
-    # to transform list entries into desired form of event/event group
-    selected_data <- do.call(
-      "rbind",
-      lapply(selected_tree, function(selected_tree_row) {
-        # use attributes to decide if a selected row is an event or event_group
-        # if length of attributes 'ancestry'
-        if(length(attributes(selected_tree_row)$ancestry) == 2) {
-          data.frame("event_group" = attributes(selected_tree_row)$ancestry[2], "event" = selected_tree_row[1])
-        }
-      })
-    )
+    selected_data <- tree
 
     prepared_data <- megaplot_prepared_data
 
@@ -49,6 +39,8 @@ filter_megaplot_data <- function(
       dplyr::distinct() %>%
       dplyr::arrange(event_group_id, event_id) %>%
       dplyr::mutate(seq_nr = 1)
+
+    filtered_data_w_jitter <- filtered_data_w_jitter %>% dplyr::filter(!is.na(event))
 
     if (nrow(filtered_data_w_jitter) > 1) {
       for(i in 2:nrow(filtered_data_w_jitter)){

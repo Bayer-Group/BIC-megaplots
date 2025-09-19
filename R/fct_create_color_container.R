@@ -9,26 +9,11 @@ create_color_container <- function(
     tree,
     color_vector = color_data$all
 ) {
-
-  # receive names of selected shinyTree input
-  selected_tree <- shinyTree::get_selected(tree, format = "names")
-
-  if (length(selected_tree) > 0) {
-    #
-    selected_data <- do.call(
-      "rbind",
-      # perform apply function for every list entrie of shinyTree list
-      # to transform list entries into desired form of event/event group
-      lapply(selected_tree, function(selected_tree_row) {
-        # use attributes to decide if a selected row is an event or event_group
-        # if length of attributes 'ancestry'
-        if(length(attributes(selected_tree_row)$ancestry) == 2){
-          data.frame("event_group" = attributes(selected_tree_row)$ancestry[2], "event" = selected_tree_row[1])
-        } else {
-          data.frame("event_group" = selected_tree_row[1], "event" = NA)
-        }
-      })
-    )
+  # # receive names of selected shinyTree input
+  # selected_tree <- shinyTree::get_selected(tree, format = "names")
+  #
+  if (nrow(tree) > 0) {
+    selected_data <- tree
 
     selected_data <- selected_data %>%
       dplyr::group_by(event_group) %>%
