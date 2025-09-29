@@ -253,7 +253,7 @@ app_server <- function(input, output, session) {
   #### jsTreeR output ####
   output$tree2 <- jsTreeR::renderJstree({
     #javascript code to avoid that child nodes moved into another child nodes
-    checkCallback <- JS(
+    checkCallback <- jsTreeR::JS(
       "function(operation, node, parent, position, more) {",
       "  if(operation === 'move_node') {",
       "    if(parent.id === '#' || parent.type === 'child') {",
@@ -265,7 +265,7 @@ app_server <- function(input, output, session) {
     )
 
     dnd <- list(
-      is_draggable = JS(
+      is_draggable = jsTreeR::JS(
         "function(node) {",
         "  if(node[0].type !== 'child') {",
         "    return false;",

@@ -22,8 +22,8 @@ prepare_megaplot_data <- function(
         subjectid = unique(megaplot_data_arranged$subjectid),
         subject_index = seq_along(unique(megaplot_data_arranged$subjectid))),
       by = "subjectid"
-    ) %>%
-    dplyr::mutate(subjectid_n = subject_index)
+    ) #%>%
+    #dplyr::mutate(subjectid_n = subject_index)
 
   #join event identifier
   megaplot_data_raw <- megaplot_data_raw %>%
@@ -36,6 +36,11 @@ prepare_megaplot_data <- function(
   megaplot_data_raw <- megaplot_data_raw %>%
     dplyr::group_by(!!!rlang::syms(select_grouping)) %>%
     dplyr::mutate(group_index = dplyr::cur_group_id())
+
+
+  ##
+  megaplot_data_raw  <- megaplot_data_raw %>%
+    dplyr::mutate(subjectid_n = subject_index + (group_index-1)*10)
 
   #return value
   return(megaplot_data_raw)

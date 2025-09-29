@@ -104,10 +104,14 @@ draw_mega_plot <- function(
       label_df <- megaplot_prepared_data %>%
         #dplyr::select(subject_index, subjectid_n, group_index, sex, treatment) %>%
         dplyr::group_by(group_index) %>%
-        dplyr::mutate(text_position_y = max(subjectid_n) + 2) %>%
+        dplyr::mutate(
+          text_position_y = max(subjectid_n, na.rm = TRUE) + 2,
+          text_position_x = min(min(start_time, na.rm = TRUE)#, min(event_time, na.rm = TRUE)
+                                )
+        ) %>%
         dplyr::filter(dplyr::row_number() == 1) %>%
         dplyr::ungroup() %>%
-        dplyr::select(subjectid_n,group_index,text_position_y)
+        dplyr::select(subjectid_n,group_index,text_position_y,text_position_x)
 
       megaplot_prepared_data_w_group_text <- megaplot_prepared_data  %>%
         dplyr::left_join(label_df, by = c("group_index", "subjectid_n")) %>%
@@ -130,10 +134,11 @@ draw_mega_plot <- function(
           text = ~text_snippet_total,
           textfont = list(color = "white"),
           textposition = "middle right",
-          x = 1,
+          x = ~text_position_x,
           y = ~text_position_y,
           showlegend = FALSE
         )
+
     }
   } else {
     p_2 <- p_1
