@@ -18,7 +18,7 @@ draw_mega_plot <- function(
     event_tooltips = TRUE
   ) {
 
-
+  min_start_day <- min(megaplot_prepared_data$start_time, na.rm = TRUE)
   if (!is.null(megaplot_filtered_data)) {
     megaplot_filtered_data <- megaplot_filtered_data %>% dplyr::mutate(
       text_events = paste0(" Subject identifier: ", subjectid, "\n Event: ", event, " (",event_group,") \n", " Start time: ",event_time, "\n End time: ", event_time_end)
@@ -106,8 +106,7 @@ draw_mega_plot <- function(
         dplyr::group_by(group_index) %>%
         dplyr::mutate(
           text_position_y = max(subjectid_n, na.rm = TRUE) + 2,
-          text_position_x = min(min(start_time, na.rm = TRUE)#, min(event_time, na.rm = TRUE)
-                                )
+          text_position_x = min_start_day
         ) %>%
         dplyr::filter(dplyr::row_number() == 1) %>%
         dplyr::ungroup() %>%

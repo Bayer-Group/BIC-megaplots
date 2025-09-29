@@ -80,11 +80,19 @@ app_ui <- function(request) {
         bslib::accordion_panel(
           "Sorting/Grouping",
           icon = bsicons::bs_icon("sort-down"),
-          shiny::selectInput(
+          # tags$style(".pickerinput-class {font-size: 60%; line-height: 1.6;}"),
+          shinyWidgets::pickerInput(
             inputId = 'select_sorting',
             label = "Sorting variable",
-            choices =  c("subjectid","start_time","end_time"),
-            selected = "subjectid"
+            choices = c("subjectid","start_time","end_time"),
+            selected = NULL,
+            multiple = FALSE,
+            options = list(
+              # style = "pickerinput-class",
+              `live-search` = TRUE
+            ),
+            choicesOpt = list(style =  rep_len("font-size: 60%; line-height: 1.6;", 3)
+            )
           ),
           shiny::selectizeInput(
             inputId ='select_grouping',

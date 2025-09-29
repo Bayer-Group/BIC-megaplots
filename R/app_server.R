@@ -307,11 +307,11 @@ app_server <- function(input, output, session) {
   #### update sorting ####
   shiny::observeEvent(uploaded_data$val , {
     choices <- names(which(unlist(lapply(uploaded_data$val,is.numeric))))
-    shiny::updateSelectInput(
+    shinyWidgets::updatePickerInput(
       session,
       inputId = 'select_sorting',
       choices = choices,
-
+      choicesOpt = list(style =  rep_len("font-size: 60%; line-height: 1.6;", length(choices)))
     )
   })
 
