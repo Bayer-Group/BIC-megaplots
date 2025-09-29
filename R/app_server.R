@@ -307,7 +307,7 @@ app_server <- function(input, output, session) {
   #### update sorting ####
   shiny::observeEvent(uploaded_data$val , {
     choices <- names(which(unlist(lapply(uploaded_data$val,is.numeric))))
-    shinyWidgets::updatePickerInput(
+    shiny::updateSelectInput(
       session,
       inputId = 'select_sorting',
       choices = choices,
