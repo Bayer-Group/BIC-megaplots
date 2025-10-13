@@ -8,13 +8,6 @@
 app_server <- function(input, output, session) {
 
   waiter::waiter_hide()
-  # g <- Garcon$new(
-  #   tags$img(
-  #     src = "www/megaplot_hexsticker.png",
-  #     height = "175px",
-  #     id = "megaplot_hexsticker"
-  #   )
-  # )
 
   #### Observer to update selected navbar based on button click ####
   shiny::observeEvent(input$upload_2_next_button,{
@@ -394,6 +387,7 @@ app_server <- function(input, output, session) {
     shiny::req(js_column$number)
     if (!is.null(color_data$all)) {
       if (is.na(color_data$selected[js_column$number, c("event")])) {
+
         #create new color for entire event group
         if(input$color_method == "gradient") {
         f_colZ <- grDevices::colorRamp(c(input$colour_picker_panel_1,input$colour_picker_panel_2,input$colour_picker_panel_3))
@@ -511,14 +505,14 @@ app_server <- function(input, output, session) {
 
       par(oma=c(0,0,0,0),mar = c(0,0,0,0))
       image(1:number_events, 1, as.matrix(1:number_events),col = grDevices::rgb(f_colZ(seq(0, 1, length =number_events)),maxColorValue = 255), xlab = "", ylab="", xaxt="n", yaxt = "n", bty = "n")
-      abline(v = 0.5:(number_events+0.5),lwd = 4, col = "#000000")
+      #abline(v = 0.5:(number_events+0.5),lwd = 4, col = "#000000")
       abline(h =0.602,lwd = 3, col = "#000000")
       abline(h =1.398,lwd = 3, col = "#000000")
       } else if (input$color_method == "unique") {
         number_events <- nrow(color_data$selected[color_data$selected$event_group == color_data$selected[js_column$number,"event_group"] & !is.na(color_data$selected$event),])
         par(oma=c(0,0,0,0),mar = c(0,0,0,0))
         image(1:number_events, 1, as.matrix(1:number_events),col = input$colour_picker_panel_unique, xlab = "", ylab="", xaxt="n", yaxt = "n", bty = "n")
-        abline(v = 0.5:(number_events+0.5),lwd = 4, col = "#000000")
+        #abline(v = 0.5:(number_events+0.5),lwd = 4, col = "#000000")
         abline(h =0.602,lwd = 3, col = "#000000")
         abline(h =1.398,lwd = 3, col = "#000000")
       } else if (input$color_method == "palette") {
@@ -532,7 +526,7 @@ app_server <- function(input, output, session) {
         number_events <- nrow(color_data$selected[color_data$selected$event_group == color_data$selected[js_column$number,"event_group"] & !is.na(color_data$selected$event),])
         par(oma=c(0,0,0,0),mar = c(0,0,0,0))
         image(1:number_events, 1, as.matrix(1:number_events),col = megaplot_color[1:number_events], xlab = "", ylab="", xaxt="n", yaxt = "n", bty = "n")
-        abline(v = 0.5:(number_events+0.5),lwd = 4, col = "#000000")
+        #abline(v = 0.5:(number_events+0.5),lwd = 4, col = "#000000")
         abline(h =0.602,lwd = 3, col = "#000000")
         abline(h =1.398,lwd = 3, col = "#000000")
 

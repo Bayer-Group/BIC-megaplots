@@ -137,6 +137,7 @@ app_ui <- function(request) {
         id = "Data Upload",
         title = "Data Upload",
         waiter::useGarcon(),
+        waiter::useWaiter(),
         waiter::waiterShowOnLoad(
           tags$img(
             src = "www/megaplot_hexsticker.png",
