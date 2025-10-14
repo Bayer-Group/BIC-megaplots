@@ -64,7 +64,7 @@ draw_mega_plot <- function(
     if(event_tooltips) {
       p_2 <- p_1 %>%
         plotly::add_segments(
-          data = plotly::highlight_key(megaplot_filtered_data, ~event),
+          data = plotly::highlight_key(megaplot_filtered_data %>% dplyr::filter(is.na(n_flag)), ~event),
           legendgroup = ~ event_group,
           name = ~ unique_event,
           x = ~event_time - 0.45,
@@ -79,6 +79,9 @@ draw_mega_plot <- function(
           hoverlabel = list(orientation = "h")
         ) %>%
         plotly::highlight(~ event, on = "plotly_click", off="plotly_doubleclick")
+
+
+
     } else {
       p_2 <- p_1 %>%
         plotly::add_segments(
@@ -99,7 +102,7 @@ draw_mega_plot <- function(
         plotly::highlight(~ event, on = "plotly_click", off="plotly_doubleclick")
     }
     trace_info <- get_trace_info(p_2)
-    p_2 <- apply_trace_info(trace_info,p_2)
+    p_2 <- apply_trace_info(trace_info, p_2)
 
     if (!is.null(select_grouping)) {
       label_df <- megaplot_prepared_data %>%

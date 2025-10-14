@@ -1,10 +1,13 @@
-#' create_unique_event_identifier
+#' Create a data set with event identifier and color variables
 #'
-#' @description A fct function
+#' @description The purpose of this function is to create a data set with event &
+#' event_group information like color information (columns: event_color, gradient_event_color_1-gradient_event_color_3),
+#' event and event group indexes (event_id, event_group_id), number of events in event group (max_event_id),
 #'
-#' @return The return value, if any, from executing the function.
+#' @return data frame with one row per event and indexes and color information
 #'
 #' @noRd
+
 create_unique_event_identifier <- function(
     megaplot_data_raw
 ) {

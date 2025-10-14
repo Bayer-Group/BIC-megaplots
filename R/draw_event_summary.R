@@ -1,7 +1,7 @@
 #' Draws a line chart with daily counts of events
 #'
-#' @param megaplot_prepared_data data.frame with subject information used for calculation of min and max day
-#' @param megaplot_filtered_data data.frame with event information used to create event count lines
+#' @param megaplot_prepared_data data frame with subject information used for calculation of min and max day
+#' @param megaplot_filtered_data data frame with event information used to create event count lines
 #' @param select_grouping character vector with grouping variables
 #' @param event_summary_cutoff numeric value used as cutoff for hover labels displayed
 #'
@@ -33,7 +33,30 @@ draw_event_summary <- function(
   x_min <- min(min(megaplot_prepared_data$start_time,na.rm = TRUE), min(megaplot_prepared_data$event_time,na.rm=TRUE))
   x_max <- max(max(megaplot_prepared_data$end_time,na.rm = TRUE), max(megaplot_prepared_data$event_time_end,na.rm=TRUE))
 
+  if (!is.null(select_grouping)) {
+    label_df <- megaplot_prepared_data %>%
+      dplyr::group_by(group_index) %>%
+      dplyr::mutate(
+        text_position_y = max(subjectid_n, na.rm = TRUE) + 2,
+        text_position_x = min(megaplot_prepared_data$start_time, na.rm = TRUE)
+      ) %>%
+      dplyr::filter(dplyr::row_number() == 1) %>%
+      dplyr::ungroup() %>%
+      dplyr::select(subjectid_n,group_index,text_position_y,text_position_x)
 
+  megaplot_prepared_data_w_group_text <- megaplot_prepared_data  %>%
+    dplyr::left_join(label_df, by = c("group_index", "subjectid_n")) %>%
+    dplyr::group_by(text_position_y) %>%
+    dplyr::filter(dplyr::row_number() == 1) %>%
+    dplyr::filter(!is.na(text_position_y)) %>%
+    dplyr::rowwise() %>%
+    dplyr::mutate(
+      text_snippet_1 = paste(select_grouping, collapse = " "),
+      text_snippet_2 = paste(!!!rlang::syms(select_grouping))
+    ) %>%
+    dplyr::mutate(text_snippet_total = paste(unlist(strsplit(text_snippet_1," ")), unlist(strsplit(text_snippet_2, " ")), sep = ": ", collapse = " & ")) %>%
+    dplyr::mutate(event_color = "black")
+  }
   for(k in 1:number_group_levels) {
 
     df <- megaplot_filtered_data %>%
@@ -112,6 +135,12 @@ draw_event_summary <- function(
   }
 
   for(k in 1:number_group_levels) {
+
+    if (!is.null(select_grouping)) {
+    figure_list[[k]] <- figure_list[[k]] %>%
+      plotly::layout(annotations =list(list(x = mean(c(x_min, x_max)), y = max_y_range, showarrow = FALSE, xacnhor = 'center', yanchor = "top",text = megaplot_prepared_data_w_group_text$text_snippet_total[[k]])))
+    }
+
     figure_list[[k]] <- figure_list[[k]] %>%
       plotly::layout(
         yaxis = list(
