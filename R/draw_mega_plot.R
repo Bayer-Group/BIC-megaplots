@@ -32,8 +32,9 @@ draw_mega_plot <- function(
     megaplot_filtered_data$unique_event <- factor(megaplot_filtered_data$unique_event , levels = unique(megaplot_filtered_data$unique_event))
   }
 
+  ##
   megaplot_prepared_data  <- megaplot_prepared_data %>%
-    dplyr::select(subjectid, subjectid_n, start_time,end_time, group_index) %>%
+    dplyr::select(subjectid, subjectid_n, start_time,end_time, group_index, all_of(select_grouping)) %>%
     dplyr::distinct() %>%
     dplyr::mutate(
       text_lines = paste0("Subject identifier: ", subjectid)

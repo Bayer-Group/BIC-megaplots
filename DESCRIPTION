@@ -18,11 +18,13 @@ Imports:
     dplyr,
     ggplot2,
     golem,
+    jsTreeR,
     plotly,
     shiny,
     shinycssloaders,
     shinyjs,
     shinyTree,
+    shinyWidgets,
     tidyr,
     waiter
 Encoding: UTF-8

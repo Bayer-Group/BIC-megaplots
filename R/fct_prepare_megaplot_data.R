@@ -35,7 +35,7 @@ prepare_megaplot_data <- function(
   #create column group_index
   megaplot_data_raw <- megaplot_data_raw %>%
     dplyr::group_by(!!!rlang::syms(select_grouping)) %>%
-    dplyr::mutate(group_index = dplyr::cur_group_id())
+    dplyr::mutate(group_index = dplyr::cur_group_id()) #%>% dplyr::ungroup()
 
 
   ##

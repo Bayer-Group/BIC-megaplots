@@ -27,6 +27,7 @@ usethis::use_package("tidyr")
 usethis::use_package("jsTreeR")
 usethis::use_package("waiter")
 usethis::use_package("shinycssloaders")
+usethis::use_package("shinyWidgets")
 
 ## Amend DESCRIPTION with dependencies read from package code parsing
 ## install.packages('attachment') # if needed.
