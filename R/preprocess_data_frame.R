@@ -11,7 +11,7 @@
 #' @param  A_start_time_rdata Selected start time from dataset A (rdata)
 #' @param  A_end_time_rdata Selected end time from dataset A (rdata)
 #' @param  B_subjectid_rdata Selected subjectid from dataset B (rdata)
-#' @param  B_event_time_rdata Selected event time from dataset B (rdata) 
+#' @param  B_event_time_rdata Selected event time from dataset B (rdata)
 #' @param  A_subjectid_csv Selected subjectid from dataset A (csv)
 #' @param  A_start_time_csv Selected start time from dataset A (csv)
 #' @param  A_end_time_csv Selected end time from dataset A (csv)
@@ -43,7 +43,7 @@ preprocess_data_frame <- function(
  A_start_time_rdata,
  A_end_time_rdata,
  B_subjectid_rdata,
- B_event_time_rdata, 
+ B_event_time_rdata,
  A_subjectid_csv,
  A_start_time_csv,
  A_end_time_csv,
@@ -67,7 +67,7 @@ preprocess_data_frame <- function(
   B <- NULL
   #megaplots_demo_data <- NULL
   megaplots_selected_start_time <- megaplots_selected_end_time <- NULL
-  
+
   if (selectdata == 'Upload data') {
     if (impswitch == '*.RData file') {
       shiny::req(file)
@@ -97,7 +97,7 @@ preprocess_data_frame <- function(
           A_end_time_rdata != "" &
           B_subjectid_rdata != "" &
           B_event_time_rdata != ""
-          
+
         ) {
         if (
           A_subjectid_rdata != A_start_time_rdata &
@@ -108,7 +108,7 @@ preprocess_data_frame <- function(
           if (A_subjectid_rdata %in% colnames(A) &
              A_start_time_rdata %in% colnames(A) &
              A_end_time_rdata %in% colnames(A)) {
-            A <- A %>% 
+            A <- A %>%
               dplyr::rename(
                 megaplots_selected_subjectid = A_subjectid_rdata,
                 megaplots_selected_start_time = A_start_time_rdata,
@@ -117,25 +117,25 @@ preprocess_data_frame <- function(
           }
           if (B_subjectid_rdata %in% colnames(B) &
              B_event_time_rdata %in% colnames(B)) {
-            B <- B %>% 
+            B <- B %>%
               dplyr::rename(
                 megaplots_selected_subjectid = B_subjectid_rdata,
                 megaplots_selected_event_time = B_event_time_rdata
               )
-          } 
+          }
             #remove rows with missing ae_time value
           if (all(A$megaplots_selected_start_time <= A$megaplots_selected_end_time)) {
             B <- B[!is.na(B$megaplots_selected_event_time), ]
               name <- gsub('.RData', '', file$name)
               name <- gsub('_', ' ', name)
-                    
+
               megaplot_error_message <- NULL
-  
+
               A <- cbind(
                 A %>% dplyr::select(c(megaplots_selected_subjectid,megaplots_selected_start_time,megaplots_selected_end_time)),
                 A %>% dplyr::select(-c(megaplots_selected_subjectid,megaplots_selected_start_time,megaplots_selected_end_time))
               )
-              
+
               B <- cbind(
                 B %>% dplyr::select(c(megaplots_selected_subjectid,megaplots_selected_event_time)),
                 B %>% dplyr::select(-c(megaplots_selected_subjectid,megaplots_selected_event_time))
@@ -159,7 +159,7 @@ preprocess_data_frame <- function(
               )
             megaplot_data <- NULL
           }
-        } 
+        }
       }
     } else if (impswitch == '*.CSV files') {
       if (!is.null(csvA)) {
@@ -180,7 +180,7 @@ preprocess_data_frame <- function(
           !is.null(A_end_time_csv) &
           A_subjectid_csv != "" &
           A_start_time_csv != "" &
-          A_end_time_csv != "" 
+          A_end_time_csv != ""
         ) {
           A <- read.csv(
             file = csvA$datapath,
@@ -191,18 +191,18 @@ preprocess_data_frame <- function(
             dec = csv_dec,
             stringsAsFactors = FALSE
           )
-          
+
            if (A_subjectid_csv %in% colnames(A) &
              A_start_time_csv %in% colnames(A) &
              A_end_time_csv %in% colnames(A)) {
-             
-              A <- A %>% 
+
+              A <- A %>%
                 dplyr::rename(
                   megaplots_selected_subjectid = A_subjectid_csv,
                   megaplots_selected_start_time = A_start_time_csv,
                   megaplots_selected_end_time = A_end_time_csv
                 )
-            }   
+            }
             megaplot_error_message1 <- NULL
             }
           }
@@ -224,8 +224,8 @@ preprocess_data_frame <- function(
             !is.null(B_event_time_csv) &
             B_subjectid_csv != "" &
             B_event_time_csv != ""
-            
-          ) {               
+
+          ) {
             B <- read.csv(
               file = csvB$datapath,
               header = TRUE,
@@ -237,11 +237,11 @@ preprocess_data_frame <- function(
             )
             if (B_subjectid_csv %in% colnames(B) &
               B_event_time_csv %in% colnames(B)) {
-                B <- B %>% 
+                B <- B %>%
                   dplyr::rename(
                     megaplots_selected_subjectid = B_subjectid_csv,
                     megaplots_selected_event_time = B_event_time_csv
-                  )       
+                  )
             }
             megaplot_error_message1 <- NULL
             }
@@ -258,7 +258,7 @@ preprocess_data_frame <- function(
           A_end_time_csv != "" &
           B_subjectid_csv != "" &
           B_event_time_csv != ""
-          
+
         ) {
           if (
             A_subjectid_csv != A_start_time_csv &
@@ -275,7 +275,7 @@ preprocess_data_frame <- function(
                 name <- gsub('.csv', '', csvA$name)
                 name <- gsub('_', ' ', name)
                 megaplot_error_message <- NULL
-  
+
                 A <- cbind(
                   A %>% dplyr::select(c(megaplots_selected_subjectid,megaplots_selected_start_time,megaplots_selected_end_time)),
                   A %>% dplyr::select(-c(megaplots_selected_subjectid,megaplots_selected_start_time,megaplots_selected_end_time))
@@ -284,13 +284,13 @@ preprocess_data_frame <- function(
                   B %>% dplyr::select(c(megaplots_selected_subjectid,megaplots_selected_event_time)),
                   B %>% dplyr::select(-c(megaplots_selected_subjectid,megaplots_selected_event_time))
                 )
-                      
+
                 megaplot_data <- list(
                   A = A,
                   B = B,
                   name = name
                 )
-                    
+
               } else {
                 megaplot_error_message <-
                   paste0(
@@ -326,7 +326,7 @@ preprocess_data_frame <- function(
               !is.null(A_end_time_rdata_files) &
               A_subjectid_rdata_files != "" &
               A_start_time_rdata_files != "" &
-              A_end_time_rdata_files != "" 
+              A_end_time_rdata_files != ""
             ) {
               A <- base::get(load(
                 file = rdataA$datapath
@@ -334,7 +334,7 @@ preprocess_data_frame <- function(
                if (A_subjectid_rdata_files %in% colnames(A) &
                A_start_time_rdata_files %in% colnames(A) &
                A_end_time_rdata_files %in% colnames(A)) {
-                A <- A %>% 
+                A <- A %>%
                   dplyr::rename(
                     megaplots_selected_subjectid = A_subjectid_rdata_files,
                     megaplots_selected_start_time = A_start_time_rdata_files,
@@ -362,18 +362,18 @@ preprocess_data_frame <- function(
                 !is.null(B_event_time_rdata_files) &
                 B_subjectid_rdata_files != "" &
                 B_event_time_rdata_files != ""
-                
-              ) {               
+
+              ) {
                 B <- base::get(load(
                   file = rdataB$datapath
                 ))
                 if (B_subjectid_rdata_files %in% colnames(B) &
                  B_event_time_rdata_files %in% colnames(B)) {
-                  B <- B %>% 
+                  B <- B %>%
                   dplyr::rename(
                       megaplots_selected_subjectid = B_subjectid_rdata_files,
                       megaplots_selected_event_time = B_event_time_rdata_files
-                  )    
+                  )
                 }
                 megaplot_error_message1 <- NULL
                 }
@@ -390,7 +390,7 @@ preprocess_data_frame <- function(
           A_end_time_rdata_files != "" &
           B_subjectid_rdata_files != "" &
           B_event_time_rdata_files != ""
-          
+
         ) {
           if (
             A_subjectid_rdata_files != A_start_time_rdata_files &
@@ -407,7 +407,7 @@ preprocess_data_frame <- function(
                 name <- gsub('.RData', '', rdataA$name)
                 name <- gsub('_', ' ', name)
                 megaplot_error_message <- NULL
-  
+
                 A <- cbind(
                   A %>% dplyr::select(c(megaplots_selected_subjectid,megaplots_selected_start_time,megaplots_selected_end_time)),
                   A %>% dplyr::select(-c(megaplots_selected_subjectid,megaplots_selected_start_time,megaplots_selected_end_time))
@@ -416,13 +416,13 @@ preprocess_data_frame <- function(
                   B %>% dplyr::select(c(megaplots_selected_subjectid,megaplots_selected_event_time)),
                   B %>% dplyr::select(-c(megaplots_selected_subjectid,megaplots_selected_event_time))
                 )
-                      
+
                 megaplot_data <- list(
                   A = A,
                   B = B,
                   name = name
                 )
-                    
+
               } else {
                 megaplot_error_message <-
                   paste0(
@@ -439,16 +439,16 @@ preprocess_data_frame <- function(
             }
           }
         }
-      } 
+      }
     } else if (selectdata == 'Use demo data') {
-      
-      A <- megaplots_demo_data$A %>% 
+
+      A <- megaplots_demo_data$A %>%
         dplyr::rename(
           megaplots_selected_subjectid = "subjectid",
           megaplots_selected_start_time = "start_time",
           megaplots_selected_end_time = "end_time"
         )
-      B <- megaplots_demo_data$B %>% 
+      B <- megaplots_demo_data$B %>%
         dplyr::rename(
           megaplots_selected_subjectid = "subjectid",
           megaplots_selected_event_time = "ae_time"
@@ -457,52 +457,54 @@ preprocess_data_frame <- function(
       B <- B[!is.na(B$megaplots_selected_event_time),]
       name <- "MegaPlot example data 1"
       megaplot_data <- list(A = A, B = B, name = name)
-    } else if (selectdata == "Upload saved data") {
-      shiny::req(setting_file)
-      if (!is.null(setting_file)) {
-        if (utils::tail(strsplit(setting_file$datapath, ".", fixed = TRUE)[[1]], n = 1) != "rds") {
-          megaplot_error_message <- paste0(
-            "Wrong data format for saved dataset. <br> You have selected a ",
-            utils::tail(
-              strsplit(setting_file$datapath, ".", fixed = TRUE)[[1]],
-              n = 1
-            ),
-            " file. <br> Please select a .rds file <br> or choose another upload method."
-          )
-          megaplot_data <- NULL
-        } else {
-          saved_file <- readRDS(setting_file$datapath)
-      
-          if (all(c("subjectid","start_time","end_time") %in% colnames(saved_file$A)) & all(!c("megaplots_selected_subjectid","megaplots_selected_start_time","megaplots_selected_end_time") %in% colnames(saved_file$A))) {
-            saved_file$A <- saved_file$A %>% 
-              dplyr::rename(
-                megaplots_selected_subjectid = "subjectid",
-                megaplots_selected_start_time = "start_time",
-                megaplots_selected_end_time = "end_time"
-              )
-          }
-        
-          if (all(c("subjectid","event_time") %in% colnames(saved_file$B)) & all(!c("megaplots_selected_subjectid","megaplots_selected_event_time") %in% colnames(saved_file$B))) {
-            saved_file$B <- saved_file$B %>% 
-              dplyr::rename(
-                megaplots_selected_subjectid = "subjectid",
-                megaplots_selected_event_time = "ae_time"
-              )
-          }
-          megaplot_data <- list(
-            A = saved_file$A,
-            B = saved_file$B,
-            name = saved_file$name,
-            saved = saved_file
-          )
-        }
-      }
+      megaplot_data
     }
+    # } else if (selectdata == "Upload saved data") {
+    #   shiny::req(setting_file)
+    #   if (!is.null(setting_file)) {
+    #     if (utils::tail(strsplit(setting_file$datapath, ".", fixed = TRUE)[[1]], n = 1) != "rds") {
+    #       megaplot_error_message <- paste0(
+    #         "Wrong data format for saved dataset. <br> You have selected a ",
+    #         utils::tail(
+    #           strsplit(setting_file$datapath, ".", fixed = TRUE)[[1]],
+    #           n = 1
+    #         ),
+    #         " file. <br> Please select a .rds file <br> or choose another upload method."
+    #       )
+    #       megaplot_data <- NULL
+    #     } else {
+    #       saved_file <- readRDS(setting_file$datapath)
+    #
+    #       if (all(c("subjectid","start_time","end_time") %in% colnames(saved_file$A)) & all(!c("megaplots_selected_subjectid","megaplots_selected_start_time","megaplots_selected_end_time") %in% colnames(saved_file$A))) {
+    #         saved_file$A <- saved_file$A %>%
+    #           dplyr::rename(
+    #             megaplots_selected_subjectid = "subjectid",
+    #             megaplots_selected_start_time = "start_time",
+    #             megaplots_selected_end_time = "end_time"
+    #           )
+    #       }
+    #
+    #       if (all(c("subjectid","event_time") %in% colnames(saved_file$B)) & all(!c("megaplots_selected_subjectid","megaplots_selected_event_time") %in% colnames(saved_file$B))) {
+    #         saved_file$B <- saved_file$B %>%
+    #           dplyr::rename(
+    #             megaplots_selected_subjectid = "subjectid",
+    #             megaplots_selected_event_time = "ae_time"
+    #           )
+    #       }
+    #       megaplot_data <- list(
+    #         A = saved_file$A,
+    #         B = saved_file$B,
+    #         name = saved_file$name,
+    #         saved = saved_file
+    #       )
+    #     }
+    #   }
+    # }
   data <- list(
     megaplot_data = megaplot_data,
     megaplot_error_message = megaplot_error_message
   )
-  
+
   return(data)
-  
+
 }

@@ -3,5 +3,17 @@
     Code
       mod_data_specification_ui("id")
     Output
-      <div id="id-data_specification" class="shiny-html-output"></div>
+      <style>
+              .box.box-solid.box-success {
+               border-color: #222d32;
+               background: white;
+              }
+          </style>
+      <div>
+        <div class="box box-solid box-success">
+          <div class="box-body">
+            <div id="id-read_me" class="shiny-html-output"></div>
+          </div>
+        </div>
+      </div>
 

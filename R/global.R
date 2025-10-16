@@ -2,7 +2,7 @@ suppressPackageStartupMessages(library(shiny))
 
 colChoice <- list(
     'color palette 1'=list(
-      'col'=c("#a6cee3","#cab2d6","#b2df8a","#fb9a99","#fdbf6f","#1f78b4","#6a3d9a","#ff7f00"),
+      'col'=c("#b3de69","#ffed6f","#ff7f00","#1f78b4","#fb9a99","#fdbf6f","#6a3d9a","#cab2d6"),
       'gradient'=FALSE
     ),
     'color palette 2'=list(
@@ -10,11 +10,15 @@ colChoice <- list(
       'gradient'=FALSE
     ),
     'color palette 3'=list(
-      'col'=c("#ccebc5","#fdb462","#b3de69","#fccde5","#d9d9d9","#bc80bd","#80b1d3","#ffed6f"),
+      'col'=c("#ccebc5","#fdb462","#a6cee3","#fccde5","#d9d9d9","#bc80bd","#80b1d3","#b2df8a"),
       'gradient'=FALSE
     ),
     'color palette 4'=list(
       'col'=RColorBrewer::brewer.pal(8,'Pastel1'),
+      'gradient'=FALSE
+    ),
+    'color palette 5'=list(
+      'col'=RColorBrewer::brewer.pal(8,'Dark2'),
       'gradient'=FALSE
     ),
     'color gradient red'=list(
@@ -90,5 +94,6 @@ colChoice <- list(
       'gradient'=TRUE
     )
   )
- 
+
+
 utils::globalVariables(c('colChoice','megaplots_demo_data'))

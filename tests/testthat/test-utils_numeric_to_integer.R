@@ -24,7 +24,7 @@ test_that("numeric_to_integer() checks", {
   expect_false(is.integer(numeric_to_integer(df)$numeric_decimal))
   expect_equal(is.integer(numeric_to_integer(df)$numeric_integer), FALSE)
   expect_equal(is.numeric(numeric_to_integer(df)$numeric_integer), TRUE)
-  expect_equal(is.integer(numeric_to_integer(df)$integer),FALSE)
+  expect_equal(is.integer(numeric_to_integer(df)$integer),TRUE)
   expect_equal(is.numeric(numeric_to_integer(df)$integer),TRUE)
   expect_false(is.integer(numeric_to_integer(df)$integer_to_big))
   expect_false(is.integer(numeric_to_integer(df)$character))

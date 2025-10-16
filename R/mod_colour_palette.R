@@ -160,11 +160,11 @@ mod_colour_palette_ui <- function(id) {
 
 #' mod_colour_palette Server function
 #'
-#' @param id 
-#' @param event 
-#' @param level 
-#' @param colors 
-#' 
+#' @param id Internal parameters for {shiny}.
+#' @param event character value of selected event
+#' @param level character vector of event levels from event
+#' @param colors character vector with color codes for event levels
+#'
 #' @importFrom colourpicker updateColourInput
 #' @rawNamespace import(shiny, except=c(dataTableOutput, renderDataTable))
 #'
@@ -188,11 +188,11 @@ mod_colour_palette_server <- function(id, event, level, colors) {
         )
       }
     })
-    
+
     output$header <- renderText({
       ev
     })
-    
+
     # 1
     cond_panel_1 <- shiny::reactiveValues(val = FALSE)
     output$cond_panel1 <- shiny::reactive({
@@ -237,7 +237,7 @@ mod_colour_palette_server <- function(id, event, level, colors) {
       }
     })
     outputOptions(output, "cond_panel4", suspendWhenHidden = FALSE)
-    
+
     # 5
     cond_panel_5 <- shiny::reactiveValues(val = FALSE)
     output$cond_panel5 <- shiny::reactive({
@@ -282,7 +282,7 @@ mod_colour_palette_server <- function(id, event, level, colors) {
       }
     })
     outputOptions(output, "cond_panel8", suspendWhenHidden = FALSE)
-    
+
     out <-
       shiny::reactiveValues(
         val = c(
@@ -296,7 +296,7 @@ mod_colour_palette_server <- function(id, event, level, colors) {
           input$col8
         )
       )
-    
+
     observeEvent(input$col1, {
       out$val[1] <- input$col1
     })
@@ -321,8 +321,8 @@ mod_colour_palette_server <- function(id, event, level, colors) {
     observeEvent(input$col8, {
       out$val[8] <- input$col8
     })
-    
-    
+
+
     return(list(colors = shiny::reactive({
       out$val
     })))
