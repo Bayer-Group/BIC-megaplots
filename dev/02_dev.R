@@ -20,7 +20,6 @@ usethis::use_package("dplyr")
 usethis::use_package("bsicons")
 usethis::use_package("ggplot2")
 usethis::use_package("survival")
-usethis::use_package("shinyTree")
 usethis::use_package("colourpicker")
 usethis::use_package("shinyjs")
 usethis::use_package("tidyr")
@@ -28,6 +27,9 @@ usethis::use_package("jsTreeR")
 usethis::use_package("waiter")
 usethis::use_package("shinycssloaders")
 usethis::use_package("shinyWidgets")
+
+usethis::use_package("purrr")
+usethis::use_package("survival")
 
 ## Amend DESCRIPTION with dependencies read from package code parsing
 ## install.packages('attachment') # if needed.

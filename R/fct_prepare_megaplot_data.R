@@ -52,7 +52,7 @@ prepare_megaplot_data <- function(
 
   # add a custom space of 10 empty lines (empty subjectid_n) to distinguish groups in mega plots
   megaplot_data_raw  <- megaplot_data_raw %>%
-    dplyr::mutate(subjectid_n = subject_index + (group_index - 1) * 10)
+    dplyr::mutate(subjectid_n = .data$subject_index + (.data$group_index - 1) * 10)
 
   # return value
   return(megaplot_data_raw)

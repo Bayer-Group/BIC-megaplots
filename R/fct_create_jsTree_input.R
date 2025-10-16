@@ -5,7 +5,7 @@
 #' @return The return value, if any, from executing the function.
 #'
 #' @noRd
-create_jsTree_input <- function(data = unique_event_group_data()) {
+create_jsTree_input <- function(data) {
 
     splitted_data <- split(data, data$event_group)
     rownames(splitted_data) <- NULL

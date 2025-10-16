@@ -2,8 +2,10 @@
 #'
 #' @param megaplot_prepared_data data.frame with subject information used for the subject lines
 #' @param megaplot_filtered_data data.frame with selected events for the event lines
-#' @param select_grouping
-#' @param line_width
+#' @param select_grouping character vector with grouping variable names
+#' @param line_width numeric value for event line width
+#' @param line_width_subjects numeric value for subject line width
+#' @param event_tooltips logical value if event tooltips should be turned on/off
 #'
 #' @return
 #' @export
@@ -20,13 +22,14 @@ draw_mega_plot <- function(
 
   min_start_day <- min(megaplot_prepared_data$start_time, na.rm = TRUE)
   if (!is.null(megaplot_filtered_data)) {
-    megaplot_filtered_data <- megaplot_filtered_data %>% dplyr::mutate(
-      text_events = paste0(" Subject identifier: ", subjectid, "\n Event: ", event, " (",event_group,") \n", " Start time: ",event_time, "\n End time: ", event_time_end)
-    )
+    megaplot_filtered_data <- megaplot_filtered_data %>%
+      dplyr::mutate(
+        text_events = paste0(" Subject identifier: ", .data$subjectid, "\n Event: ", .data$event, " (",.data$event_group,") \n", " Start time: ", .data$event_time, "\n End time: ", .data$event_time_end)
+      )
 
     #re-arrangement for plotly legend
     megaplot_filtered_data <- megaplot_filtered_data %>%
-      dplyr::arrange(event_group_id, event_id)
+      dplyr::arrange(.data$event_group_id, .data$event_id)
 
 
     megaplot_filtered_data$unique_event <- factor(megaplot_filtered_data$unique_event , levels = unique(megaplot_filtered_data$unique_event))
@@ -34,11 +37,17 @@ draw_mega_plot <- function(
 
   ##
   megaplot_prepared_data  <- megaplot_prepared_data %>%
-    dplyr::select(subjectid, subjectid_n, start_time,end_time, group_index, all_of(select_grouping)) %>%
+    dplyr::select(tidyselect::all_of(c("subjectid", "subjectid_n", "start_time", "end_time", "group_index", select_grouping))) %>%
     dplyr::distinct() %>%
     dplyr::mutate(
-      text_lines = paste0("Subject identifier: ", subjectid)
+      text_lines = paste0("Subject identifier: ", .data$subjectid)
     )
+
+  megaplot_prepared_data_ <<- megaplot_prepared_data
+  megaplot_filtered_data_ <<- megaplot_filtered_data
+
+  megaplot_prepared_data <- megaplot_prepared_data_
+  megaplot_filtered_data <- megaplot_filtered_data_
 
   p_1 <- megaplot_prepared_data %>%
     plotly::plot_ly(                            #create empty plot_ly object
@@ -64,7 +73,7 @@ draw_mega_plot <- function(
     if(event_tooltips) {
       p_2 <- p_1 %>%
         plotly::add_segments(
-          data = plotly::highlight_key(megaplot_filtered_data %>% dplyr::filter(is.na(n_flag)), ~event),
+          data = plotly::highlight_key(megaplot_filtered_data %>% dplyr::filter(is.na(.data$n_flag)), ~event),
           legendgroup = ~ event_group,
           name = ~ unique_event,
           x = ~event_time - 0.45,
@@ -107,26 +116,26 @@ draw_mega_plot <- function(
     if (!is.null(select_grouping)) {
       label_df <- megaplot_prepared_data %>%
         #dplyr::select(subject_index, subjectid_n, group_index, sex, treatment) %>%
-        dplyr::group_by(group_index) %>%
+        dplyr::group_by(.data$group_index) %>%
         dplyr::mutate(
-          text_position_y = max(subjectid_n, na.rm = TRUE) + 2,
+          text_position_y = max(.data$subjectid_n, na.rm = TRUE) + 2,
           text_position_x = min_start_day
         ) %>%
         dplyr::filter(dplyr::row_number() == 1) %>%
         dplyr::ungroup() %>%
-        dplyr::select(subjectid_n,group_index,text_position_y,text_position_x)
+        dplyr::select(tidyselect::all_of(c("subjectid_n","group_index","text_position_y","text_position_x")))
 
       megaplot_prepared_data_w_group_text <- megaplot_prepared_data  %>%
         dplyr::left_join(label_df, by = c("group_index", "subjectid_n")) %>%
-        dplyr::group_by(text_position_y) %>%
+        dplyr::group_by(.data$text_position_y) %>%
         dplyr::filter(dplyr::row_number() == 1) %>%
-        dplyr::filter(!is.na(text_position_y)) %>%
+        dplyr::filter(!is.na(.data$text_position_y)) %>%
         dplyr::rowwise() %>%
         dplyr::mutate(
           text_snippet_1 = paste(select_grouping, collapse = " "),
           text_snippet_2 = paste(!!!rlang::syms(select_grouping))
         ) %>%
-        dplyr::mutate(text_snippet_total = paste(unlist(strsplit(text_snippet_1," ")), unlist(strsplit(text_snippet_2, " ")), sep = ": ", collapse = " & ")) %>%
+        dplyr::mutate(text_snippet_total = paste(unlist(strsplit(.data$text_snippet_1," ")), unlist(strsplit(.data$text_snippet_2, " ")), sep = ": ", collapse = " & ")) %>%
         dplyr::mutate(event_color = "black")
 
       p_2 <- p_2 %>%

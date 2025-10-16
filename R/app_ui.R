@@ -8,29 +8,39 @@ app_ui <- function(request) {
   shiny::tagList(
     # Leave this function for adding external resources
     golem_add_external_resources(),
-    # This function must be called in order for all other shinyjs functions to work
+    # This function must be called in order for all other
+    #shinyjs functions to work
     shinyjs::useShinyjs(),
     # Add own JavaScript functions that can be called from R
-    # (This function is used to get row number of which event/color container is clicked)
+    # (This function is used to get row number of which
+    #event/color container is clicked)
     shinyjs::extendShinyjs(
       text = "shinyjs.init = function() {
-              $('#selected-cols-row').on('click', '.col', function(event) {
-              var colnum = $(event.target).data('colnum');
-              Shiny.onInputChange('jsColNum', [colnum]);
-            });
+        $('#selected-cols-row').on('click', '.col', function(event) {
+        var colnum = $(event.target).data('colnum');
+        Shiny.onInputChange('jsColNum', [colnum]);
+      });
 
-            $('#rclosecolsSection, #allColsSection').on('click', '.rcol', function(event) {
-              var col = $(event.target).data('col');
-              Shiny.onInputChange('jsCol', [col]);
-            });
-          };",
+      $('#rclosecolsSection, #allColsSection').on('click', '.rcol', function(event) {
+        var col = $(event.target).data('col');
+        Shiny.onInputChange('jsCol', [col]);
+      });
+      };",
       functions = c("init")
     ),
     # Add CSS styles (overwrite color appearance of fileInput button)
     tags$style(
-      type = 'text/css',
+      type = "text/css",
       ".btn-outline-default,
-      .btn-default:not(.btn-primary,.btn-secondary,.btn-info,.btn-success,.btn-danger,.btn-warning,.btn-light,.btn-dark,.btn-link,[class*='btn-outline-']) {
+      .btn-default:not(
+        .btn-primary,
+        .btn-secondary,
+        .btn-info,.btn-success,
+        .btn-danger,
+        .btn-warning,
+        .btn-light,
+        .btn-dark,
+        .btn-link,[class*='btn-outline-']) {
         --bs-btn-color: white;
         --bs-btn-border-color: white;
         --bs-btn-hover-border-color: white;
@@ -130,6 +140,11 @@ app_ui <- function(request) {
             max = NA,
             step = 1
           )
+        ),
+        bslib::accordion_panel(
+          "Download",
+          icon = bsicons::bs_icon("download"),
+          shiny::downloadButton("download_plotly_widget", "Download Mega plot as HTML")
         )
       ),
       #Main area

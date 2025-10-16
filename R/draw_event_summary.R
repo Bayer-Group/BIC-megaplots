@@ -18,7 +18,7 @@ draw_event_summary <- function(
 ) {
 
   megaplot_filtered_data <- megaplot_filtered_data %>%
-    dplyr::select(-subjectid_n_jittered, -jitter_event_time)
+    dplyr::select(-tidyselect::all_of(c("subjectid_n_jittered", "jitter_event_time")))
 
 
   if (!is.null(select_grouping)) {
@@ -35,53 +35,53 @@ draw_event_summary <- function(
 
   if (!is.null(select_grouping)) {
     label_df <- megaplot_prepared_data %>%
-      dplyr::group_by(group_index) %>%
+      dplyr::group_by(.data$group_index) %>%
       dplyr::mutate(
-        text_position_y = max(subjectid_n, na.rm = TRUE) + 2,
-        text_position_x = min(megaplot_prepared_data$start_time, na.rm = TRUE)
+        text_position_y = max(.data$subjectid_n, na.rm = TRUE) + 2,
+        text_position_x = min(.data$start_time, na.rm = TRUE)
       ) %>%
       dplyr::filter(dplyr::row_number() == 1) %>%
       dplyr::ungroup() %>%
-      dplyr::select(subjectid_n,group_index,text_position_y,text_position_x)
+      dplyr::select(tidyselect::all_of(c("subjectid_n","group_index","text_position_y","text_position_x")))
 
   megaplot_prepared_data_w_group_text <- megaplot_prepared_data  %>%
     dplyr::left_join(label_df, by = c("group_index", "subjectid_n")) %>%
-    dplyr::group_by(text_position_y) %>%
+    dplyr::group_by(.data$text_position_y) %>%
     dplyr::filter(dplyr::row_number() == 1) %>%
-    dplyr::filter(!is.na(text_position_y)) %>%
+    dplyr::filter(!is.na(.data$text_position_y)) %>%
     dplyr::rowwise() %>%
     dplyr::mutate(
       text_snippet_1 = paste(select_grouping, collapse = " "),
       text_snippet_2 = paste(!!!rlang::syms(select_grouping))
     ) %>%
-    dplyr::mutate(text_snippet_total = paste(unlist(strsplit(text_snippet_1," ")), unlist(strsplit(text_snippet_2, " ")), sep = ": ", collapse = " & ")) %>%
+    dplyr::mutate(text_snippet_total = paste(unlist(strsplit(.data$text_snippet_1," ")), unlist(strsplit(.data$text_snippet_2, " ")), sep = ": ", collapse = " & ")) %>%
     dplyr::mutate(event_color = "black")
   }
   for(k in 1:number_group_levels) {
 
     df <- megaplot_filtered_data %>%
-      dplyr::arrange(event_group, unique_event) %>%
-      dplyr::filter(!is.na(event)) %>%
+      dplyr::arrange(.data$event_group, .data$unique_event) %>%
+      dplyr::filter(!is.na(.data$event)) %>%
       dplyr::rowwise() %>%
       dplyr::mutate(
-        day = list(seq(event_time, event_time_end, by = 1))
+        day = list(seq(.data$event_time, .data$event_time_end, by = 1))
       ) %>%
-      tidyr::unnest_longer(col = day) %>%
-      dplyr::group_by(dplyr::across(all_of(c(select_grouping,"group_index","event_group","event","unique_event","event_color","day")))) %>%
+      tidyr::unnest_longer(col = .data$day) %>%
+      dplyr::group_by(dplyr::across(tidyselect::all_of(c(select_grouping,"group_index","event_group","event","unique_event","event_color","day")))) %>%
       dplyr::summarise(value = dplyr::n()) %>%
       tidyr::complete(
-        day = seq(min(day)-1,max(day)+1, 1),
+        day = seq(min(.data$day)-1,max(.data$day)+1, 1),
         fill = list(value = 0)
       ) %>%
       dplyr::arrange(dplyr::across(dplyr::all_of(c(select_grouping,"group_index","event_group","event","unique_event","event_color","day")))) %>%
       dplyr::ungroup() %>%
       dplyr::mutate(
         tooltip = "x+text",
-        tooltip_text = ifelse(value < event_summary_cutoff, NA, paste0(event,": ", value))
-      ) %>% dplyr::filter(group_index == k)
+        tooltip_text = ifelse(.data$value < event_summary_cutoff, NA, paste0(.data$event,": ", .data$value))
+      ) %>% dplyr::filter(.data$group_index == k)
 
     #update max count used for y axis range
-    max_y_range <- max(max_y_range,max(df$value, na.rm = TRUE))
+    max_y_range <- max(max_y_range, max(df$value, na.rm = TRUE))
 
     #initial plotly figure
     fig <- plotly::plot_ly(data = df, x = ~ day)

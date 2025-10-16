@@ -1,10 +1,10 @@
 #' Draws Kaplan Meier plots with time to first event
 #'
-#' @param megaplot_prepared_data
-#' @param megaplot_filtered_data
-#' @param select_grouping
-#' @param select_event_kaplan_meier
-#' @param select_strata_var
+#' @param megaplot_prepared_data data.frame with subject information used for the subject lines
+#' @param megaplot_filtered_data data.frame with selected events for the event lines
+#' @param select_grouping character vector with grouping variable names
+#' @param select_event_kaplan_meier character with event variable name
+#' @param select_strata_var character vector with stratification variables
 #'
 #' @return
 #' @export
@@ -24,17 +24,18 @@ draw_kaplan_meier <- function(
 
   time_to_first_event <- megaplot_filtered_data %>%
     dplyr::select(
-      subjectid,
-      subjectid_n,
-      event_time,
-      unique_event
-    ) %>%
-    dplyr::filter(unique_event == level) %>%
-    dplyr::group_by(subjectid) %>%
-    dplyr::arrange(event_time) %>%
+      tidyselect::all_of(c(
+      "subjectid",
+      "subjectid_n",
+      "event_time",
+      "unique_event"
+    ))) %>%
+    dplyr::filter(.data$unique_event == level) %>%
+    dplyr::group_by(.data$subjectid) %>%
+    dplyr::arrange(.data$event_time) %>%
     dplyr::slice_head(n = 1) %>%
-    dplyr::mutate(!!paste0("time_to_first") := event_time) %>%
-    dplyr::select(subjectid, !!paste0("time_to_first"))
+    dplyr::mutate(!!paste0("time_to_first") := .data$event_time) %>%
+    dplyr::select(tidyselect::all_of(c("subjectid", "time_to_first")))
 
   megaplot_data_w_time_to_first_event <- megaplot_prepared_data %>%
     dplyr::left_join(
@@ -44,13 +45,16 @@ draw_kaplan_meier <- function(
 
   megaplot_data_for_survfit <- megaplot_data_w_time_to_first_event %>%
     dplyr::mutate(
-      time = dplyr::case_when(is.na(time_to_first) ~ end_time,
-                              !is.na(time_to_first) ~ time_to_first),
-      status = dplyr::case_when(is.na(time_to_first) ~ 1,
-                                !is.na(time_to_first) ~ 2)
+      time = dplyr::case_when(is.na(.data$time_to_first) ~ .data$end_time,
+                              !is.na(.data$time_to_first) ~ .data$time_to_first),
+      status = dplyr::case_when(is.na(.data$time_to_first) ~ 1,
+                                !is.na(.data$time_to_first) ~ 2)
     )
 
-  event_color <- megaplot_filtered_data %>% dplyr::filter(unique_event == level) %>% dplyr::pull(event_color) %>% as.character %>% unique()
+  event_color <- megaplot_filtered_data %>%
+    dplyr::filter(.data$unique_event == level) %>%
+    dplyr::pull(.data$event_color) %>%
+    as.character %>% unique()
 
 
   if(is.null(select_strata_var)){
