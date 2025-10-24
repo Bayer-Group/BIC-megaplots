@@ -145,6 +145,11 @@ app_ui <- function(request) {
           "Download",
           icon = bsicons::bs_icon("download"),
           shiny::downloadButton("download_plotly_widget", "Download Mega plot as HTML")
+        ),
+        bslib::accordion_panel(
+          "Sequencing",
+          icon = bsicons::bs_icon("plus"),
+          artificial_intelligence_ui("ai")
         )
       ),
       #Main area

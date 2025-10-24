@@ -724,7 +724,7 @@ app_server <- function(input, output, session) {
   uploaded_data <- shiny::reactiveValues(val = NULL)
 
   # Update widgets and reactive data object when fileinput is observed
-  shiny::observeEvent(input$file, {
+  shiny::observeEvent(c(input$file, sequencing_order_data$val), {
     shiny::req(input$file) #requires input$file
 
     #load data
@@ -733,6 +733,14 @@ app_server <- function(input, output, session) {
         file = input$file$datapath
       )
     )
+
+    if (!is.null(sequencing_order_data$val)) {
+      megaplot_data <- megaplot_data %>%
+        dplyr::left_join(
+          sequencing_order_data$val,
+          by ="subjectid"
+        )
+    }
 
     uploaded_data$val <- megaplot_data  #update reactive value 'uploaded_data'
 
@@ -868,4 +876,32 @@ app_server <- function(input, output, session) {
       select_strata_var = input$select_grouping
     )
   })
+
+  #sequencing
+  #sequencing/ai module (server part)
+  sequencing_order_data <- shiny::reactiveValues(val = NULL)
+
+  artificial_intelligence <- shiny::callModule(
+    artificial_intelligence_server,
+    "ai",
+    shiny::reactive({megaplot_filtered_data()})
+  )
+
+  shiny::observeEvent(artificial_intelligence$seq.button(),{
+    if (!is.null(artificial_intelligence$varSeq())) {
+      sequencing_output <- megaplots_sequencing_functions(
+        final_data = megaplot_filtered_data(),
+        variable = artificial_intelligence$varSeq(),
+        seriation_parameter = artificial_intelligence$input_seriation(),
+        seriation_method = artificial_intelligence$methSer(),
+        group = input$select_grouping,
+        multiple_distmeasures = artificial_intelligence$multiple_distmeasures()
+      )
+      sequencing_order_data$val <- sequencing_output
+    }
+    #data_w_ai_information_reacVal$df <- data_w_ai_information
+    # megaplot_filtered_data(sequencing_output)
+  })
+
+
 }
