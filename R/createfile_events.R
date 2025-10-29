@@ -35,7 +35,9 @@ createFile.events <- function(mp_data,
                               prefix = NULL,
                               event_start = c("ASTDT","AESTDT","ADY"),
                               event_end = c("AENDT","AEENDT"),
-                              calc_time_to_first = FALSE
+                              calc_time_to_first = FALSE,
+                              calc_days_with = FALSE,
+                              left_censor = NULL
 ){
   # Check if mp_data is a list
   if (!is.list(mp_data)) {
@@ -119,8 +121,9 @@ createFile.events <- function(mp_data,
     entry <- param[[i]]
     pre <- prefix[[i]]
     data_tmp <- data %>%
-      mutate(event_group = paste0(pre[1], !!!syms(entry)[1]),
-             event = paste0(pre[2], !!!syms(entry)[2])) %>%
+      dplyr::mutate(event_group = paste0(pre[1], !!!syms(entry)[1]),
+                    event = paste0(pre[2], !!!syms(entry)[2])) %>%
+      dplyr::filter(!is.na(event) & event != "") %>%
       dplyr::select(subjectid, event_group, event, !!sym(event_start), !!sym(event_end), ref_date, start_time, end_time) %>%
       dplyr::filter(!is.na(!!sym(event_start))) %>%
       arrange(subjectid, event_group, event, !!sym(event_start), !!sym(event_end)) %>%
@@ -132,11 +135,14 @@ createFile.events <- function(mp_data,
         )
       ) %>%
       ungroup() %>%
-      dplyr::filter(!(event_start_time < start_time & event_end_time < start_time)) %>%
-      dplyr::mutate(event_start_time = case_when(
-        event_start_time < start_time ~ start_time,
-        TRUE ~ event_start_time
-      )) %>%
+      dplyr::mutate(event_start_time =
+                      ifelse(is.null(left_censor), event_start_time,
+                             case_when(
+                               event_start_time < start_time + left_censor ~ start_time + left_censor,
+                               TRUE ~ event_start_time
+                             )
+                      )
+      ) %>%
       dplyr::select(-c(!!sym(event_start), !!sym(event_end), ref_date)) %>% # Drop original date columns
       relocate(subjectid, event_group, event, event_start_time, event_end_time) %>% # Rearrange columns
       distinct()
@@ -145,7 +151,7 @@ createFile.events <- function(mp_data,
   }
 
   time_to_first <- NULL
-  if(calc_time_to_first==T){
+  if(calc_time_to_first==TRUE){
     print("calcuating time to first event")
     time_to_first <- events_tmp %>%
       arrange(subjectid,event_group,event,event_start_time) %>%
@@ -159,7 +165,7 @@ createFile.events <- function(mp_data,
       pivot_wider(
         id_cols="subjectid",
         names_from = c("event_group","event"),
-        names_prefix = "time_to_first_",
+        names_prefix = "ttf_",
         names_sep = "_",
         values_from = "first"
       )
@@ -175,13 +181,57 @@ createFile.events <- function(mp_data,
       pivot_wider(
         id_cols="subjectid",
         names_from = c("event_group"),
-        names_prefix = "time_to_first_",
+        names_prefix = "ttf_",
         names_sep = "_",
         values_from = "first"
       )
     mp_data$sl <- mp_data$sl %>%
       left_join(time_to_first_group, by="subjectid") %>%
       left_join(time_to_first, by="subjectid")
+  }
+
+  days_with <- NULL
+  if(calc_days_with==T){
+    print("calcuating days with event")
+    days_with <- events_tmp %>%
+      arrange(subjectid,event_group,event,event_start_time,event_end_time) %>%
+      dplyr::mutate(days = as.numeric(event_end_time) - as.numeric(event_start_time) + 1) %>%
+      group_by(subjectid,event_group,event) %>%
+      dplyr::mutate(days_with = sum(days)) %>%
+      dplyr::ungroup() %>%
+      dplyr::select(-c(event_start_time, event_end_time, start_time, end_time, days)) %>%
+      distinct() %>%
+      dplyr::mutate(event_group = gsub("[[:punct:][:space:]]+", "_", event_group),
+                    event = gsub("[[:punct:][:space:]]+", "_", event)) %>%
+      pivot_wider(
+        id_cols="subjectid",
+        names_from = c("event_group","event"),
+        names_prefix = "dw_",
+        names_sep = "_",
+        values_from = "days_with",
+        values_fill = 0
+      )
+    days_with_group <- events_tmp %>%
+      dplyr::select(-event) %>%
+      arrange(subjectid,event_group,event_start_time, event_end_time) %>%
+      dplyr::mutate(days = as.numeric(event_end_time) - as.numeric(event_start_time) + 1) %>%
+      group_by(subjectid,event_group) %>%
+      dplyr::mutate(days_with = sum(days)) %>%
+      dplyr::ungroup() %>%
+      dplyr::select(-c(event_start_time, event_end_time, start_time, end_time, days)) %>%
+      distinct() %>%
+      dplyr::mutate(event_group = gsub("[[:punct:][:space:]]+", "_", event_group)) %>%
+      pivot_wider(
+        id_cols="subjectid",
+        names_from = c("event_group"),
+        names_prefix = "dw_",
+        names_sep = "_",
+        values_from = "days_with",
+        values_fill = 0
+      )
+    mp_data$sl <- mp_data$sl %>%
+      left_join(days_with_group, by="subjectid") %>%
+      left_join(days_with, by="subjectid")
   }
 
   mp_data$events <- rbind(mp_data$events, events_tmp)
