@@ -43,6 +43,7 @@ golem::add_fct("helpers", with_test = TRUE)
 golem::add_fct("create_unique_event_identifier", with_test = TRUE)
 golem::add_fct("create_event_tree", with_test = TRUE)
 golem::add_fct("create_color_container", with_test = TRUE)
+golem::add_fct("read_dataset", with_test = TRUE)
 golem::add_utils("font_color", with_test = TRUE)
 
 ## External resources

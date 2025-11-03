@@ -23,6 +23,7 @@ Imports:
     shiny,
     shinyjs,
     shinyTree,
+    survival,
     tidyr
 Encoding: UTF-8
 LazyData: true
