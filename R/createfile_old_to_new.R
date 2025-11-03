@@ -10,28 +10,6 @@
 #
 # Returns: A data frame ready for the new megaplots version
 
-# Helper function to read datasets
-#' Title
-#'
-#' @param path Path to a file (.sas7bdat, .csv, .rdata). If .rdata-format the file should best contain only one dataset.
-#'
-#' @return
-#' @export
-#'
-#' @examples
-read_dataset <- function(path) {
-  # Check the file extension to determine how to read the file
-  if (grepl("\\.sas7bdat$", path, ignore.case = TRUE)) {
-    return(haven::read_sas(path)) # Read SAS file
-  } else if (grepl("\\.csv$", path, ignore.case = TRUE)) {
-    return(readr::read_csv(path)) # Read CSV file
-  } else if (grepl("\\.RData$", path, ignore.case = TRUE)) {
-    name_data <- load(path) # Load RData file
-    return(get(ls()[ls() == name_data]))
-  } else {
-    stop("Unsupported file format. Please provide a SAS, CSV, or RData file.") # Error for unsupported format
-  }
-}
 
 #' Function to create megaplots file for rebuild (v??? and later) from prepared datasets for old version (v??? and earlier)
 #'
