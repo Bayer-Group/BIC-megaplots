@@ -159,8 +159,6 @@ app_server <- function(input, output, session) {
       event_time = input$select_event_time,
       event_time_end = input$select_event_time_end
     )
-    print("variable_check:")
-    print(variable_check)
     # variable_check$val <- variable_check
       # when check is successful display next button
       if (variable_check) {
@@ -788,9 +786,6 @@ app_server <- function(input, output, session) {
     )
   })
 
-  shiny::observe({
-    print(uploaded_data_renamed())
-  })
 
   uploaded_data_filtered <- shiny::reactive({
     shiny::req(uploaded_data_renamed())

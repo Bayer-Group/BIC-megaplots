@@ -1,3 +1,8 @@
 test_that("multiplication works", {
-  expect_equal(2 * 2, 4)
+  testthat::expect_equal(is.data.frame(demo_data),TRUE)
+
+  result <- create_unique_event_identifier(demo_data)
+
+  colnames(result)
+
 })
