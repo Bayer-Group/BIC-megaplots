@@ -16,16 +16,16 @@ create_color_container <- function(
     selected_data <- tree
 
     selected_data <- selected_data %>%
-      dplyr::group_by(.data$event_group) %>%
-      dplyr::mutate(group_index = dplyr::cur_group_id(), index = dplyr::row_number(.data$event_group) ) %>%
+      dplyr::group_by(.data$megaplots_selected_event_group) %>%
+      dplyr::mutate(group_index = dplyr::cur_group_id(), index = dplyr::row_number(.data$megaplots_selected_event_group) ) %>%
       dplyr::mutate(index = dplyr::case_when(
-        is.na(.data$event) ~ 0,
-        !is.na(.data$event) ~ index,
+        is.na(.data$megaplots_selected_event) ~ 0,
+        !is.na(.data$megaplots_selected_event) ~ index,
         )
       )
     selected_data <- selected_data %>%
-      dplyr::arrange(.data$group_index,.data$index) %>%
-      dplyr::select(tidyselect::all_of(c("event_group","event"))) %>%
+      dplyr::arrange(.data$group_index, .data$index) %>%
+      dplyr::select(tidyselect::all_of(c("megaplots_selected_event_group","megaplots_selected_event"))) %>%
       as.data.frame()
     # Re-arrange within groups to have
     # selected_data <- selected_data %>% dplyr::group_by(event_group) %>% dplyr::arrange(type_for_color, .by_group = TRUE) %>% dplyr::ungroup()
@@ -47,12 +47,12 @@ create_color_container <- function(
     selected_data <- selected_data %>%
       dplyr::left_join(
         color_vector %>%
-          dplyr::select(tidyselect::all_of(c("event_group", "event", "event_color", "gradient_event_color_1", "gradient_event_color_2", "gradient_event_color_3"))),
-        by = dplyr::join_by("event_group","event")
+          dplyr::select(tidyselect::all_of(c("megaplots_selected_event_group", "megaplots_selected_event", "event_color", "gradient_event_color_1", "gradient_event_color_2", "gradient_event_color_3"))),
+        by = dplyr::join_by("megaplots_selected_event_group","megaplots_selected_event")
       ) %>%
       dplyr::mutate(
-        names_for_color_list = ifelse(is.na(.data$event), .data$event_group, .data$event),
-        type_for_color = ifelse(is.na(.data$event), "event_group", "event")
+        names_for_color_list = ifelse(is.na(.data$megaplots_selected_event), .data$megaplots_selected_event_group, .data$megaplots_selected_event),
+        type_for_color = ifelse(is.na(.data$megaplots_selected_event), "megaplots_selected_event_group", "megaplots_selected_event")
       )
 
     # in case new event groups are created via jsTreeR, colorize these in grey

@@ -30,8 +30,8 @@ draw_event_summary <- function(
   #initialize list for figures used in subplots (when multiple groups are selected)
   figure_list <- list()
   max_y_range <- c()
-  x_min <- min(min(megaplot_prepared_data$start_time,na.rm = TRUE), min(megaplot_prepared_data$event_time,na.rm=TRUE))
-  x_max <- max(max(megaplot_prepared_data$end_time,na.rm = TRUE), max(megaplot_prepared_data$event_time_end,na.rm=TRUE))
+  x_min <- min(min(megaplot_prepared_data$start_time,na.rm = TRUE), min(megaplot_prepared_data$megaplots_selected_event_time,na.rm=TRUE))
+  x_max <- max(max(megaplot_prepared_data$end_time,na.rm = TRUE), max(megaplot_prepared_data$megaplots_selected_event_time_end,na.rm=TRUE))
 
   if (!is.null(select_grouping)) {
     label_df <- megaplot_prepared_data %>%
@@ -60,24 +60,24 @@ draw_event_summary <- function(
   for(k in 1:number_group_levels) {
 
     df <- megaplot_filtered_data %>%
-      dplyr::arrange(.data$event_group, .data$unique_event) %>%
-      dplyr::filter(!is.na(.data$event)) %>%
+      dplyr::arrange(.data$megaplots_selected_event_group, .data$unique_event) %>%
+      dplyr::filter(!is.na(.data$megaplots_selected_event)) %>%
       dplyr::rowwise() %>%
       dplyr::mutate(
-        day = list(seq(.data$event_time, .data$event_time_end, by = 1))
+        day = list(seq(.data$megaplots_selected_event_time, .data$megaplots_selected_event_time_end, by = 1))
       ) %>%
       tidyr::unnest_longer(col = .data$day) %>%
-      dplyr::group_by(dplyr::across(tidyselect::all_of(c(select_grouping,"group_index","event_group","event","unique_event","event_color","day")))) %>%
+      dplyr::group_by(dplyr::across(tidyselect::all_of(c(select_grouping,"group_index","megaplots_selected_event_group","megaplots_selected_event","unique_event","event_color","day")))) %>%
       dplyr::summarise(value = dplyr::n()) %>%
       tidyr::complete(
         day = seq(min(.data$day)-1,max(.data$day)+1, 1),
         fill = list(value = 0)
       ) %>%
-      dplyr::arrange(dplyr::across(dplyr::all_of(c(select_grouping,"group_index","event_group","event","unique_event","event_color","day")))) %>%
+      dplyr::arrange(dplyr::across(dplyr::all_of(c(select_grouping,"group_index","megaplots_selected_event_group","megaplots_selected_event","unique_event","event_color","day")))) %>%
       dplyr::ungroup() %>%
       dplyr::mutate(
         tooltip = "x+text",
-        tooltip_text = ifelse(.data$value < event_summary_cutoff, NA, paste0(.data$event,": ", .data$value))
+        tooltip_text = ifelse(.data$value < event_summary_cutoff, NA, paste0(.data$megaplots_selected_event,": ", .data$value))
       ) %>% dplyr::filter(.data$group_index == k)
 
     #update max count used for y axis range
@@ -95,8 +95,8 @@ draw_event_summary <- function(
         name = ~ unique_event,
         text = ~ tooltip_text,
         hoverinfo = ~ tooltip,
-        legendgroup = ~event_group,
-        legendgrouptitle = list(text = ~event_group)
+        legendgroup = ~ megaplots_selected_event_group,
+        legendgrouptitle = list(text = ~ megaplots_selected_event_group)
       )
 
     trace_info <- get_trace_info(fig2)

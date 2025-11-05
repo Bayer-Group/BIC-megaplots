@@ -1,3 +1,130 @@
+#' Sequencing with grouping
+#'
+#' @description Internal function called by sequencing_var_app
+#'
+#' @param da  reactive shiny list object containing data frames A and B
+#' @param var variable or vector of variables which are used for the sequencing
+#' @param par list of parameters for the distance measure
+#' @param sermethod applied seriation method
+#' @param group variable that is used for grouping
+#' @param B_wide data frame of the input data B in a wide format
+#' @param alphab alphabet used for calculating the distance measures using seqdist
+#'
+#' @return Ordered sequence of the subjects
+#' @noRd
+#'
+#' @importFrom dplyr arrange select group_by count filter n_distinct mutate ungroup row_number
+#' @importFrom stats as.dist
+#' @importFrom TraMineR seqdef seqdist
+#'
+#' @keywords internal
+sq_grouping <- function(
+    da,
+    var,
+    par,
+    sermethod,
+    group,
+    B_wide,
+    alphab) {
+
+  method_missing <- par$methMissing
+  distmeasure <- par$distmeasure
+  id_seq <- data.frame("megaplots_selected_subjectid" = sort(da$A$megaplots_selected_subjectid), "sequencing" = NA)
+
+  # one grouping variable
+  if (length(group) == 1) {
+    group_levels <- levels(da$A[, group])
+    n <- length(group_levels)
+  }
+  # more than one grouping variable
+  else{
+    levels <- list()
+    for (i in 1:length(group)) {
+      levels[[group[i]]] <- levels(da$A[, group[i]])
+    }
+    group_levels <- expand.grid(levels)
+    n <- nrow(group_levels)
+  }
+
+  # For each group level
+  for (i in 1:n) {
+    # Get subset within the group level
+    if (length(group) == 1) {
+      lev <- group_levels[i]
+      ids_index <- da$A[, group] == lev
+    }
+    else{
+      lev <- group_levels[i, ]
+      ids_index <- apply(da$A[, group], 1, function(x)
+        all(x == lev))
+    }
+    # no subjects in this group: skip
+    if (sum(ids_index) == 0) {
+      next
+    }
+
+    B_wide_group <-
+      B_wide[B_wide$megaplots_selected_subjectid %in% da$A$megaplots_selected_subjectid[ids_index], ]
+    id_seq_group <-
+      data.frame("megaplots_selected_subjectid" = sort(da$A$megaplots_selected_subjectid[ids_index]),
+                 "sequencing" = NA)
+    # if only one subject in the group:
+    if (sum(ids_index) == 1) {
+      # save the order overall in the dataframe
+      i <-
+        sum(!is.na(id_seq$sequencing)) # number of elements that are already ordered
+      id_seq_group$sequencing <- 1 + i
+      id_seq$sequencing[id_seq$megaplots_selected_subjectid %in% id_seq_group$megaplots_selected_subjectid] <-
+        id_seq_group$sequencing
+
+      next
+    }
+
+
+    alphabg <- alphab[sort(unique(as.vector(as.matrix(B_wide_group[, -1]))) + 1)]
+
+    #Define the sequencing object
+    seq_group <-
+      suppressMessages(TraMineR::seqdef(B_wide_group, 2:ncol(B_wide_group), labels = alphabg))
+
+
+    # Check if all subjects have only one state:
+    if (all(apply(seq_group, 2, function(x)
+      dplyr::n_distinct(x) == 1))) {
+      # sequencing doesn't make a difference since all subjects have the same trajectory
+      id_seq_group$sequencing <- 1:nrow(id_seq_group)
+
+    }
+    else{
+      # Get the parameters for the distance function
+      seqargs_all_group <- get_parameters(seq_group, par)
+
+      # Calculate pairwise distances:
+      dist_group <- suppressMessages(do.call(TraMineR::seqdist, seqargs_all_group))
+
+      ddist_group <- stats::as.dist(dist_group)
+
+      # Use the seriation package to compute the order
+      sq_group <-
+        suppressMessages(seriation::seriate(ddist_group, method = sermethod))
+
+      # save the order within the group in the dataframe id_seq_group
+      id_seq_group <- suppressMessages(seriation::permute(id_seq_group, order = sq_group, margin = 1))
+      id_seq_group$sequencing <- 1:nrow(id_seq_group)
+      id_seq_group <- id_seq_group[order(id_seq_group$megaplots_selected_subjectid), ]
+    }
+
+    # save the order overall in the dataframe
+    i <- sum(!is.na(id_seq$sequencing)) # number of elements that are already ordered
+    id_seq_group$sequencing <- id_seq_group$sequencing + i
+    id_seq$sequencing[id_seq$megaplots_selected_subjectid %in% id_seq_group$megaplots_selected_subjectid] <-
+      id_seq_group$sequencing
+
+  }
+  sq <- order(id_seq$sequencing)
+}
+
+
 #' Getting input-parameters for the seqdist-function
 #'
 #' @description This internal function returns a named list with all necessary input arguments for the seqdist function.
@@ -220,6 +347,7 @@ megaplots_sequencing_functions <- function(
   }
   # No grouping:
   if (is.null(group)) {
+
     # Define the sequencing object
     seq <- suppressMessages(TraMineR::seqdef(expanded_days_final_data_wide, 2:ncol(expanded_days_final_data_wide), labels = alphab))
 
@@ -233,15 +361,25 @@ megaplots_sequencing_functions <- function(
 
     # Use the seriation package to compute the order
     sq <- suppressMessages(seriation::seriate(ddist, method = seriation_method))
-  }
-  else{
-    sq <- sq_grouping(final_data, variable, seriation_parameter, seriation_method, group, expanded_days_final_data_wide, alphab)
+  } else {
+
+    #sq <- sq_grouping(final_data, variable, seriation_parameter, seriation_method, group, expanded_days_final_data_wide, alphab)
   }
   ## Input the sequencing in the da object:
-  sequencing_order_data <- data.frame(cbind("subjectid" = expanded_days_final_data_wide$subjectid, "SEQUENCING" = unique(seriation::get_order(sq))))
+  permuted_data <- final_data %>%
+    dplyr::select(subjectid, start_time, end_time) %>%
+    dplyr::distinct() %>%
+    dplyr::filter(!is.na(subjectid))
+  permuted_data <- permuted_data[order(permuted_data$subjectid), ]
+  permuted_data <- seriation::permute(permuted_data, order = sq, margin = 1)
+  permuted_data$'SEQUENCING' <- 1:nrow(permuted_data)
+  permuted_data <- permuted_data[order(permuted_data$subjectid),]
+  sequencing_order_data <-  permuted_data %>% dplyr::select(subjectid, SEQUENCING)
 
-  res<- final_data %>%
-    dplyr::left_join(sequencing_order_data, by ="subjectid")
+  # sequencing_order_data <- data.frame(cbind("subjectid" = expanded_days_final_data_wide$subjectid, "SEQUENCING" = unique(seriation::get_order(sq))))
+
+  # res <- final_data %>%
+  #   dplyr::left_join(sequencing_order_data, by ="subjectid")
 
   return(sequencing_order_data)
 }

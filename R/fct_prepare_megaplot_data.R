@@ -31,17 +31,17 @@ prepare_megaplot_data <- function(
   megaplot_data_raw <- megaplot_data_raw %>%
     dplyr::left_join(
       data.frame(
-        subjectid = unique(megaplot_data_arranged$subjectid),
-        subject_index = seq_along(unique(megaplot_data_arranged$subjectid))
+        megaplots_selected_subjectid = unique(megaplot_data_arranged$megaplots_selected_subjectid),
+        subject_index = seq_along(unique(megaplot_data_arranged$megaplots_selected_subjectid))
       ),
-      by = "subjectid"
+      by = "megaplots_selected_subjectid"
     )
 
   # merge raw data set and prepared dataset
   megaplot_data_raw <- megaplot_data_raw %>%
     dplyr::left_join(
       uploaded_data_w_ids,
-      by = c("event_group","event")
+      by = c("megaplots_selected_event_group","megaplots_selected_event")
     )
 
   # create column group_index

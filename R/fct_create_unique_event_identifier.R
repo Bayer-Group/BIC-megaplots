@@ -14,18 +14,18 @@ create_unique_event_identifier <- function(
 
   #create a data frame with unique combinations of event_group and event
   megaplot_data_raw <- megaplot_data_raw %>%
-    dplyr::select(tidyselect::all_of(c("event_group", "event"))) %>%
+    dplyr::select(tidyselect::all_of(c("megaplots_selected_event_group", "megaplots_selected_event"))) %>%
     dplyr::distinct()
 
   #Split unique combinations by event group
-  megaplot_data_splitted_by_event_group <- split(megaplot_data_raw, megaplot_data_raw$event_group)
+  megaplot_data_splitted_by_event_group <- split(megaplot_data_raw, megaplot_data_raw$megaplots_selected_event_group)
 
   # Create and save an identifier variable ("event_id" & "event_group_id") for every event and event group and the number of events within
   # a group ("max_event_id"). These variables will be used for the color function to create a unique color for every event
   for(i in 1:length(megaplot_data_splitted_by_event_group)) {
     # create "event_id" & "event_group_id"
     megaplot_data_splitted_by_event_group[[i]] <- megaplot_data_splitted_by_event_group[[i]] %>%
-      dplyr::group_by(.data$event) %>%
+      dplyr::group_by(.data$megaplots_selected_event) %>%
       dplyr::mutate(
         event_id = dplyr::cur_group_id(),
         event_group_id = i
@@ -37,16 +37,17 @@ create_unique_event_identifier <- function(
         max_event_id = max(megaplot_data_splitted_by_event_group[[i]]$event_id)
       )
     megaplot_data_splitted_by_event_group[[i]] <- megaplot_data_splitted_by_event_group[[i]]%>%
-      dplyr::mutate(event_n = suppressWarnings(as.numeric(.data$event))) %>%
-      dplyr::mutate(n_flag = dplyr::case_when(.data$event == .data$event_n ~TRUE))
+      dplyr::mutate(event_n = suppressWarnings(as.numeric(.data$megaplots_selected_event))) %>%
+      #only neccessary when implementing numeric events
+      dplyr::mutate(n_flag = dplyr::case_when(.data$megaplots_selected_event == .data$event_n ~TRUE))
 
     # Add row for event_group with event_id = 0. This will only be used to colorize all
     # events within a group with specific color (shades).
     megaplot_data_splitted_by_event_group[[i]] <- megaplot_data_splitted_by_event_group[[i]] %>%
       dplyr::ungroup() %>%
       dplyr::add_row(
-        event_group = unique(megaplot_data_splitted_by_event_group[[i]]$event_group),
-        event = NA,
+        megaplots_selected_event_group = unique(megaplot_data_splitted_by_event_group[[i]]$megaplots_selected_event_group),
+        megaplots_selected_event = NA,
         event_id = 0,
         event_group_id = unique(megaplot_data_splitted_by_event_group[[i]]$event_group_id),
         max_event_id = unique(megaplot_data_splitted_by_event_group[[i]]$max_event_id),
@@ -54,9 +55,9 @@ create_unique_event_identifier <- function(
   }
 
   #bind all list entries rowwise to one data.frame
-  megaplot_data_w_event_ids <- do.call("rbind",megaplot_data_splitted_by_event_group)
+  megaplot_data_w_event_ids <- do.call("rbind", megaplot_data_splitted_by_event_group)
 
-  number_event_groups <- length(unique(megaplot_data_w_event_ids$event_group))
+  number_event_groups <- length(unique(megaplot_data_w_event_ids$megaplots_selected_event_group))
   #add variables event_color
 
 
@@ -85,8 +86,6 @@ create_unique_event_identifier <- function(
   megaplot_event_data_w_color <- megaplot_event_data_w_color %>% dplyr::mutate(
     jittered = TRUE
   )
-
-
 
   # add created color vector to reactive object color_data$all
 

@@ -24,7 +24,7 @@ draw_mega_plot <- function(
   if (!is.null(megaplot_filtered_data)) {
     megaplot_filtered_data <- megaplot_filtered_data %>%
       dplyr::mutate(
-        text_events = paste0(" Subject identifier: ", .data$subjectid, "\n Event: ", .data$event, " (",.data$event_group,") \n", " Start time: ", .data$event_time, "\n End time: ", .data$event_time_end)
+        text_events = paste0(" Subject identifier: ", .data$megaplots_selected_subjectid, "\n Event: ", .data$megaplots_selected_event, " (",.data$megaplots_selected_event_group,") \n", " Start time: ", .data$megaplots_selected_event_time, "\n End time: ", .data$megaplots_selected_event_time_end)
       )
 
     #re-arrangement for plotly legend
@@ -37,17 +37,11 @@ draw_mega_plot <- function(
 
   ##
   megaplot_prepared_data  <- megaplot_prepared_data %>%
-    dplyr::select(tidyselect::all_of(c("subjectid", "subjectid_n", "start_time", "end_time", "group_index", select_grouping))) %>%
+    dplyr::select(tidyselect::all_of(c("megaplots_selected_subjectid", "subjectid_n", "megaplots_selected_start_time", "megaplots_selected_end_time", "group_index", select_grouping))) %>%
     dplyr::distinct() %>%
     dplyr::mutate(
-      text_lines = paste0("Subject identifier: ", .data$subjectid)
+      text_lines = paste0("Subject identifier: ", .data$megaplots_selected_subjectid)
     )
-
-  megaplot_prepared_data_ <<- megaplot_prepared_data
-  megaplot_filtered_data_ <<- megaplot_filtered_data
-
-  megaplot_prepared_data <- megaplot_prepared_data_
-  megaplot_filtered_data <- megaplot_filtered_data_
 
   p_1 <- megaplot_prepared_data %>%
     plotly::plot_ly(                            #create empty plot_ly object
@@ -59,10 +53,10 @@ draw_mega_plot <- function(
     plotly::add_segments(                       # create subject lines via add_segments
       y = ~subjectid_n,
       yend ~subjectid_n,
-      x  = ~start_time,
+      x  = ~ megaplots_selected_start_time - 0.45,
       hoverinfo = "text",
       text = ~ text_lines,
-      xend = ~ end_time,
+      xend = ~ megaplots_selected_end_time + 0.45,
       line = list(color = "#2c3336", width = line_width_subjects),
       showlegend = FALSE
     )
@@ -73,11 +67,11 @@ draw_mega_plot <- function(
     if(event_tooltips) {
       p_2 <- p_1 %>%
         plotly::add_segments(
-          data = plotly::highlight_key(megaplot_filtered_data %>% dplyr::filter(is.na(.data$n_flag)), ~event),
-          legendgroup = ~ event_group,
+          data = plotly::highlight_key(megaplot_filtered_data %>% dplyr::filter(is.na(.data$n_flag)), ~ megaplots_selected_event),
+          legendgroup = ~ megaplots_selected_event_group,
           name = ~ unique_event,
-          x = ~event_time - 0.45,
-          xend =~event_time_end + 0.45,
+          x = ~ megaplots_selected_event_time - 0.45,
+          xend =~ megaplots_selected_event_time_end + 0.45,
           y = ~subjectid_n_jittered,
           yend = ~subjectid_n_jittered,
           color = ~I(event_color),
@@ -87,19 +81,17 @@ draw_mega_plot <- function(
           text = ~ text_events,
           hoverlabel = list(orientation = "h")
         ) %>%
-        plotly::highlight(~ event, on = "plotly_click", off="plotly_doubleclick")
-
-
+        plotly::highlight(~ megaplots_selected_event, on = "plotly_click", off="plotly_doubleclick")
 
     } else {
       p_2 <- p_1 %>%
         plotly::add_segments(
-          data = plotly::highlight_key(megaplot_filtered_data, ~event),
-          legendgroup = ~ event_group,
+          data = plotly::highlight_key(megaplot_filtered_data, ~ megaplots_selected_event),
+          legendgroup = ~ megaplots_selected_event_group,
           name = ~ unique_event,
-          x = ~event_time - 0.45,
-          xend =~event_time_end + 0.45,
-          y = ~subjectid_n_jittered,
+          x = ~ megaplots_selected_event_time - 0.45,
+          xend = ~ megaplots_selected_event_time_end + 0.45,
+          y = ~ subjectid_n_jittered,
           yend = ~subjectid_n_jittered,
           color = ~I(event_color),
           line = list(color = ~ event_color, width = line_width),
@@ -108,7 +100,7 @@ draw_mega_plot <- function(
           # text = ~ text_events,
           hoverlabel = list(orientation = "h")
         ) %>%
-        plotly::highlight(~ event, on = "plotly_click", off="plotly_doubleclick")
+        plotly::highlight(~ megaplots_selected_event, on = "plotly_click", off="plotly_doubleclick")
     }
     trace_info <- get_trace_info(p_2)
     p_2 <- apply_trace_info(trace_info, p_2)
@@ -177,7 +169,7 @@ draw_mega_plot <- function(
         color='#FFFFFF',
         showgrid = FALSE,
         title ="Subject identifier",
-        categoryarray = ~subjectid,
+        categoryarray = ~ megaplots_selected_subjectid,
         zeroline = FALSE,
         autotick = FALSE,
         showticklabels = FALSE

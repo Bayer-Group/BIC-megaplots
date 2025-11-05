@@ -7,14 +7,14 @@
 #' @noRd
 create_jsTree_input <- function(data) {
 
-    splitted_data <- split(data, data$event_group)
+    splitted_data <- split(data, data$megaplots_selected_event_group)
     rownames(splitted_data) <- NULL
     names(splitted_data) <- NULL
     list_output <- lapply(
       splitted_data,
       function(x) {
         list(
-          text = unique(x$event_group),
+          text = unique(x$megaplots_selected_event_group),
           type = "root",
           children = list(NULL)
         )
@@ -24,7 +24,7 @@ create_jsTree_input <- function(data) {
       filtered_splitted_data <- splitted_data[[i]]
       rownames(filtered_splitted_data) <- NULL
       list_output[[i]]$children <- apply(filtered_splitted_data, 1, function(y){
-        list(text = as.character(y["event"]), type = "child")
+        list(text = as.character(y["megaplots_selected_event"]), type = "child")
       })
     }
   return(list_output)
