@@ -2,8 +2,6 @@
 # from prepared datasets for old version (v??? and earlier)
 #
 
-
-
 #' Function to create megaplots file for rebuild (v??? and later) from prepared datasets for old version (v??? and earlier)
 #'
 #' @param path_data Path to the subject-level dataset
