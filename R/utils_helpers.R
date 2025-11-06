@@ -17,12 +17,12 @@ font_color <- function (hex_code) {
 
 
 color_func <- function(x,y,z,number_event_groups) {
-  megaplot_color <- rainbow(number_event_groups)
+  megaplot_color <- grDevices::rainbow(number_event_groups)
   if (x != 0 & z != 1) {
-    return_colors <- colorRampPalette(
-      c(colorRampPalette(c("white",megaplot_color[y]))(100)[50],
+    return_colors <- grDevices::colorRampPalette(
+      c(grDevices::colorRampPalette(c("white",megaplot_color[y]))(100)[50],
         megaplot_color[y],
-        colorRampPalette(c(megaplot_color[y],"black"))(100)[50]
+        grDevices::colorRampPalette(c(megaplot_color[y],"black"))(100)[50]
       )
     ) (z)[x]
   }
@@ -32,7 +32,20 @@ color_func <- function(x,y,z,number_event_groups) {
   return(return_colors)
 }
 
-
+color_func2 <- function(x,y,z,col) {
+  if (x != 0 & z != 1) {
+    return_colors <- grDevices::colorRampPalette(
+      c(grDevices::colorRampPalette(c("white",col))(100)[50],
+        col,
+        grDevices::colorRampPalette(c(col,"black"))(100)[50]
+      )
+    ) (z)[x]
+  }
+  if(x == 0 | z == 1) {
+    return_colors <- col
+  }
+  return(return_colors)
+}
 
 get_trace_info <- function(plotly_object) {
   plotly_build_p <- plotly::plotly_build(plotly_object)

@@ -10,15 +10,15 @@ create_event_tree <- function(
   ) {
 
   unique_event_groups <- reduced_event_data %>%
-    dplyr::pull(event_group) %>%
+    dplyr::pull(.data$event_group) %>%
     unique()
 
   event_list <- vector(mode = 'list', length(unique_event_groups))
 
   for(i in 1:length(unique_event_groups)) {
     events <- reduced_event_data %>%
-      dplyr::filter(event_group == unique_event_groups[i]) %>%
-      dplyr::pull(event)
+      dplyr::filter(.data$event_group == unique_event_groups[i]) %>%
+      dplyr::pull(.data$event)
 
     tmp_list <- vector(mode ='list', length = length(events))
 

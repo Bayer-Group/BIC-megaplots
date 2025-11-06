@@ -2,7 +2,7 @@
 % Please edit documentation in R/draw_event_summary.R
 \name{draw_event_summary}
 \alias{draw_event_summary}
-\title{Title}
+\title{Draws a line chart with daily counts of events}
 \usage{
 draw_event_summary(
   megaplot_prepared_data = megaplot_prepared_data(),
@@ -12,10 +12,14 @@ draw_event_summary(
 )
 }
 \arguments{
+\item{megaplot_prepared_data}{data frame with subject information used for calculation of min and max day}
+
+\item{megaplot_filtered_data}{data frame with event information used to create event count lines}
+
 \item{select_grouping}{character vector with grouping variables}
 
 \item{event_summary_cutoff}{numeric value used as cutoff for hover labels displayed}
 }
 \description{
-Title
+Draws a line chart with daily counts of events
 }

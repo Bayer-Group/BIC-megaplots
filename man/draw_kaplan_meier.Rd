@@ -2,7 +2,7 @@
 % Please edit documentation in R/draw_kaplan_meier.R
 \name{draw_kaplan_meier}
 \alias{draw_kaplan_meier}
-\title{Title}
+\title{Draws Kaplan Meier plots with time to first event}
 \usage{
 draw_kaplan_meier(
   megaplot_prepared_data = megaplot_prepared_data(),
@@ -13,8 +13,16 @@ draw_kaplan_meier(
 )
 }
 \arguments{
-\item{select_strata_var}{}
+\item{megaplot_prepared_data}{data.frame with subject information used for the subject lines}
+
+\item{megaplot_filtered_data}{data.frame with selected events for the event lines}
+
+\item{select_grouping}{character vector with grouping variable names}
+
+\item{select_event_kaplan_meier}{character with event variable name}
+
+\item{select_strata_var}{character vector with stratification variables}
 }
 \description{
-Title
+Draws Kaplan Meier plots with time to first event
 }
