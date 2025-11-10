@@ -316,7 +316,14 @@ app_ui <- function(request) {
                         inputId = "colour_picker_panel_event",
                         label = "",
                         value = "white"
-                      )
+                      ),
+                      shinyWidgets::actionBttn(
+                        inputId = "update_color_palette_2",
+                        label = "Update color",
+                        color = "success",
+                        style = "simple",
+                        icon = icon("refresh")
+                      ),
                     )
                   ),
                   shiny::column(12,
@@ -332,16 +339,35 @@ app_ui <- function(request) {
                     shiny::plotOutput("colour_palette", height = "40px")
                   )
                 ),
-                shiny::actionButton(
+                br(),
+                shinyWidgets::actionBttn(
                   inputId = "update_color_palette",
-                  label = "Use color (color palette)",
+                  label = "Update colors",
+                  color = "success",
+                  style = "simple",
                   icon = icon("refresh")
                 ),
+                br(),
                 shiny::checkboxInput(
                   inputId = "jitter_events",
                   label = "Jitter events for event group",
                   value = TRUE
                 )
+              ),
+              shiny::conditionalPanel(condition = "output.color_changed == true",
+                shinyWidgets::downloadBttn(
+                  outputId = "save_colors",
+                  label = "Save color file",
+                  icon = icon("save"),
+                  style = "material-flat",
+                  color = "primary"
+                )
+              ),
+              shiny::fileInput(
+                inputId = 'upload_saved_color_file',
+                label = "Upload saved color file",
+                multiple = FALSE,
+                accept = '.rds'
               )
             )
           ),

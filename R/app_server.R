@@ -27,6 +27,52 @@ app_server <- function(input, output, session) {
     bslib::nav_select("Upload", "File & variable selection")
   })
 
+  #### Downloadbuton appearance condition
+  #### Output: Funnel Availability ####
+  color_changed_reactive <- shiny::reactiveValues(val = FALSE)
+
+  shiny::observeEvent(c(input$update_color_palette, input$update_color_palette_2), {
+    color_changed_reactive$val <- TRUE
+  },ignoreInit = TRUE)
+
+  output$color_changed <- shiny::reactive({
+    color_changed_reactive$val
+  })
+  outputOptions(output, "color_changed", suspendWhenHidden = FALSE)
+
+  output$save_colors <- shiny::downloadHandler(
+    filename = function() {
+      paste("Megaplot_color_file", gsub(":", "-", Sys.Date()), ".rds", sep = "")
+    },
+    content = function(file) {
+      saveRDS(
+         color_data$all %>%
+           dplyr::select(megaplots_selected_event, megaplots_selected_event_group, event_color, gradient_event_color_1, gradient_event_color_2, gradient_event_color_3, jittered)
+        , file
+      )
+    }
+  )
+
+  observeEvent(input$upload_saved_color_file,{
+    #implement some checks here
+
+    #
+    uploaded_colors <- readRDS(input$upload_saved_color_file$datapath)
+    uploaded_colors <- uploaded_colors  %>%
+      dplyr::mutate(
+        gradient_event_color_1 = dplyr::case_when(is.na(megaplots_selected_event) ~ gradient_event_color_1, !is.na(megaplots_selected_event) ~ NA),
+        gradient_event_color_2 = dplyr::case_when(is.na(megaplots_selected_event) ~ gradient_event_color_2, !is.na(megaplots_selected_event) ~ NA),
+        gradient_event_color_3 = dplyr::case_when(is.na(megaplots_selected_event) ~ gradient_event_color_3, !is.na(megaplots_selected_event) ~ NA)
+      )
+    # print("1")
+    # print(color_data$all)
+    # print("2")
+    # print(uploaded_colors)
+    # print("3")
+    # print(dplyr::coalesce( uploaded_colors, color_data$all))
+    color_data$all <- dplyr::coalesce( uploaded_colors, color_data$all)
+  })
+
   #### Javascript Code to hide/show single Widgets ####
   # shinyjs code to hide/show panels in the beginning
   shinyjs::hideElement(id = "selected_events_panel")
@@ -35,6 +81,7 @@ app_server <- function(input, output, session) {
   shinyjs::hideElement(id = "colour_picker_panel_2")
   shinyjs::hideElement(id = "colour_picker_panel_3")
   shinyjs::hideElement(id = "colour_picker_panel_event")
+  shinyjs::hideElement(id = "update_color_palette_2")
   shinyjs::hideElement(id = "color_method")
   shinyjs::hideElement(id = "jitter_events")
   shinyjs::hideElement(id = "update_color_palette")
@@ -170,7 +217,6 @@ app_server <- function(input, output, session) {
       }
   })
 
-
   shiny::observeEvent(uploaded_data$val, {
     if (is.null(uploaded_data$val)) {
       shinyjs::hideElement(id = "selected_events_panel")
@@ -179,8 +225,8 @@ app_server <- function(input, output, session) {
     }
   })
 
-  shiny::observeEvent(checked_data(), {
-    if (nrow(checked_data()) == 0) {
+  shiny::observeEvent(checked_data$val, {
+    if (nrow(checked_data$val) == 0) {
       shinyjs::hideElement(id = "selected_events_color_container_panel")
     } else {
       shinyjs::showElement(id = "selected_events_color_container_panel")
@@ -194,7 +240,7 @@ app_server <- function(input, output, session) {
     js_column$number <- input$jsColNum
   })
 
-  shiny::observeEvent(checked_data(), {
+  shiny::observeEvent(checked_data$val, {
     js_column$number <- NULL
   })
 
@@ -209,6 +255,7 @@ app_server <- function(input, output, session) {
       shinyjs::hideElement(id = "color_method")
       shinyjs::hideElement(id = "jitter_events")
       shinyjs::hideElement(id = "colour_picker_panel_event")
+      shinyjs::hideElement(id = "update_color_palette_2")
       shinyjs::hideElement(id = "colour_picker_panel_unique")
     }
   }, ignoreNULL = FALSE)
@@ -219,18 +266,21 @@ app_server <- function(input, output, session) {
     if (is.na(color_data$selected[js_column$number, "megaplots_selected_event"])) {
       if (input$color_method == "gradient") {
         shinyjs::hideElement(id = "colour_picker_panel_event")
+        shinyjs::hideElement(id = "update_color_palette_2")
         shinyjs::showElement(id = "colour_picker_panel_1")
         shinyjs::showElement(id = "colour_picker_panel_2")
         shinyjs::showElement(id = "colour_picker_panel_3")
         shinyjs::hideElement(id = "colour_picker_panel_unique")
       } else  if (input$color_method == "unique") {
         shinyjs::hideElement(id = "colour_picker_panel_event")
+        shinyjs::hideElement(id = "update_color_palette_2")
         shinyjs::hideElement(id = "colour_picker_panel_1")
         shinyjs::hideElement(id = "colour_picker_panel_2")
         shinyjs::hideElement(id = "colour_picker_panel_3")
         shinyjs::showElement(id = "colour_picker_panel_unique")
       } else  if (input$color_method == "palette") {
         shinyjs::hideElement(id = "colour_picker_panel_event")
+        shinyjs::hideElement(id = "update_color_palette_2")
         shinyjs::hideElement(id = "colour_picker_panel_1")
         shinyjs::hideElement(id = "colour_picker_panel_2")
         shinyjs::hideElement(id = "colour_picker_panel_3")
@@ -242,6 +292,7 @@ app_server <- function(input, output, session) {
       shinyjs::showElement(id = "color_method")
     } else {
       shinyjs::showElement(id = "colour_picker_panel_event")
+      shinyjs::showElement(id = "update_color_palette_2")
       shinyjs::hideElement(id = "colour_picker_panel_1")
       shinyjs::hideElement(id = "colour_picker_panel_2")
       shinyjs::hideElement(id = "colour_picker_panel_3")
@@ -304,7 +355,7 @@ app_server <- function(input, output, session) {
     )
 
     jsTreeR::jstree(
-      create_jsTree_input(data = shiny::req(unique_event_group_data())),
+      create_jsTree_input(data = unique_event_group_data()),
       #use create_jsTree_input function to create desired list input
       dragAndDrop = TRUE,
       search = TRUE,
@@ -426,7 +477,7 @@ app_server <- function(input, output, session) {
     }
   })
 
-  shiny::observeEvent(input$colour_picker_panel_event, {
+  shiny::observeEvent(input$update_color_palette_2, {
     shiny::req(js_column$number)
     if (!is.null(color_data$all)) {
       if (!is.na(color_data$selected[js_column$number, c("megaplots_selected_event")])) {
@@ -551,15 +602,13 @@ app_server <- function(input, output, session) {
     color_data$all <- uploaded_data_w_ids()
   })
 
-
-  checked_data <- shiny::eventReactive(c(
-    input[["tree2"]],
-    input[["tree2_checked_tree"]]
-  ), {
-
+  checked_data <- shiny::reactiveValues(val = NULL)
+  shiny::observeEvent(c(
+     input[["tree2"]],
+     input[["tree2_checked_tree"]]
+   ), {
     checked_tree <- input[["tree2_checked_tree"]]
-
-    selected_data <- data.frame(megaplots_selected_event_group = NULL, megaplots_selected_event = NULL)
+   selected_data <- data.frame(megaplots_selected_event_group = NULL, megaplots_selected_event = NULL)
     if (!is.null(checked_tree)) {
       if (length(checked_tree) > 0) {
       for (i in seq_along(checked_tree)) {
@@ -581,15 +630,61 @@ app_server <- function(input, output, session) {
       }
       }
     }
-    selected_data
+    checked_data$val <- selected_data
   })
+
+  shiny::observeEvent(c(
+    uploaded_data$val, input$select_subjectid,
+     input$select_start_time, input$select_end_time,
+     input$select_event, input$select_event_group,
+     input$select_event_time, input$select_event_time_end
+  ), {
+    checked_data$val <- NULL
+  })
+
+
+  # checked_data <- shiny::eventReactive(c(
+  #   #tbd: create a reactivevalue out of checked data to make sure,
+  #   # this object is set to NULL when input$select_event is changed
+  #   # otherwise this leads to an error :argument of length zero
+  #    input[["tree2"]],
+  #    input[["tree2_checked_tree"]]
+  #  ), {
+  #   checked_tree <- input[["tree2_checked_tree"]]
+  #
+  #  selected_data <- data.frame(megaplots_selected_event_group = NULL, megaplots_selected_event = NULL)
+  #
+  #   if (!is.null(checked_tree)) {
+  #     if (length(checked_tree) > 0) {
+  #     for (i in seq_along(checked_tree)) {
+  #       for (j in seq_along(checked_tree[[i]]$children)) {
+  #         if (j == 1) {
+  #           selected_data <- rbind(
+  #             selected_data,
+  #             data.frame(megaplots_selected_event_group = checked_tree[[i]]$text, megaplots_selected_event = NA)
+  #           )
+  #         }
+  #         selected_data <- rbind(
+  #           selected_data,
+  #           data.frame(
+  #             megaplots_selected_event_group = checked_tree[[i]]$text,
+  #             megaplots_selected_event = checked_tree[[i]]$children[[j]]$text
+  #           )
+  #         )
+  #       }
+  #     }
+  #     }
+  #   }
+  #   selected_data
+  # })
 
   #### Color container output ####
   output$selected_events_color_container <- renderUI({
-     if (nrow(checked_data()) > 0)  {
+    if(!is.null(checked_data$val)) {
+     if (nrow(checked_data$val) > 0)  {
 
         selected_data <- create_color_container(
-          tree = checked_data(),
+          tree = checked_data$val,
           color_vector = color_data$all
         )
 
@@ -620,8 +715,12 @@ app_server <- function(input, output, session) {
             )
           )
         })
-      }
+     } else {
+        NULL
+     }
+    }
   })
+
 
 
   output$colour_palette <- renderPlot({
@@ -835,10 +934,11 @@ app_server <- function(input, output, session) {
   #               jittering option changes
   #               color option changes
   megaplot_filtered_data <- shiny::reactive({
+
     filter_megaplot_data(
-      tree = checked_data(),
-      megaplot_prepared_data = megaplot_prepared_data(),
-      color_data = color_data$all
+      tree = shiny::req(checked_data$val),
+      megaplot_prepared_data = shiny::req(megaplot_prepared_data()),
+      color_data = shiny::req(color_data$all)
     )
   })
 
