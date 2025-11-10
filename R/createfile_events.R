@@ -39,7 +39,8 @@ createFile.events <- function(mp_data,
                               event_end = c("AENDT","AEENDT"),
                               calc_time_to_first = FALSE,
                               calc_days_with = FALSE,
-                              left_censor = NULL
+                              left_censor = NULL,
+                              keep_vars = NULL
 ){
   # Check if mp_data is a list
   if (!is.list(mp_data)) {
@@ -118,6 +119,19 @@ createFile.events <- function(mp_data,
     message("None of the input parameters in event_end are present as column names in the data.")
   }
 
+  keep_vars <- keep_vars[toupper(keep_vars) %in% toupper(colnames(data))]
+  # Provide the appropriate message
+  if (!(is.null(keep_vars) | any(is.na(keep_vars)))) {
+    message(sprintf("Keep additional variables: %s", paste0(keep_vars, collapse = ", ")))
+    # Add missing columns as NA
+    for (var in setdiff(keep_vars, colnames(events))) {
+      events[[var]] <- NA
+      if (!is.null(mp_data$events)) {
+        mp_data$events[[var]] <- NA
+      }
+    }
+  }
+
   events_tmp <- NULL
   for(i in 1:length(param)){
     entry <- param[[i]]
@@ -126,7 +140,7 @@ createFile.events <- function(mp_data,
       dplyr::mutate(event_group = paste0(pre[1], !!!syms(entry)[1]),
                     event = paste0(pre[2], !!!syms(entry)[2])) %>%
       dplyr::filter(!is.na(event) & event != "") %>%
-      dplyr::select(subjectid, event_group, event, !!sym(event_start), !!sym(event_end), ref_date, start_time, end_time) %>%
+      dplyr::select(subjectid, event_group, event, !!sym(event_start), !!sym(event_end), ref_date, start_time, end_time, !!!syms(keep_vars)) %>%
       dplyr::filter(!is.na(!!sym(event_start))) %>%
       dplyr::arrange(subjectid, event_group, event, !!sym(event_start), !!sym(event_end)) %>%
       dplyr::group_by(subjectid, event_group, event) %>%
@@ -157,7 +171,7 @@ createFile.events <- function(mp_data,
   time_to_first <- NULL
   if(calc_time_to_first==TRUE){
     print("calcuating time to first event")
-    events_time_to_first <- time_to_first(data = events_tmp)
+    events_time_to_first <- calc_time_to_first(data = events_tmp)
 
     mp_data$sl <- mp_data$sl %>%
       dplyr::left_join(events_time_to_first, by="subjectid") %>%
@@ -172,7 +186,7 @@ createFile.events <- function(mp_data,
   days_with <- NULL
   if(calc_days_with==TRUE){
     print("calcuating days with event")
-    data_days_with <- days_with(data = events_tmp)
+    data_days_with <- calc_days_with(data = events_tmp)
 
     mp_data$sl <- mp_data$sl %>%
       dplyr::left_join(data_days_with, by="subjectid") %>%

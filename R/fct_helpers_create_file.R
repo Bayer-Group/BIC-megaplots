@@ -13,7 +13,7 @@
 #' @export
 #'
 #' @examples
-time_to_first <- function(data,
+calc_time_to_first <- function(data,
                           calc_event_group = TRUE,
                           calc_event = TRUE,
                           subjectid = subjectid,
@@ -29,9 +29,9 @@ time_to_first <- function(data,
     data_time_to_first <- data %>%
       dplyr::arrange(subjectid,event_group,event,event_start_time) %>%
       dplyr::group_by(subjectid,event_group,event) %>%
-      dplyr::summarize(first = min(as.numeric(event_start_time), na.rm = TRUE)) %>%
-      dplyr::ungroup() %>%
-      dplyr::select(-c(event_start_time, event_end_time, start_time, end_time)) %>%
+      dplyr::summarize(first = min(as.numeric(event_start_time), na.rm = TRUE), .groups="drop") %>%
+#      dplyr::ungroup() %>%
+#      dplyr::select(-c(event_start_time, event_end_time, start_time, end_time)) %>%
       dplyr::distinct() %>%
       dplyr::mutate(event_group = gsub("[[:punct:][:space:]]+", "_", event_group),
                     event = gsub("[[:punct:][:space:]]+", "_", event)) %>%
@@ -49,9 +49,9 @@ time_to_first <- function(data,
       dplyr::select(-event) %>%
       dplyr::arrange(subjectid,event_group,event_start_time) %>%
       dplyr::group_by(subjectid,event_group) %>%
-      dplyr::summarize(first = min(as.numeric(event_start_time), na.rm = TRUE)) %>%
-      dplyr::ungroup() %>%
-      dplyr::select(-c(event_start_time, event_end_time, start_time, end_time)) %>%
+      dplyr::summarize(first = min(as.numeric(event_start_time), na.rm = TRUE), .groups="drop") %>%
+#      dplyr::ungroup() %>%
+#      dplyr::select(-c(event_start_time, event_end_time, start_time, end_time)) %>%
       dplyr::distinct() %>%
       dplyr::mutate(event_group = gsub("[[:punct:][:space:]]+", "_", event_group)) %>%
       tidyr::pivot_wider(
@@ -86,7 +86,7 @@ time_to_first <- function(data,
 #' @export
 #'
 #' @examples
-days_with <- function(data,
+calc_days_with <- function(data,
                       calc_event_group = TRUE,
                       calc_event = TRUE,
                       subjectid = subjectid,
@@ -103,9 +103,9 @@ days_with <- function(data,
       dplyr::arrange(subjectid,event_group,event,event_start_time,event_end_time) %>%
       dplyr::mutate(days = as.numeric(event_end_time) - as.numeric(event_start_time) + 1) %>%
       dplyr::group_by(subjectid,event_group,event) %>%
-      dplyr::summarize(days_with = sum(days), na.rm=TRUE) %>%
-      dplyr::ungroup() %>%
-      dplyr::select(-c(event_start_time, event_end_time, start_time, end_time, days)) %>%
+      dplyr::summarize(days_with = sum(days, na.rm=TRUE),.groups="drop") %>%
+      # dplyr::ungroup() %>%
+      # dplyr::select(-c(event_start_time, event_end_time, start_time, end_time, days)) %>%
       dplyr::distinct() %>%
       dplyr::mutate(event_group = gsub("[[:punct:][:space:]]+", "_", event_group),
                     event = gsub("[[:punct:][:space:]]+", "_", event)) %>%
@@ -124,9 +124,9 @@ days_with <- function(data,
       dplyr::arrange(subjectid,event_group,event_start_time, event_end_time) %>%
       dplyr::mutate(days = as.numeric(event_end_time) - as.numeric(event_start_time) + 1) %>%
       dplyr::group_by(subjectid,event_group) %>%
-      dplyr::summarize(days_with = sum(days, na.rm=TRUE)) %>%
-      dplyr::ungroup() %>%
-      dplyr::select(-c(event_start_time, event_end_time, start_time, end_time, days)) %>%
+      dplyr::summarize(days_with = sum(days, na.rm=TRUE),.groups="drop") %>%
+      # dplyr::ungroup() %>%
+      # dplyr::select(-c(event_start_time, event_end_time, start_time, end_time, days)) %>%
       dplyr::distinct() %>%
       dplyr::mutate(event_group = gsub("[[:punct:][:space:]]+", "_", event_group)) %>%
       tidyr::pivot_wider(
