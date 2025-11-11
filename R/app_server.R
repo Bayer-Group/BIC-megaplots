@@ -53,24 +53,31 @@ app_server <- function(input, output, session) {
     }
   )
 
-  observeEvent(input$upload_saved_color_file,{
-    #implement some checks here
+  shiny::observeEvent(input$upload_saved_color_file, {
 
-    #
+    dimension_color_data <- dim(color_data$all)
     uploaded_colors <- readRDS(input$upload_saved_color_file$datapath)
-    uploaded_colors <- uploaded_colors  %>%
-      dplyr::mutate(
-        gradient_event_color_1 = dplyr::case_when(is.na(megaplots_selected_event) ~ gradient_event_color_1, !is.na(megaplots_selected_event) ~ NA),
-        gradient_event_color_2 = dplyr::case_when(is.na(megaplots_selected_event) ~ gradient_event_color_2, !is.na(megaplots_selected_event) ~ NA),
-        gradient_event_color_3 = dplyr::case_when(is.na(megaplots_selected_event) ~ gradient_event_color_3, !is.na(megaplots_selected_event) ~ NA)
-      )
-    # print("1")
-    # print(color_data$all)
-    # print("2")
-    # print(uploaded_colors)
-    # print("3")
-    # print(dplyr::coalesce( uploaded_colors, color_data$all))
-    color_data$all <- dplyr::coalesce( uploaded_colors, color_data$all)
+
+    #add checks if uploaded data matches the existing color_data
+    if (dim(uploaded_colors)[1] == dim(color_data$all)[1]) {
+      if (all(sort(unique(uploaded_colors$megaplots_selected_event)) == sort(unique(color_data$all$megaplots_selected_event)))) {
+        uploaded_colors <- uploaded_colors  %>%
+          dplyr::mutate(
+            gradient_event_color_1 = dplyr::case_when(is.na(megaplots_selected_event) ~ gradient_event_color_1, !is.na(megaplots_selected_event) ~ NA),
+            gradient_event_color_2 = dplyr::case_when(is.na(megaplots_selected_event) ~ gradient_event_color_2, !is.na(megaplots_selected_event) ~ NA),
+            gradient_event_color_3 = dplyr::case_when(is.na(megaplots_selected_event) ~ gradient_event_color_3, !is.na(megaplots_selected_event) ~ NA)
+          )
+        color_data_new <- color_data$all %>% dplyr::select(megaplots_selected_event, megaplots_selected_event_group, event_id, event_group_id, max_event_id, event_n, n_flag) %>%
+          dplyr::left_join(
+            uploaded_colors %>% dplyr::select(megaplots_selected_event, megaplots_selected_event_group, event_color, gradient_event_color_1, gradient_event_color_2, gradient_event_color_3, jittered),
+            by = c("megaplots_selected_event", "megaplots_selected_event_group")
+          )
+        #check new dimension matches
+        if (all(dimension_color_data == dim(color_data_new))) {
+          color_data$all <- color_data_new
+        }
+      }
+    }
   })
 
   #### Javascript Code to hide/show single Widgets ####
