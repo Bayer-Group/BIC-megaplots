@@ -93,6 +93,7 @@ app_server <- function(input, output, session) {
   shinyjs::hideElement(id = "jitter_events")
   shinyjs::hideElement(id = "update_color_palette")
   shinyjs::hideElement(id = "colour_picker_panel_unique")
+  shinyjs::hideElement(id = "colour_picker_panel")
 
   shinyjs::hideElement(id = "select_subjectid")
   shinyjs::hideElement(id = "select_start_time")
@@ -248,7 +249,7 @@ app_server <- function(input, output, session) {
   })
 
   shiny::observeEvent(checked_data$val, {
-    js_column$number <- NULL
+    js_column$number <- input$jsColNum
   })
 
   shiny::observeEvent(js_column$number, {
@@ -264,13 +265,18 @@ app_server <- function(input, output, session) {
       shinyjs::hideElement(id = "colour_picker_panel_event")
       shinyjs::hideElement(id = "update_color_palette_2")
       shinyjs::hideElement(id = "colour_picker_panel_unique")
+      shinyjs::hideElement(id = "colour_picker_panel")
     }
   }, ignoreNULL = FALSE)
 
   shiny::observe({
+    input$jsColNum
     shiny::req(js_column$number)
     shiny::req(color_data$selected)
     if (is.na(color_data$selected[js_column$number, "megaplots_selected_event"])) {
+      # shinyjs::showElement(id = "colour_picker_panel")
+      shinyjs::showElement(id = "colour_picker_panel")
+      shinyjs::showElement(id = "colour_picker_panel_event")
       if (input$color_method == "gradient") {
         shinyjs::hideElement(id = "colour_picker_panel_event")
         shinyjs::hideElement(id = "update_color_palette_2")
@@ -298,6 +304,8 @@ app_server <- function(input, output, session) {
       shinyjs::showElement(id = "update_color_palette")
       shinyjs::showElement(id = "color_method")
     } else {
+      shinyjs::showElement(id = "colour_picker_panel")
+      # shinyjs::hideElement(id = "colour_picker_panel")
       shinyjs::showElement(id = "colour_picker_panel_event")
       shinyjs::showElement(id = "update_color_palette_2")
       shinyjs::hideElement(id = "colour_picker_panel_1")
@@ -401,6 +409,7 @@ app_server <- function(input, output, session) {
       )
     )
   })
+
 
   #observer to update ColourInput based on container click
   shiny::observeEvent(js_column$number, {
@@ -715,7 +724,9 @@ app_server <- function(input, output, session) {
                   "0px 0px 0px 50px"),
                 ";",
                 "color: ",
-                font_color(selected_data[column_number, ]$event_color), ";"
+               # "white",
+                font_color(selected_data[column_number, ]$event_color),
+                ";"
               ),
               `data-colnum` = column_number,
               selected_data[column_number, ]$names_for_color_list
