@@ -1,6 +1,3 @@
-#### To do ####
-# describe use of createFile functions
-
 #' Function to create a subject-level megaplots dataset from an ADSL (ADaM) dataset
 #'
 #' This function reads an ADSL dataset from various file formats (SAS, CSV, RData) and processes it

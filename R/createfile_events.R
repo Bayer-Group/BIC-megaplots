@@ -1,26 +1,22 @@
-#### To do ####
-# Create On treatment variable
-# Fill roxygen header
-# Reduce data set by combining events that have lag(event_end_time) == event_start_time & lag(event_group) == event_group & lag(event) == event?
-
-# library(dplyr)
-# library(tidyr)
-# library(haven)
-# library(purrr)
-# library(lubridate)
-
 #' Function to create event level megaplots dataset from ADaM datasets
 #'
-#' @param mp_data
-#' @param path_data
-#' @param id
-#' @param data_filter
-#' @param param
-#' @param prefix
-#' @param event_start
-#' @param event_end
+#' This function processes ADaM datasets to create a comprehensive dataset for event-level analysis with megaplots,
+#' including the ability to calculate time to first event or days with event, left censor data and manage additional variables.
 #'
-#' @return
+#' @param mp_data A list containing the subject-level and event data. It must have entries "sl" and "events" (may be NULL).
+#' @param path_data A data frame or a file path to the dataset (SAS, CSV, or RData) to be read. File should be ADaM conform.
+#' @param id A string representing the subject identifier column name. Default is "USUBJID".
+#' @param data_filter A string for filtering the dataset using dplyr syntax. Default is NULL.
+#' @param param A list of character vectors specifying the event group and event names for analysis.
+#' @param prefix A list of character vectors for prefixes to be added to event group and event names.
+#' @param event_start A character vector of possible event start date/time column names.
+#' @param event_end A character vector of possible event end date/time column names.
+#' @param calc_time_to_first A logical indicating whether to calculate the time to the first event. Default is FALSE.
+#' @param calc_days_with A logical indicating whether to calculate the days with the event. Default is FALSE.
+#' @param left_censor A numeric value specifying the left censoring time. Default NULL means no left cesnoring will be performed.
+#' @param keep_vars A character vector of additional event level variables to keep in the final dataset.
+#'
+#' @return A modified list containing updated "sl" and "events" entries with the processed event-level data.
 #' @export
 #'
 #' @examples

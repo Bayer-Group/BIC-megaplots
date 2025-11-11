@@ -2,14 +2,15 @@
 # from prepared datasets for old version (v??? and earlier)
 #
 
-#' Function to create megaplots file for rebuild (v??? and later) from prepared datasets for old version (v??? and earlier)
+#' This function transforms subject-level and event datasets from an older format
+#' to a new megaplots file format, suitable for rebuilding analyses in newer versions.
 #'
-#' @param path_data Path to the subject-level dataset
-#' @param path_data_b Path to the events dataset
-#' @param subjectid Name of the subject ID column (as a string)
-#' @param event_time Name of the event time column (as a string)
+#' @param path_data Path to the subject-level dataset. This can be a data frame or a file path.
+#' @param path_data_b Path to the events dataset. This can be a data frame or a file path. Default NULL assumes event level data is included in "path_data".
+#' @param subjectid Name of the subject ID column (as a string). Default is "subjectid".
+#' @param event_time Name of the event time column (as a string). This parameter is required.
 #'
-#' @return A data frame ready for the new megaplots version
+#' @return A data frame ready for the new megaplots version, containing merged and processed data.
 #' @export
 #'
 #' @examples
