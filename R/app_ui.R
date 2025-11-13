@@ -247,6 +247,46 @@ app_ui <- function(request) {
               )
             )
           ),
+          # filter tab
+          bslib::nav_panel("Filtering", id = "Filtering",
+              shiny::fluidRow(
+                shinyWidgets::progressBar(
+                  id = "pbar", value = 100,
+                  total = 100, display_pct = TRUE
+                ),
+                tags$h4("Filter data:"),
+                shinyWidgets::pickerInput(
+                  inputId ="select_filter_variables",
+                  label = "Select filter variable(s)",
+                  choices = NULL,
+                  selected = NULL,
+                  multiple = TRUE,
+                  options = list(liveSearch = TRUE)
+                ),
+                shiny::fluidRow(
+                  shiny::column(1,
+                                shinyWidgets::actionBttn(
+                                  inputId = "upload_2_back_button",
+                                  label = "Back",
+                                  style = "material-flat",
+                                  color = "primary",
+                                  icon = icon("angle-left")
+                                )
+                  ),
+                  shiny::column(1,
+                                shinyWidgets::actionBttn(
+                                  inputId = "upload_2_next_button",
+                                  label = "Next",
+                                  style = "material-flat",
+                                  color = "primary",
+                                  icon = icon("angle-right")
+                                )
+                  )
+                ),
+                datamods::filter_data_ui("filtering", max_height = "500px")
+              )
+
+          ),
           bslib::nav_panel("Event & color selection", id = "Event & color selection",
           shiny::fluidRow(
             shiny::column(4,
@@ -374,7 +414,7 @@ app_ui <- function(request) {
           shiny::fluidRow(
             shiny::column(1,
               shinyWidgets::actionBttn(
-                inputId = "upload_2_back_button",
+                inputId = "upload_3_back_button",
                 label = "Back",
                 style = "material-flat",
                 color = "primary",
@@ -383,7 +423,7 @@ app_ui <- function(request) {
             ),
             shiny::column(1,
               shinyWidgets::actionBttn(
-                inputId = "upload_2_next_button",
+                inputId = "upload_3_next_button",
                 label = "Next",
                 style = "material-flat",
                 color = "primary",

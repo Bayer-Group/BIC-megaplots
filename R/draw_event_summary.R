@@ -18,7 +18,8 @@ draw_event_summary <- function(
 ) {
 
   megaplot_filtered_data <- megaplot_filtered_data %>%
-    dplyr::select(-tidyselect::all_of(c("subjectid_n_jittered", "jitter_event_time")))
+    dplyr::select(-tidyselect::all_of(c("subjectid_n_jittered", "jitter_event_time"))) %>%
+    dplyr::filter(!is.na(megaplots_selected_subjectid))
 
 
   if (!is.null(select_grouping)) {

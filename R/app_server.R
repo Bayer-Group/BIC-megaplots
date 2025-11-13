@@ -15,25 +15,33 @@ app_server <- function(input, output, session) {
   waiter::waiter_hide()
 
   #### Observer to update selected navbar based on button click ####
-  shiny::observeEvent(input$upload_2_next_button, {
+  shiny::observeEvent(input$upload_3_next_button, {
     bslib::nav_select("MEGAPLOTS", "Megaplots")
   })
 
-  shiny::observeEvent(input$upload_1_next_button, {
+  shiny::observeEvent(input$upload_2_next_button, {
     bslib::nav_select("Upload", "Event & color selection")
+  })
+
+  shiny::observeEvent(input$upload_1_next_button, {
+    bslib::nav_select("Upload", "Filtering")
   })
 
   shiny::observeEvent(input$upload_2_back_button, {
     bslib::nav_select("Upload", "File & variable selection")
   })
 
-  #### Downloadbuton appearance condition
+  shiny::observeEvent(input$upload_3_back_button, {
+    bslib::nav_select("Upload", "Filtering")
+  })
+
+  #### Downloadbutton appearance condition
   #### Output: Funnel Availability ####
   color_changed_reactive <- shiny::reactiveValues(val = FALSE)
 
   shiny::observeEvent(c(input$update_color_palette, input$update_color_palette_2), {
     color_changed_reactive$val <- TRUE
-  },ignoreInit = TRUE)
+  }, ignoreInit = TRUE)
 
   output$color_changed <- shiny::reactive({
     color_changed_reactive$val
@@ -904,24 +912,32 @@ app_server <- function(input, output, session) {
   })
 
 
-  uploaded_data_filtered <- shiny::reactive({
-    shiny::req(uploaded_data_renamed())
-  })
+  # uploaded_data_filtered <- shiny::reactive({
+  #   shiny::req(uploaded_data_renamed())
+  # })
 
   # add event & event group identifier to data set and number
   # events within group
   uploaded_data_w_ids <- shiny::reactive({
     create_unique_event_identifier(
       #megaplot_data_raw = shiny::req(uploaded_data$val)
-      megaplot_data_raw = uploaded_data_renamed()
+      megaplot_data_raw = shiny::req(uploaded_data_renamed())
     )
   })
+
+  uploaded_data_w_ids_filtered <- shiny::reactive({
+    create_unique_event_identifier(
+      #megaplot_data_raw = shiny::req(uploaded_data$val)
+      megaplot_data_raw = shiny::req(filtered_data_reactive$val)
+    )
+  })
+
 
   #create a data frame which includes unique rows with
   # event /event group information
   unique_event_group_data <- shiny::eventReactive(uploaded_data_renamed(), {
     #megaplot_data_raw <- shiny::req(uploaded_data$val)
-    megaplot_data_raw <- uploaded_data_renamed()
+    megaplot_data_raw <- shiny::req(uploaded_data_renamed())
     reduced_event_data <- megaplot_data_raw %>%
       dplyr::filter(!is.na(.data$megaplots_selected_event)) %>%
       dplyr::select(tidyselect::all_of(c("megaplots_selected_event_group", "megaplots_selected_event"))) %>%
@@ -934,13 +950,13 @@ app_server <- function(input, output, session) {
   #### reactive object megaplot_prepared_data ####
   megaplot_prepared_data <- shiny::eventReactive(
     c(uploaded_data_w_ids(),
-      uploaded_data_renamed(),
+      filtered_data_reactive$val,
       input$select_grouping,
       input$select_sorting), {
 
     prepare_megaplot_data(
       #megaplot_data_raw = uploaded_data$val,
-      megaplot_data_raw = uploaded_data_renamed(),
+      megaplot_data_raw = shiny::req(filtered_data_reactive$val),
       uploaded_data_w_ids = uploaded_data_w_ids(),
       select_sorting = input$select_sorting,
       select_grouping = input$select_grouping
@@ -960,6 +976,43 @@ app_server <- function(input, output, session) {
     )
   })
 
+  #### Filtering ####
+  shiny::observeEvent(uploaded_data$val, {
+    shinyWidgets::updatePickerInput(
+      inputId ="select_filter_variables",
+      choices = colnames(uploaded_data$val),
+      selected = NULL
+    )
+  })
+
+  variables_for_filter <- shiny::reactive({input$select_filter_variables})
+
+  res_filter <- datamods::filter_data_server(
+    id = "filtering",
+    data = uploaded_data_renamed,
+    vars = variables_for_filter,
+    drop_ids = FALSE,
+    widget_num = "slider",
+    widget_char = "picker",
+    label_na = "NA",
+    value_na = TRUE
+  )
+
+  filtered_data_reactive <- reactiveValues(val = NULL)
+  shiny::observeEvent(res_filter$filtered(), {
+    if (!is.null(res_filter$filtered())) {
+      if (nrow(res_filter$filtered()) != 0) {
+        filtered_data_reactive$val <- res_filter$filtered()
+      }
+    }
+  })
+
+  shiny::observeEvent(filtered_data_reactive$val,{
+    shinyWidgets::updateProgressBar(
+      session = session, id = "pbar",
+      value = length(unique(filtered_data_reactive$val$megaplots_selected_subjectid)), total = length(unique(uploaded_data_renamed()$megaplots_selected_subjectid))
+    )
+  })
 
   #### Mega Plot ####
   #create reactive variable for saving html output
