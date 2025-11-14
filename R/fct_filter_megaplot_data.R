@@ -13,7 +13,8 @@ filter_megaplot_data <- function(
 
   # selected_tree <- shinyTree::get_selected(tree, format = "names")
   #
-   if(nrow(tree) > 0) {
+  if (!is.null(tree)){
+   if (nrow(tree) > 0) {
 
     selected_data <- tree
 
@@ -44,13 +45,15 @@ filter_megaplot_data <- function(
       dplyr::filter(!is.na(.data$megaplots_selected_event))
 
     if (nrow(filtered_data_w_jitter) > 1) {
-      for(i in 2:nrow(filtered_data_w_jitter)){
+      for(i in 2:nrow(filtered_data_w_jitter)) {
+        if(!is.na(filtered_data_w_jitter$event_group_id[i] )) {
         if (filtered_data_w_jitter$jittered[i]) {
           filtered_data_w_jitter$seq_nr[i] <- filtered_data_w_jitter$seq_nr[i-1]+1
         } else if (!filtered_data_w_jitter$jittered[i] & (filtered_data_w_jitter$event_group_id[i] == filtered_data_w_jitter$event_group_id[i-1])){
           filtered_data_w_jitter$seq_nr[i] <- filtered_data_w_jitter$seq_nr[i-1]
         } else if (!filtered_data_w_jitter$jittered[i] & (filtered_data_w_jitter$event_group_id[i] != filtered_data_w_jitter$event_group_id[i-1]))
           filtered_data_w_jitter$seq_nr[i] <- filtered_data_w_jitter$seq_nr[i-1]+1
+        }
       }
     } else {
       filtered_data_w_jitter$seq_nr <- 1
@@ -84,4 +87,5 @@ filter_megaplot_data <- function(
     filtered_data <- NULL
   }
   return(filtered_data)
+  }
 }

@@ -27,5 +27,6 @@ create_jsTree_input <- function(data) {
         list(text = as.character(y["megaplots_selected_event"]), type = "child")
       })
     }
+
   return(list_output)
 }

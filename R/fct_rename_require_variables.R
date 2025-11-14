@@ -8,7 +8,6 @@ rename_require_variables <- function(
     selected_event_time,
     selected_event_time_end
 ) {
-
   megaplot_data <- megaplot_data %>%
     dplyr::mutate(
       megaplots_selected_subjectid = !!rlang::sym(selected_subjectid),

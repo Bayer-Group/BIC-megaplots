@@ -18,7 +18,6 @@ prepare_megaplot_data <- function(
     select_sorting,
     select_grouping
   ) {
-
   # create arranged dataset 'megaplot_data_arranged'
   # to create a "subject_index" variable in next step
   megaplot_data_arranged <- dplyr::arrange(

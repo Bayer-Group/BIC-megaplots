@@ -86,6 +86,7 @@ app_ui <- function(request) {
       # Sidebar
       # Use accordion_panels from bslib
       sidebar = bslib::sidebar(
+        width = 300,
         title = div(img(src = "www/megaplot_hexsticker.png", height = "175px")),
         bslib::accordion_panel(
           "Sorting/Grouping",
@@ -140,6 +141,44 @@ app_ui <- function(request) {
             max = NA,
             step = 1
           )
+        ),
+        bslib::accordion_panel(
+          "Filter",
+          icon = bsicons::bs_icon("filter"),
+          # shinyWidgets::actionBttn(
+          #   inputId = "save_filter_values",
+          #   label = "Save filter values",
+          #   style = "bordered",
+          #   color = "primary",
+          #   icon = shiny::icon("download")
+          # ),
+          # shinyWidgets::actionBttn(
+          #   inputId = "load_filter_values",
+          #   label = "Load filter values",
+          #   style = "bordered",
+          #   color = "primary",
+          #   icon = shiny::icon("upload")
+          # ),
+          shinyWidgets::pickerInput(
+            inputId ="select_filter_variables",
+            label = "Select filter variable(s)",
+            choices = NULL,
+            selected = NULL,
+            multiple = TRUE,
+            options = list(
+              `actions-box` = TRUE,
+              `selected-text-format` = 'count > 0',
+              `count-selected-text` = '{0} selected (of {1})',
+              `live-search` = TRUE,
+              `style` = 'background: btn-primary',
+              `header` = 'Please select variable(s) for filter',
+              `none-selected-text` = 'All dropped!'
+            )
+          ),
+          shiny::conditionalPanel(condition = "output.filter_enabled == true",
+            datamods::filter_data_ui("filtering", max_height = "500px")
+          )
+          # datamods::filter_data_ui("filtering", max_height = "500px")
         ),
         bslib::accordion_panel(
           "Download",
@@ -248,45 +287,48 @@ app_ui <- function(request) {
             )
           ),
           # filter tab
-          bslib::nav_panel("Filtering", id = "Filtering",
-              shiny::fluidRow(
-                shinyWidgets::progressBar(
-                  id = "pbar", value = 100,
-                  total = 100, display_pct = TRUE
-                ),
-                tags$h4("Filter data:"),
-                shinyWidgets::pickerInput(
-                  inputId ="select_filter_variables",
-                  label = "Select filter variable(s)",
-                  choices = NULL,
-                  selected = NULL,
-                  multiple = TRUE,
-                  options = list(liveSearch = TRUE)
-                ),
-                shiny::fluidRow(
-                  shiny::column(1,
-                                shinyWidgets::actionBttn(
-                                  inputId = "upload_2_back_button",
-                                  label = "Back",
-                                  style = "material-flat",
-                                  color = "primary",
-                                  icon = icon("angle-left")
-                                )
-                  ),
-                  shiny::column(1,
-                                shinyWidgets::actionBttn(
-                                  inputId = "upload_2_next_button",
-                                  label = "Next",
-                                  style = "material-flat",
-                                  color = "primary",
-                                  icon = icon("angle-right")
-                                )
-                  )
-                ),
-                datamods::filter_data_ui("filtering", max_height = "500px")
-              )
-
-          ),
+          # bslib::nav_panel("Filtering", id = "Filtering",
+          #     shiny::fluidRow(
+          #       shinyWidgets::progressBar(
+          #         id = "pbar", value = 100,
+          #         total = 100, display_pct = TRUE,
+          #         status = "success"
+          #       ),
+          #       tags$h4("Filter data:"),
+          #       shinyWidgets::pickerInput(
+          #         inputId ="select_filter_variables",
+          #         label = "Select filter variable(s)",
+          #         choices = NULL,
+          #         selected = NULL,
+          #         multiple = TRUE,
+          #         options = list(liveSearch = TRUE)
+          #       ),
+          #       shiny::fluidRow(
+          #         shiny::column(1,
+          #                       shinyWidgets::actionBttn(
+          #                         inputId = "upload_2_back_button",
+          #                         label = "Back",
+          #                         style = "material-flat",
+          #                         color = "primary",
+          #                         icon = icon("angle-left")
+          #                       )
+          #         ),
+          #         shiny::column(1,
+          #                       shinyWidgets::actionBttn(
+          #                         inputId = "upload_2_next_button",
+          #                         label = "Next",
+          #                         style = "material-flat",
+          #                         color = "primary",
+          #                         icon = icon("angle-right")
+          #                       )
+          #         )
+          #       )#,
+          #       # shiny::conditionalPanel(condition = "output.filter_enabled == true",
+          #       #datamods::filter_data_ui("filtering", max_height = "500px")
+          #       # )
+          #     )
+          #
+          # ),
           bslib::nav_panel("Event & color selection", id = "Event & color selection",
           shiny::fluidRow(
             shiny::column(4,

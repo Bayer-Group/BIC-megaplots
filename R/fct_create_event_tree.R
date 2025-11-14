@@ -9,6 +9,7 @@ create_event_tree <- function(
     reduced_event_data
   ) {
 
+
   unique_event_groups <- reduced_event_data %>%
     dplyr::pull(.data$event_group) %>%
     unique()
