@@ -133,9 +133,10 @@ createFile.events <- function(mp_data,
     entry <- param[[i]]
     pre <- prefix[[i]]
     data_tmp <- data %>%
+      dplyr::filter(!is.na(!!sym(entry[1])), !!sym(entry[1]) != "") %>%
+      dplyr::filter(!is.na(!!sym(entry[2])), !!sym(entry[2]) != "") %>%
       dplyr::mutate(event_group = paste0(pre[1], !!!syms(entry)[1]),
                     event = paste0(pre[2], !!!syms(entry)[2])) %>%
-      dplyr::filter(!is.na(event) & event != "") %>%
       dplyr::select(subjectid, event_group, event, !!sym(event_start), !!sym(event_end), ref_date, start_time, end_time, !!!syms(keep_vars)) %>%
       dplyr::filter(!is.na(!!sym(event_start))) %>%
       dplyr::arrange(subjectid, event_group, event, !!sym(event_start), !!sym(event_end)) %>%
