@@ -122,13 +122,18 @@ draw_mega_plot <- function(
         dplyr::group_by(.data$text_position_y) %>%
         dplyr::filter(dplyr::row_number() == 1) %>%
         dplyr::filter(!is.na(.data$text_position_y)) %>%
-        dplyr::rowwise() %>%
-        dplyr::mutate(
+        dplyr::rowwise()
+
+        megaplot_prepared_data_w_group_text <- megaplot_prepared_data_w_group_text %>% dplyr::mutate(
           text_snippet_1 = paste(select_grouping, collapse = " "),
-          text_snippet_2 = paste(!!!rlang::syms(select_grouping))
-        ) %>%
-        dplyr::mutate(text_snippet_total = paste(unlist(strsplit(.data$text_snippet_1," ")), unlist(strsplit(.data$text_snippet_2, " ")), sep = ": ", collapse = " & ")) %>%
+          text_snippet_2 = paste(!!!rlang::syms(select_grouping), sep = ", ")
+        )
+
+      megaplot_prepared_data_w_group_text <- megaplot_prepared_data_w_group_text %>%
+        dplyr::mutate(text_snippet_total = paste(unlist(strsplit(.data$text_snippet_1," ")), gsub(" ", "", unlist(strsplit(.data$text_snippet_2, ", "))), sep = ": ", collapse = " & ")) %>%
         dplyr::mutate(event_color = "black")
+
+
 
       p_2 <- p_2 %>%
         plotly::add_trace(
