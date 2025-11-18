@@ -25,27 +25,27 @@ draw_kaplan_meier <- function(
   time_to_first_event <- megaplot_filtered_data %>%
     dplyr::select(
       tidyselect::all_of(c(
-      "subjectid",
+      "megaplots_selected_subjectid",
       "subjectid_n",
-      "event_time",
+      "megaplots_selected_event_time",
       "unique_event"
     ))) %>%
     dplyr::filter(.data$unique_event == level) %>%
-    dplyr::group_by(.data$subjectid) %>%
-    dplyr::arrange(.data$event_time) %>%
+    dplyr::group_by(.data$megaplots_selected_subjectid) %>%
+    dplyr::arrange(.data$megaplots_selected_event_time) %>%
     dplyr::slice_head(n = 1) %>%
-    dplyr::mutate(!!paste0("time_to_first") := .data$event_time) %>%
-    dplyr::select(tidyselect::all_of(c("subjectid", "time_to_first")))
+    dplyr::mutate(!!paste0("time_to_first") := .data$megaplots_selected_event_time) %>%
+    dplyr::select(tidyselect::all_of(c("megaplots_selected_subjectid", "time_to_first")))
 
   megaplot_data_w_time_to_first_event <- megaplot_prepared_data %>%
     dplyr::left_join(
       time_to_first_event,
-      by ="subjectid"
+      by ="megaplots_selected_subjectid"
     )
 
   megaplot_data_for_survfit <- megaplot_data_w_time_to_first_event %>%
     dplyr::mutate(
-      time = dplyr::case_when(is.na(.data$time_to_first) ~ .data$end_time,
+      time = dplyr::case_when(is.na(.data$time_to_first) ~ .data$megaplots_selected_end_time,
                               !is.na(.data$time_to_first) ~ .data$time_to_first),
       status = dplyr::case_when(is.na(.data$time_to_first) ~ 1,
                                 !is.na(.data$time_to_first) ~ 2)
@@ -57,7 +57,7 @@ draw_kaplan_meier <- function(
     as.character %>% unique()
 
 
-  if(is.null(select_strata_var)){
+  if(is.null(select_strata_var)) {
     strata <- "1"
   } else {
     strata <- select_strata_var

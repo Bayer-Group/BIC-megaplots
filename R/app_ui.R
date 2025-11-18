@@ -86,6 +86,7 @@ app_ui <- function(request) {
       # Sidebar
       # Use accordion_panels from bslib
       sidebar = bslib::sidebar(
+        width = 300,
         title = div(img(src = "www/megaplot_hexsticker.png", height = "175px")),
         bslib::accordion_panel(
           "Sorting/Grouping",
@@ -142,9 +143,52 @@ app_ui <- function(request) {
           )
         ),
         bslib::accordion_panel(
+          "Filter",
+          icon = bsicons::bs_icon("filter"),
+          # shinyWidgets::actionBttn(
+          #   inputId = "save_filter_values",
+          #   label = "Save filter values",
+          #   style = "bordered",
+          #   color = "primary",
+          #   icon = shiny::icon("download")
+          # ),
+          # shinyWidgets::actionBttn(
+          #   inputId = "load_filter_values",
+          #   label = "Load filter values",
+          #   style = "bordered",
+          #   color = "primary",
+          #   icon = shiny::icon("upload")
+          # ),
+          shinyWidgets::pickerInput(
+            inputId ="select_filter_variables",
+            label = "Select filter variable(s)",
+            choices = NULL,
+            selected = NULL,
+            multiple = TRUE,
+            options = list(
+              `actions-box` = TRUE,
+              `selected-text-format` = 'count > 0',
+              `count-selected-text` = '{0} selected (of {1})',
+              `live-search` = TRUE,
+              `style` = 'background: btn-primary',
+              `header` = 'Please select variable(s) for filter',
+              `none-selected-text` = 'All dropped!'
+            )
+          ),
+          shiny::conditionalPanel(condition = "output.filter_enabled == true",
+            datamods::filter_data_ui("filtering", max_height = "500px")
+          )
+          # datamods::filter_data_ui("filtering", max_height = "500px")
+        ),
+        bslib::accordion_panel(
           "Download",
           icon = bsicons::bs_icon("download"),
           shiny::downloadButton("download_plotly_widget", "Download Mega plot as HTML")
+        ),
+        bslib::accordion_panel(
+          "Sequencing",
+          icon = bsicons::bs_icon("plus"),
+          artificial_intelligence_ui("ai")
         )
       ),
       #Main area
@@ -242,6 +286,49 @@ app_ui <- function(request) {
               )
             )
           ),
+          # filter tab
+          # bslib::nav_panel("Filtering", id = "Filtering",
+          #     shiny::fluidRow(
+          #       shinyWidgets::progressBar(
+          #         id = "pbar", value = 100,
+          #         total = 100, display_pct = TRUE,
+          #         status = "success"
+          #       ),
+          #       tags$h4("Filter data:"),
+          #       shinyWidgets::pickerInput(
+          #         inputId ="select_filter_variables",
+          #         label = "Select filter variable(s)",
+          #         choices = NULL,
+          #         selected = NULL,
+          #         multiple = TRUE,
+          #         options = list(liveSearch = TRUE)
+          #       ),
+          #       shiny::fluidRow(
+          #         shiny::column(1,
+          #                       shinyWidgets::actionBttn(
+          #                         inputId = "upload_2_back_button",
+          #                         label = "Back",
+          #                         style = "material-flat",
+          #                         color = "primary",
+          #                         icon = icon("angle-left")
+          #                       )
+          #         ),
+          #         shiny::column(1,
+          #                       shinyWidgets::actionBttn(
+          #                         inputId = "upload_2_next_button",
+          #                         label = "Next",
+          #                         style = "material-flat",
+          #                         color = "primary",
+          #                         icon = icon("angle-right")
+          #                       )
+          #         )
+          #       )#,
+          #       # shiny::conditionalPanel(condition = "output.filter_enabled == true",
+          #       #datamods::filter_data_ui("filtering", max_height = "500px")
+          #       # )
+          #     )
+          #
+          # ),
           bslib::nav_panel("Event & color selection", id = "Event & color selection",
           shiny::fluidRow(
             shiny::column(4,
@@ -311,7 +398,14 @@ app_ui <- function(request) {
                         inputId = "colour_picker_panel_event",
                         label = "",
                         value = "white"
-                      )
+                      ),
+                      shinyWidgets::actionBttn(
+                        inputId = "update_color_palette_2",
+                        label = "Update color",
+                        color = "success",
+                        style = "simple",
+                        icon = icon("refresh")
+                      ),
                     )
                   ),
                   shiny::column(12,
@@ -327,23 +421,42 @@ app_ui <- function(request) {
                     shiny::plotOutput("colour_palette", height = "40px")
                   )
                 ),
-                shiny::actionButton(
+                br(),
+                shinyWidgets::actionBttn(
                   inputId = "update_color_palette",
-                  label = "Use color (color palette)",
+                  label = "Update colors",
+                  color = "success",
+                  style = "simple",
                   icon = icon("refresh")
                 ),
+                br(),
                 shiny::checkboxInput(
                   inputId = "jitter_events",
                   label = "Jitter events for event group",
                   value = TRUE
                 )
+              ),
+              shiny::conditionalPanel(condition = "output.color_changed == true",
+                shinyWidgets::downloadBttn(
+                  outputId = "save_colors",
+                  label = "Save color file",
+                  icon = icon("save"),
+                  style = "material-flat",
+                  color = "primary"
+                )
+              ),
+              shiny::fileInput(
+                inputId = 'upload_saved_color_file',
+                label = "Upload saved color file",
+                multiple = FALSE,
+                accept = '.rds'
               )
             )
           ),
           shiny::fluidRow(
             shiny::column(1,
               shinyWidgets::actionBttn(
-                inputId = "upload_2_back_button",
+                inputId = "upload_3_back_button",
                 label = "Back",
                 style = "material-flat",
                 color = "primary",
@@ -352,7 +465,7 @@ app_ui <- function(request) {
             ),
             shiny::column(1,
               shinyWidgets::actionBttn(
-                inputId = "upload_2_next_button",
+                inputId = "upload_3_next_button",
                 label = "Next",
                 style = "material-flat",
                 color = "primary",
