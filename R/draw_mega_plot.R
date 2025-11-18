@@ -17,7 +17,8 @@ draw_mega_plot <- function(
     select_grouping = NULL,
     line_width = 3,
     line_width_subjects,
-    event_tooltips = TRUE
+    event_tooltips = TRUE,
+    switch_legend_grouping = TRUE
   ) {
 
   min_start_day <- min(megaplot_prepared_data$start_time, na.rm = TRUE)
@@ -65,6 +66,7 @@ draw_mega_plot <- function(
   #
   if (!is.null(megaplot_filtered_data)) {
     if(event_tooltips) {
+      if (switch_legend_grouping) {
       p_2 <- p_1 %>%
         plotly::add_segments(
           data = plotly::highlight_key(megaplot_filtered_data %>% dplyr::filter(is.na(.data$n_flag)), ~ megaplots_selected_event),
@@ -82,26 +84,43 @@ draw_mega_plot <- function(
           hoverlabel = list(orientation = "h")
         ) %>%
         plotly::highlight(~ megaplots_selected_event, on = "plotly_click", off="plotly_doubleclick")
-
-    } else {
-      p_2 <- p_1 %>%
-        plotly::add_segments(
-          data = plotly::highlight_key(megaplot_filtered_data, ~ megaplots_selected_event),
-          legendgroup = ~ megaplots_selected_event_group,
-          name = ~ unique_event,
-          x = ~ megaplots_selected_event_time - 0.45,
-          xend = ~ megaplots_selected_event_time_end + 0.45,
-          y = ~ subjectid_n_jittered,
-          yend = ~subjectid_n_jittered,
-          color = ~I(event_color),
-          line = list(color = ~ event_color, width = line_width),
-          showlegend = TRUE,
-           hoverinfo = "none",
-          # text = ~ text_events,
-          hoverlabel = list(orientation = "h")
-        ) %>%
-        plotly::highlight(~ megaplots_selected_event, on = "plotly_click", off="plotly_doubleclick")
-    }
+      } else {
+        p_2 <- p_1 %>%
+          plotly::add_segments(
+            data = plotly::highlight_key(megaplot_filtered_data %>% dplyr::filter(is.na(.data$n_flag)), ~ megaplots_selected_event),
+            name = ~ unique_event,
+            x = ~ megaplots_selected_event_time - 0.45,
+            xend =~ megaplots_selected_event_time_end + 0.45,
+            y = ~subjectid_n_jittered,
+            yend = ~subjectid_n_jittered,
+            color = ~I(event_color),
+            line = list(color = ~ event_color, width = line_width),
+            showlegend = TRUE,
+            hoverinfo = "text",
+            text = ~ text_events,
+            hoverlabel = list(orientation = "h")
+          ) %>%
+          plotly::highlight(~ megaplots_selected_event, on = "plotly_click", off="plotly_doubleclick")
+      }
+    }# else {
+    #   p_2 <- p_1 %>%
+    #     plotly::add_segments(
+    #       data = plotly::highlight_key(megaplot_filtered_data, ~ megaplots_selected_event),
+    #       legendgroup = ~ megaplots_selected_event_group,
+    #       name = ~ unique_event,
+    #       x = ~ megaplots_selected_event_time - 0.45,
+    #       xend = ~ megaplots_selected_event_time_end + 0.45,
+    #       y = ~ subjectid_n_jittered,
+    #       yend = ~subjectid_n_jittered,
+    #       color = ~I(event_color),
+    #       line = list(color = ~ event_color, width = line_width),
+    #       showlegend = TRUE,
+    #        hoverinfo = "none",
+    #       # text = ~ text_events,
+    #       hoverlabel = list(orientation = "h")
+    #     ) %>%
+    #     plotly::highlight(~ megaplots_selected_event, on = "plotly_click", off="plotly_doubleclick")
+    # }
     trace_info <- get_trace_info(p_2)
     p_2 <- apply_trace_info(trace_info, p_2)
 

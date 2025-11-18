@@ -88,6 +88,7 @@ app_ui <- function(request) {
       sidebar = bslib::sidebar(
         width = 300,
         title = div(img(src = "www/megaplot_hexsticker.png", height = "175px")),
+        bslib::accordion(open = FALSE,
         bslib::accordion_panel(
           "Sorting/Grouping",
           icon = bsicons::bs_icon("sort-down"),
@@ -132,6 +133,12 @@ app_ui <- function(request) {
             max = 5,
             value = 3,
             step = 0.5
+          ),
+          shinyWidgets::prettySwitch(
+            inputId = "switch_legend_grouping",
+            label = "On/Off Legend Grouping",
+            value = TRUE,
+            status = "primary"
           ),
           shiny::numericInput(
             inputId = "event_summary_cutoff",
@@ -190,6 +197,7 @@ app_ui <- function(request) {
           icon = bsicons::bs_icon("plus"),
           artificial_intelligence_ui("ai")
         )
+        )
       ),
       #Main area
       bslib::nav_panel(
@@ -244,7 +252,7 @@ app_ui <- function(request) {
               shiny::column(2,
                 shiny::selectInput(
                   inputId = "select_event_time",
-                  label = "event start time",
+                  label = "event start",
                   choices = "event_time",
                   selected = "event_time"
                 )
@@ -252,7 +260,7 @@ app_ui <- function(request) {
               shiny::column(2,
                 shiny::selectInput(
                   inputId = "select_event_time_end",
-                  label = "event end time",
+                  label = "event end",
                   choices = "event_time_end",
                   selected = "event_time_end"
                 )
@@ -494,6 +502,18 @@ app_ui <- function(request) {
             )
           ),
           bslib::nav_panel("Event Summary",
+            # shinyWidgets::prettySwitch(
+            #   inputId = "event_summary_switch",
+            #   label = "Change view",
+            #   value = FALSE,
+            #   status = "primary"
+            # ),
+            shinyWidgets::pickerInput(
+              inputId = "event_summary_selection",
+              label = "Select summary display",
+              choices = c("event_per_day", "event_by_subject_cumulative","cumulative_event"),
+              selected = "event_per_day"
+            ),
             bslib::as_fill_carrier(
               shinycssloaders::withSpinner(
                 ui_element = plotly::plotlyOutput("event_summary"),
@@ -503,20 +523,20 @@ app_ui <- function(request) {
                 caption = "Loading..."
               )
             )
-          ),
-          bslib::nav_panel("Kaplan Meier",
-             shiny::fluidRow(
-               shinyWidgets::pickerInput(
-                 inputId = 'select_event_kaplan_meier',
-                 label = "Select event(s)",
-                 choices = NULL,
-                 selected = NULL,
-                 multiple = FALSE,
-                 options = list('actions-box' = TRUE)
-               )
-             ),
-             plotly::plotlyOutput("kaplan_meier")
-          )
+          )#,
+          # bslib::nav_panel("Kaplan Meier",
+          #    shiny::fluidRow(
+          #      shinyWidgets::pickerInput(
+          #        inputId = 'select_event_kaplan_meier',
+          #        label = "Select event(s)",
+          #        choices = NULL,
+          #        selected = NULL,
+          #        multiple = FALSE,
+          #        options = list('actions-box' = TRUE)
+          #      )
+          #    ),
+          #    plotly::plotlyOutput("kaplan_meier")
+          # )
         )
      )
     )
