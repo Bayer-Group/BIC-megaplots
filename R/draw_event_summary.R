@@ -53,11 +53,13 @@ draw_event_summary <- function(
     dplyr::rowwise() %>%
     dplyr::mutate(
       text_snippet_1 = paste(select_grouping, collapse = " "),
-      text_snippet_2 = paste(!!!rlang::syms(select_grouping))
+      text_snippet_2 = paste(!!!rlang::syms(select_grouping), sep = ", ")
     ) %>%
-    dplyr::mutate(text_snippet_total = paste(unlist(strsplit(.data$text_snippet_1," ")), unlist(strsplit(.data$text_snippet_2, " ")), sep = ": ", collapse = " & ")) %>%
+    dplyr::mutate(text_snippet_total = paste(unlist(strsplit(.data$text_snippet_1," ")), gsub(" ", "", unlist(strsplit(.data$text_snippet_2, ", "))), sep = ": ", collapse = " & ")) %>%
     dplyr::mutate(event_color = "black")
+
   }
+
   for(k in 1:number_group_levels) {
 
     df <- megaplot_filtered_data %>%
@@ -135,11 +137,12 @@ draw_event_summary <- function(
     figure_list[[k]] <- fig3
   }
 
-  for(k in 1:number_group_levels) {
-
+  for (k in 1:number_group_levels) {
     if (!is.null(select_grouping)) {
+      megaplot_prepared_data_w_group_text_sorted <- megaplot_prepared_data_w_group_text %>%
+        dplyr::arrange(group_index)
     figure_list[[k]] <- figure_list[[k]] %>%
-      plotly::layout(annotations =list(list(x = mean(c(x_min, x_max)), y = max_y_range, showarrow = FALSE, xacnhor = 'center', yanchor = "top",text = megaplot_prepared_data_w_group_text$text_snippet_total[[k]])))
+      plotly::layout(annotations =list(list(x = mean(c(x_min, x_max)), y = max_y_range, showarrow = FALSE, xacnhor = 'center', yanchor = "top", text = megaplot_prepared_data_w_group_text_sorted$text_snippet_total[[k]])))
     }
 
     figure_list[[k]] <- figure_list[[k]] %>%

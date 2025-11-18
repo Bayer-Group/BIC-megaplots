@@ -385,7 +385,7 @@ app_server <- function(input, output, session) {
       create_jsTree_input(data = unique_event_group_data()),
       #use create_jsTree_input function to create desired list input
       dragAndDrop = TRUE,
-      search = TRUE,
+      search = list(show_only_matches = TRUE),
       dnd = dnd,
       checkCallback = check_callback,
       types = types,

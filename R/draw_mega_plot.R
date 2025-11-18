@@ -133,8 +133,6 @@ draw_mega_plot <- function(
         dplyr::mutate(text_snippet_total = paste(unlist(strsplit(.data$text_snippet_1," ")), gsub(" ", "", unlist(strsplit(.data$text_snippet_2, ", "))), sep = ": ", collapse = " & ")) %>%
         dplyr::mutate(event_color = "black")
 
-
-
       p_2 <- p_2 %>%
         plotly::add_trace(
           data = megaplot_prepared_data_w_group_text,
