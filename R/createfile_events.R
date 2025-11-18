@@ -171,12 +171,7 @@ createFile.events <- function(mp_data,
     events_time_to_first <- calc_time_to_first(data = events_tmp)
 
     mp_data$sl <- mp_data$sl %>%
-      dplyr::left_join(events_time_to_first, by="subjectid") %>%
-      dplyr::mutate(across(starts_with("ttf_"),
-                           ~ dplyr::case_when(
-                             is.na(.) ~ end_time + 10000000,
-                             TRUE ~ .x
-                           )))
+      dplyr::left_join(events_time_to_first, by="subjectid")
 
   }
 
@@ -186,12 +181,7 @@ createFile.events <- function(mp_data,
     data_days_with <- calc_days_with(data = events_tmp)
 
     mp_data$sl <- mp_data$sl %>%
-      dplyr::left_join(data_days_with, by="subjectid") %>%
-      dplyr::mutate(across(starts_with("dw_"),
-                           ~ dplyr::case_when(
-                             is.na(.) ~ end_time + 10000000,
-                             TRUE ~ .x
-                           )))
+      dplyr::left_join(data_days_with, by="subjectid")
 
   }
 
