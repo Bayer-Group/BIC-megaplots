@@ -37,7 +37,6 @@ draw_event_summary <- function(
   #initialize list for figures used in subplots (when multiple groups are selected)
   if (event_summary_selection == "event_by_subject_cumulative" | event_summary_selection == "cumulative_event") {
 
-    ################################
     if (!is.null(select_grouping)) {
       label_df <- megaplot_prepared_data %>%
         dplyr::group_by(.data$group_index) %>%
@@ -64,8 +63,7 @@ draw_event_summary <- function(
 
     }
 
-    for(k in 1:number_group_levels) {
-
+    for (k in 1:number_group_levels) {
       if (event_summary_selection == "event_by_subject_cumulative") {
         df <- megaplot_filtered_data %>%
           dplyr::filter(.data$group_index == k) %>%
@@ -93,6 +91,8 @@ draw_event_summary <- function(
         dplyr::select(cs, event_time, event_color,unique_event, megaplots_selected_event_group) %>%
         dplyr::filter(!is.na(cs))
 
+      max_y_range <- max(max_y_range, max(df2$cs, na.rm = TRUE))
+
       #initial plotly figure
       fig <- plotly::plot_ly(
         data = df2,
@@ -106,6 +106,7 @@ draw_event_summary <- function(
           color = ~I(event_color),
           line = list(shape = "hv", width = 3),
           name = ~ unique_event,
+          showlegend = FALSE,
           legendgroup = ~ megaplots_selected_event_group,
           legendgrouptitle = list(text = ~ megaplots_selected_event_group)
         )
@@ -114,25 +115,15 @@ draw_event_summary <- function(
           plotly::add_lines(
             color = ~I(event_color),
             line = list(shape = "hv", width = 3),
-            name = ~ unique_event
+            name = ~ unique_event,
+            showlegend = FALSE,
+            legendgroup = ~ unique_event,
+            legendgrouptitle =  list(text = " ")
           )
       }
 
-      trace_info <- get_trace_info(fig2)
-      fig2 <- apply_trace_info(trace_info,fig2)
-
-      # add lines to plotly figure
-      # fig2 <- fig %>%
-      #   plotly::add_lines(
-      #     y = ~ value,
-      #     color = ~I(event_color),
-      #     line = list(shape = "linear", width = 3),
-      #     name = ~ unique_event,
-      #     text = ~ tooltip_text,
-      #     hoverinfo = ~ tooltip,
-      #     legendgroup = ~ megaplots_selected_event_group,
-      #     legendgrouptitle = list(text = ~ megaplots_selected_event_group)
-      #   )
+      # trace_info <- get_trace_info(fig2)
+      # fig2 <- apply_trace_info(trace_info,fig2)
 
       #update figure layout
       fig3 <- fig2 %>%
@@ -150,10 +141,10 @@ draw_event_summary <- function(
           ),
           yaxis = list(
             color='#FFFFFF',
-            showgrid = FALSE,
+            showgrid = TRUE,
             title ="Event count",
             zeroline = FALSE,
-            autotick = FALSE
+            autotick = TRUE
           ),
 
           font = list(family = "Agency FB", color = "#FFFFFF"),
@@ -167,8 +158,11 @@ draw_event_summary <- function(
       figure_list[[k]] <- fig3
     }
 
+    # max_y_range
+
     for (k in 1:number_group_levels) {
       if (!is.null(select_grouping)) {
+
         megaplot_prepared_data_w_group_text_sorted <- megaplot_prepared_data_w_group_text %>%
           dplyr::arrange(group_index)
         figure_list[[k]] <- figure_list[[k]] %>%
@@ -203,6 +197,22 @@ draw_event_summary <- function(
             range = c(x_min, x_max)
           )
         )
+    }
+
+    for (i in seq_along(figure_list)) {
+      if (i == 1) {
+        initial_legend_trace_info <- get_trace_info(figure_list[[1]])
+        figure_list[[i]] <- plotly::style(figure_list[[i]],showlegend = TRUE)
+      } else {
+        legend_trace_info <- get_trace_info(figure_list[[i]])
+        missing_traces <-  which(!(legend_trace_info$name %in% initial_legend_trace_info$name))
+        if(length(missing_traces) != 0) {
+          figure_list[[i]] <- plotly::style(figure_list[[i]],showlegend = TRUE, traces = missing_traces)
+          initial_legend_trace_info  <- rbind(initial_legend_trace_info,legend_trace_info[missing_traces,])
+        } else {
+          figure_list[[i]] <- plotly::style(figure_list[[i]],showlegend = FALSE)
+        }
+      }
     }
 
     g <- plotly::subplot(
@@ -211,9 +221,8 @@ draw_event_summary <- function(
       shareX =TRUE,
       nrows = number_group_levels
     )
-
-    g
   } else {
+
     if (!is.null(select_grouping)) {
       label_df <- megaplot_prepared_data %>%
         dplyr::group_by(.data$group_index) %>%
@@ -253,7 +262,7 @@ draw_event_summary <- function(
         dplyr::group_by(dplyr::across(tidyselect::all_of(c(select_grouping,"group_index","megaplots_selected_event_group","megaplots_selected_event","unique_event","event_color","day")))) %>%
         dplyr::summarise(value = dplyr::n()) %>%
         tidyr::complete(
-          day = seq(min(.data$day)-1,max(.data$day)+1, 1),
+          day = seq(min(day)-1,max(day)+1, 1),
           fill = list(value = 0)
         ) %>%
         dplyr::arrange(dplyr::across(dplyr::all_of(c(select_grouping,"group_index","megaplots_selected_event_group","megaplots_selected_event","unique_event","event_color","day")))) %>%
@@ -278,6 +287,7 @@ draw_event_summary <- function(
           line = list(shape = "hv", width = 3),
           name = ~ unique_event,
           text = ~ tooltip_text,
+          showlegend = FALSE,
           hoverinfo = ~ tooltip,
           legendgroup = ~ megaplots_selected_event_group,
           legendgrouptitle = list(text = ~ megaplots_selected_event_group)
@@ -289,13 +299,16 @@ draw_event_summary <- function(
             color = ~I(event_color),
             line = list(shape = "hv", width = 3),
             name = ~ unique_event,
-            text = ~ tooltip_text
+            showlegend = FALSE,
+            text = ~ tooltip_text,
+            legendgroup = ~ unique_event,
+            legendgrouptitle =  list(text = " ")
           )
       }
 
-      trace_info <- get_trace_info(fig2)
-      fig2 <- apply_trace_info(trace_info,fig2)
-      #update figure layout
+      # trace_info <- get_trace_info(fig2)
+      # fig2 <- apply_trace_info(trace_info,fig2)
+
       fig3 <- fig2 %>%
         plotly::layout(
           plot_bgcolor = "#404A4E",
@@ -311,10 +324,10 @@ draw_event_summary <- function(
           ),
           yaxis = list(
             color='#FFFFFF',
-            showgrid = FALSE,
+            showgrid = TRUE,
             title ="Event count",
             zeroline = FALSE,
-            autotick = FALSE
+            autotick = TRUE
           ),
 
           font = list(family = "Agency FB", color = "#FFFFFF"),
@@ -339,12 +352,28 @@ draw_event_summary <- function(
       figure_list[[k]] <- figure_list[[k]] %>%
         plotly::layout(
           yaxis = list(
-            range = c(0, max_y_range)
+            range = c(0, max_y_range), matches = TRUE
           ),
           xaxis = list(
             range = c(x_min, x_max)
           )
         )
+    }
+
+    for (i in seq_along(figure_list)) {
+      if (i == 1) {
+        initial_legend_trace_info <- get_trace_info(figure_list[[1]])
+        figure_list[[i]] <- plotly::style(figure_list[[i]],showlegend = TRUE)
+      } else {
+        legend_trace_info <- get_trace_info(figure_list[[i]])
+        missing_traces <-  which(!(legend_trace_info$name %in% initial_legend_trace_info$name))
+        if(length(missing_traces) != 0) {
+          figure_list[[i]] <- plotly::style(figure_list[[i]],showlegend = TRUE, traces = missing_traces)
+          initial_legend_trace_info  <- rbind(initial_legend_trace_info,legend_trace_info[missing_traces,])
+        } else {
+          figure_list[[i]] <- plotly::style(figure_list[[i]],showlegend = FALSE)
+        }
+      }
     }
 
     g <- plotly::subplot(

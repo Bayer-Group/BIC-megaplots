@@ -511,7 +511,7 @@ app_ui <- function(request) {
             shinyWidgets::pickerInput(
               inputId = "event_summary_selection",
               label = "Select summary display",
-              choices = c("event_per_day", "event_by_subject_cumulative","cumulative_event"),
+              choices = c(list("Number of events per day" = "event_per_day"), list("Number of events per day (cumulative total)" ="cumulative_event"), list("Number of first events per day and subject (cumulative total)" = "event_by_subject_cumulative")),
               selected = "event_per_day"
             ),
             bslib::as_fill_carrier(
