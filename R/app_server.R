@@ -385,7 +385,7 @@ app_server <- function(input, output, session) {
       create_jsTree_input(data = unique_event_group_data()),
       #use create_jsTree_input function to create desired list input
       dragAndDrop = TRUE,
-      search = TRUE,
+      search = list(show_only_matches = TRUE),
       dnd = dnd,
       checkCallback = check_callback,
       types = types,
@@ -1068,7 +1068,8 @@ app_server <- function(input, output, session) {
       megaplot_filtered_data = megaplot_filtered_data(),
       select_grouping = input$select_grouping,
       line_width = input$line_width,
-      line_width_subjects = input$line_width_subjects
+      line_width_subjects = input$line_width_subjects,
+      switch_legend_grouping = input$switch_legend_grouping
     )
     session_store$val <- tmp
     tmp
@@ -1091,7 +1092,10 @@ app_server <- function(input, output, session) {
       megaplot_prepared_data = megaplot_prepared_data(),
       megaplot_filtered_data = megaplot_filtered_data(),
       select_grouping = input$select_grouping,
-      event_summary_cutoff = input$event_summary_cutoff
+      event_summary_cutoff = input$event_summary_cutoff,
+      event_summary_selection = input$event_summary_selection,
+      switch_legend_grouping = input$switch_legend_grouping
+
     )
   })
 
