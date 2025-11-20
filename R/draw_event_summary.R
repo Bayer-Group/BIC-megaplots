@@ -125,26 +125,26 @@ draw_event_summary <- function(
       )
 
       #add lines to initial figure
-      if (switch_legend_grouping) {
-        fig2 <- fig  %>%
-          plotly::add_lines(
-            color = ~I(event_color),
-            line = list(shape = "hv", width = 3),
-            name = ~ unique_event,
-            showlegend = FALSE,
-            legendgroup = ~ megaplots_selected_event_group,
-            legendgrouptitle = list(text = ~ megaplots_selected_event_group)
-          )
-      } else {
-        fig2 <- fig  %>%
-          plotly::add_lines(
-            color = ~I(event_color),
-            line = list(shape = "hv", width = 3),
-            name = ~ unique_event,
-            showlegend = TRUE,
-            legendgroup = ~ unique_event
-          )
-      }
+        if (switch_legend_grouping) {
+          fig2 <- fig  %>%
+            plotly::add_lines(
+              color = ~I(event_color),
+              line = list(shape = "hv", width = 3),
+              name = ~ unique_event,
+              showlegend = FALSE,
+              legendgroup = ~ megaplots_selected_event_group,
+              legendgrouptitle = list(text = ~ megaplots_selected_event_group)
+            )
+        } else {
+          fig2 <- fig  %>%
+            plotly::add_lines(
+              color = ~I(event_color),
+              line = list(shape = "hv", width = 3),
+              name = ~ unique_event,
+              showlegend = TRUE,
+              legendgroup = ~ unique_event
+            )
+        }
 
       #update figure layout
       fig3 <- fig2 %>%
@@ -163,7 +163,7 @@ draw_event_summary <- function(
           yaxis = list(
             color='#FFFFFF',
             showgrid = TRUE,
-            title = "Event count",
+            title = "Cumulative event count per day",
             zeroline = FALSE,
             autotick = TRUE
           ),
@@ -235,7 +235,11 @@ draw_event_summary <- function(
         fill = list(value = 0)
       ) %>%
       dplyr::arrange(dplyr::across(dplyr::all_of(c(select_grouping,"group_index","megaplots_selected_event_group","megaplots_selected_event","unique_event","event_color","day")))) %>%
-      dplyr::ungroup()
+      dplyr::ungroup() %>%
+      dplyr::mutate(
+        tooltip = "x+text",
+        tooltip_text = ifelse(.data$value < event_summary_cutoff, NA, paste0(.data$megaplots_selected_event,": ", .data$value))
+      )
 
     for(k in 1:number_group_levels) {
 
@@ -251,31 +255,57 @@ draw_event_summary <- function(
       #initial plotly figure
       fig <- plotly::plot_ly(data = df_group, x = ~ day)
 
-      # add lines to plotly figure
-      if (switch_legend_grouping) {
-        fig2 <- fig %>%
-          plotly::add_lines(
-            y = ~ value,
-            color = ~I(event_color),
-            line = list(shape = "hv", width = 3),
-            name = ~ unique_event,
-            # text = ~ tooltip_text,
-            showlegend = FALSE,
-            # hoverinfo = ~ tooltip,
-            legendgroup = ~ megaplots_selected_event_group,
-            legendgrouptitle = list(text = ~ megaplots_selected_event_group)
-          )
+      # add lines to plotly figur
+      if (hovermode == "x") {
+        if (switch_legend_grouping) {
+          fig2 <- fig %>%
+            plotly::add_lines(
+              y = ~ value,
+              color = ~I(event_color),
+              line = list(shape = "hv", width = 3),
+              name = ~ unique_event,
+              text = ~ tooltip_text,
+              showlegend = FALSE,
+              hoverinfo = ~ tooltip,
+              legendgroup = ~ megaplots_selected_event_group,
+              legendgrouptitle = list(text = ~ megaplots_selected_event_group)
+            )
+        } else {
+          fig2 <- fig %>%
+            plotly::add_lines(
+              y = ~ value,
+              color = ~I(event_color),
+              line = list(shape = "hv", width = 3),
+              name = ~ unique_event,
+              showlegend = FALSE,
+              hoverinfo = ~ tooltip,
+              text = ~ tooltip_text,
+              legendgroup = ~ unique_event
+            )
+        }
       } else {
-        fig2 <- fig %>%
-          plotly::add_lines(
-            y = ~ value,
-            color = ~I(event_color),
-            line = list(shape = "hv", width = 3),
-            name = ~ unique_event,
-            showlegend = FALSE,
-            # text = ~ tooltip_text,
-            legendgroup = ~ unique_event
-          )
+        if (switch_legend_grouping) {
+          fig2 <- fig %>%
+            plotly::add_lines(
+              y = ~ value,
+              color = ~I(event_color),
+              line = list(shape = "hv", width = 3),
+              name = ~ unique_event,
+              showlegend = FALSE,
+              legendgroup = ~ megaplots_selected_event_group,
+              legendgrouptitle = list(text = ~ megaplots_selected_event_group)
+            )
+        } else {
+          fig2 <- fig %>%
+            plotly::add_lines(
+              y = ~ value,
+              color = ~I(event_color),
+              line = list(shape = "hv", width = 3),
+              name = ~ unique_event,
+              showlegend = FALSE,
+              legendgroup = ~ unique_event
+            )
+        }
       }
 
       fig3 <- fig2 %>%
@@ -294,7 +324,7 @@ draw_event_summary <- function(
           yaxis = list(
             color='#FFFFFF',
             showgrid = TRUE,
-            title ="Event count",
+            title ="Event count per day",
             zeroline = FALSE,
             autotick = TRUE
           ),
