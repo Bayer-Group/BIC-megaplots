@@ -140,6 +140,13 @@ app_ui <- function(request) {
             value = TRUE,
             status = "primary"
           ),
+          shiny::radioButtons(
+            inputId = "event_summary_hovermode",
+            label = "Hover mode (Event Summary)",
+            choices = c("One label for each event" = "x", "One label for all events" = "x unified"),
+            inline = TRUE,
+            selected = "x"
+          ),
           shiny::numericInput(
             inputId = "event_summary_cutoff",
             label = "Display hover for counts greater than or equal to:",
