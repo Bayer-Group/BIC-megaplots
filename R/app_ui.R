@@ -96,7 +96,7 @@ app_ui <- function(request) {
           shinyWidgets::pickerInput(
             inputId = 'select_sorting',
             label = "Sorting variable",
-            choices = c("subjectid","start_time","end_time"),
+            choices = c("megaplots_selected_subjectid","megaplots_selected_start_time","megaplots_selected_end_time"),
             selected = NULL,
             multiple = FALSE,
             options = list(
@@ -198,12 +198,12 @@ app_ui <- function(request) {
           "Download",
           icon = bsicons::bs_icon("download"),
           shiny::downloadButton("download_plotly_widget", "Download Mega plot as HTML")
-        ),
-        bslib::accordion_panel(
-          "Sequencing",
-          icon = bsicons::bs_icon("plus"),
-          artificial_intelligence_ui("ai")
-        )
+        )#,
+        # bslib::accordion_panel(
+        #   "Sequencing",
+        #   icon = bsicons::bs_icon("plus"),
+        #   artificial_intelligence_ui("ai")
+        # )
         )
       ),
       #Main area

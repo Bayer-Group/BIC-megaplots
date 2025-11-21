@@ -143,7 +143,7 @@ artificial_intelligence_server <- function(
 
   # update sequencing pickerinput
   shiny::observeEvent(megaplot_filtered_data(), {
-    choices <- unique(megaplot_filtered_data()$event_group)
+    choices <- unique(megaplot_filtered_data()$megaplots_selected_event)
     selected <- choices[1]
 
     shinyWidgets::updatePickerInput(

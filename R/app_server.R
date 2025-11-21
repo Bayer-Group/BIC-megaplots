@@ -410,11 +410,14 @@ app_server <- function(input, output, session) {
 
   #### update sorting ####
   shiny::observeEvent(uploaded_data$val, {
-    choices <- names(which(unlist(lapply(uploaded_data$val, is.numeric))))
+    choices <- names(which(unlist(lapply(uploaded_data_renamed(), is.numeric))))
+    starting_variables <- stringr::str_detect(choices,"megaplots_")
+    choices <- c(choices[which(starting_variables)], choices[!which(starting_variables)])
     shinyWidgets::updatePickerInput(
       session,
       inputId = "select_sorting",
       choices = choices,
+      selected = "megaplots_selected_end_time",
       choicesOpt = list(style =  rep_len(
         "font-size: 60%; line-height: 1.6;", length(choices)
       )
@@ -1129,26 +1132,28 @@ app_server <- function(input, output, session) {
   #sequencing/ai module (server part)
   sequencing_order_data <- shiny::reactiveValues(val = NULL)
 
-  artificial_intelligence <- shiny::callModule(
-    artificial_intelligence_server,
-    "ai",
-    shiny::reactive({megaplot_filtered_data()})
-  )
+  # artificial_intelligence <- shiny::callModule(
+  #   artificial_intelligence_server,
+  #   "ai",
+  #   shiny::reactive({megaplot_filtered_data()})
+  # )
 
-  shiny::observeEvent(artificial_intelligence$seq.button(),{
-    if (!is.null(artificial_intelligence$varSeq())) {
-      sequencing_output <- megaplots_sequencing_functions(
-        final_data = megaplot_filtered_data(),
-        variable = artificial_intelligence$varSeq(),
-        seriation_parameter = artificial_intelligence$input_seriation(),
-        seriation_method = artificial_intelligence$methSer(),
-        group = input$select_grouping,
-        multiple_distmeasures = artificial_intelligence$multiple_distmeasures()
-      )
-      sequencing_order_data$val <- sequencing_output
-    }
-    #data_w_ai_information_reacVal$df <- data_w_ai_information
-    # megaplot_filtered_data(sequencing_output)
-  })
+  # shiny::observeEvent(artificial_intelligence$seq.button(), {
+  #   if (!is.null(artificial_intelligence$varSeq())) {
+  #
+  #
+  #     sequencing_output <- megaplots_sequencing_functions(
+  #       final_data = megaplot_filtered_data(),
+  #       variable = artificial_intelligence$varSeq(),
+  #       seriation_parameter = artificial_intelligence$input_seriation(),
+  #       seriation_method = artificial_intelligence$methSer(),
+  #       group = input$select_grouping,
+  #       multiple_distmeasures = artificial_intelligence$multiple_distmeasures()
+  #     )
+  #     sequencing_order_data$val <- sequencing_output
+  #   }
+  #   #data_w_ai_information_reacVal$df <- data_w_ai_information
+  #   # megaplot_filtered_data(sequencing_output)
+  # })
 
 }

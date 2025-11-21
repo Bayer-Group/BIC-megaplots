@@ -141,7 +141,7 @@ draw_event_summary <- function(
               color = ~I(event_color),
               line = list(shape = "hv", width = 3),
               name = ~ unique_event,
-              showlegend = TRUE,
+              showlegend = FALSE,
               legendgroup = ~ unique_event
             )
         }
