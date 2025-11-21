@@ -113,6 +113,9 @@ app_server <- function(input, output, session) {
   shinyjs::hideElement(id = "select_event")
   shinyjs::hideElement(id = "select_event_group")
   shinyjs::hideElement(id = "upload_1_next_button")
+  shinyjs::hideElement(id = "upload_3_next_button")
+  shinyjs::hideElement(id = "upload_3_back_button")
+  shinyjs::hideElement(id = "upload_saved_color_file")
 
   shiny::observeEvent(uploaded_data$val, {
     if (is.null(uploaded_data$val)) {
@@ -132,6 +135,9 @@ app_server <- function(input, output, session) {
       shinyjs::showElement(id = "select_event_time_end")
       shinyjs::showElement(id = "select_event")
       shinyjs::showElement(id = "select_event_group")
+      shinyjs::showElement(id = "upload_3_next_button")
+      shinyjs::showElement(id = "upload_3_back_button")
+      shinyjs::showElement(id = "upload_saved_color_file")
 
       shiny::updateSelectInput(
         session,
@@ -1156,4 +1162,52 @@ app_server <- function(input, output, session) {
   #   # megaplot_filtered_data(sequencing_output)
   # })
 
+  shiny::observeEvent(input$megaplots_help_button, {
+    shiny::showModal(
+      shiny::modalDialog(
+        HTML("Help text page will available soon!"),
+        footer = tagList(
+          modalButton('RETURN')
+        ),
+        easyClose = TRUE,
+        size = "l"
+      )
+    )
+  })
+  shiny::observeEvent(input$event_summary_help_button, {
+    shiny::showModal(
+      shiny::modalDialog(
+        HTML("Help text page will available soon!"),
+        footer = tagList(
+          modalButton('RETURN')
+        ),
+        easyClose = TRUE,
+        size = "l"
+      )
+    )
+  })
+  shiny::observeEvent(input$file_variable_help_button, {
+    shiny::showModal(
+      shiny::modalDialog(
+        HTML("Help text page will available soon!"),
+        footer = tagList(
+          modalButton('RETURN')
+        ),
+        easyClose = TRUE,
+        size = "l"
+      )
+    )
+  })
+  shiny::observeEvent(input$event_color_selection_help_button, {
+    shiny::showModal(
+      shiny::modalDialog(
+        HTML("Help text page will available soon!"),
+        footer = tagList(
+          modalButton('RETURN')
+        ),
+        easyClose = TRUE,
+        size = "l"
+      )
+    )
+  })
 }

@@ -198,7 +198,7 @@ app_ui <- function(request) {
           "Download",
           icon = bsicons::bs_icon("download"),
           shiny::downloadButton("download_plotly_widget", "Download Mega plot as HTML")
-        )#,
+        ),
         # bslib::accordion_panel(
         #   "Sequencing",
         #   icon = bsicons::bs_icon("plus"),
@@ -220,7 +220,7 @@ app_ui <- function(request) {
           )
         ),
         bslib::navset_card_underline(
-          title = "Upload",
+          #title = tagList(span("UPLOAD",shinyWidgets::circleButton("megaplots_upload_help_button", "", icon = icon("circle-question"), size = "xs"), style = "line-height =display: inline-block; font-size = 18pt; text-decoration: underline; text-align: center; color: yellow;")),
           id = "Upload",
           bslib::nav_panel("File & variable selection", id = "File & variable selection",
            shiny::fluidRow(
@@ -495,9 +495,9 @@ app_ui <- function(request) {
         id = "Megaplots",
         title = "Megaplots",
         bslib::navset_card_underline(
-          title = "MEGAPLOTS",
+          # title = tagList(tags$span("MEGAPLOTS", shinyWidgets::circleButton("megaplots_help_button", "", icon = icon("circle-question"), size = "xs"))),
           full_screen = TRUE,
-          bslib::nav_panel("Megaplots", id = "Megaplots", icon =  bsicons::bs_icon("filter-left"),
+          bslib::nav_panel("Megaplots", id = "Megaplots",# icon =  bsicons::bs_icon("filter-left"),
            bslib::as_fill_carrier(
              shinycssloaders::withSpinner(
                plotly::plotlyOutput("mega_plots"),
@@ -515,11 +515,17 @@ app_ui <- function(request) {
             #   value = FALSE,
             #   status = "primary"
             # ),
-            shinyWidgets::pickerInput(
-              inputId = "event_summary_selection",
-              label = "Select summary display",
-              choices = c(list("Number of events per day" = "event_per_day"), list("Number of events per day (cumulative total)" ="cumulative_event"), list("Number of first events per day and subject (cumulative total)" = "event_by_subject_cumulative")),
-              selected = "event_per_day"
+            tags$head(
+              tags$style(type="text/css", ".inline label{ display: table-cell; text-align: center; vertical-align: middle; }
+                                   .inline .form-group { display: table-row;}")
+            ),
+            tags$div(class = "inline",
+              shinyWidgets::pickerInput(
+                inputId = "event_summary_selection",
+                label = "Select summary display :  ",
+                choices = c(list("Number of events per day" = "event_per_day"), list("Number of events per day (cumulative total)" ="cumulative_event"), list("Number of first events per day and subject (cumulative total)" = "event_by_subject_cumulative")),
+                selected = "event_per_day"
+              )
             ),
             bslib::as_fill_carrier(
               shinycssloaders::withSpinner(
