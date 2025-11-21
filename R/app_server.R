@@ -1094,7 +1094,8 @@ app_server <- function(input, output, session) {
       select_grouping = input$select_grouping,
       event_summary_cutoff = input$event_summary_cutoff,
       event_summary_selection = input$event_summary_selection,
-      switch_legend_grouping = input$switch_legend_grouping
+      switch_legend_grouping = input$switch_legend_grouping,
+      hovermode = input$event_summary_hovermode
 
     )
   })
