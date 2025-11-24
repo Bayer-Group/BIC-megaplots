@@ -90,3 +90,29 @@ apply_trace_info <- function(trace_info, plotly_object) {
     )
 }
 
+
+create_palette <- function(n, name) {
+  if (name %in% c("Set2", "Pastel2", "Dark2", "Accent")) {
+    max_n <- 8
+  } else if (name %in% c("Pastel1","Set1")) {
+    max_n <- 9
+  } else if (name %in% c("Spectral")) {
+    max_n <- 11
+  } else if (name %in% c("Paired", "Set3")) {
+    max_n <- 12
+  } else {
+    max_n <- NA
+  }
+
+  if (!is.na(max_n)) {
+    selected_color_palette <- colorRampPalette(RColorBrewer::brewer.pal(max_n, name))(n)
+  } else {
+    if (name == "Rainbow") {
+      selected_color_palette <- rainbow(n)
+    } else {
+    selected_color_palette <- NA
+    }
+  }
+  return(selected_color_palette)
+}
+

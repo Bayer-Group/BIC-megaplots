@@ -382,6 +382,13 @@ app_ui <- function(request) {
                     )
                   ),
                   shiny::column(12,
+                    shiny::selectInput(
+                      inputId = "select_color_palette",
+                      label = "Select color palette",
+                      choices = c("Set1","Set2","Set3","Pastel1","Pastel2","Paired","Dark2","Accent","Spectral","Rainbow")
+                    )
+                  ),
+                  shiny::column(12,
                     shiny::textOutput(
                       "colorization_selection"
                     )
