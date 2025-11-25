@@ -420,10 +420,8 @@ app_server <- function(input, output, session) {
   })
 
   #### update sorting ####
-  shiny::observeEvent(uploaded_data$val, {
-    choices <- names(which(unlist(lapply(uploaded_data_renamed(), is.numeric))))
-    starting_variables <- stringr::str_detect(choices,"megaplots_")
-    choices <- c(choices[which(starting_variables)], choices[!which(starting_variables)])
+  shiny::observeEvent(uploaded_data_renamed(), {
+    choices <- names(which(unlist(lapply(uploaded_data_renamed() %>% dplyr::relocate(starts_with("megaplots_")), is.numeric))))
     shinyWidgets::updatePickerInput(
       session,
       inputId = "select_sorting",
