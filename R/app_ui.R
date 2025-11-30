@@ -390,21 +390,21 @@ app_ui <- function(request) {
                     colourpicker::colourInput(
                       inputId = "colour_picker_panel_1",
                       label = "Click colored event container and use this Picker to update any color",
-                      value = "white"
+                      value = "white", allowTransparent = TRUE
                     )
                   ),
                   shiny::column(4,
                     colourpicker::colourInput(
                       inputId = "colour_picker_panel_2",
                       label = "Color 2",
-                      value = "white"
+                      value = "white", allowTransparent = TRUE
                     )
                   ),
                   shiny::column(4,
                     colourpicker::colourInput(
                       inputId = "colour_picker_panel_3",
                       label = "Color 3",
-                      value = "blue"
+                      value = "blue", allowTransparent = TRUE
                     )
                   ),
                   shiny::column(12,
@@ -412,7 +412,7 @@ app_ui <- function(request) {
                       colourpicker::colourInput(
                         inputId = "colour_picker_panel_event",
                         label = "",
-                        value = "white"
+                        value = "white", allowTransparent = TRUE
                       ),
                       shinyWidgets::actionBttn(
                         inputId = "update_color_palette_2",
@@ -428,7 +428,7 @@ app_ui <- function(request) {
                       colourpicker::colourInput(
                         inputId = "colour_picker_panel_unique",
                         label = "",
-                        value = "white"
+                        value = "white", allowTransparent = TRUE
                       )
                     )
                   ),
