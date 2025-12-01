@@ -449,31 +449,36 @@ app_server <- function(input, output, session) {
       session,
       inputId = "colour_picker_panel_event",
       label = "",
-      value = color_data$selected[js_column$number, "event_color"]
+      value = color_data$selected[js_column$number, "event_color"],
+      allowTransparent = TRUE
     )
     colourpicker::updateColourInput(
       session,
       inputId = "colour_picker_panel_1",
       label = "",
-      value = color_data$selected[js_column$number, "gradient_event_color_1"]
+      value = color_data$selected[js_column$number, "gradient_event_color_1"],
+      allowTransparent = TRUE
     )
     colourpicker::updateColourInput(
       session,
       inputId = "colour_picker_panel_2",
       label = "",
-      value = color_data$selected[js_column$number, "gradient_event_color_2"]
+      value = color_data$selected[js_column$number, "gradient_event_color_2"],
+      allowTransparent = TRUE
     )
     colourpicker::updateColourInput(
       session,
       inputId = "colour_picker_panel_3",
       label = "",
-      value = color_data$selected[js_column$number, "gradient_event_color_3"]
+      value = color_data$selected[js_column$number, "gradient_event_color_3"],
+      allowTransparent = TRUE
     )
     colourpicker::updateColourInput(
       session,
       inputId = "colour_picker_panel_unique",
       label = "",
-      value = color_data$selected[js_column$number, "gradient_event_color_2"]
+      value = color_data$selected[js_column$number, "gradient_event_color_2"],
+      allowTransparent = TRUE
     )
 
     val <- any(color_data$all[
