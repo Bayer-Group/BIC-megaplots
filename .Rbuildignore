@@ -14,3 +14,4 @@ $run_dev.*
 ^MAINTAINERS\.md$
 ^CODE_OF_CONDUCT\.md$
 ^\.github$
+^Dockerfile$
