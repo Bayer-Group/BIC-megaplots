@@ -10,7 +10,8 @@ draw_mega_plot(
   select_grouping = NULL,
   line_width = 3,
   line_width_subjects,
-  event_tooltips = TRUE
+  event_tooltips = TRUE,
+  switch_legend_grouping = TRUE
 )
 }
 \arguments{

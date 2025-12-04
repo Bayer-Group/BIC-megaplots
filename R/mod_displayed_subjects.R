@@ -1,0 +1,242 @@
+#' Displayed Subjects (Sidebar Option Panel) Module - User Interface Part
+#'
+#' @param id Shiny Session id
+#'
+#' @return No return
+#'
+#' @noRd
+#' @keywords internal
+#
+
+displayed_subjects_ui <- function(id) {
+
+  ns <- NS(id)
+
+  shiny::tagList(
+    shiny::sliderInput(
+      inputId = ns("random"),
+      label = paste("Number of displayed subjects"),
+      min = 1,
+      max = 999,
+      value = 1
+    ),
+    shiny::conditionalPanel(condition = "output.check_subset == false",
+      shiny::radioButtons(
+        inputId = ns('selection_button'),
+        label = 'Subset selection type',
+        choices = c('deterministic', 'random'),
+        selected = 'deterministic'
+      ),
+      tabsetPanel(
+        id = ns("Change_input_for_deterministic_or_random"),
+        type = "hidden",
+        tabPanel(
+          "deterministic",
+          shiny::numericInput(
+            inputId = ns("startsubj"),
+            label = "Selection starts in row ... of dataset",
+            min = 1,
+            max = 1,
+            value = 1,
+            step = 1
+          ),
+          uiOutput(ns("startsubj_text"))
+        ),
+        tabPanel(
+          "random",
+          shiny::numericInput(
+            inputId = ns("seedset"),
+            label = "Select a seed for the random subject selection (or leave it blank for seed generation)",
+            min = 1,
+            max = 10000,
+            value = 2006,
+            step = 1
+          )
+        )
+      ),
+      shinyWidgets::pickerInput(
+        inputId = ns("specific_ids"),
+        label = "Select specific subjects which should be displayed",
+        choices = NULL,
+        selected = NULL,
+        multiple = TRUE,
+        options = list(
+          `selected-text-format` = 'count > 0',
+          `actions-box` = TRUE,
+          `count-selected-text` = '{0} selected (of {1})',
+          `live-search` = TRUE,
+          `header` = 'Select multiple items',
+          `none-selected-text` = 'No selection!'
+        )
+      ),
+      shinyWidgets::actionBttn(
+        inputId = ns('subset.button'),
+        label = "Update subject selection!",
+        style = "gradient",
+        color = "primary",
+        size = 'xs',
+        no_outline = FALSE,
+        icon = icon("refresh")
+      ),
+      ns = NS(id)
+    ))
+}
+
+
+#' Displayed Subjects (Sidebar Option Panel) Module - Server Part
+#'
+#' @param input,output,session Internal parameters for {shiny}
+#' @param preprocess_data list with uploaded data from module mod_data_upload
+#' @param setting_file list with saved settings information
+#'
+#' @return List with preprocessed data and upload panel inputs
+#'
+#' @noRd
+#' @keywords internal
+
+displayed_subjects_server <- function(input, output, session, preprocess_data, setting_file) {
+
+  ns <- session$ns
+
+  ####... random ####
+  shiny::observe({
+    shiny::req(preprocess_data()$megaplot_data$A)
+    nmax <- length(unique(preprocess_data()$megaplot_data$A$megaplots_selected_subjectid))
+
+    num_sub <- length(unique(preprocess_data()$megaplot_data$A$megaplots_selected_subjectid))
+
+      shiny::updateSliderInput(
+        session,
+        inputId = 'random',
+        label = paste("Number of displayed subjects"),
+        min = 1,
+        value = num_sub,
+        max = num_sub,
+        step = 1
+      )
+  })
+
+ subset.flag <- shiny::reactiveValues(val = FALSE)
+
+  output$check_subset <- shiny::reactive({
+    subset.flag$val
+  })
+
+  shiny::outputOptions(output, "check_subset", suspendWhenHidden = FALSE)
+
+  observe({subset.flag$val})
+  shiny::observeEvent(c(input$random), {
+    shiny::req(preprocess_data())
+    nmax <- length(unique(preprocess_data()$megaplot_data$A$megaplots_selected_subjectid))
+    if (!is.null(nmax)) {
+      subset.flag$val <-  nmax == input$random
+    }
+  })
+
+  observeEvent(preprocess_data(),{
+    shinyWidgets::updatePickerInput(
+      session,
+      inputId = "specific_ids",
+      selected = NULL,
+      choices = preprocess_data()$megaplot_data$A$megaplots_selected_subjectid,
+    )
+  })
+
+  shiny::observeEvent(c(input$random, preprocess_data()), {
+    shiny::req(input$random)
+
+    nmax <- length(unique(preprocess_data()$megaplot_data$A$megaplots_selected_subjectid))
+
+
+    shiny::updateNumericInput(
+      session,
+      inputId = "startsubj",
+      max = nmax - input$random + 1,
+      value = 1
+    )
+  })
+
+  shiny::observeEvent(input$selection_button, {
+    shiny::updateTabsetPanel(
+      inputId = "Change_input_for_deterministic_or_random",
+      selected = input$selection_button
+    )
+  })
+
+  displayed_subjects_settings <- shiny::reactive({
+    param <- list(
+       random = input$random,
+       selection_button = input$selection_button,
+       startsubj = start_w_subject$number,
+       seedset = input$seedset,
+       specific_ids = input$specific_ids
+    )
+    param
+  })
+
+  #initialze starting value
+  start_w_subject <- reactiveValues(
+    number = 1
+  )
+
+  shiny::observeEvent(input$startsubj, {
+    if (is.na(as.numeric(input$startsubj))) {
+
+      start_w_subject$number <- 1
+      output$startsubj_text <- renderUI({
+        HTML("<p style ='color:red;'> Error: Value must be numeric! </p>")
+      })
+    } else {
+      start_w_subject$number <- input$startsubj
+        output$startsubj_text <- renderUI({
+        HTML("")
+      })
+    }
+  })
+
+
+  shiny::observeEvent(setting_file(), {
+    if (!is.null(setting_file())) {
+      #saved_file <- readRDS(setting_file()$datapath)
+      saved_file <- setting_file()$datapath
+      if (is.list(saved_file)) {
+        #update main options
+        shiny::updateSliderInput(
+          session,
+          inputId = "random",
+          value = saved_file$random
+        )
+        shiny::updateRadioButtons(
+          session,
+          inputId = "selection_button",
+          selected = saved_file$selection_button
+        )
+         shiny::updateNumericInput(
+            session,
+            inputId = "startsubj",
+            value = saved_file$startsubj
+          )
+        updateNumericInput(
+          session,
+          inputId = "seedset",
+          value = saved_file$seedset
+        )
+        shinyWidgets::updatePickerInput(
+          session,
+          inputId = "specific_ids",
+          selected = saved_file$specific_ids
+        )
+      }
+    }
+  })
+
+  return(list(
+    random = shiny::reactive({input$random}),
+    selection_button = shiny::reactive({input$selection_button}),
+    startsubj = shiny::reactive({start_w_subject$number}),
+    seedset = shiny::reactive({input$seedset}),
+    specific_ids = shiny::reactive({input$specific_ids}),
+    subset.button = shiny::reactive({input$subset.button}),
+    displayed_subjects_settings = shiny::reactive({displayed_subjects_settings()})
+  ))
+}

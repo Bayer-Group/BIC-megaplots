@@ -6,10 +6,7 @@
 #' @param select_event_kaplan_meier character with event variable name
 #' @param select_strata_var character vector with stratification variables
 #'
-#' @return
 #' @export
-#'
-#' @examples
 draw_kaplan_meier <- function(
     megaplot_prepared_data = megaplot_prepared_data(),
     megaplot_filtered_data = megaplot_filtered_data(),

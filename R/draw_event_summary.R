@@ -5,11 +5,7 @@
 #' @param select_grouping character vector with grouping variables
 #' @param event_summary_cutoff numeric value used as cutoff for hover labels displayed
 #'
-#' @return
 #' @export
-#'
-#' @examples
-
 draw_event_summary <- function(
     megaplot_prepared_data = megaplot_prepared_data(),
     megaplot_filtered_data = megaplot_filtered_data(),

@@ -7,10 +7,7 @@
 #' @param line_width_subjects numeric value for subject line width
 #' @param event_tooltips logical value if event tooltips should be turned on/off
 #'
-#' @return
 #' @export
-#'
-#' @examples
 draw_mega_plot <- function(
     megaplot_prepared_data = megaplot_prepared_data(),
     megaplot_filtered_data = megaplot_filtered_data(),

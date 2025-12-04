@@ -8,7 +8,10 @@ draw_event_summary(
   megaplot_prepared_data = megaplot_prepared_data(),
   megaplot_filtered_data = megaplot_filtered_data(),
   select_grouping = NULL,
-  event_summary_cutoff = 1
+  event_summary_cutoff = 1,
+  event_summary_selection,
+  switch_legend_grouping = TRUE,
+  hovermode = "x"
 )
 }
 \arguments{
