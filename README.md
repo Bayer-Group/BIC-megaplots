@@ -1,3 +1,7 @@
+> [!IMPORTANT]
+> This branch contains an older version of Megaplots. This branch will receive no further updates and just bug fixes. Please refer to the `main` branch for the latest version of Megaplots.
+
+
 <img src="inst/app/www/megaplot-logo.png" align="center" width="55%"/> 
 
 <!-- badges: start -->
