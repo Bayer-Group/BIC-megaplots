@@ -1,3 +1,5 @@
+#' @importFrom grDevices rgb
+#' @noRd
 draw_megaplot_x_axis <- function(
       range,
       select_color,

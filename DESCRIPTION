@@ -27,6 +27,8 @@ Imports:
     fresh,
     golem,
     graphics,
+    grDevices,
+    magrittr,
     markdown,
     plyr,
     RColorBrewer,
@@ -41,13 +43,13 @@ Imports:
     shinyWidgets,
     stats,
     stringr,
-    magrittr,
     tidyr,
     TraMineR,
     utils
+Suggests: 
+    testthat (>= 3.0.0),
+    vdiffr
+Config/testthat/edition: 3
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.2.3
-Suggests: 
-    testthat (>= 3.0.0)
-Config/testthat/edition: 3
+RoxygenNote: 7.3.3

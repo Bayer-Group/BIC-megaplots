@@ -20,7 +20,7 @@
 #' @param reference_line_3_value integer where the vertical reference line should be displayed
 #' @param select_events character vector with event names
 #' @param color_subject_line_by_first_event logical if only first event should be displayed as colored line
-#'
+#' @importFrom grDevices rgb
 #'
 
 draw_megaplot <- function(

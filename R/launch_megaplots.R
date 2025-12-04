@@ -19,7 +19,6 @@
 #' @importFrom DT renderDT datatable renderDataTable formatRound DTOutput
 #' @importFrom golem add_resource_path bundle_resources with_golem_options
 #' @importFrom graphics axis grconvertX grconvertY legend par points rect strheight strwidth text
-#' @importFrom grDevices rgb
 #' @importFrom plyr ddply . summarise
 #' @importFrom RColorBrewer brewer.pal
 #' @importFrom reshape2 melt dcast
