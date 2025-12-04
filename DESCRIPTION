@@ -43,8 +43,6 @@ Imports:
     survival,
     tidyr,
     tidyselect,
-    TraMineR,
-    utils,
     waiter
 Suggests: 
     spelling,

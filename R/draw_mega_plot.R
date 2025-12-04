@@ -6,6 +6,8 @@
 #' @param line_width numeric value for event line width
 #' @param line_width_subjects numeric value for subject line width
 #' @param event_tooltips logical value if event tooltips should be turned on/off
+#' @param switch_legend_grouping logical value if events should be grouped in
+#'  plotly legend (default: TRUE)
 #'
 #' @export
 draw_mega_plot <- function(
@@ -18,7 +20,7 @@ draw_mega_plot <- function(
     switch_legend_grouping = TRUE
   ) {
 
-  min_start_day <- min(megaplot_prepared_data$start_time, na.rm = TRUE)
+  min_start_day <- min(megaplot_prepared_data$megaplots_selected_start_time, na.rm = TRUE)
   if (!is.null(megaplot_filtered_data)) {
     megaplot_filtered_data <- megaplot_filtered_data %>%
       dplyr::mutate(
