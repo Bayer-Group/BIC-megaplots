@@ -10,7 +10,8 @@ draw_mega_plot(
   select_grouping = NULL,
   line_width = 3,
   line_width_subjects,
-  event_tooltips = TRUE
+  event_tooltips = TRUE,
+  switch_legend_grouping = TRUE
 )
 }
 \arguments{
@@ -25,6 +26,9 @@ draw_mega_plot(
 \item{line_width_subjects}{numeric value for subject line width}
 
 \item{event_tooltips}{logical value if event tooltips should be turned on/off}
+
+\item{switch_legend_grouping}{logical value if events should be grouped in
+plotly legend (default: TRUE)}
 }
 \description{
 Draws a 'Megaplot' graph

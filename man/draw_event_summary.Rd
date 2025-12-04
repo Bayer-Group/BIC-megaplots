@@ -8,17 +8,33 @@ draw_event_summary(
   megaplot_prepared_data = megaplot_prepared_data(),
   megaplot_filtered_data = megaplot_filtered_data(),
   select_grouping = NULL,
-  event_summary_cutoff = 1
+  event_summary_cutoff = 1,
+  event_summary_selection,
+  switch_legend_grouping = TRUE,
+  hovermode = "x"
 )
 }
 \arguments{
-\item{megaplot_prepared_data}{data frame with subject information used for calculation of min and max day}
+\item{megaplot_prepared_data}{data frame with subject information used for
+#calculation of min and max day}
 
-\item{megaplot_filtered_data}{data frame with event information used to create event count lines}
+\item{megaplot_filtered_data}{data frame with event information used to
+create event count lines}
 
 \item{select_grouping}{character vector with grouping variables}
 
-\item{event_summary_cutoff}{numeric value used as cutoff for hover labels displayed}
+\item{event_summary_cutoff}{numeric value used as cutoff for hover labels
+displayed}
+
+\item{event_summary_selection}{character with type of event summary display
+("event_per_day"/"cumulative_event"/"event_by_subject_cumulative")
+(default: "event_per_day")}
+
+\item{switch_legend_grouping}{logical value if events should be grouped in
+plotly legend (default: TRUE)}
+
+\item{hovermode}{character for plotly hovermode either "x" or "x unified"
+(default "x")}
 }
 \description{
 Draws a line chart with daily counts of events

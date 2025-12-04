@@ -57,7 +57,15 @@ app_server <- function(input, output, session) {
     content = function(file) {
       saveRDS(
          color_data$all %>%
-           dplyr::select(megaplots_selected_event, megaplots_selected_event_group, event_color, gradient_event_color_1, gradient_event_color_2, gradient_event_color_3, jittered)
+           dplyr::select(
+             .data$megaplots_selected_event,
+             .data$megaplots_selected_event_group,
+             .data$event_color,
+             .data$gradient_event_color_1,
+             .data$gradient_event_color_2,
+             .data$gradient_event_color_3,
+             .data$jittered
+            )
         , file
       )
     }
@@ -77,9 +85,9 @@ app_server <- function(input, output, session) {
             gradient_event_color_2 = dplyr::case_when(is.na(megaplots_selected_event) ~ gradient_event_color_2, !is.na(megaplots_selected_event) ~ NA),
             gradient_event_color_3 = dplyr::case_when(is.na(megaplots_selected_event) ~ gradient_event_color_3, !is.na(megaplots_selected_event) ~ NA)
           )
-        color_data_new <- color_data$all %>% dplyr::select(megaplots_selected_event, megaplots_selected_event_group, event_id, event_group_id, max_event_id, event_n, n_flag) %>%
+        color_data_new <- color_data$all %>% dplyr::select(.data$megaplots_selected_event, .data$megaplots_selected_event_group, .data$event_id, .data$event_group_id, .data$max_event_id, .data$event_n, .data$n_flag) %>%
           dplyr::left_join(
-            uploaded_colors %>% dplyr::select(megaplots_selected_event, megaplots_selected_event_group, event_color, gradient_event_color_1, gradient_event_color_2, gradient_event_color_3, jittered),
+            uploaded_colors %>% dplyr::select(.data$megaplots_selected_event, .data$megaplots_selected_event_group, .data$event_color, .data$gradient_event_color_1, .data$gradient_event_color_2, .data$gradient_event_color_3, .data$jittered),
             by = c("megaplots_selected_event", "megaplots_selected_event_group")
           )
         #check new dimension matches
@@ -139,80 +147,113 @@ app_server <- function(input, output, session) {
       shinyjs::showElement(id = "upload_3_back_button")
       shinyjs::showElement(id = "upload_saved_color_file")
 
-      shiny::updateSelectInput(
+      colnames_uploaded <- colnames(uploaded_data$val)
+
+      if ("subjectid" %in% colnames_uploaded) {
+        init_subjectid <- "subjectid"
+      } else if (any(base::startsWith(colnames_uploaded,"subj")) | any(base::startsWith(colnames_uploaded,"SUBJ"))) {
+        init_subjectid <- colnames_uploaded[base::startsWith(colnames_uploaded,"subj") | base::startsWith(colnames_uploaded,"SUBJ")][1]
+      } else {
+        init_subjectid <- NULL
+      }
+      shinyWidgets::updatePickerInput(
         session,
         "select_subjectid",
-        choices = colnames(uploaded_data$val),
-        selected = ifelse(
-          "subjectid" %in% colnames(uploaded_data$val),
-          "subjectid",
-          NULL
-        )
+        choices = colnames_uploaded,
+        selected = init_subjectid
       )
-      shiny::updateSelectInput(
+
+
+      if ("start_time" %in% colnames_uploaded) {
+        init_start_time <- "start_time"
+      } else if (any(base::startsWith(colnames_uploaded,"start")) | any(base::startsWith(colnames_uploaded,"START"))) {
+        init_start_time <- colnames_uploaded[base::startsWith(colnames_uploaded,"start") | base::startsWith(colnames_uploaded,"START")][1]
+      } else {
+        init_start_time <- NULL
+      }
+      shinyWidgets::updatePickerInput(
         session,
         "select_start_time",
-        choices = colnames(uploaded_data$val),
-        selected = ifelse(
-          "start_time" %in% colnames(uploaded_data$val),
-          "start_time",
-          NULL
-        )
+        choices = colnames_uploaded,
+        selected = init_start_time
       )
-      shiny::updateSelectInput(
+
+      if ("end_time" %in% colnames_uploaded) {
+        init_end_time <- "end_time"
+      } else if (any(base::startsWith(colnames_uploaded,"end")) | any(base::startsWith(colnames_uploaded,"END"))) {
+        init_end_time <- colnames_uploaded[base::startsWith(colnames_uploaded,"end") | base::startsWith(colnames_uploaded,"END")][1]
+      } else {
+        init_end_time <- NULL
+      }
+      shinyWidgets::updatePickerInput(
         session,
         "select_end_time",
-        choices = colnames(uploaded_data$val),
-        selected = ifelse(
-          "end_time" %in% colnames(uploaded_data$val),
-          "end_time",
-          NULL
-        )
+        choices = colnames_uploaded,
+        selected = init_end_time
       )
-      shiny::updateSelectInput(
+
+      if ("event_time" %in% colnames_uploaded) {
+        init_event_time <- "event_time"
+      } else if (any(base::startsWith(colnames_uploaded,"event_time")) | any(base::startsWith(colnames_uploaded,"EVENT_TIME"))) {
+        init_event_time <- colnames_uploaded[base::startsWith(colnames_uploaded,"event_time") | base::startsWith(colnames_uploaded,"EVENT_TIME")][1]
+      } else {
+        init_event_time <- NULL
+      }
+      shinyWidgets::updatePickerInput(
         session,
         "select_event_time",
         choices = colnames(uploaded_data$val),
-        selected = ifelse(
-          "event_time" %in% colnames(uploaded_data$val),
-          "event_time",
-          NULL
-        )
+        selected = init_event_time
       )
-      shiny::updateSelectInput(
+
+
+      if ("event_time_end" %in% colnames_uploaded) {
+        init_event_time_end <- "event_time_end"
+      } else if (any(base::startsWith(colnames_uploaded,"event_time")) | any(base::startsWith(colnames_uploaded,"EVENT_TIME"))) {
+          init_event_time_end <- colnames_uploaded[base::startsWith(colnames_uploaded,"event_time") | base::startsWith(colnames_uploaded,"EVENT_TIME")][1]
+        } else {
+          init_event_time_end <- NULL
+        }
+      shinyWidgets::updatePickerInput(
         session,
         "select_event_time_end",
         choices = colnames(uploaded_data$val),
-        selected = ifelse(
-          "event_time_end" %in% colnames(uploaded_data$val),
-          "event_time_end",
-          NULL
-        )
+        selected = init_event_time_end
       )
-      shiny::updateSelectInput(
+
+      if ("event" %in% colnames_uploaded) {
+        init_event <- "event"
+      } else if (any(base::startsWith(colnames_uploaded,"ev")) | any(base::startsWith(colnames_uploaded,"EV"))) {
+          init_event <- colnames_uploaded[base::startsWith(colnames_uploaded,"ev") | base::startsWith(colnames_uploaded,"EV")][1]
+        } else {
+          init_event <- NULL
+        }
+
+      shinyWidgets::updatePickerInput(
         session,
         "select_event",
         choices = colnames(uploaded_data$val),
-        selected = ifelse(
-          "event" %in% colnames(uploaded_data$val),
-          "event",
-          NULL
-        )
+        selected = init_event
       )
-      shiny::updateSelectInput(
+
+      if ("event_group" %in% colnames_uploaded) {
+        init_event_group <- "event_group"
+      } else if (any(base::startsWith(colnames_uploaded,"event_g")) | any(base::startsWith(colnames_uploaded,"EVENT_G"))) {
+        init_event_group <- colnames_uploaded[base::startsWith(colnames_uploaded,"event_g") | base::startsWith(colnames_uploaded,"EVENT_G")][1]
+      } else {
+        init_event_group <- NULL
+      }
+      shinyWidgets::updatePickerInput(
         session,
         "select_event_group",
         choices = colnames(uploaded_data$val),
-        selected = ifelse(
-          "event_group" %in% colnames(uploaded_data$val),
-          "event_group",
-          NULL
-        )
+        selected = init_event_group
       )
     }
   })
 
-   # variable_check <- shiny::reactiveValues(val = FALSE)
+
+  # variable_check <- shiny::reactiveValues(val = FALSE)
   #### Variable check after data upload ####
   shiny::observeEvent(
     c(uploaded_data$val, input$select_subjectid,
@@ -421,7 +462,7 @@ app_server <- function(input, output, session) {
 
   #### update sorting ####
   shiny::observeEvent(uploaded_data_renamed(), {
-    choices <- names(which(unlist(lapply(uploaded_data_renamed() %>% dplyr::relocate(starts_with("megaplots_")), is.numeric))))
+    choices <- names(which(unlist(lapply(uploaded_data_renamed() %>% dplyr::relocate(tidyr::starts_with("megaplots_")), is.numeric))))
     shinyWidgets::updatePickerInput(
       session,
       inputId = "select_sorting",
@@ -644,12 +685,6 @@ app_server <- function(input, output, session) {
 
 
           selected_color_palette <- create_palette(n = number_events, name = input$select_color_palette)
-#
-#           color_data$all[
-#             color_data$all$megaplots_selected_event_group ==
-#               color_data$selected[js_column$number, c("megaplots_selected_event_group")] &
-#               !is.na(color_data$all$megaplots_selected_event),
-#           ]$event_color<- selected_color_palette
 
           cds_tmp <- color_data$selected[color_data$selected$megaplots_selected_event_group ==
                                            color_data$selected[js_column$number,
@@ -739,42 +774,6 @@ app_server <- function(input, output, session) {
   ), {
     checked_data$val <- NULL
   })
-
-
-  # checked_data <- shiny::eventReactive(c(
-  #   #tbd: create a reactivevalue out of checked data to make sure,
-  #   # this object is set to NULL when input$select_event is changed
-  #   # otherwise this leads to an error :argument of length zero
-  #    input[["tree2"]],
-  #    input[["tree2_checked_tree"]]
-  #  ), {
-  #   checked_tree <- input[["tree2_checked_tree"]]
-  #
-  #  selected_data <- data.frame(megaplots_selected_event_group = NULL, megaplots_selected_event = NULL)
-  #
-  #   if (!is.null(checked_tree)) {
-  #     if (length(checked_tree) > 0) {
-  #     for (i in seq_along(checked_tree)) {
-  #       for (j in seq_along(checked_tree[[i]]$children)) {
-  #         if (j == 1) {
-  #           selected_data <- rbind(
-  #             selected_data,
-  #             data.frame(megaplots_selected_event_group = checked_tree[[i]]$text, megaplots_selected_event = NA)
-  #           )
-  #         }
-  #         selected_data <- rbind(
-  #           selected_data,
-  #           data.frame(
-  #             megaplots_selected_event_group = checked_tree[[i]]$text,
-  #             megaplots_selected_event = checked_tree[[i]]$children[[j]]$text
-  #           )
-  #         )
-  #       }
-  #     }
-  #     }
-  #   }
-  #   selected_data
-  # })
 
   #### Color container output ####
   output$selected_events_color_container <- renderUI({
@@ -926,25 +925,36 @@ app_server <- function(input, output, session) {
 
   # Initialize reactive value for uploaded data
   uploaded_data <- shiny::reactiveValues(val = NULL)
-
+  file_upload_message <- shiny::reactiveValues(val = NULL)
+  output$file_upload_message <- renderText(file_upload_message$val)
   # Update widgets and reactive data object when fileinput is observed
-  shiny::observeEvent(c(input$file, sequencing_order_data$val), {
+  shiny::observeEvent(c(input$file#, sequencing_order_data$val
+                        ), {
     shiny::req(input$file) #requires input$file
 
-    #load data
-    megaplot_data <- base::get(
-      load(
-        file = input$file$datapath
-      )
-    )
-
-    if (!is.null(sequencing_order_data$val)) {
-      megaplot_data <- megaplot_data %>%
-        dplyr::left_join(
-          sequencing_order_data$val,
-          by ="subjectid"
+    # load data
+    file_extension <- strsplit(input$file$datapath,"/.")[[1]][length(strsplit(input$file$datapath,"/.")[[1]])]
+    # add function load_fileinput
+    # megaplot_data <- load_fileinput(input$file)
+    # currently only .RData files are allowed
+    if (file_extension %in% c(".RData", ".rdata",".Rdata")) {
+      megaplot_data <- base::get(
+        load(
+          file = input$file$datapath
         )
+      )
+      file_upload_message$val <- NULL
+    } else {
+      megaplot_data <- NULL
+      file_upload_message$val <- "Note: Only .RData files are allowed!"
     }
+    # if (!is.null(sequencing_order_data$val)) {
+    #   megaplot_data <- megaplot_data %>%
+    #     dplyr::left_join(
+    #       sequencing_order_data$val,
+    #       by ="subjectid"
+    #     )
+    # }
 
     uploaded_data$val <- megaplot_data  #update reactive value 'uploaded_data'
 
@@ -1052,13 +1062,13 @@ app_server <- function(input, output, session) {
     if (!is.null(filtered_data)) {
       #remove nas from required variables
       filtered_data <- filtered_data %>%
-        dplyr::filter(!is.na(megaplots_selected_subjectid)) %>%
-        dplyr::filter(!is.na(megaplots_selected_start_time))%>%
-        dplyr::filter(!is.na(megaplots_selected_end_time))%>%
-        dplyr::filter(!is.na(megaplots_selected_event))%>%
-        dplyr::filter(!is.na(megaplots_selected_event_group))%>%
-        dplyr::filter(!is.na(megaplots_selected_event_time))%>%
-        dplyr::filter(!is.na(megaplots_selected_event_time_end))
+        dplyr::filter(!is.na(.data$megaplots_selected_subjectid)) %>%
+        dplyr::filter(!is.na(.data$megaplots_selected_start_time))%>%
+        dplyr::filter(!is.na(.data$megaplots_selected_end_time))%>%
+        dplyr::filter(!is.na(.data$megaplots_selected_event))%>%
+        dplyr::filter(!is.na(.data$megaplots_selected_event_group))%>%
+        dplyr::filter(!is.na(.data$megaplots_selected_event_time))%>%
+        dplyr::filter(!is.na(.data$megaplots_selected_event_time_end))
     }
     #return
     filtered_data

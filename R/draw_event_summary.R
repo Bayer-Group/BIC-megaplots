@@ -1,9 +1,19 @@
 #' Draws a line chart with daily counts of events
 #'
-#' @param megaplot_prepared_data data frame with subject information used for calculation of min and max day
-#' @param megaplot_filtered_data data frame with event information used to create event count lines
+#' @param megaplot_prepared_data data frame with subject information used for
+#' #calculation of min and max day
+#' @param megaplot_filtered_data data frame with event information used to
+#' create event count lines
 #' @param select_grouping character vector with grouping variables
-#' @param event_summary_cutoff numeric value used as cutoff for hover labels displayed
+#' @param event_summary_cutoff numeric value used as cutoff for hover labels
+#'  displayed
+#' @param event_summary_selection character with type of event summary display
+#' ("event_per_day"/"cumulative_event"/"event_by_subject_cumulative")
+#' (default: "event_per_day")
+#' @param switch_legend_grouping logical value if events should be grouped in
+#'  plotly legend (default: TRUE)
+#' @param hovermode character for plotly hovermode either "x" or "x unified"
+#'  (default "x")
 #'
 #' @return
 #' @export
@@ -27,8 +37,8 @@ draw_event_summary <- function(
   #create empty vector for maximum y_range (used for calculate maximum y-value over all subplots)
   max_y_range <- c()
   # calculate range for x-axis (min/max of all start/end times and event start/end times)
-  x_min <- min(min(megaplot_prepared_data$start_time, na.rm = TRUE), min(megaplot_prepared_data$megaplots_selected_event_time, na.rm = TRUE))
-  x_max <- max(max(megaplot_prepared_data$end_time, na.rm = TRUE), max(megaplot_prepared_data$megaplots_selected_event_time_end, na.rm = TRUE))
+  x_min <- min(min(megaplot_prepared_data$megaplots_selected_start_time, na.rm = TRUE), min(megaplot_prepared_data$megaplots_selected_event_time, na.rm = TRUE))
+  x_max <- max(max(megaplot_prepared_data$megaplots_selected_end_time, na.rm = TRUE), max(megaplot_prepared_data$megaplots_selected_event_time_end, na.rm = TRUE))
 
   #  one of the two cumulative displays are selected within app
   if (event_summary_selection == "event_by_subject_cumulative" | event_summary_selection == "cumulative_event") {
@@ -36,7 +46,7 @@ draw_event_summary <- function(
     #create title for every group in variable "text_snippet_total"
     if (!is.null(select_grouping)) {
       megaplot_prepared_data_w_group_text <- megaplot_filtered_data %>%
-        dplyr::select(!!!rlang::syms(select_grouping), group_index) %>%
+        dplyr::select(!!!rlang::syms(select_grouping), .data$group_index) %>%
         dplyr::distinct() %>%
         dplyr::mutate(text_snippet_1 = paste(select_grouping, collapse = " ")) %>%
         dplyr::mutate(text_snippet_2 = paste(!!!rlang::syms(select_grouping), sep = ", "))  %>%
@@ -72,7 +82,7 @@ draw_event_summary <- function(
           dplyr::select(unique_event) %>%
           dplyr::distinct() %>%
           dplyr::pull(unique_event),
-        event_time = x_min:x_max
+        megaplots_selected_event_time = x_min:x_max
       )  %>% dplyr::right_join(
         megaplot_filtered_data %>%
           dplyr::select(unique_event, megaplots_selected_event_group, event_group_id, event_id) %>%
@@ -84,12 +94,12 @@ draw_event_summary <- function(
       megaplot_data_with_cumulative_sum_for_every_day <- expand_grid %>%
         dplyr::left_join(
           megaplot_data_with_cumulative_sum,
-          by = c("unique_event","event_time","megaplots_selected_event_group", "event_group_id","event_id")
+          by = c("unique_event","megaplots_selected_event_time","megaplots_selected_event_group", "event_group_id","event_id")
         ) %>%
-        dplyr::arrange(unique_event, event_time) %>%
+        dplyr::arrange(unique_event, megaplots_selected_event_time) %>%
         dplyr::group_by(unique_event) %>%
         tidyr::fill(cumulative_sum, event_color) %>%
-        dplyr::select(cumulative_sum, event_time, event_color,unique_event, megaplots_selected_event_group,event_group_id,event_id) %>%
+        dplyr::select(cumulative_sum, megaplots_selected_event_time, event_color,unique_event, megaplots_selected_event_group,event_group_id,event_id) %>%
         dplyr::filter(!is.na(cumulative_sum))
 
       # add cumulative sum 0 for every event at minimum day "x_min"
@@ -100,7 +110,7 @@ draw_event_summary <- function(
         dplyr::distinct() %>%
         dplyr::mutate(
           cumulative_sum = 0,
-          event_time = x_min
+          megaplots_selected_event_time = x_min
         ) %>%
         dplyr::arrange(megaplots_selected_event_group)
 
@@ -121,7 +131,7 @@ draw_event_summary <- function(
       fig <- plotly::plot_ly(
         data = megaplot_data_with_cumulative_sums,
         y = ~ cumulative_sum,
-        x = ~ event_time
+        x = ~ megaplots_selected_event_time
       )
 
       #add lines to initial figure
@@ -176,7 +186,7 @@ draw_event_summary <- function(
     for (k in 1:number_group_levels) {
       if (!is.null(select_grouping)) {
         megaplot_prepared_data_w_group_text_sorted <- megaplot_prepared_data_w_group_text %>%
-          dplyr::arrange(group_index)
+          dplyr::arrange(.data$group_index)
         figure_list[[k]] <- figure_list[[k]] %>%
           plotly::layout(annotations =list(list(x = mean(c(x_min, x_max)), y = max_y_range, showarrow = FALSE, xacnhor = 'center', yanchor = "top", text = megaplot_prepared_data_w_group_text_sorted$text_snippet_total[[k]])))
       }
@@ -212,7 +222,7 @@ draw_event_summary <- function(
 
     if (!is.null(select_grouping)) {
       megaplot_prepared_data_w_group_text <- megaplot_filtered_data %>%
-        dplyr::select(!!!rlang::syms(select_grouping), group_index) %>%
+        dplyr::select(!!!rlang::syms(select_grouping), .data$group_index) %>%
         dplyr::distinct() %>%
         dplyr::mutate(text_snippet_1 = paste(select_grouping, collapse = " ")) %>%
         dplyr::mutate(text_snippet_2 = paste(!!!rlang::syms(select_grouping), sep = ", "))  %>%
@@ -337,7 +347,7 @@ draw_event_summary <- function(
     for (k in 1:number_group_levels) {
       if (!is.null(select_grouping)) {
         megaplot_prepared_data_w_group_text_sorted <- megaplot_prepared_data_w_group_text %>%
-          dplyr::arrange(group_index)
+          dplyr::arrange(.data$group_index)
         figure_list[[k]] <- figure_list[[k]] %>%
           plotly::layout(annotations =list(list(x = mean(c(x_min, x_max)), y = max_y_range, showarrow = FALSE, xacnhor = 'center', yanchor = "top", text = megaplot_prepared_data_w_group_text_sorted$text_snippet_total[[k]])))
       }

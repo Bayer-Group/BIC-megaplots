@@ -27,9 +27,11 @@ usethis::use_package("jsTreeR")
 usethis::use_package("waiter")
 usethis::use_package("shinycssloaders")
 usethis::use_package("shinyWidgets")
-
+usethis::use_package("TraMineR")
+usethis::use_package("stringr")
 usethis::use_package("purrr")
 usethis::use_package("survival")
+usethis::use_package("datamods")
 
 ## Amend DESCRIPTION with dependencies read from package code parsing
 ## install.packages('attachment') # if needed.

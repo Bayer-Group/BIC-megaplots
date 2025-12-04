@@ -16,6 +16,7 @@ Imports:
     colourpicker,
     config,
     data.table,
+    datamods,
     dplyr,
     ggplot2,
     golem,
@@ -29,9 +30,11 @@ Imports:
     shinyjs,
     shinyWidgets,
     stats,
+    stringr,
     survival,
     tidyr,
     tidyselect,
+    TraMineR,
     waiter
 Encoding: UTF-8
 LazyData: true
