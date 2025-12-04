@@ -11,3 +11,4 @@ $run_dev.*
 ^CONTRIBUTING\.md$
 ^MAINTAINERS\.md$
 ^CODE_OF_CONDUCT\.md$
+^\.github$
