@@ -96,7 +96,6 @@ artificial_intelligence_ui <- function(id) {
 #' @param selectdata character of data upload method ("Use demo data"/"Data upload")
 #' @param data_w_event_and_group_information list with grouped data information from server
 #' @param setting_file list with saved settings information
-#' @param
 #'
 #' @return List with preprocessed data and upload panel inputs
 #'
