@@ -60,7 +60,7 @@ draw_event_summary <- function(
         #recurring events are not taken into account
         megaplot_filtered_data_by_group <- megaplot_filtered_data %>%
           dplyr::filter(.data$group_index == k) %>%
-          dplyr::group_by(.data$megaplots_selected_subjectid,.data$unique_event) %>%
+          dplyr::group_by(.data$megaplots_selected_subjectid, .data$unique_event) %>%
           dplyr::arrange(.data$megaplots_selected_subjectid, .data$unique_event, .data$megaplots_selected_event_time) %>%
           dplyr::filter(dplyr::row_number() == 1)  %>%
           dplyr::ungroup()
@@ -74,18 +74,18 @@ draw_event_summary <- function(
         dplyr::group_by(.data$unique_event) %>%
         dplyr::arrange(.data$unique_event,.data$megaplots_selected_event_time) %>%
         dplyr::mutate(event_count = 1) %>%
-        dplyr::mutate(cumulative_sum = cumsum(event_count))
+        dplyr::mutate(cumulative_sum = cumsum(.data$event_count))
 
       # create grid for every event and time point of study to receive hover information on every study day
       expand_grid <- expand.grid(
         unique_event = megaplot_filtered_data %>%
-          dplyr::select(unique_event) %>%
+          dplyr::select(.data$unique_event) %>%
           dplyr::distinct() %>%
-          dplyr::pull(unique_event),
+          dplyr::pull(.data$unique_event),
         megaplots_selected_event_time = x_min:x_max
       )  %>% dplyr::right_join(
         megaplot_filtered_data %>%
-          dplyr::select(unique_event, megaplots_selected_event_group, event_group_id, event_id) %>%
+          dplyr::select(.data$unique_event, .data$megaplots_selected_event_group, .data$event_group_id, .data$event_id) %>%
           dplyr::distinct(),
         by = "unique_event"
       )
@@ -96,23 +96,23 @@ draw_event_summary <- function(
           megaplot_data_with_cumulative_sum,
           by = c("unique_event","megaplots_selected_event_time","megaplots_selected_event_group", "event_group_id","event_id")
         ) %>%
-        dplyr::arrange(unique_event, megaplots_selected_event_time) %>%
-        dplyr::group_by(unique_event) %>%
-        tidyr::fill(cumulative_sum, event_color) %>%
-        dplyr::select(cumulative_sum, megaplots_selected_event_time, event_color,unique_event, megaplots_selected_event_group,event_group_id,event_id) %>%
-        dplyr::filter(!is.na(cumulative_sum))
+        dplyr::arrange(.data$unique_event, .data$megaplots_selected_event_time) %>%
+        dplyr::group_by(.data$unique_event) %>%
+        tidyr::fill(.data$cumulative_sum, .data$event_color) %>%
+        dplyr::select(.data$cumulative_sum, .data$megaplots_selected_event_time, .data$event_color, .data$unique_event, .data$megaplots_selected_event_group, .data$event_group_id, .data$event_id) %>%
+        dplyr::filter(!is.na(.data$cumulative_sum))
 
       # add cumulative sum 0 for every event at minimum day "x_min"
       # -> this will preserve the correct legend and also ensures that a line between zero and one is drawn
       megaplot_data_with_initial_cumulative_sum_for_every_day <- megaplot_filtered_data %>%
-        dplyr::select(event_color, unique_event, megaplots_selected_event_group, event_group_id, event_id) %>%
-        dplyr::filter(!is.na(megaplots_selected_event_group)) %>%
+        dplyr::select(.data$event_color, .data$unique_event, .data$megaplots_selected_event_group, .data$event_group_id, .data$event_id) %>%
+        dplyr::filter(!is.na(.data$megaplots_selected_event_group)) %>%
         dplyr::distinct() %>%
         dplyr::mutate(
           cumulative_sum = 0,
           megaplots_selected_event_time = x_min
         ) %>%
-        dplyr::arrange(megaplots_selected_event_group)
+        dplyr::arrange(.data$megaplots_selected_event_group)
 
       megaplot_data_with_cumulative_sums <- rbind(
         megaplot_data_with_initial_cumulative_sum_for_every_day,

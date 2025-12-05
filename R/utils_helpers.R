@@ -105,10 +105,10 @@ create_palette <- function(n, name) {
   }
 
   if (!is.na(max_n)) {
-    selected_color_palette <- colorRampPalette(RColorBrewer::brewer.pal(max_n, name))(n)
+    selected_color_palette <- grDevices::colorRampPalette(RColorBrewer::brewer.pal(max_n, name))(n)
   } else {
     if (name == "Rainbow") {
-      selected_color_palette <- rainbow(n)
+      selected_color_palette <- grDevices::rainbow(n)
     } else {
     selected_color_palette <- NA
     }

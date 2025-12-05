@@ -32,6 +32,9 @@ usethis::use_package("stringr")
 usethis::use_package("purrr")
 usethis::use_package("survival")
 usethis::use_package("datamods")
+usethis::use_package("RColorBrewer")
+usethis::use_package("htmlwidgets")
+usethis::use_package("seriation")
 
 ## Amend DESCRIPTION with dependencies read from package code parsing
 ## install.packages('attachment') # if needed.

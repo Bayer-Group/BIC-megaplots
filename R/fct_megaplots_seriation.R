@@ -297,23 +297,23 @@ megaplots_sequencing_functions <- function(
 ) {
 
   expanded_days_final_data <- final_data %>%
-    dplyr::select(subjectid, event_time, event_time_end, event, event_group) %>%
-    dplyr::filter(variable == event_group) %>%
+    dplyr::select(.data$subjectid, .data$event_time, .data$event_time_end, .data$event, .data$event_group) %>%
+    dplyr::filter(variable == .data$event_group) %>%
     dplyr::rowwise() %>%
-    dplyr::mutate(event = factor(event)) %>%
-    dplyr::mutate(event_numeric = as.numeric(event)) %>%
-    dplyr::filter(!is.na(event)) %>%
+    dplyr::mutate(event = factor(.data$event)) %>%
+    dplyr::mutate(event_numeric = as.numeric(.data$event)) %>%
+    dplyr::filter(!is.na(.data$event)) %>%
     dplyr::mutate(
       day = list(seq(.data$event_time, .data$event_time_end, by = 1))
     ) %>%
-    tidyr::unnest_longer(col = day)
+    tidyr::unnest_longer(col = .data$day)
 
   expanded_days_final_data_wide <- expanded_days_final_data %>%
-    dplyr::select(-event_time, -event_time_end, -event_group, -event) %>%
-    dplyr::group_by(subjectid,day) %>%
+    dplyr::select(-.data$event_time, -.data$event_time_end, -.data$event_group, -.data$event) %>%
+    dplyr::group_by(.data$subjectid, .data$day) %>%
     dplyr::slice(1) %>% # (!!  removes duplicated and looses information)
     dplyr::ungroup() %>%
-    tidyr::pivot_wider(names_from = day, values_from = event_numeric)
+    tidyr::pivot_wider(names_from =.data$day, values_from = .data$event_numeric)
 
   # Sort the columns:
   numeric_suffixes <- as.numeric(sub(".*[^0-9](\\d+)$", "\\1", colnames(expanded_days_final_data_wide)[-1]))
@@ -367,14 +367,14 @@ megaplots_sequencing_functions <- function(
   }
   ## Input the sequencing in the da object:
   permuted_data <- final_data %>%
-    dplyr::select(subjectid, start_time, end_time) %>%
+    dplyr::select(.data$subjectid, .data$start_time, .data$end_time) %>%
     dplyr::distinct() %>%
-    dplyr::filter(!is.na(subjectid))
+    dplyr::filter(!is.na(.data$subjectid))
   permuted_data <- permuted_data[order(permuted_data$subjectid), ]
   permuted_data <- seriation::permute(permuted_data, order = sq, margin = 1)
   permuted_data$'SEQUENCING' <- 1:nrow(permuted_data)
   permuted_data <- permuted_data[order(permuted_data$subjectid),]
-  sequencing_order_data <-  permuted_data %>% dplyr::select(subjectid, SEQUENCING)
+  sequencing_order_data <-  permuted_data %>% dplyr::select(.data$subjectid, .data$SEQUENCING)
 
   # sequencing_order_data <- data.frame(cbind("subjectid" = expanded_days_final_data_wide$subjectid, "SEQUENCING" = unique(seriation::get_order(sq))))
 
