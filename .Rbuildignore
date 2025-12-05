@@ -6,9 +6,12 @@
 dev_history.R
 ^dev$
 $run_dev.*
+^.here$
 ^LICENSE\.md$
 ^CODEOWNERS$
+^CODE_OF_CONDUCT\.md$
 ^CONTRIBUTING\.md$
 ^MAINTAINERS\.md$
 ^CODE_OF_CONDUCT\.md$
 ^\.github$
+^Dockerfile$

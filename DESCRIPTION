@@ -1,36 +1,33 @@
-Package: megaplots
+Package: Megaplots
 Title: A 'shiny' Application for Pattern Detection
-Version: 1.1.10
-Authors@R: c(
-    person("Madhurima", "Majumder", role = "aut"),
-    person("Susanne", "Lippert", role = "aut"),
-    person("Bastian", "Becker", role = "aut"),
-    person("Steffen", "Jeske", , "steffen.jeske.ext@bayer.com", role = c("cre", "aut")),
-    person("Svenja", "Jedhoff", role = "aut"),
-    person("Silke", "Janitza", role = "aut"),
-    person("Hermann", "Kulmann", role = "aut")
-  )
+Version: 2.0.0
+Authors@R: 
+    person("Steffen", "Jeske", , "steffen.jeske.ext@bayer.com", role = c("aut", "cre"))
 Description: Depicts individual study courses per day.  Pre-specified
     events on certain days, for example drug intake, efficacy, or safety
-    events, are indicated by different symbols.  The detection of patterns
-    in the data or the temporal connection of study procedures and outcome
+    events, are indicated by colored lines.  The detection of patterns in
+    the data or the temporal connection of study procedures and outcome
     events is supported by several functions, such as sorting, grouping,
     and changing the complexity of the graphical display.
 License: GPL (>= 3)
-Depends: 
-    R (>= 3.5.0)
 Imports: 
+    bsicons,
+    bslib,
     colourpicker,
     config,
+    data.table,
+    datamods,
     dplyr,
     DT,
-    fresh,
+    ggplot2,
     golem,
     graphics,
     grDevices,
-    magrittr,
-    markdown,
+    htmlwidgets,
+    jsTreeR,
+    plotly,
     plyr,
+    purrr,
     RColorBrewer,
     reshape2,
     rlang,
@@ -43,10 +40,14 @@ Imports:
     shinyWidgets,
     stats,
     stringr,
+    survival,
     tidyr,
+    tidyselect,
     TraMineR,
-    utils
+    utils,
+    waiter
 Suggests: 
+    spelling,
     testthat (>= 3.0.0),
     vdiffr
 Config/testthat/edition: 3
