@@ -9,10 +9,7 @@
 #' @param switch_legend_grouping logical value if events should be grouped in
 #'  plotly legend (default: TRUE)
 #'
-#' @return
 #' @export
-#'
-#' @examples
 draw_mega_plot <- function(
     megaplot_prepared_data = megaplot_prepared_data(),
     megaplot_filtered_data = megaplot_filtered_data(),

@@ -121,7 +121,7 @@ make_parameter_ui <- function(id, var, name) {
           # width = 150,
           options = list(`live-search` = TRUE,
                          `header` = 'Select item'),
-        )
+       )
       ),
       conditionalPanel(
         condition = paste0(
@@ -380,7 +380,6 @@ seriation_server <- function(
         })
       }
     })
-
 
     # save the new inputs and return them to the server-function
     input_seriation <- reactive({

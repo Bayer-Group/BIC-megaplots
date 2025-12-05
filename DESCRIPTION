@@ -1,12 +1,12 @@
 Package: Megaplots
 Title: A 'shiny' Application for Pattern Detection
-Version: 0.0.0.9000
+Version: 2.0.0
 Authors@R: 
     person("Steffen", "Jeske", , "steffen.jeske.ext@bayer.com", role = c("aut", "cre"))
 Description: Depicts individual study courses per day.  Pre-specified
     events on certain days, for example drug intake, efficacy, or safety
-    events, are indicated by colored lines.  The detection of patterns
-    in the data or the temporal connection of study procedures and outcome
+    events, are indicated by colored lines.  The detection of patterns in
+    the data or the temporal connection of study procedures and outcome
     events is supported by several functions, such as sorting, grouping,
     and changing the complexity of the graphical display.
 License: GPL (>= 3)
@@ -18,18 +18,24 @@ Imports:
     data.table,
     datamods,
     dplyr,
+    DT,
     ggplot2,
     golem,
     graphics,
+    grDevices,
     htmlwidgets,
     jsTreeR,
     plotly,
+    plyr,
     purrr,
     RColorBrewer,
+    reshape2,
     rlang,
     seriation,
     shiny,
     shinycssloaders,
+    shinydashboard,
+    shinyjqui,
     shinyjs,
     shinyWidgets,
     stats,
@@ -38,14 +44,13 @@ Imports:
     tidyr,
     tidyselect,
     TraMineR,
+    utils,
     waiter
+Suggests: 
+    spelling,
+    testthat (>= 3.0.0),
+    vdiffr
+Config/testthat/edition: 3
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.3.3
-Suggests: 
-    spelling,
-    testthat (>= 3.0.0)
-Config/testthat/edition: 3
-Language: en-US
-Depends: 
-    R (>= 3.5)

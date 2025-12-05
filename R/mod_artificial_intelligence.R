@@ -93,7 +93,6 @@ artificial_intelligence_ui <- function(id) {
 #'
 #' @param input,output,session Internal parameters for {shiny}
 #' @param megaplot_filtered_data
-#' @param
 #'
 #' @return List with preprocessed data and upload panel inputs
 #'

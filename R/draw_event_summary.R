@@ -15,11 +15,7 @@
 #' @param hovermode character for plotly hovermode either "x" or "x unified"
 #'  (default "x")
 #'
-#' @return
 #' @export
-#'
-#' @examples
-
 draw_event_summary <- function(
     megaplot_prepared_data = megaplot_prepared_data(),
     megaplot_filtered_data = megaplot_filtered_data(),
