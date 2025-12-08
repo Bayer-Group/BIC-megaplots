@@ -219,102 +219,100 @@ app_ui <- function(request) {
              ),
              span(textOutput("file_upload_message"),style = "color:#cc0a21;")
             ),
+
+
             shiny::fluidRow(
               shiny::column(2,
-                shinyWidgets::pickerInput(
+                shiny::selectizeInput(
                   inputId = "select_subjectid",
                   label = "subjectid",
                   choices = NULL,
                   selected = NULL,
                   multiple = TRUE,
                   options = list(
-                    `none-selected-text` = "Please select subjectid variable!",
-                    `live-search` = TRUE,
-                    "max-options" = 1
+                    maxItems = 1
                   )
                 )
               ),
+              # shiny::column(1,
+              #   shinyWidgets::actionBttn(
+              #     inputId = "delete_select_subjectid",
+              #     label = NULL,
+              #     icon = icon("trash"),
+              #     size = "s",
+              #     style = "material-flat",
+              #     color = "primary",
+              #   )
+              # ),
               shiny::column(2,
-                  shinyWidgets::pickerInput(
+                  shiny::selectizeInput(
                   inputId = "select_start_time",
                   label = "start time",
                   choices = NULL,
                   selected = NULL,
                   multiple = TRUE,
                   options = list(
-                    `none-selected-text` = "Please select subjectid variable!",
-                    `live-search` = TRUE,
-                    "max-options" = 1
+                    maxItems = 1
                   )
                 )
               ),
               shiny::column(2,
-                shinyWidgets::pickerInput(
+                shiny::selectizeInput(
                   inputId = "select_end_time",
                   label = "end time",
                   choices = NULL,
                   selected = NULL,
                   multiple = TRUE,
                   options = list(
-                    `none-selected-text` = "Please select subjectid variable!",
-                    `live-search` = TRUE,
-                    "max-options" = 1
+                    maxItems = 1
                   )
                 )
               ),
               shiny::column(2,
-                shinyWidgets::pickerInput(
+                shiny::selectizeInput(
                   inputId = "select_event_time",
                   label = "event start",
                   choices = NULL,
                   selected = NULL,
                   multiple = TRUE,
                   options = list(
-                    `none-selected-text` = "Please select subjectid variable!",
-                    `live-search` = TRUE,
-                    "max-options" = 1
+                    maxItems = 1
                   )
                 )
               ),
               shiny::column(2,
-                shinyWidgets::pickerInput(
+                shiny::selectizeInput(
                   inputId = "select_event_time_end",
                   label = "event end",
                   choices = NULL,
                   selected = NULL,
                   multiple = TRUE,
                   options = list(
-                    `none-selected-text` = "Please select subjectid variable!",
-                    `live-search` = TRUE,
-                    "max-options" = 1
+                    maxItems = 1
                   )
                 )
               ),
               shiny::column(2,
-                shinyWidgets::pickerInput(
+                shiny::selectizeInput(
                   inputId = "select_event",
                   label = "event",
                   choices = NULL,
                   selected = NULL,
                   multiple = TRUE,
                   options = list(
-                    `none-selected-text` = "Please select subjectid variable!",
-                    `live-search` = TRUE,
-                    "max-options" = 1
+                    maxItems = 1
                   )
                 )
               ),
               shiny::column(2,
-                shinyWidgets::pickerInput(
+                shiny::selectizeInput(
                   inputId = "select_event_group",
                   label = "event group",
                   choices = NULL,
                   selected = NULL,
                   multiple = TRUE,
                   options = list(
-                    `none-selected-text` = "Please select subjectid variable!",
-                    `live-search` = TRUE,
-                    "max-options" = 1
+                    maxItems = 1
                   )
                 )
               )

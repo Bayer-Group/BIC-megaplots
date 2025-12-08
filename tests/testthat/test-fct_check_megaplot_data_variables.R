@@ -4,6 +4,7 @@ test_that("function for varialbe checks work", {
   tmp <- data.frame(
     subject_id = 1:5,
     subject_id_char = as.character(101:105),
+    subject_id_num = 1.5:5.5,
     subject_id_alpha = c("a","b","c","d","e"),
     start_tme = 1:5,
     start_tme_char = as.character(1:5),
@@ -20,6 +21,23 @@ test_that("function for varialbe checks work", {
     logical_val = c(TRUE,FALSE,TRUE,FALSE,TRUE)
     )
 
+  # megaplot_data should be a data.frame (or tibble)
+
+  # REQUIRED
+  # subjectid can be numeric or character
+  # event can be numeric or character
+
+  # OPTIONAL
+  # event_group
+
+  # ONE OF THESE COMBINATIONS ARE REQUIRED
+  # start_time should be integer (or at least numeric -> will be rounded off)
+  # end_time should be integer (or at least numeric -> will be rounded off)
+
+  # event_time should be integer (or at least numeric -> will be rounded off)
+  # event_time_end should be integer (or at least numeric -> will be rounded off)
+
+
   # expect TRUE (fine variable check)
   expect_equal(check_megaplot_data_variables(
     megaplot_data = tmp,
@@ -32,37 +50,16 @@ test_that("function for varialbe checks work", {
     event_time_end = "ev_time_end"
   ), TRUE)
 
-  # # different subejctid formats
-  # expect_equal(check_megaplot_data_variables(
-  #   megaplot_data = tmp,
-  #   subjectid = "subject_id_char",
-  #   start_time = "start_time",
-  #   end_time = "end_time",
-  #   event = "event",
-  #   event_group = "event_group",
-  #   event_time = "ev_time_start",
-  #   event_time_end = "ev_time_end"
-  # ), FALSE)
-  #
-  # expect_equal(check_megaplot_data_variables(
-  #   megaplot_data = tmp,
-  #   subjectid = "subject_id_alpha",
-  #   start_time = "start_time",
-  #   end_time = "end_time",
-  #   event = "event",
-  #   event_group = "event_group",
-  #   event_time = "ev_time_start",
-  #   event_time_end = "ev_time_end"
-  # ), FALSE)
-  #
-  # expect_equal(check_megaplot_data_variables(
-  #   megaplot_data = NULL,
-  #   subjectid = NULL,
-  #   start_time = NULL,
-  #   end_time = NULL,
-  #   event = NULL,
-  #   event_group = NULL,
-  #   event_time =NULL,
-  #   event_time_end = NULL
-  # ), FALSE)
+
+  # different subejctid formats
+  expect_equal(check_megaplot_data_variables(
+    megaplot_data = tmp,
+    subjectid = "subject_id_char",
+    start_time = "start_time",
+    end_time = "end_time",
+    event = "event",
+    event_group = "event_group",
+    event_time = "ev_time_start",
+    event_time_end = "ev_time_end"
+  ), TRUE)
 })
