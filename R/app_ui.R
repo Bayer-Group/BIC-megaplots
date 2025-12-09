@@ -210,6 +210,7 @@ app_ui <- function(request) {
         bslib::navset_card_underline(
           id = "Upload",
           bslib::nav_panel("File & variable selection", id = "File & variable selection",
+
            shiny::fluidRow(
              shiny::fileInput(
                inputId = 'file',
@@ -219,6 +220,10 @@ app_ui <- function(request) {
              ),
              span(textOutput("file_upload_message"),style = "color:#cc0a21;")
             ),
+           tags$style(HTML(
+             "select[data-max-options=\"1\"] ~ .dropdown-menu .bs-actionsbox .bs-select-all {display: none;}
+              select[data-max-options=\"1\"] ~ .dropdown-menu .bs-actionsbox .bs-deselect-all {width: 100%;}"
+           )),
             shiny::fluidRow(
               shiny::column(2,
                 shinyWidgets::pickerInput(
@@ -227,24 +232,24 @@ app_ui <- function(request) {
                   choices = NULL,
                   selected = NULL,
                   multiple = TRUE,
-                  options = list(
-                    `none-selected-text` = "Please select subjectid variable!",
-                    `live-search` = TRUE,
-                    "max-options" = 1
+                  options =  pickerOptions(
+                    maxOptions = 1,
+                    actionsBox = TRUE,
+                    deselectAllText = "Clear"
                   )
                 )
               ),
               shiny::column(2,
-                  shinyWidgets::pickerInput(
+                shinyWidgets::pickerInput(
                   inputId = "select_start_time",
                   label = "start time",
                   choices = NULL,
                   selected = NULL,
                   multiple = TRUE,
-                  options = list(
-                    `none-selected-text` = "Please select subjectid variable!",
-                    `live-search` = TRUE,
-                    "max-options" = 1
+                  options =  pickerOptions(
+                    maxOptions = 1,
+                    actionsBox = TRUE,
+                    deselectAllText = "Clear"
                   )
                 )
               ),
@@ -255,10 +260,10 @@ app_ui <- function(request) {
                   choices = NULL,
                   selected = NULL,
                   multiple = TRUE,
-                  options = list(
-                    `none-selected-text` = "Please select subjectid variable!",
-                    `live-search` = TRUE,
-                    "max-options" = 1
+                  options =  pickerOptions(
+                    maxOptions = 1,
+                    actionsBox = TRUE,
+                    deselectAllText = "Clear"
                   )
                 )
               ),
@@ -269,10 +274,10 @@ app_ui <- function(request) {
                   choices = NULL,
                   selected = NULL,
                   multiple = TRUE,
-                  options = list(
-                    `none-selected-text` = "Please select subjectid variable!",
-                    `live-search` = TRUE,
-                    "max-options" = 1
+                  options =  pickerOptions(
+                    maxOptions = 1,
+                    actionsBox = TRUE,
+                    deselectAllText = "Clear"
                   )
                 )
               ),
@@ -283,10 +288,10 @@ app_ui <- function(request) {
                   choices = NULL,
                   selected = NULL,
                   multiple = TRUE,
-                  options = list(
-                    `none-selected-text` = "Please select subjectid variable!",
-                    `live-search` = TRUE,
-                    "max-options" = 1
+                  options =  pickerOptions(
+                    maxOptions = 1,
+                    actionsBox = TRUE,
+                    deselectAllText = "Clear"
                   )
                 )
               ),
@@ -297,10 +302,10 @@ app_ui <- function(request) {
                   choices = NULL,
                   selected = NULL,
                   multiple = TRUE,
-                  options = list(
-                    `none-selected-text` = "Please select subjectid variable!",
-                    `live-search` = TRUE,
-                    "max-options" = 1
+                  options =  pickerOptions(
+                    maxOptions = 1,
+                    actionsBox = TRUE,
+                    deselectAllText = "Clear"
                   )
                 )
               ),
@@ -311,10 +316,10 @@ app_ui <- function(request) {
                   choices = NULL,
                   selected = NULL,
                   multiple = TRUE,
-                  options = list(
-                    `none-selected-text` = "Please select subjectid variable!",
-                    `live-search` = TRUE,
-                    "max-options" = 1
+                  options =  pickerOptions(
+                    maxOptions = 1,
+                    actionsBox = TRUE,
+                    deselectAllText = "Clear"
                   )
                 )
               )
@@ -329,7 +334,7 @@ app_ui <- function(request) {
                   icon = shiny::icon("angle-right")
                 )
               )
-            )
+            ),theme = bslib::bs_theme(version = 5)
           ),
           bslib::nav_panel("Event & color selection", id = "Event & color selection",
             shiny::fluidRow(

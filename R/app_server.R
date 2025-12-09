@@ -262,14 +262,14 @@ app_server <- function(input, output, session) {
       input$select_event_time, input$select_event_time_end), {
 
     variable_check <- check_megaplot_data_variables(
-      megaplot_data = uploaded_data$val,
-      subjectid = input$select_subjectid,
-      start_time = input$select_start_time,
-      end_time = input$select_end_time,
-      event = input$select_event,
-      event_group = input$select_event_group,
-      event_time = input$select_event_time,
-      event_time_end = input$select_event_time_end
+      check_megaplot_data = uploaded_data$val,
+      check_subjectid = input$select_subjectid,
+      check_start_time = input$select_start_time,
+      check_end_time = input$select_end_time,
+      check_event = input$select_event,
+      check_event_group = input$select_event_group,
+      check_event_time = input$select_event_time,
+      check_event_time_end = input$select_event_time_end
     )
     # variable_check$val <- variable_check
       # when check is successful display next button
@@ -986,12 +986,12 @@ app_server <- function(input, output, session) {
     rename_require_variables(
       shiny::req(uploaded_data$val),
       selected_subjectid = shiny::req(input$select_subjectid),
-      selected_start_time = shiny::req(input$select_start_time),
-      selected_end_time = shiny::req(input$select_end_time),
+      selected_start_time = input$select_start_time,
+      selected_end_time = input$select_end_time,
       selected_event = shiny::req(input$select_event),
-      selected_event_group = shiny::req(input$select_event_group),
-      selected_event_time = shiny::req(input$select_event_time),
-      selected_event_time_end = shiny::req(input$select_event_time_end)
+      selected_event_group = input$select_event_group,
+      selected_event_time = input$select_event_time,
+      selected_event_time_end = input$select_event_time_end
     )
   })
 

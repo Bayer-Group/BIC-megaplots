@@ -27,14 +27,28 @@ golem::fill_desc(
     in the data or the temporal connection of study procedures and outcome
     events is supported by several functions, such as sorting, grouping,
     and changing the complexity of the graphical display.", # What the package does (one paragraph).
-  authors = person(
-    given = "Steffen", # Your First Name
-    family = "Jeske", # Your Last Name
-    email = "steffen.jeske.ext@bayer.com", # Your email
-    role = c("aut", "cre") # Your role (here author/creator)
+  authors = c(
+    person(
+      given = "Steffen", # Your First Name
+      family = "Jeske", # Your Last Name
+      email = "steffen.jeske.ext@bayer.com", # Your email
+      role = c("aut", "cre")
+    ),
+    person(
+      given = "Tammo", # Your First Name
+      family = "Reinders", # Your Last Name
+      email = "tammo.reinders.ext@bayer.com", # Your email
+      role = c("aut", "cre")
+    ),
+    person(
+      given = "Veronika", # Your First Name
+      family = "Schmidt", # Your Last Name
+      email = "veronika.schmidt.ext@bayer.com", # Your email
+      role = c("aut", "cre")
+    )
   ),
-  repo_url = NULL, # The URL of the GitHub repo (optional),
-  pkg_version = "0.0.0.9000", # The version of the package containing the app
+  repo_url = "github.com/Bayer-Group/BIC-megaplots", # The URL of the GitHub repo (optional),
+  pkg_version = "2.0.1", # The version of the package containing the app
   set_options = TRUE # Set the global golem options
 )
 
