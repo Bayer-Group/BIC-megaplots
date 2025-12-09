@@ -8,8 +8,22 @@
 \description{
 Depicts individual study courses per day. Pre-specified events on certain days, for example drug intake, efficacy, or safety events, are indicated by colored lines. The detection of patterns in the data or the temporal connection of study procedures and outcome events is supported by several functions, such as sorting, grouping, and changing the complexity of the graphical display.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{github.com/Bayer-Group/BIC-megaplots}
+  \item Report bugs at \url{github.com/Bayer-Group/BIC-megaplots/issues}
+}
+
+}
 \author{
 \strong{Maintainer}: Steffen Jeske \email{steffen.jeske.ext@bayer.com}
+
+Authors:
+\itemize{
+  \item Tammo Reinders \email{tammo.reinders.ext@bayer.com}
+  \item Veronika Schmidt \email{veronika.schmidt.ext@bayer.com}
+}
 
 }
 \keyword{internal}
