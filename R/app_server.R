@@ -156,8 +156,7 @@ app_server <- function(input, output, session) {
       } else {
         init_subjectid <- NULL
       }
-      # shinyWidgets::updatePickerInput(
-      shiny::updateSelectizeInput(
+      shinyWidgets::updatePickerInput(
         session,
         "select_subjectid",
         choices = colnames_uploaded,
@@ -172,7 +171,7 @@ app_server <- function(input, output, session) {
       } else {
         init_start_time <- NULL
       }
-      shiny::updateSelectizeInput(
+      shinyWidgets::updatePickerInput(
         session,
         "select_start_time",
         choices = colnames_uploaded,
@@ -186,7 +185,7 @@ app_server <- function(input, output, session) {
       } else {
         init_end_time <- NULL
       }
-      shiny::updateSelectizeInput(
+      shinyWidgets::updatePickerInput(
         session,
         "select_end_time",
         choices = colnames_uploaded,
@@ -200,7 +199,7 @@ app_server <- function(input, output, session) {
       } else {
         init_event_time <- NULL
       }
-      shiny::updateSelectizeInput(
+      shinyWidgets::updatePickerInput(
         session,
         "select_event_time",
         choices = colnames(uploaded_data$val),
@@ -215,7 +214,7 @@ app_server <- function(input, output, session) {
         } else {
           init_event_time_end <- NULL
         }
-      shiny::updateSelectizeInput(
+      shinyWidgets::updatePickerInput(
         session,
         "select_event_time_end",
         choices = colnames(uploaded_data$val),
@@ -230,7 +229,7 @@ app_server <- function(input, output, session) {
           init_event <- NULL
         }
 
-      shiny::updateSelectizeInput(
+      shinyWidgets::updatePickerInput(
         session,
         "select_event",
         choices = colnames(uploaded_data$val),
@@ -244,7 +243,7 @@ app_server <- function(input, output, session) {
       } else {
         init_event_group <- NULL
       }
-      shiny::updateSelectizeInput(
+      shinyWidgets::updatePickerInput(
         session,
         "select_event_group",
         choices = colnames(uploaded_data$val),

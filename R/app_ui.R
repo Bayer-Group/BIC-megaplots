@@ -210,6 +210,7 @@ app_ui <- function(request) {
         bslib::navset_card_underline(
           id = "Upload",
           bslib::nav_panel("File & variable selection", id = "File & variable selection",
+
            shiny::fluidRow(
              shiny::fileInput(
                inputId = 'file',
@@ -219,100 +220,106 @@ app_ui <- function(request) {
              ),
              span(textOutput("file_upload_message"),style = "color:#cc0a21;")
             ),
-
-
+           tags$style(HTML(
+             "select[data-max-options=\"1\"] ~ .dropdown-menu .bs-actionsbox .bs-select-all {display: none;}
+              select[data-max-options=\"1\"] ~ .dropdown-menu .bs-actionsbox .bs-deselect-all {width: 100%;}"
+           )),
             shiny::fluidRow(
               shiny::column(2,
-                shiny::selectizeInput(
+                shinyWidgets::pickerInput(
                   inputId = "select_subjectid",
                   label = "subjectid",
                   choices = NULL,
                   selected = NULL,
                   multiple = TRUE,
-                  options = list(
-                    maxItems = 1
+                  options =  pickerOptions(
+                    maxOptions = 1,
+                    actionsBox = TRUE,
+                    deselectAllText = "Clear"
                   )
                 )
               ),
-              # shiny::column(1,
-              #   shinyWidgets::actionBttn(
-              #     inputId = "delete_select_subjectid",
-              #     label = NULL,
-              #     icon = icon("trash"),
-              #     size = "s",
-              #     style = "material-flat",
-              #     color = "primary",
-              #   )
-              # ),
               shiny::column(2,
-                  shiny::selectizeInput(
+                shinyWidgets::pickerInput(
                   inputId = "select_start_time",
                   label = "start time",
                   choices = NULL,
                   selected = NULL,
                   multiple = TRUE,
-                  options = list(
-                    maxItems = 1
+                  options =  pickerOptions(
+                    maxOptions = 1,
+                    actionsBox = TRUE,
+                    deselectAllText = "Clear"
                   )
                 )
               ),
               shiny::column(2,
-                shiny::selectizeInput(
+                shinyWidgets::pickerInput(
                   inputId = "select_end_time",
                   label = "end time",
                   choices = NULL,
                   selected = NULL,
                   multiple = TRUE,
-                  options = list(
-                    maxItems = 1
+                  options =  pickerOptions(
+                    maxOptions = 1,
+                    actionsBox = TRUE,
+                    deselectAllText = "Clear"
                   )
                 )
               ),
               shiny::column(2,
-                shiny::selectizeInput(
+                shinyWidgets::pickerInput(
                   inputId = "select_event_time",
                   label = "event start",
                   choices = NULL,
                   selected = NULL,
                   multiple = TRUE,
-                  options = list(
-                    maxItems = 1
+                  options =  pickerOptions(
+                    maxOptions = 1,
+                    actionsBox = TRUE,
+                    deselectAllText = "Clear"
                   )
                 )
               ),
               shiny::column(2,
-                shiny::selectizeInput(
+                shinyWidgets::pickerInput(
                   inputId = "select_event_time_end",
                   label = "event end",
                   choices = NULL,
                   selected = NULL,
                   multiple = TRUE,
-                  options = list(
-                    maxItems = 1
+                  options =  pickerOptions(
+                    maxOptions = 1,
+                    actionsBox = TRUE,
+                    deselectAllText = "Clear"
                   )
                 )
               ),
               shiny::column(2,
-                shiny::selectizeInput(
+                shinyWidgets::pickerInput(
                   inputId = "select_event",
                   label = "event",
                   choices = NULL,
                   selected = NULL,
                   multiple = TRUE,
-                  options = list(
-                    maxItems = 1
+                  options =  pickerOptions(
+                    maxOptions = 1,
+                    actionsBox = TRUE,
+                    deselectAllText = "Clear"
                   )
                 )
               ),
               shiny::column(2,
-                shiny::selectizeInput(
+                shinyWidgets::pickerInput(
                   inputId = "select_event_group",
                   label = "event group",
                   choices = NULL,
                   selected = NULL,
                   multiple = TRUE,
-                  options = list(
-                    maxItems = 1
+                  options =  pickerOptions(
+                    maxOptions = 1,
+                    actionsBox = TRUE,
+                    deselectAllText = "Clear"
                   )
                 )
               )
@@ -327,7 +334,7 @@ app_ui <- function(request) {
                   icon = shiny::icon("angle-right")
                 )
               )
-            )
+            ),theme = bslib::bs_theme(version = 5)
           ),
           bslib::nav_panel("Event & color selection", id = "Event & color selection",
             shiny::fluidRow(
