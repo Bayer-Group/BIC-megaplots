@@ -7,6 +7,15 @@
 
 app_server <- function(input, output, session) {
 
+  output$read_me <- renderUI({
+    #rmarkdown::render(input = "README.md", output_dir = "inst/app/www")
+    tags$iframe(
+      src = "www/README.html",
+      style = "height: 100vh"
+    )
+    # HTML(markdown::markdownToHTML('README.md', fragment.only = TRUE))
+  })
+
   #set global variable . to NULL to
   #avoid note: no visible binding for global variable '.' when
   # performing package check (via devtools)
@@ -441,7 +450,7 @@ app_server <- function(input, output, session) {
       dnd = dnd,
       checkCallback = check_callback,
       types = types,
-      contextMenu = list(create =TRUE, delete = TRUE),
+      contextMenu = list(create =FALSE, delete = FALSE),
       checkboxes = TRUE
     )
   })
@@ -467,7 +476,7 @@ app_server <- function(input, output, session) {
       session,
       inputId = "select_sorting",
       choices = choices,
-      selected = "megaplots_selected_end_time",
+      selected = ifelse("megaplots_selected_end_time" %in% choices,"megaplots_selected_end_time" ,"megaplots_selected_subjectid"),
       choicesOpt = list(style =  rep_len(
         "font-size: 60%; line-height: 1.6;", length(choices)
       )
@@ -740,7 +749,8 @@ app_server <- function(input, output, session) {
      input[["tree2"]],
      input[["tree2_checked_tree"]]
    ), {
-    checked_tree <- input[["tree2_checked_tree"]]
+
+  checked_tree <- input[["tree2_checked_tree"]]
    selected_data <- data.frame(megaplots_selected_event_group = NULL, megaplots_selected_event = NULL)
     if (!is.null(checked_tree)) {
       if (length(checked_tree) > 0) {
@@ -763,6 +773,13 @@ app_server <- function(input, output, session) {
       }
       }
     }
+
+   shinyjqui::updateOrderInput(
+     session,
+     inputId = "sort_event_groups",
+     label = "Sort event groups",
+     items = unique(selected_data$megaplots_selected_event_group)
+   )
     checked_data$val <- selected_data
   })
 
@@ -1009,12 +1026,13 @@ app_server <- function(input, output, session) {
     )
   })
 
-  uploaded_data_w_ids_filtered <- shiny::reactive({
-    create_unique_event_identifier(
-      #megaplot_data_raw = shiny::req(uploaded_data$val)
-      megaplot_data_raw = shiny::req(filtered_data_reactive$val)
-    )
-  })
+  # uploaded_data_w_ids_filtered <- shiny::reactive({
+  #
+  #   create_unique_event_identifier(
+  #     #megaplot_data_raw = shiny::req(uploaded_data$val)
+  #     megaplot_data_raw = shiny::req(filtered_data_reactive$val)
+  #   )
+  # })
 
 
   #create a data frame which includes unique rows with
@@ -1035,7 +1053,8 @@ app_server <- function(input, output, session) {
   megaplot_prepared_data <- shiny::eventReactive(
     c(uploaded_data_w_ids(),
       filtered_data_reactive$val,
-      input$select_grouping,
+      #input$select_grouping,
+      input$arrange_groups,
       input$select_sorting), {
 
     prepare_megaplot_data(
@@ -1043,7 +1062,8 @@ app_server <- function(input, output, session) {
       megaplot_data_raw = shiny::req(filtered_data_reactive$val),
       uploaded_data_w_ids = uploaded_data_w_ids(),
       select_sorting = input$select_sorting,
-      select_grouping = input$select_grouping
+      select_grouping = input$select_grouping,
+      arrange_groups = input$arrange_groups
     )
   })
 
@@ -1063,12 +1083,7 @@ app_server <- function(input, output, session) {
       #remove nas from required variables
       filtered_data <- filtered_data %>%
         dplyr::filter(!is.na(.data$megaplots_selected_subjectid)) %>%
-        dplyr::filter(!is.na(.data$megaplots_selected_start_time))%>%
-        dplyr::filter(!is.na(.data$megaplots_selected_end_time))%>%
-        dplyr::filter(!is.na(.data$megaplots_selected_event))%>%
-        dplyr::filter(!is.na(.data$megaplots_selected_event_group))%>%
-        dplyr::filter(!is.na(.data$megaplots_selected_event_time))%>%
-        dplyr::filter(!is.na(.data$megaplots_selected_event_time_end))
+        dplyr::filter(!is.na(.data$megaplots_selected_event))
     }
     #return
     filtered_data
@@ -1134,7 +1149,42 @@ app_server <- function(input, output, session) {
   #### Mega Plot ####
   #create reactive variable for saving html output
   session_store <- shiny::reactiveValues(val = NULL)
+  output$arrange_groups <- shiny::renderUI({
+    shinyjqui::orderInput(
+      inputId = "arrange_groups",
+      label = "Arrange Groups",
+      items = NULL,
+      width = 300
+    )
+  })
 
+  shiny::observeEvent(c(uploaded_data_renamed(), input$select_grouping), {
+    if(!is.null(input$select_grouping)) {
+      grouping_label_data <- uploaded_data_renamed() %>%
+        dplyr::select(!!!rlang::syms(input$select_grouping)) %>%
+        dplyr::distinct() %>%
+        dplyr::mutate(
+          text_snippet_1 = paste(input$select_grouping, collapse = " "),
+          text_snippet_2 = paste(!!!rlang::syms(input$select_grouping), sep = ", ")) %>%
+        dplyr::rowwise() %>%
+        dplyr::mutate(text_snippet_total = paste(unlist(strsplit(.data$text_snippet_1," ")), gsub(" ", "", unlist(strsplit(.data$text_snippet_2, ", "))), sep = ": ", collapse = " & "))
+
+      shinyjqui::updateOrderInput(
+        session,
+        inputId = "arrange_groups",
+        items = grouping_label_data$text_snippet_total
+      )
+    } else {
+      output$arrange_groups <- shiny::renderUI({
+        shinyjqui::orderInput(
+          inputId = "arrange_groups",
+          label = "Arrange Groups",
+          items = NULL,
+          width = 300
+        )
+      })
+    }
+  })
   output$mega_plots <- plotly::renderPlotly({
 
     shiny::req(megaplot_prepared_data())
@@ -1142,10 +1192,11 @@ app_server <- function(input, output, session) {
     tmp <- draw_mega_plot(
       megaplot_prepared_data = megaplot_prepared_data(),
       megaplot_filtered_data = megaplot_filtered_data(),
-      select_grouping = input$select_grouping,
+      select_grouping = shiny::isolate(input$select_grouping),
       line_width = input$line_width,
       line_width_subjects = input$line_width_subjects,
-      switch_legend_grouping = input$switch_legend_grouping
+      switch_legend_grouping = input$switch_legend_grouping,
+      sort_event_groups = input$sort_event_groups
     )
     session_store$val <- tmp
     tmp
@@ -1187,6 +1238,8 @@ app_server <- function(input, output, session) {
       selected = NULL
     )
   })
+
+
 
   output$kaplan_meier <- plotly::renderPlotly({
     shiny::req(megaplot_prepared_data())

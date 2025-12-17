@@ -3,8 +3,8 @@ Title: A 'shiny' Application for Pattern Detection
 Version: 2.0.1
 Authors@R: c(
     person("Steffen", "Jeske", , "steffen.jeske.ext@bayer.com", role = c("aut", "cre")),
-    person("Tammo", "Reinders", , "tammo.reinders.ext@bayer.com", role = c("aut", "cre")),
-    person("Veronika", "Schmidt", , "veronika.schmidt.ext@bayer.com", role = c("aut", "cre"))
+    person("Tammo", "Reinders", , "tammo.reinders.ext@bayer.com", role = c("aut")),
+    person("Veronika", "Schmidt", , "veronika.schmidt.ext@bayer.com", role = c("aut"))
   )
 Description: Depicts individual study courses per day.  Pre-specified
     events on certain days, for example drug intake, efficacy, or safety
@@ -28,6 +28,7 @@ Imports:
     grDevices,
     htmlwidgets,
     jsTreeR,
+    markdown,
     plotly,
     plyr,
     purrr,

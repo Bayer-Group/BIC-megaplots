@@ -81,6 +81,7 @@ app_ui <- function(request) {
       id = "MEGAPLOTS",
       #create color theme for user interface
       theme = bslib::bs_theme(
+        version = 5,
         primary = "#0091DF",                     #primary color used for inputs
         "navbar-bg" = "#0091DF",                 #navbar background color
         bg = "#404A4E",                          #app background-color
@@ -119,11 +120,24 @@ app_ui <- function(request) {
               selected = NULL,
               multiple = TRUE,
               options = list('plugins' = list('remove_button', 'drag_drop'))
-            )
+            ),
+            shiny::uiOutput("arrange_groups"),
+            # shinyjqui::orderInput(
+            #   inputId = "arrange_groups",
+            #   label = "Arrange Groups",
+            #   items = NULL,
+            #   width = 300
+            # ),
           ),
           bslib::accordion_panel(
             "Plot appearance",
             icon = bsicons::bs_icon("border-width"),
+            shinyjqui::orderInput(
+              inputId = "sort_event_groups",
+              label = "Change Event Group Order",
+              items = NULL,
+              width = 300
+            ),
             shiny::sliderInput(
               inputId = "line_width_subjects",
               label = "Subject line width",
@@ -210,7 +224,9 @@ app_ui <- function(request) {
         bslib::navset_card_underline(
           id = "Upload",
           bslib::nav_panel("File & variable selection", id = "File & variable selection",
-
+          # HTML("<p> MEGAPLOTS is as the name suggests,
+          #           is a huge graphical display showing individual-level data over time
+          #           interactively.</p>"),
            shiny::fluidRow(
              shiny::fileInput(
                inputId = 'file',
@@ -222,104 +238,113 @@ app_ui <- function(request) {
             ),
            tags$style(HTML(
              "select[data-max-options=\"1\"] ~ .dropdown-menu .bs-actionsbox .bs-select-all {display: none;}
-              select[data-max-options=\"1\"] ~ .dropdown-menu .bs-actionsbox .bs-deselect-all {width: 100%;}"
+             "
            )),
             shiny::fluidRow(
               shiny::column(2,
                 shinyWidgets::pickerInput(
                   inputId = "select_subjectid",
-                  label = "subjectid",
+                  label = "Identifier",
                   choices = NULL,
                   selected = NULL,
                   multiple = TRUE,
                   options =  pickerOptions(
                     maxOptions = 1,
                     actionsBox = TRUE,
-                    deselectAllText = "Clear"
+                    deselectAllText = "Clear",
+                    dropupAuto = FALSE
                   )
                 )
               ),
               shiny::column(2,
                 shinyWidgets::pickerInput(
                   inputId = "select_start_time",
-                  label = "start time",
+                  label = "Timeline Start Day",
                   choices = NULL,
                   selected = NULL,
                   multiple = TRUE,
                   options =  pickerOptions(
                     maxOptions = 1,
                     actionsBox = TRUE,
-                    deselectAllText = "Clear"
+                    deselectAllText = "Clear",
+                    dropupAuto = FALSE
                   )
                 )
               ),
               shiny::column(2,
                 shinyWidgets::pickerInput(
                   inputId = "select_end_time",
-                  label = "end time",
+                  label = "Timeline End Day",
                   choices = NULL,
                   selected = NULL,
                   multiple = TRUE,
                   options =  pickerOptions(
                     maxOptions = 1,
                     actionsBox = TRUE,
-                    deselectAllText = "Clear"
+                    deselectAllText = "Clear",
+                    dropupAuto = FALSE
                   )
                 )
-              ),
+              )
+            ),
+           shiny::fluidRow(
+             shiny::column(2,
+               shinyWidgets::pickerInput(
+                 inputId = "select_event",
+                 label = "Event",
+                 choices = NULL,
+                 selected = NULL,
+                 multiple = TRUE,
+                 options =  pickerOptions(
+                   maxOptions = 1,
+                   actionsBox = TRUE,
+                   deselectAllText = "Clear",
+                   dropupAuto = FALSE
+                 )
+               )
+             ),
+             shiny::column(2,
+               shinyWidgets::pickerInput(
+                 inputId = "select_event_group",
+                 label = "Event Group",
+                 choices = NULL,
+                 selected = NULL,
+                 multiple = TRUE,
+                 options =  pickerOptions(
+                   maxOptions = 1,
+                   actionsBox = TRUE,
+                   deselectAllText = "Clear",
+                   dropupAuto = FALSE
+                 )
+               )
+             ),
               shiny::column(2,
                 shinyWidgets::pickerInput(
                   inputId = "select_event_time",
-                  label = "event start",
+                  label = "Event Start Day",
                   choices = NULL,
                   selected = NULL,
                   multiple = TRUE,
                   options =  pickerOptions(
                     maxOptions = 1,
                     actionsBox = TRUE,
-                    deselectAllText = "Clear"
+                    deselectAllText = "Clear",
+                    dropupAuto = FALSE
                   )
                 )
               ),
               shiny::column(2,
                 shinyWidgets::pickerInput(
                   inputId = "select_event_time_end",
-                  label = "event end",
+                  label = "Event End Day",
                   choices = NULL,
                   selected = NULL,
                   multiple = TRUE,
                   options =  pickerOptions(
                     maxOptions = 1,
                     actionsBox = TRUE,
-                    deselectAllText = "Clear"
-                  )
-                )
-              ),
-              shiny::column(2,
-                shinyWidgets::pickerInput(
-                  inputId = "select_event",
-                  label = "event",
-                  choices = NULL,
-                  selected = NULL,
-                  multiple = TRUE,
-                  options =  pickerOptions(
-                    maxOptions = 1,
-                    actionsBox = TRUE,
-                    deselectAllText = "Clear"
-                  )
-                )
-              ),
-              shiny::column(2,
-                shinyWidgets::pickerInput(
-                  inputId = "select_event_group",
-                  label = "event group",
-                  choices = NULL,
-                  selected = NULL,
-                  multiple = TRUE,
-                  options =  pickerOptions(
-                    maxOptions = 1,
-                    actionsBox = TRUE,
-                    deselectAllText = "Clear"
+                    deselectAllText = "Clear",
+                    dropupAuto = FALSE
                   )
                 )
               )
@@ -551,6 +576,12 @@ app_ui <- function(request) {
           #    plotly::plotlyOutput("kaplan_meier")
           # )
         )
+      ),
+      bslib::nav_panel(
+        id = "README",
+        title = "README",
+        #htmltools::includeHTML("inst/app/www/README.html")
+        shiny::uiOutput('read_me')
       )
     )
   )

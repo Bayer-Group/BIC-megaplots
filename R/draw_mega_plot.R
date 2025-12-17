@@ -17,22 +17,29 @@ draw_mega_plot <- function(
     line_width = 3,
     line_width_subjects,
     event_tooltips = TRUE,
-    switch_legend_grouping = TRUE
+    switch_legend_grouping = TRUE,
+    sort_event_groups
   ) {
 
-  min_start_day <- min(megaplot_prepared_data$megaplots_selected_start_time, na.rm = TRUE)
+  # min_start_day <- min(megaplot_prepared_data$megaplots_selected_start_time, na.rm = TRUE)
+  min_start_day <- min(megaplot_prepared_data$megaplots_selected_event_time, na.rm = TRUE)
+  max_end_day <- max(megaplot_prepared_data$megaplots_selected_event_time_end, na.rm = TRUE)
   if (!is.null(megaplot_filtered_data)) {
+    # if(nrow(megaplot_filtered_data) > 0) {
     megaplot_filtered_data <- megaplot_filtered_data %>%
       dplyr::mutate(
         text_events = paste0(" Subject identifier: ", .data$megaplots_selected_subjectid, "\n Event: ", .data$megaplots_selected_event, " (",.data$megaplots_selected_event_group,") \n", " Start time: ", .data$megaplots_selected_event_time, "\n End time: ", .data$megaplots_selected_event_time_end)
       )
 
     #re-arrangement for plotly legend
+    megaplot_filtered_data$event_group <- factor(megaplot_filtered_data$event_group, levels = sort_event_groups)
+
     megaplot_filtered_data <- megaplot_filtered_data %>%
-      dplyr::arrange(.data$event_group_id, .data$event_id)
+      dplyr::arrange(.data$event_group, .data$event_id)
 
 
     megaplot_filtered_data$unique_event <- factor(megaplot_filtered_data$unique_event , levels = unique(megaplot_filtered_data$unique_event))
+    # }
   }
 
   ##
@@ -49,7 +56,10 @@ draw_mega_plot <- function(
       #color = ~I(event_color),
       type ="scatter",
       mode = "lines+markers"
-    ) %>%
+    ) #%>%
+
+  if (!(all(is.na(megaplot_prepared_data$megaplots_selected_start_time)) | all(is.na(megaplot_prepared_data$megaplots_selected_end_time)))) {
+    p_1 <- p_1 %>%
     plotly::add_segments(                       # create subject lines via add_segments
       y = ~subjectid_n,
       yend ~subjectid_n,
@@ -60,6 +70,8 @@ draw_mega_plot <- function(
       line = list(color = "#2c3336", width = line_width_subjects),
       showlegend = FALSE
     )
+  }
+
 
 
   #
@@ -183,13 +195,13 @@ draw_mega_plot <- function(
       paper_bgcolor ='#404A4E',
       xaxis = list(
         color='#FFFFFF',
-        title = "Study Day",
+        title = "Day",
         zeroline = FALSE
       ),
       yaxis = list(
         color='#FFFFFF',
         showgrid = FALSE,
-        title ="Subject identifier",
+        title ="Identifier",
         categoryarray = ~ megaplots_selected_subjectid,
         zeroline = FALSE,
         autotick = FALSE,

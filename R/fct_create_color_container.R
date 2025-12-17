@@ -15,6 +15,9 @@ create_color_container <- function(
   if (nrow(tree) > 0) {
     selected_data <- tree
 
+    # factor event_group to ensure correct group_index
+    selected_data$megaplots_selected_event_group <- factor(selected_data$megaplots_selected_event_group,levels = unique(selected_data$megaplots_selected_event_group))
+
     selected_data <- selected_data %>%
       dplyr::group_by(.data$megaplots_selected_event_group) %>%
       dplyr::mutate(group_index = dplyr::cur_group_id(), index = dplyr::row_number(.data$megaplots_selected_event_group) ) %>%

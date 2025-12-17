@@ -16,16 +16,33 @@ prepare_megaplot_data <- function(
     megaplot_data_raw,
     uploaded_data_w_ids,
     select_sorting,
-    select_grouping
+    select_grouping,
+    arrange_groups
   ) {
   # create arranged dataset 'megaplot_data_arranged'
   # to create a "subject_index" variable in next step
-  megaplot_data_arranged <- dplyr::arrange(
-    megaplot_data_raw,
-    !!!rlang::syms(select_grouping),
-    !!rlang::sym(select_sorting)
-  )
 
+  if(!is.null(arrange_groups)) {
+    megaplot_data_raw <- megaplot_data_raw %>%
+      dplyr::mutate(
+        text_snippet_1 = paste(select_grouping, collapse = " "),
+        text_snippet_2 = paste(!!!rlang::syms(select_grouping), sep = ", ")) %>%
+      dplyr::rowwise() %>%
+      dplyr::mutate(text_snippet_total = paste(unlist(strsplit(.data$text_snippet_1," ")), gsub(" ", "", unlist(strsplit(.data$text_snippet_2, ", "))), sep = ": ", collapse = " & "))
+
+    megaplot_data_raw$text_snippet_total <- factor(megaplot_data_raw$text_snippet_total, levels = rev(arrange_groups))
+
+    megaplot_data_arranged <- dplyr::arrange(
+      megaplot_data_raw,
+      text_snippet_total,
+      !!rlang::sym(select_sorting)
+    )
+  } else {
+    megaplot_data_arranged <- dplyr::arrange(
+      megaplot_data_raw,
+      !!rlang::sym(select_sorting)
+    )
+  }
   # create and merge variable subject_index to dataset megaplot_data_raw
   megaplot_data_raw <- megaplot_data_raw %>%
     dplyr::left_join(
@@ -44,10 +61,14 @@ prepare_megaplot_data <- function(
     )
 
   # create column group_index
+  if(!is.null(arrange_groups)) {
   megaplot_data_raw <- megaplot_data_raw %>%
-    dplyr::group_by(!!!rlang::syms(select_grouping)) %>%
+    dplyr::group_by(text_snippet_total) %>%
     dplyr::mutate(group_index = dplyr::cur_group_id()) #%>% dplyr::ungroup()
-
+  } else {
+    megaplot_data_raw <- megaplot_data_raw %>%
+      dplyr::mutate(group_index = 1) #%>% dplyr::ungroup()
+  }
 
   # add a custom space of 10 empty lines (empty subjectid_n) to distinguish groups in mega plots
   megaplot_data_raw  <- megaplot_data_raw %>%

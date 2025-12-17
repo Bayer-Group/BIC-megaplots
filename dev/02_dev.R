@@ -35,6 +35,7 @@ usethis::use_package("datamods")
 usethis::use_package("RColorBrewer")
 usethis::use_package("htmlwidgets")
 usethis::use_package("seriation")
+usethis::use_package("markdown")
 
 ## Amend DESCRIPTION with dependencies read from package code parsing
 ## install.packages('attachment') # if needed.
