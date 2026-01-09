@@ -19,9 +19,11 @@ README
   - [Plot Appearance](#plot-appearance)
   - [Filter](#filter)
   - [HTML Download](#html-download)
-- [README](#readme)
-- [Input Data](#input-data)
+- [Data Preparation](#data-preparation)
+  - [Input Data](#input-data)
+  - [Preparation Functions](#preparation-functions)
 - [Additional information](#additional-information)
+  - [README](#readme)
 
 <img src="inst/app/www/megaplot_hexsticker.png" align="right" width="150px"/>
 
@@ -44,18 +46,21 @@ version v.1.1.10’.
 
 ## Getting Started
 
-The package megaplots is available on ‘github’ and may be installed
+The package megaplots is available on Github and may be installed
 using
-
+```
 install_github(“Bayer-Group/BIC-Megaplots”)
+```
 
 respectively.
 
 After installation megaplots can be started using
 
+```
 library(“megaplots”)
 
 run_app()
+```
 
 The application will start showing the data upload page. For detailed
 information on how to upload data see next section.
@@ -349,12 +354,9 @@ Explanatory text for this chapter will follow soon.
 <img src="inst/app/www/Screenshots/54_Megaplots.png" align="center" width="100%"/>
 Explanatory text for this chapter will follow soon.
 
-## README
+## Data Preparation
 
-<img src="inst/app/www/Screenshots/55_Megaplots.png" align="center" width="100%"/>
-Explanatory text for this chapter will follow soon.
-
-## Input Data
+### Input Data
 
 | Column | Class | Note |
 |:---|:---|:---|
@@ -376,6 +378,8 @@ sorting. All numeric variables will be applicable for sorting and all
 character variables for grouping. For more information about “Sorting /
 Grouping” please refer to chapter “Sidebar options”.
 
+### Preparation Functions
+
 ## Additional information
 
 <img src="inst/app/www/Screenshots/56_Megaplots.png" align="center" width="100%"/>
@@ -384,3 +388,8 @@ Grouping” please refer to chapter “Sidebar options”.
 <img src="inst/app/www/Screenshots/59_Megaplots.png" align="center" width="100%"/>
 <img src="inst/app/www/Screenshots/60_Megaplots.png" align="center" width="100%"/>
 To use the full screen size for your megaplot hide sidebar, if not used.
+
+### README
+
+<img src="inst/app/www/Screenshots/55_Megaplots.png" align="center" width="100%"/>
+This Readme-file is available on Github as well as through a tab within the app.
