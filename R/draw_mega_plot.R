@@ -50,6 +50,7 @@ draw_mega_plot <- function(
       text_lines = paste0("Subject identifier: ", .data$megaplots_selected_subjectid)
     )
 
+
   p_1 <- megaplot_prepared_data %>%
     plotly::plot_ly(                            #create empty plot_ly object
       source = "plotSource",
@@ -186,7 +187,7 @@ draw_mega_plot <- function(
     displayModeBar = TRUE,              #Forcing the modebar always to be visible
     displaylogo = FALSE,                #Hiding the plotly logo on the modebar
     modeBarButtonsToRemove =            #Remove not needed buttons from modebar
-      c("zoomIn2d","zoomOut2d","select2d","lasso2d","hoverCompareCartesian")
+      c("toImage","select2d","lasso2d","hoverCompareCartesian","hoverClosestCartesian","autoScale2d")
   )
 
   p_4 <- p_3 %>%
