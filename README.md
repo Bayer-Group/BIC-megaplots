@@ -381,6 +381,21 @@ to choose which dataset column represents which column listed below.
 \*\* one of the variable pairs start_time/end_time or event_time/event_time\_end is
 mandatory
 
+The subjectid column will be used to assign individual time sequences.
+The start_time and end_time columns define the start and end time of every 
+individual time course, i.e. the start and end point for the dark background lines.
+Therefore, the value of this column should be the same for all lines that belong to
+one subjectid.
+The event and event_group identify the events that are displayed. The event_group 
+column is intended to group events together into higher level categories. Therefore, 
+multiple events usually belong to a specific event_group. If the same event (or 
+events with the same name) belongs to multiple event_groups, the event name will 
+be altered to include the event_group as a suffix,
+so that they can be distinguished in the visuals.
+If no event group is selected, the value of event is automatically set the value of event_group. 
+The event_time and event_end_time columns define the start and end time of every 
+event, i.e. the start and end point for the coloured event lines.
+
 Besides those variables any variables can be added for grouping and
 sorting. All numeric variables will be applicable for sorting and all
 character variables for grouping. For more information about sorting and
