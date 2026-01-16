@@ -19,11 +19,9 @@ README
   - [Plot Appearance](#plot-appearance)
   - [Filter](#filter)
   - [HTML Download](#html-download)
-- [Data Preparation](#data-preparation)
-  - [Input Data](#input-data)
-  - [Preparation Functions](#preparation-functions)
+- [README](#readme)
+- [Input Data](#input-data)
 - [Additional information](#additional-information)
-  - [README](#readme)
 
 <img src="inst/app/www/megaplot_hexsticker.png" align="right" width="150px"/>
 
@@ -34,53 +32,47 @@ README
 
 ## Description
 
-The Shiny application ‘megaplots’, as the name suggests, contains a
-large graphical display interactively showing individual-level data over time. 
-In the context of clinical trials, megaplots seek to
+A ‘megaplot’ is a ‘shiny’ application and as the name suggests, is a
+huge graphical display showing individual-level data over time
+interactively. In the context of clinical trials, megaplots seek to
 represent longitudinal data while focusing on event visualization for
 each subject throughout the entire course of the trial.
 
-The megaplots app had a major update at the end of 2025. 
-If you want to switch to the previous version, please use ‘Release
+The concept of the megaplots app has been re-designed at the end of
+2025. If you want to use the previous version, please use ‘Release
 version v.1.1.10’.
 
 ## Getting Started
 
-The megaplots app is available as a package on Github and can be installed
-using the code
+The package megaplots is available on ‘github’ and may be installed
+using
 
-```
 install_github(“Bayer-Group/BIC-Megaplots”)
-```
 
-within the R console. 
-After installation, the megaplots application can be started using
+respectively.
 
-```
+After installation megaplots can be started using
+
 library(“megaplots”)
 
 run_app()
-```
 
 The application will start showing the data upload page. For detailed
-information on how to upload data look at the 
-[File Upload & Variable Selection](#file-upload--variable-selection).
+information on how to upload data see next section.
 
 ## File Upload & Variable Selection
 
-Once the megaplots package is installed the application
-opened using run_app(), a dataset can be uploaded through the
+Once the ‘megaplots’ package is installed, simply call this application
+through the function run_app(). Next, upload the dataset through the
 ‘File upload’-panel.
 
-For further information on the creation of datasets that can be used in the 
-application, refer to the [Data Preparation](#data-preparation) section.
+Please click on the “Browse…” button and upload the desired data set.
 Currently, it is only possible to use ‘.RData’ as data format. If other
 formats are used, an error message appears.
 
 <img src="inst/app/www/Screenshots/1_Megaplots.png" align="center" width="95%"/>
 
-After a dataset has been successfully uploaded, options for the variable 
-selection will appear.
+After successful upload, options for the variable selection will appear.
 
 <img src="inst/app/www/Screenshots/4_Megaplots.png" align="center" width="95%"/>
 
@@ -88,19 +80,18 @@ The variable ‘Identifier’ can be a numeric or character variable and
 will be used to assign individual time sequences. The variables
 ‘Timeline Start Day’ and ‘Timeline End Day’ define the start and end
 time of every individual time course. Both variables should be integers,
-otherwise they will be rounded to the nearest integer. ‘Event’ and ‘Event Group’ 
-should contain the names of the events that are displayed. 
-Multiple events can belong to a specific event group. 
-If no event group is selected, the value of ‘Event’ is
-automatically set as ‘Event Group’. The event names do not necessarily
-have to be unique. For display purposes, they are renamed if not unique,
-by attaching the event group in brackets as a suffix. Like the time
+otherwise they will be rounded. ‘Event’ and ‘Event Group’ should contain
+the names of the events that are displayed. Multiple events can belong
+to a specific event group. If no event group is selected, event is
+automatically set as event group. The event names do not necessarily
+have to be unique. For display purposes, they are renamed if non-unique,
+by writing the event group in brackets after them. Like the time
 courses, every event requires a start and end day. The corresponding
 variables can be selected via ‘Event Start Day’ and ‘Event End Day’. The
-same rounding procedure as for the timelines is applied.
+same rounding procedure is applied as for the timelines.
 
-For more detailed information about the data structure, see 
-[Input Data](#input-data) below.
+For more detailed information about the data structure see [Input
+Data](#Input%20Data). below.
 
 In every variable selection drop-down menu there is a ‘Clear’ button to
 delete the selected variable. When all variables are in the desired a
@@ -248,7 +239,7 @@ context: study units).
 The legend on the right side can be used to select and deselect event
 groups to provide an better overview. Selecting a high number of events
 can lead to overlaying event lines. In this case it is recommended to
-focus on a few number of event/event groups or zoom in on the graphic
+focus on a few number of event/event groups or zoom-in on the graphic
 accordingly.
 
 For every single event displayed a hover panel is available with
@@ -267,8 +258,8 @@ also be reset by double-clicking.
 
 <img src="inst/app/www/Screenshots/27_Megaplots.png" align="center" width="95%"/>
 
-There are several ways to zoom in to the graphic. First, it is possible
-to use mouse-scrolling to zoom in. To rescale only one axis, click and
+There are several ways to zoom-in to the graphic. First, it is possible
+to use mouse-scrolling to zoom-in. To re-scale only one axis, click and
 drag near the edge of one of the axes. If the drag mode is set to ‘pan’
 (see chapter Plot options) it is possible to click and drag on the plot.
 Another zoom possibility is to click and drag on the plot when option
@@ -276,8 +267,8 @@ Another zoom possibility is to click and drag on the plot when option
 
 <img src="inst/app/www/Screenshots/28_Megaplots.png" align="center" width="95%"/>
 
-Alternatively, the ‘plus’ or ‘minus’ button on the modebar can be used
-to zoom in or zoom out.
+Third way to zoom is to use the ‘plus’ or ‘minus’ button on the modebar
+to zoom-in or zoom-out.
 
 Further options for this megaplots graph are described in the chapter
 “Sidebar Options”, such as sorting, grouping or line thickness.
@@ -345,26 +336,25 @@ Explanatory text for this chapter will follow soon.
 
 ### Filter
 
-<img src="inst/app/www/Screenshots/49_Megaplots.png" align="center" width="30%"/>
-<img src="inst/app/www/Screenshots/50_Megaplots.png" align="center" width="30%"/>
+<img src="inst/app/www/Screenshots/49_Megaplots.png" align="center" width="100%"/>
+<img src="inst/app/www/Screenshots/50_Megaplots.png" align="center" width="100%"/>
 <img src="inst/app/www/Screenshots/51_Megaplots.png" align="center" width="100%"/>
-<img src="inst/app/www/Screenshots/52_Megaplots.png" align="center" width="30%"/>
-<img src="inst/app/www/Screenshots/53_Megaplots.png" align="center" width="30%"/>
+<img src="inst/app/www/Screenshots/52_Megaplots.png" align="center" width="100%"/>
+<img src="inst/app/www/Screenshots/53_Megaplots.png" align="center" width="100%"/>
 
 Explanatory text for this chapter will follow soon.
 
 ### HTML Download
 
-<img src="inst/app/www/Screenshots/54_Megaplots.png" align="center" width="30%"/>
+<img src="inst/app/www/Screenshots/54_Megaplots.png" align="center" width="100%"/>
 Explanatory text for this chapter will follow soon.
 
-## Data Preparation
+## README
 
-### Input Data
-The following table shows the columns necessary for a dataset to be used 
-in the megaplots application. The names of those columns in the dataset can 
-differ, whether they are mandatory or not, as the app provides a selection menu
-to choose which dataset column represents which column listed below.
+<img src="inst/app/www/Screenshots/55_Megaplots.png" align="center" width="100%"/>
+Explanatory text for this chapter will follow soon.
+
+## Input Data
 
 | Column | Class | Note |
 |:---|:---|:---|
@@ -376,43 +366,21 @@ to choose which dataset column represents which column listed below.
 | event_time \*\* | integer (numeric) | numeric variables are rounded down to integer |
 | event_time_end \*\* | integer (numeric) | numeric variables are rounded down to integer |
 
-\* mandatory variable
+\* mandatory variable (name can differ)
 
-\*\* one of the variable pairs start_time/end_time or event_time/event_time\_end is
-mandatory
+\*\* one of the variable pairs start/end_time or event_time/\_end is
+mandatory (names can differ)
 
-The subjectid column will be used to assign individual time sequences.
-The start_time and end_time columns define the start and end time of every 
-individual time course, i.e. the start and end point for the dark background lines.
-Therefore, the value of this column should be the same for all lines that belong to
-one subjectid.
-The event and event_group identify the events that are displayed. The event_group 
-column is intended to group events together into higher level categories. Therefore, 
-multiple events usually belong to a specific event_group. If the same event (or 
-events with the same name) belongs to multiple event_groups, the event name will 
-be altered to include the event_group as a suffix,
-so that they can be distinguished in the visuals.
-If no event group is selected, the value of event is automatically set the value of event_group. 
-The event_time and event_end_time columns define the start and end time of every 
-event, i.e. the start and end point for the coloured event lines.
-
-Besides those variables any variables can be added for grouping and
+Besides these variables any variables can be added for grouping and
 sorting. All numeric variables will be applicable for sorting and all
-character variables for grouping. For more information about sorting and
-grouping please refer to section [Sidebar Options](#sidebar-options).
-
-### Preparation Functions
+character variables for grouping. For more information about “Sorting /
+Grouping” please refer to chapter “Sidebar options”.
 
 ## Additional information
 
-<img src="inst/app/www/Screenshots/56_Megaplots.png" align="center" width="60%"/>
+<img src="inst/app/www/Screenshots/56_Megaplots.png" align="center" width="100%"/>
 <img src="inst/app/www/Screenshots/57_Megaplots.png" align="center" width="100%"/>
 <img src="inst/app/www/Screenshots/58_Megaplots.png" align="center" width="100%"/>
-<img src="inst/app/www/Screenshots/59_Megaplots.png" align="center" width="30%"/>
-<img src="inst/app/www/Screenshots/60_Megaplots.png" align="center" width="30%"/>
+<img src="inst/app/www/Screenshots/59_Megaplots.png" align="center" width="100%"/>
+<img src="inst/app/www/Screenshots/60_Megaplots.png" align="center" width="100%"/>
 To use the full screen size for your megaplot hide sidebar, if not used.
-
-### README
-
-<img src="inst/app/www/Screenshots/55_Megaplots.png" align="center" width="100%"/>
-This Readme-file is available on Github as well as through a tab within the app.

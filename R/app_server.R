@@ -7,14 +7,6 @@
 
 app_server <- function(input, output, session) {
 
-  output$read_me <- renderUI({
-    #rmarkdown::render(input = "README.md", output_dir = "inst/app/www")
-    tags$iframe(
-      src = "www/README.html",
-      style = "height: 100vh"
-    )
-    # HTML(markdown::markdownToHTML('README.md', fragment.only = TRUE))
-  })
 
   #set global variable . to NULL to
   #avoid note: no visible binding for global variable '.' when
@@ -34,7 +26,7 @@ app_server <- function(input, output, session) {
 
   shiny::observeEvent(input$upload_1_next_button, {
     # bslib::nav_select("Upload", "Filtering")
-    bslib::nav_select("Upload", "Event & color selection")
+    bslib::nav_select("Upload", "Event & color selection 2")
   })
 
   # shiny::observeEvent(input$upload_2_back_button, {
@@ -43,7 +35,7 @@ app_server <- function(input, output, session) {
 
   shiny::observeEvent(input$upload_3_back_button, {
     #bslib::nav_select("Upload", "Filtering")
-    bslib::nav_select("Upload", "File & variable selection")
+    bslib::nav_select("Upload", "File & variable selection 2")
   })
 
   #### Downloadbutton appearance condition

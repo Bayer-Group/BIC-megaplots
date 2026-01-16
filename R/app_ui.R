@@ -31,6 +31,10 @@ app_ui <- function(request) {
       functions = c("init")
     ),
 
+    # custom css style of custom "helptext_status" used in fct_help_text_dropdown_button.R
+    shiny::tags$style(
+      ".btn-helptext_status {background-color: #404A4E; color: #0091DF; border: 0.2px solid; border-color:#6d787d;}"
+    ),
     # Add CSS styles (overwrite color appearance of fileInput button)
     tags$style(
       type = "text/css",
@@ -91,7 +95,6 @@ app_ui <- function(request) {
         font_scale = 1.6,                        #font size
         "input-border-color" = "#d2d2d2"
       ),
-
       #### Sidebar ####
       # Use accordion_panels from bslib
       sidebar = bslib::sidebar(
@@ -121,13 +124,9 @@ app_ui <- function(request) {
               multiple = TRUE,
               options = list('plugins' = list('remove_button', 'drag_drop'))
             ),
+            # orderInput widget from shinyjqui package to drag and drop the
+            # order of groups (if applicable)
             shiny::uiOutput("arrange_groups"),
-            # shinyjqui::orderInput(
-            #   inputId = "arrange_groups",
-            #   label = "Arrange Groups",
-            #   items = NULL,
-            #   width = 300
-            # ),
           ),
           bslib::accordion_panel(
             "Plot appearance",
@@ -206,7 +205,6 @@ app_ui <- function(request) {
           )
         )
       ),
-
       #### Main area ####
       bslib::nav_panel(
         id = "Data Upload",
@@ -223,23 +221,82 @@ app_ui <- function(request) {
         ),
         bslib::navset_card_underline(
           id = "Upload",
-          bslib::nav_panel("File & variable selection", id = "File & variable selection",
-          # HTML("<p> MEGAPLOTS is as the name suggests,
-          #           is a huge graphical display showing individual-level data over time
-          #           interactively.</p>"),
-           shiny::fluidRow(
-             shiny::fileInput(
-               inputId = 'file',
-               label = "Choose RData file",
-               multiple = FALSE,
-               accept = '.RData'
-             ),
-             span(textOutput("file_upload_message"),style = "color:#cc0a21;")
+          bslib::nav_panel(
+            # create a div with nav panel name and help button
+            tags$div(
+              HTML(
+                paste0(
+                  "File & variable selection", "&emsp;","&emsp;"
+                )
+              ),
+              #custom dropdownbutton with help text
+              help_text_dropdown_button(
+                id = "file_variable_selection_helptext",
+                text = shiny::wellPanel(style = "width: 1000px;",
+                  HTML(
+                  paste0(
+                    "
+                    <p> File selection </p>
+                    <p>
+                    Please click on the “Browse…” button and upload the desired data set.
+                    Currently, it is only possible to use ‘.RData’ as data format. If other
+                    formats are used, an error message appears.
+                    </p>
+                      <img src='www/Screenshots/1_Megaplots.png' align='center' width='90%'/>
+                    <p>
+                      After successful upload, options for the variable selection will appear.
+                    </p>
+                      <img src='www/Screenshots/4_Megaplots.png' align='center' width='90%'/>
+                     <p> Event selection </p>
+                    <p>
+                      The variable ‘Identifier’ can be a numeric or character variable and
+                      will be used to assign individual time sequences. The variables
+                      ‘Timeline Start Day’ and ‘Timeline End Day’ define the start and end
+                      time of every individual time course. Both variables should be integers,
+                      otherwise they will be rounded. ‘Event’ and ‘Event Group’ should contain
+                      the names of the events that are displayed. Multiple events can belong
+                      to a specific event group. If no event group is selected, event is
+                      automatically set as event group. The event names do not necessarily
+                      have to be unique. For display purposes, they are renamed if non-unique,
+                      by writing the event group in brackets after them. Like the time
+                      courses, every event requires a start and end day. The corresponding
+                      variables can be selected via ‘Event Start Day’ and ‘Event End Day’. The
+                      same rounding procedure is applied as for the timelines.
+                    </p>
+                    "
+                  )
+                )
+              ),
+              right = FALSE
+            )
+          ),
+          # create a different named value "File & variable selection 2"
+          # used in app_server.R for
+          # bslib::nav_select() to switch panels after pressing
+          # "NEXT-"/"BACK"-buttons
+          value = "File & variable selection 2",
+          shiny::fluidRow(
+            shiny::column(3,
+              shiny::fileInput(
+                inputId = 'file',
+                label = "Choose RData file",
+                multiple = FALSE,
+                accept = '.RData'
+              )
             ),
-           tags$style(HTML(
-             "select[data-max-options=\"1\"] ~ .dropdown-menu .bs-actionsbox .bs-select-all {display: none;}
+            span(textOutput("file_upload_message"),style = "color:#cc0a21;")
+          ),
+          tags$style(
+            HTML(
+              "select[data-max-options=\"1\"] ~ .dropdown-menu .bs-actionsbox .bs-select-all {display: none;}"
+            )
+          ),
+          tags$style(HTML(paste0(
+            ".dropdown-toggle::after{
+                  content: none;
+              }
              "
-           )),
+          ))),
             shiny::fluidRow(
               shiny::column(2,
                 shinyWidgets::pickerInput(
@@ -361,7 +418,174 @@ app_ui <- function(request) {
               )
             ),theme = bslib::bs_theme(version = 5)
           ),
-          bslib::nav_panel("Event & color selection", id = "Event & color selection",
+          bslib::nav_panel(
+            tags$div(
+              HTML(
+                paste0(
+                  "Event & color selection",  "&emsp;","&emsp;"
+                )
+              ),
+              help_text_dropdown_button(
+                id = "event_color_selection_helptext",
+                text = wellPanel(style ="width: 1000px;",
+                 HTML(
+                   paste0(
+                     "
+                    <p> Event & Color Selection</p>
+                    <p>
+                    In this panel, the events that should be displayed can be selected.
+                    Events can also be sorted and all event colors can be defined. All
+                    settings can be saved so that they can be quickly reloaded in future
+                    sessions. First, the events are selected on the left side.
+                    </p>
+                    <p>  Event / Event Group Tree </p>
+                    <p>
+                    On the left side appears a list with checkboxes for all event groups.
+                    Clicking on a box selects all events of the event group. The small
+                    arrows next to the box can be used to expand the list. Then also every
+                    event appears in the list.
+                    </p>
+                    <img src='www/Screenshots/7_Megaplots.png' align='center' width='95%'/>
+                    <p>
+                    This can be used to select only individual events of a event group. To
+                    find individual events or event groups in a long list, the search box
+                    above the list can be used. For every selected event a colored box
+                    appears right to the event selection list. These can be used to set the
+                    colors (see next chapter).
+                    </p>
+                    <p>
+                    Another feature is the ‘drag and drop’ of the events within the list.
+                    This can be used to sort events within a event group. This can be
+                    particularly helpful for ordinal scaled events. Sorting affects the
+                    legend displayed next to the graph but can also be used to create a
+                    color palette explained in the next chapter. After sorting, any box of
+                    the event selection list must be clicked again to update the color
+                    selection. Further known issues with the drag & drop feature are that no
+                    events may be selected in order to move variables and events can be
+                    dragged out of the event group, which leads to errors.
+                    </p>
+                    <p>
+                    After completing the event selection, it is possible to go directly to
+                    the megaplot graphic by clicking the next button, or make various color
+                    settings, which are explained in the next section.
+                    </p>
+                    <p> Event / Event Group Color List </p>
+                    <p>
+                    In the middle of the ‘Event & color selection’-panel, a colored list
+                    with all selected event groups and events appears. It is now possible to
+                    mark an event group or a single event by clicking on the corresponding
+                    event/event group name. The selected event or event group gets a
+                    highlighted border.
+                    </p>
+                    <img src='www/Screenshots/10_Megaplots.png' align='center' width='95%'/>
+                    <p>
+                    By clicking one of these events a color selection panel on the right
+                    side appears. Depending on whether a single event or a event group is
+                    clicked, the options in the color selection panel differ.
+                    </p>
+                    <p>
+                    Note: If you change the event selection on the left side after making a
+                    selection for the colors in the middle, it may happen that a event/event
+                    group selection does not respond. By clicking any other event in the
+                    color list updates the selection and resolve the issue.
+                    </p>
+
+                    <p> Color Selection Panel </p>
+                    <p>
+                    After selecting an event or event group in the color list, options to
+                    change the colors appear on the right side. There is also an jitter
+                    option to adjust the event position of the event group, which will be
+                    explained in the chapter after next.
+                    </p>
+                    <p> Color Methods </p>
+                    <p>
+                    Selecting suitable colors is particularly difficult when many different
+                    events are to be represented. The user is responsible for selecting
+                    suitable colors and take color blindness into account. For the correct
+                    color selection, please refer to the various best practice guides. The
+                    methods here are only intended as an aid to their implementation.
+                    </p>
+                    <p>
+                    When an event group is selected, there are three different methods to
+                    colorize the events: ‘Color gradient (3 colors)’, ‘Unique color for all
+                    events withing group’ and ‘Distinct color by selected palette’.
+                    </p>
+                    <img src='www/Screenshots/11_Megaplots.png' align='center' width='95%'/>
+                    <p>
+                    When using color gradient, three color inputs appear which will define a
+                    color palette displayed below. In this example, the colors yellow, gray
+                    and turquoise are used. Depending on how many events are there within an
+                    event group, there are that many colors, created by these three colors.
+                    By clicking one of these color inputs a color palette appears which can
+                    be used to change the colors and their saturation. However, it is also
+                    possible to directly access a color hexcode into the color box. Once a
+                    satisfactory color palette has been found, click the ‘Update colors’
+                    button to apply the changes.
+                    </p>
+                    <p>
+                    The second option ‘Unique color for all events within group’ obviously
+                    colors all events of an event group in the same color. So there will be
+                    exactly one color input. Here too, the color can be selected using the
+                    palette or by entering the hexcode.
+                    </p>
+                    <p>
+                    The third option ‘Distinct color by selected palette’ brings up another
+                    drop-down menu ‘Select color palette’ where predefined color palettes
+                    can be selected. By selecting one of these palettes a good visulization
+                    is not guaranteed and must be ensured by the user.
+                    </p>
+                    <p>
+                    If an single event is selected in the color list the color selection on
+                    the right will be the same for ‘Unique color for all events within
+                    group’ explained above. So it is possible to first create a color
+                    palette for the complete event group and after that change individual
+                    colors by selection the event.
+                    </p>
+                    <img src='www/Screenshots/14_Megaplots.png' align='center' width='95%'/>
+
+                    <p> Offset Events</p>
+
+                    <p>
+                    In order to better distinguish events in addition to color, they are
+                    also slightly offset in height by default. To prevent this, the check
+                    mark can be removed for option 'Offset events for event group'.
+                    </p>
+                    <img src='www/Screenshots/18_Megaplots.png' align='center' width='50%'/>
+
+                    <p>
+                    The offset position will be the same for each time course. An offset
+                    position for events within an event group only makes sense if different
+                    events at a given day can appear. For unique events within a event
+                    group, it is recommended to disable this option.
+                    </p>
+                    <p> Save & Upload Color Files </p>
+
+                    <p>
+                    Once all color settings have been made, they can be saved via the ‘save
+                    color file’-button.
+                    </p>
+                    <img src='www/Screenshots/19_Megaplots.png' align='center' width='20%'/>
+                    <p>
+                    This saves a data frame as ‘.rds’-file including the selected event and
+                    event group, the selected color and if available all three selected
+                    gradient color and also the logical value if variables should be offset.
+                    </p>
+                    <p>
+                    To upload the saved color settings in a new session use the ‘Upload
+                    saved color file’-file input like the data upload.
+                    </p>
+                    "
+                    )
+                  )
+                ),
+                right = FALSE
+              )
+            ),
+            # create a different named value "File & variable selection 2"
+            # used in app_server.R for
+            # bslib::nav_select() to switch panels after pressing
+            # "NEXT-"/"BACK"-buttons
+            value = "Event & color selection 2",
             shiny::fluidRow(
               shiny::column(4,
                 shiny::wellPanel(
@@ -524,7 +748,66 @@ app_ui <- function(request) {
         title = "Megaplots",
         bslib::navset_card_underline(
           full_screen = TRUE,
-          bslib::nav_panel("Megaplots",
+          bslib::nav_panel(
+             tags$div(
+              HTML(paste0("Megaplots","&emsp;","&emsp;")),
+                help_text_dropdown_button(
+                  id = "megaplot_helptext",
+                  text = wellPanel(style ="width: 1000px;",
+                  HTML(
+                    paste0(
+                      "
+                      <p> Megaplot </p>
+                      <p>
+                      In this chapter the main graphical display will be explained.
+                      The megaplot  is a huge graphical display used to show individual-level data over time.
+                      The megaplots uses horizontal lines to represent individual trajectories and events of any identifier over days (in clinical trial context: study units).
+                      </p>
+                      <img src='www/Screenshots/23_Megaplots.png' align='center' width='95%'/>
+                      <p>
+                      The legend on the right side can be used to select and deselect event groups to provide an better
+                      overview. Selecting a high number of events can lead to overlaying event lines. In this case
+                      it is recommended to focus on a few number of event/event groups or zoom-in on the graphic
+                      accordingly.
+                      </p>
+                      <p>
+                      For every single event displayed a hover panel is available with information about the
+                      identifier, the event name as well as the start and end time. It is also possible to use the mouse hover
+                      for the individual timelines, however these are only visible when hovering near the start or end of
+                      the line.
+                      </p>
+                      <img src='www/Screenshots/25_Megaplots.png' align='center' width='95%'/>
+                      <p>
+                      In addition to hovering, you can also click on event lines. The complete clicked event are then highlighted in comparison to other events. It is possible to click on and highlight as many events as desired.
+                      To undo the effect, double-click on the plot window.
+                      Note: The zoom setting will also be reset by double-clicking.
+                      </p>
+
+                      <img src='www/Screenshots/27_Megaplots.png' align='center' width='95%'/>
+                      <p>
+                      There are several ways to zoom-in to the graphic. First, it is possible to use
+                      mouse-scrolling to zoom-in.
+                      To re-scale only one axis, click and drag near the edge of one of the axes.
+                      If the drag mode is set to 'pan' (see chapter Plot options) it is possible to click
+                      and drag on the plot.
+                      Another zoom possibility is to click and drag on the plot when option 'Zoom' is selected.
+                      <p>
+
+                      <img src='www/Screenshots/28_Megaplots.png' align='center' width='95%'/>
+                      <p>
+                      Third way to zoom is to use the 'plus' or 'minus' button on the modebar to zoom-in or zoom-out.
+                      </p>
+                      <p>
+                      Further options for this megaplots graph are described in the chapter 'Sidebar Options', such
+                      as sorting, grouping or line thickness.
+                      </p>
+                      "
+                    )
+                  )
+                ),
+                right = FALSE
+              ),
+            ),
             id = "Megaplots",
             bslib::as_fill_carrier(
               shinycssloaders::withSpinner(
@@ -536,7 +819,25 @@ app_ui <- function(request) {
               )
             )
           ),
-          bslib::nav_panel("Event Summary",
+          bslib::nav_panel(
+            title = tags$div(HTML(paste0("Event summary","&emsp;","&emsp;")),
+              help_text_dropdown_button(
+               id = "event_summary_helptext",
+               text = wellPanel(style ="width: 1000px;",
+                  HTML(
+                    paste0(
+                      "
+                    <p> Event Summary</p>
+                    <p>
+                        TBD
+                    </p>
+                    "
+                    )
+                  )
+                ),
+                right = FALSE
+              )
+            ),
             tags$head(
               tags$style(
                 type = "text/css",
@@ -576,12 +877,6 @@ app_ui <- function(request) {
           #    plotly::plotlyOutput("kaplan_meier")
           # )
         )
-      ),
-      bslib::nav_panel(
-        id = "README",
-        title = "README",
-        #htmltools::includeHTML("inst/app/www/README.html")
-        shiny::uiOutput('read_me')
       )
     )
   )
