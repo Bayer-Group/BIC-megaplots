@@ -28,6 +28,7 @@ Imports:
     grDevices,
     htmlwidgets,
     jsTreeR,
+    pkgload,
     plotly,
     plyr,
     purrr,
