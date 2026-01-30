@@ -202,6 +202,33 @@ app_ui <- function(request) {
             "Download",
             icon = bsicons::bs_icon("download"),
             shiny::downloadButton("download_plotly_widget", "Download Mega plot as HTML")
+          ),
+          bslib::accordion_panel(
+            "Sequencing",
+            icon = bsicons::bs_icon("shuffle"),
+            shiny::selectInput(
+              inputId = "sequencing_events",
+              label = "Select Events for Sequencing",
+              choices = NULL,
+              selected = NULL,
+              multiple = TRUE
+            ),
+            shiny::actionButton(
+              inputId ="sequencing_button",
+              label  = "Apply"
+            ),
+            shinyWidgets::prettySwitch(
+              inputId = "sequencing_switch",
+              label = "On/Off Sequencing Sorting",
+              value = FALSE,
+              status = "primary"
+            )#,
+            # shinyWidgets::prettySwitch(
+            #   inputId = "circular_vision",
+            #   label = "Circular Vision",
+            #   value = FALSE,
+            #   status = "primary"
+            # )
           )
         )
       ),

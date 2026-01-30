@@ -60,7 +60,6 @@ create_unique_event_identifier <- function(
   number_event_groups <- length(unique(megaplot_data_w_event_ids$megaplots_selected_event_group))
   #add variables event_color
 
-
   megaplot_event_data_w_color <- megaplot_data_w_event_ids  %>%
     dplyr::rowwise() %>%
     dplyr::mutate(
@@ -74,11 +73,11 @@ create_unique_event_identifier <- function(
         .data$event_id != 0 ~ NA
       ),
       gradient_event_color_1 = dplyr::case_when(
-        .data$event_id == 0 ~ grDevices::colorRampPalette(c("white",.data$event_color))(100)[50],
+        .data$event_id == 0 ~ grDevices::colorRampPalette(c("white",.data$event_color), alpha = TRUE)(100)[50],
         .data$event_id != 0 ~ NA
         ),
       gradient_event_color_3 = dplyr::case_when(
-        .data$event_id == 0 ~ grDevices::colorRampPalette(c(.data$event_color,"black"))(100)[50],
+        .data$event_id == 0 ~ grDevices::colorRampPalette(c(.data$event_color,"black"), alpha = TRUE)(100)[50],
         .data$event_id != 0 ~ NA
       )
     )

@@ -86,9 +86,11 @@ app_server <- function(input, output, session) {
             gradient_event_color_2 = dplyr::case_when(is.na(megaplots_selected_event) ~ gradient_event_color_2, !is.na(megaplots_selected_event) ~ NA),
             gradient_event_color_3 = dplyr::case_when(is.na(megaplots_selected_event) ~ gradient_event_color_3, !is.na(megaplots_selected_event) ~ NA)
           )
-        color_data_new <- color_data$all %>% dplyr::select(.data$megaplots_selected_event, .data$megaplots_selected_event_group, .data$event_id, .data$event_group_id, .data$max_event_id, .data$event_n, .data$n_flag) %>%
+        color_data_new <- color_data$all %>%
+          dplyr::select(.data$megaplots_selected_event, .data$megaplots_selected_event_group, .data$event_id, .data$event_group_id, .data$max_event_id, .data$event_n, .data$n_flag) %>%
           dplyr::left_join(
-            uploaded_colors %>% dplyr::select(.data$megaplots_selected_event, .data$megaplots_selected_event_group, .data$event_color, .data$gradient_event_color_1, .data$gradient_event_color_2, .data$gradient_event_color_3, .data$jittered),
+            uploaded_colors %>%
+              dplyr::select(.data$megaplots_selected_event, .data$megaplots_selected_event_group, .data$event_color, .data$gradient_event_color_1, .data$gradient_event_color_2, .data$gradient_event_color_3, .data$jittered),
             by = c("megaplots_selected_event", "megaplots_selected_event_group")
           )
         #check new dimension matches
@@ -594,13 +596,19 @@ app_server <- function(input, output, session) {
     shiny::req(js_column$number)
     if (!is.null(color_data$all)) {
       if (!is.null(color_data$selected)) {
-      if (is.na(color_data$selected[js_column$number, c("megaplots_selected_event")])) {
-
+        if (is.na(color_data$selected[js_column$number, c("megaplots_selected_event")])) {
         #create new color for entire event group
-        if (input$color_method == "gradient") {
-          f_col_z <- grDevices::colorRamp(c(input$colour_picker_panel_1,
-                                            input$colour_picker_panel_2,
-                                            input$colour_picker_panel_3))
+          if (input$color_method == "gradient") {
+
+            # f_col_z <- grDevices::colorRamp(c(input$colour_picker_panel_1,
+            #                                   input$colour_picker_panel_2,
+            #                                   input$colour_picker_panel_3))
+            f_col_z <- scales::colour_ramp(
+              c(input$colour_picker_panel_1,
+                input$colour_picker_panel_2,
+                input$colour_picker_panel_3
+              )
+            )
 
           cds_tmp <- color_data$selected[color_data$selected$megaplots_selected_event_group ==
             color_data$selected[js_column$number,
@@ -623,9 +631,9 @@ app_server <- function(input, output, session) {
         new_event_group_color <- new_event_group_color %>%
           dplyr::select(-tidyselect::all_of(c("new_event_id"))) %>%
           dplyr::mutate(
-            event_color =  grDevices::rgb(
-              f_col_z(seq(0, 1, length = nrow(.))),
-              maxColorValue = 255
+            event_color =  #grDevices::rgb(
+              f_col_z(seq(0, 1, length = nrow(.))#),
+              # maxColorValue = 255
             )[.data$event_id]
           ) %>%
           dplyr::pull(.data$event_color)
@@ -845,10 +853,13 @@ app_server <- function(input, output, session) {
             !is.na(color_data$selected$megaplots_selected_event),
           ])
 
-      f_col_z <- grDevices::colorRamp(
-        c(input$colour_picker_panel_1,
+      f_col_z  <- scales::colour_ramp(
+        colors = c(
+          input$colour_picker_panel_1,
           input$colour_picker_panel_2,
-          input$colour_picker_panel_3)
+          input$colour_picker_panel_3
+        ),
+        alpha = TRUE
       )
 
       par(oma = c(0, 0, 0, 0), mar = c(0, 0, 0, 0))
@@ -856,8 +867,10 @@ app_server <- function(input, output, session) {
         1:number_events,
         1,
         as.matrix(1:number_events),
-        col = grDevices::rgb(f_col_z(seq(0, 1, length = number_events)),
-                             maxColorValue = 255),
+        col = #grDevices::rgb(
+          f_col_z(seq(0, 1, length = number_events)),
+                             #,maxColorValue = 255
+                            #),
         xlab = "",
         ylab = "",
         xaxt = "n",
@@ -964,7 +977,6 @@ app_server <- function(input, output, session) {
     #       by ="subjectid"
     #     )
     # }
-
     uploaded_data$val <- megaplot_data  #update reactive value 'uploaded_data'
 
     # update choices of grouping variable based on uploaded data
@@ -1188,7 +1200,10 @@ app_server <- function(input, output, session) {
       line_width = input$line_width,
       line_width_subjects = input$line_width_subjects,
       switch_legend_grouping = input$switch_legend_grouping,
-      sort_event_groups = input$sort_event_groups
+      sort_event_groups = input$sort_event_groups,
+      sequencing_object = shiny::isolate(sequencing_object$val),
+      sequencing_switch = input$sequencing_switch#,
+      # circular_vision = input$circular_vision
     )
     session_store$val <- tmp
     tmp
@@ -1219,19 +1234,18 @@ app_server <- function(input, output, session) {
     )
   })
 
-  #### Kaplan Meier Plots ####
-  #update kaplan meier event selection based on selected events
   shiny::observeEvent(megaplot_filtered_data(), {
     shiny::req(megaplot_filtered_data())
-    megaplot_filtered_data()$unique_event
-    shinyWidgets::updatePickerInput(
-      inputId = "select_event_kaplan_meier",
-      choices = unique(megaplot_filtered_data()$unique_event),
+    choices_data <- megaplot_filtered_data() %>%
+      dplyr::select(megaplots_selected_event, megaplots_selected_event_group) %>%
+      dplyr::distinct()
+
+    shiny::updateSelectInput(
+      inputId = "sequencing_events",
+      choices = split(choices_data$megaplots_selected_event, choices_data$megaplots_selected_event_group),
       selected = NULL
     )
   })
-
-
 
   output$kaplan_meier <- plotly::renderPlotly({
     shiny::req(megaplot_prepared_data())
@@ -1322,4 +1336,79 @@ app_server <- function(input, output, session) {
       )
     )
   })
+
+  #### sequencing ####
+  shiny::observeEvent(input$sequencing_button, {
+    shiny::req(input$sequencing_events)
+
+    shinyWidgets::updatePrettySwitch(
+      session,
+      inputId = "sequencing_switch",
+      value = FALSE
+    )
+    selected_event_for_sequencing <- input$sequencing_events
+
+    megaplot_data <- megaplot_filtered_data() %>%
+      dplyr::filter(event %in% selected_event_for_sequencing)
+
+    n_matrix <- length(unique(megaplot_data$megaplots_selected_subjectid))
+    m_matrix <- length(min(megaplot_data$megaplots_selected_event_time):max(megaplot_data$megaplots_selected_event_time_end)) #* length(selected_event_for_sequencing)
+
+    dist_list <- list()
+
+    index_n <- megaplot_data %>%
+      dplyr::filter(event %in% selected_event_for_sequencing) %>% nrow()
+    index <- 1/index_n
+
+    shiny::withProgress(message = "Apply seriation", value = 0, {
+      for ( i in 1:length(selected_event_for_sequencing)) {
+        dist_init <- matrix(NA, n_matrix, m_matrix)
+        rownames(dist_init) <- unique(megaplot_data$megaplots_selected_subjectid)
+        colnames(dist_init) <- paste0((min(megaplot_data$megaplots_selected_event_time):max(megaplot_data$megaplots_selected_event_time_end)))
+
+        megaplot_data_tmp <- megaplot_data %>%
+          dplyr::filter(event %in% selected_event_for_sequencing[i])
+        for(j in 1:nrow(megaplot_data_tmp)) {
+
+          megaplot_data_tmp[j, ]$megaplots_selected_subjectid
+          dist_init[paste0(megaplot_data_tmp[j, ]$megaplots_selected_subjectid),
+                    paste0(megaplot_data_tmp[j, ]$megaplots_selected_event_time:megaplot_data_tmp[j, ]$megaplots_selected_event_time_end)] <- 1
+          shiny::incProgress(amount = index)
+        }
+
+        seq <- suppressMessages(TraMineR::seqdef(dist_init, 2:ncol(dist_init)))
+        # Get the parameters for the distance function
+
+        par <- list(distmeasure =  "OM", sm = "CONSTANT",  smDHD = "INDELS", norm = "auto",
+                    norm2 = "auto", indel = "auto", indel_numeric = 1, expcost = 0.5,
+                    context =  0, link = "mean", h_OMslen = 0.5, transindel =  "constant",
+                    tpow =  1, otto =  0.5, previous = "FALSE", add.column = "TRUE",
+                    overlap = "FALSE", step = 1, weighted ="TRUE", methMissing =  "new state")
+
+        seqargs_all <- get_parameters(seq, par)
+
+        # Calculate the pairwise distances for this variable:
+        dist_list[[i]] <-
+          suppressMessages(do.call(TraMineR::seqdist, seqargs_all))
+      }
+
+    })
+    dist <- Reduce(`+`, dist_list)
+
+    ddist <-
+      stats::as.dist(dist) # the following needs it to be a dist object
+
+    # Use the seriation package to compute the order
+    sq <- suppressMessages(seriation::seriate(ddist, method = 'GW_average'))
+
+    shinyWidgets::updatePrettySwitch(
+      session,
+      inputId = "sequencing_switch",
+      value = TRUE
+    )
+    sequencing_object$val <- sq
+  })
+
+  sequencing_object <- shiny::reactiveValues(val = NULL)
+
 }

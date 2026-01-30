@@ -20,10 +20,10 @@ color_func <- function(x,y,z,number_event_groups) {
   megaplot_color <- grDevices::rainbow(number_event_groups)
   if (x != 0 & z != 1) {
     return_colors <- grDevices::colorRampPalette(
-      c(grDevices::colorRampPalette(c("white",megaplot_color[y]))(100)[50],
+      c(grDevices::colorRampPalette(c("white",megaplot_color[y]), alpha = TRUE)(100)[50],
         megaplot_color[y],
-        grDevices::colorRampPalette(c(megaplot_color[y],"black"))(100)[50]
-      )
+        grDevices::colorRampPalette(c(megaplot_color[y],"black"), alpha = TRUE)(100)[50]
+      ), alpha = TRUE
     ) (z)[x]
   }
   if(x == 0 | z == 1) {
@@ -35,10 +35,10 @@ color_func <- function(x,y,z,number_event_groups) {
 color_func2 <- function(x,y,z,col) {
   if (x != 0 & z != 1) {
     return_colors <- grDevices::colorRampPalette(
-      c(grDevices::colorRampPalette(c("white",col))(100)[50],
+      c(grDevices::colorRampPalette(c("white",col), alpha = TRUE)(100)[50],
         col,
-        grDevices::colorRampPalette(c(col,"black"))(100)[50]
-      )
+        grDevices::colorRampPalette(c(col,"black"), alpha = TRUE)(100)[50], alpha = TRUE
+      ), alpha = TRUE
     ) (z)[x]
   }
   if(x == 0 | z == 1) {
@@ -105,7 +105,7 @@ create_palette <- function(n, name) {
   }
 
   if (!is.na(max_n)) {
-    selected_color_palette <- grDevices::colorRampPalette(RColorBrewer::brewer.pal(max_n, name))(n)
+    selected_color_palette <- grDevices::colorRampPalette(RColorBrewer::brewer.pal(max_n, name), alpha = TRUE)(n)
   } else {
     if (name == "Rainbow") {
       selected_color_palette <- grDevices::rainbow(n)
