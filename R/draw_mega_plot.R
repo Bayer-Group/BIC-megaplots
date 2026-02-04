@@ -7,6 +7,9 @@
 #' @param line_width_subjects numeric value for subject line width
 #' @param event_tooltips logical value if event tooltips should be turned on/off
 #' @param switch_legend_grouping logical value if events should be grouped in
+#' @param sort_events_groups character vector with drag and drop order of event groups
+#' @param sequencing_object seriation object created with Traminer package
+#' @param sequencing_switch logical value of sequencing should be turned on/off
 #'  plotly legend (default: TRUE)
 #'
 #' @export

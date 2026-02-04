@@ -1392,6 +1392,7 @@ app_server <- function(input, output, session) {
       inputId = "sequencing_switch",
       value = FALSE
     )
+
     selected_event_for_sequencing <- input$sequencing_events
 
     megaplot_data <- megaplot_filtered_data() %>%
@@ -1403,7 +1404,9 @@ app_server <- function(input, output, session) {
     dist_list <- list()
 
     index_n <- megaplot_data %>%
-      dplyr::filter(event %in% selected_event_for_sequencing) %>% nrow()
+      dplyr::filter(event %in% selected_event_for_sequencing) %>%
+      nrow()
+
     index <- 1/index_n
 
     shiny::withProgress(message = "Apply seriation", value = 0, {
@@ -1421,9 +1424,6 @@ app_server <- function(input, output, session) {
                     paste0(megaplot_data_tmp[j, ]$megaplots_selected_event_time:megaplot_data_tmp[j, ]$megaplots_selected_event_time_end)] <- 1
           shiny::incProgress(amount = index)
         }
-
-        seq <- suppressMessages(TraMineR::seqdef(dist_init, 2:ncol(dist_init)))
-        # Get the parameters for the distance function
 
         par <- list(
           # distmeasure =  "OM",
@@ -1463,12 +1463,24 @@ app_server <- function(input, output, session) {
           # step = 1,
           step = input$sequencing_interval_length,
           #weighted ="TRUE",
-          weigthed = input$sequencing_distribution_states_weights,
+          weighted = input$sequencing_distribution_states_weights,
           # methMissing =  "new state"
           methMissing = input$sequencing_missing_method
         )
+        # Check for OMloc and empty sequences
+        if (par$distmeasure == "OMloc" &
+            any(apply(dist_init[, -1], 1, function(x)
+              all(is.na(x))))) {
+          method_missing <- "new state"
+          par$methMissing <- "new state"
+          dist_init[is.na(dist_init)] <- 0
+        }
+
+        seq <- suppressMessages(TraMineR::seqdef(dist_init, 2:ncol(dist_init)))
+        # Get the parameters for the distance function
 
         seqargs_all <- get_parameters(seq, par)
+
 
         # Calculate the pairwise distances for this variable:
         dist_list[[i]] <-

@@ -255,9 +255,9 @@ app_ui <- function(request) {
                 "EUCLID",
                 "LCS",
                 "LCP",
-                "RLCP",
-                "HAM",
-                "DHD"
+                "RLCP"#,
+                #"HAM",
+                #"DHD"
               ),
               selected = 'OM',
               multiple = FALSE,
@@ -455,7 +455,22 @@ app_ui <- function(request) {
                                `header` = 'Select item')
               )
             ),
-
+            conditionalPanel(
+              condition = "input.sequencing_distmeasure_name == 'HAM' ||
+                             input.sequencing_distmeasure_name == 'DHD'
+                ",
+              shiny::span(shiny::HTML(
+                gsub(
+                  '\n',
+                  '<br/>',
+                  stringr::str_wrap(
+                    'This distance measure only works for sequences of the same length!',
+                    width = 30
+                  )
+                )
+              ), style = 'color:#e6250b'),
+              shiny::br()
+            ),
             shiny::actionButton(
               inputId ="sequencing_button",
               label  = "Apply"
