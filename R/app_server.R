@@ -7,7 +7,6 @@
 
 app_server <- function(input, output, session) {
 
-
   #set global variable . to NULL to
   #avoid note: no visible binding for global variable '.' when
   # performing package check (via devtools)
@@ -1338,6 +1337,53 @@ app_server <- function(input, output, session) {
   })
 
   #### sequencing ####
+  shiny::observeEvent(input$sequencing_distmeasure_name, {
+    if (input$sequencing_distmeasure_name == "DHD") {
+      choices_sub_cost <- sort(c(
+        "INDELS", "INDELSLOG", "TRATE"
+      ))
+      selected_sub_cost  <- "INDELS"
+    } else if (input$sequencing_distmeasure_name %in% c("OM", "OMloc", "OMslen", "OMspell", "OMstran","HAM")) {
+      choices_sub_cost  <- sort(c(
+        "CONSTANT", "INDELS", "INDELSLOG", "TRATE", "ORDINAL"
+      ))
+      selected_sub_cost  <- "CONSTANT"
+    }
+
+    if (input$sequencing_distmeasure_name %in% c("OM", "OMloc", "OMslen", "OMspell", "OMstran","DHD","HAM")) {
+      shinyWidgets::updatePickerInput(
+        session,
+        inputId = "sequencing_substitution_cost",
+        choices = choices_sub_cost ,
+        selected = selected_sub_cost
+      )
+    }
+    if(input$sequencing_distmeasure_name %in% c("CHI2", "EUCLID")){
+      choices_norm <- sort(
+        c("auto", "none")
+      )
+      selected_norm <- "auto"
+    } else if (input$sequencing_distmeasure_name %in% c('OM', 'OMloc', 'OMslen', 'OMspell',
+                  'OMstran', 'DHD', 'LCS', 'LCP', 'RLCP')) {
+      choices_norm <- sort(
+        c("auto", "none", "maxlength", "gmean",
+          "maxdist", "YujianBo")
+      )
+      selected_norm <- "auto"
+    }
+    if (input$sequencing_distmeasure_name %in% c("OM", "OMloc", "OMslen", "OMspell","OMstran",
+          "DHD", "LCS", "LCP", "RLCP","CHI2", "EUCLID")) {
+      shinyWidgets::updatePickerInput(
+        session,
+        inputId =  "sequencing_normalization",
+        label = "Normalization",
+        choices = choices_norm,
+        selected = selected_norm
+      )
+    }
+  })
+
+
   shiny::observeEvent(input$sequencing_button, {
     shiny::req(input$sequencing_events)
 
@@ -1379,11 +1425,48 @@ app_server <- function(input, output, session) {
         seq <- suppressMessages(TraMineR::seqdef(dist_init, 2:ncol(dist_init)))
         # Get the parameters for the distance function
 
-        par <- list(distmeasure =  "OM", sm = "CONSTANT",  smDHD = "INDELS", norm = "auto",
-                    norm2 = "auto", indel = "auto", indel_numeric = 1, expcost = 0.5,
-                    context =  0, link = "mean", h_OMslen = 0.5, transindel =  "constant",
-                    tpow =  1, otto =  0.5, previous = "FALSE", add.column = "TRUE",
-                    overlap = "FALSE", step = 1, weighted ="TRUE", methMissing =  "new state")
+        par <- list(
+          # distmeasure =  "OM",
+          distmeasure =  input$sequencing_distmeasure_name,
+          #sm = "CONSTANT",
+          sm = input$sequencing_substitution_cost,
+          # sm and smDHD are same input with different selections
+          smDHD = input$sequencing_substitution_cost,
+          norm = input$sequencing_normalization,
+          #norm = "auto",
+          norm2 = input$sequencing_normalization,
+          #indel = "auto",
+          indel = input$sequencing_insertion_deletion_cost,
+          indel_numeric = 1,
+          #indel_numeric = input$sequencing_insertion_deletion_cost_numeric,
+          # expcost = 0.5,
+          expcost = input$sequencing_exponential_weight_spell_length,
+          # context =  0,
+          context =  input$sequencing_local_insertion_cost,
+          # link = "mean",
+          link = input$sequencing_substitution_costs_function,
+          # h_OMslen = 0.5,
+          h_OMslen = input$sequencing_exponential_weight_spell_length,
+          # transindel =  "constant",
+          transindel =  input$sequencing_sequencing_transition_indel_cost_method,
+          # tpow =  1,
+          #Exponential weight of spell length
+          tpow = input$sequencing_exponential_weight_spell_length,
+          # otto =  0.5,
+          otto = input$sequencing_origin_transition_trade_off_weight,
+          # previous = "FALSE",
+          previous = input$sequencing_account_transition_previous_state,
+          #add.column = "TRUE",
+          add.column = input$sequencing_duplicate_last_column,
+          # overlap = "FALSE",
+          overlap = input$sequencing_intervals_overlapping,
+          # step = 1,
+          step = input$sequencing_interval_length,
+          #weighted ="TRUE",
+          weigthed = input$sequencing_distribution_states_weights,
+          # methMissing =  "new state"
+          methMissing = input$sequencing_missing_method
+        )
 
         seqargs_all <- get_parameters(seq, par)
 
@@ -1399,7 +1482,7 @@ app_server <- function(input, output, session) {
       stats::as.dist(dist) # the following needs it to be a dist object
 
     # Use the seriation package to compute the order
-    sq <- suppressMessages(seriation::seriate(ddist, method = 'GW_average'))
+    sq <- suppressMessages(seriation::seriate(ddist, method = input$sequencing_seriation_method))
 
     shinyWidgets::updatePrettySwitch(
       session,

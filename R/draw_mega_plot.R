@@ -131,15 +131,17 @@ draw_mega_plot <- function(
   #       subjectid_n_jittered_end = c((megaplot_filtered_data$megaplots_selected_event_time_end+0.45)*sin(2*pi*time2)) #yend
   #     )
   # } else {
+
     megaplot_prepared_data <- megaplot_prepared_data %>%
       dplyr::mutate(subjectid_n_end = subjectid_n)
+    if(!is.null(megaplot_filtered_data)) {
     megaplot_filtered_data <- megaplot_filtered_data %>%
       dplyr::mutate(
         subjectid_n_jittered_end = subjectid_n_jittered,
         megaplots_selected_event_time = megaplots_selected_event_time -0.45,
         megaplots_selected_event_time_end = megaplots_selected_event_time_end + 0.45
       )
-  # }
+    }
 
   p_1 <- megaplot_prepared_data %>%
     plotly::plot_ly(                            #create empty plot_ly object
@@ -257,7 +259,7 @@ draw_mega_plot <- function(
           type = "scatter",
           mode = "text",
           text = ~text_snippet_total,
-          textfont = list(color = "white"),
+          textfont = list(color = "white",size = 20), # font size grouping
           textposition = "middle right",
           x = ~text_position_x,
           y = ~text_position_y,
