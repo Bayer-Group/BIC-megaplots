@@ -1188,6 +1188,37 @@ app_server <- function(input, output, session) {
       })
     }
   })
+
+  reference_lines_reactive <- shiny::reactiveValues(
+    reference_line_1 = FALSE,
+    reference_line_2 = FALSE,
+    reference_line_3 = FALSE,
+    reference_line_1_value = NULL,
+    reference_line_2_value = NULL,
+    reference_line_3_value = NULL,
+    reference_line_1_value2 = NULL,
+    reference_line_2_value2 = NULL,
+    reference_line_3_value2 = NULL,
+    reference_line_1_color = NULL,
+    reference_line_2_color = NULL,
+    reference_line_3_color = NULL
+  )
+
+  shiny::observeEvent(input$update_reference_lines, {
+    reference_lines_reactive$reference_line_1 <- shiny::isolate(input$reference_line_1)
+    reference_lines_reactive$reference_line_2 <- shiny::isolate(input$reference_line_2)
+    reference_lines_reactive$reference_line_3 <- shiny::isolate(input$reference_line_3)
+    reference_lines_reactive$reference_line_1_value <- shiny::isolate(input$reference_line_1_value)
+    reference_lines_reactive$reference_line_2_value <- shiny::isolate(input$reference_line_2_value)
+    reference_lines_reactive$reference_line_3_value <- shiny::isolate(input$reference_line_3_value)
+    reference_lines_reactive$reference_line_1_value2 <- shiny::isolate(input$reference_line_1_value2)
+    reference_lines_reactive$reference_line_2_value2 <- shiny::isolate(input$reference_line_2_value2)
+    reference_lines_reactive$reference_line_3_value2 <- shiny::isolate(input$reference_line_3_value2)
+    reference_lines_reactive$reference_line_1_color <- shiny::isolate(input$reference_line_1_color)
+    reference_lines_reactive$reference_line_2_color <- shiny::isolate(input$reference_line_2_color)
+    reference_lines_reactive$reference_line_3_color <- shiny::isolate(input$reference_line_3_color)
+  })
+
   output$mega_plots <- plotly::renderPlotly({
 
     shiny::req(megaplot_prepared_data())
@@ -1201,7 +1232,19 @@ app_server <- function(input, output, session) {
       switch_legend_grouping = input$switch_legend_grouping,
       sort_event_groups = input$sort_event_groups,
       sequencing_object = shiny::isolate(sequencing_object$val),
-      sequencing_switch = input$sequencing_switch#,
+      sequencing_switch = input$sequencing_switch,
+      reference_line_1 = reference_lines_reactive$reference_line_1,
+      reference_line_2 = reference_lines_reactive$reference_line_2,
+      reference_line_3 = reference_lines_reactive$reference_line_3,
+      reference_line_1_value = reference_lines_reactive$reference_line_1_value,
+      reference_line_2_value = reference_lines_reactive$reference_line_2_value,
+      reference_line_3_value = reference_lines_reactive$reference_line_3_value,
+      reference_line_1_value2 = reference_lines_reactive$reference_line_1_value2,
+      reference_line_2_value2 = reference_lines_reactive$reference_line_2_value2,
+      reference_line_3_value2 = reference_lines_reactive$reference_line_3_value2,
+      reference_line_1_color = reference_lines_reactive$reference_line_1_color,
+      reference_line_2_color = reference_lines_reactive$reference_line_2_color,
+      reference_line_3_color = reference_lines_reactive$reference_line_3_color
       # circular_vision = input$circular_vision
     )
     session_store$val <- tmp

@@ -166,6 +166,87 @@ app_ui <- function(request) {
               inline = TRUE,
               selected = "x"
             ),
+            ####
+            shiny::checkboxInput(
+              inputId = 'reference_line_1',
+              label = 'Add reference rectangle',
+              value = FALSE
+            ),
+            shiny::conditionalPanel(
+              condition = "input.reference_line_1 == true",
+              shinyWidgets::actionBttn(
+                inputId = "update_reference_lines",
+                label = "Update Reference rectangles",
+                color = "success",
+                style = "simple",
+                icon = icon("refresh")
+              ),
+              colourpicker::colourInput(
+                inputId = "reference_line_1_color",
+                label = "Reference rectangle color",
+                value = "#fe333f20",
+                allowTransparent = TRUE
+              ),
+              shiny::numericInput(
+                inputId = "reference_line_1_value",
+                label = "Reference rectangle x1",
+                value = 0
+              ),
+              shiny::numericInput(
+                inputId = "reference_line_1_value2",
+                label = "Reference rectangle x2",
+                value = 0
+              ),
+              shiny::checkboxInput(
+                inputId = 'reference_line_2',
+                label = 'Add second reference line',
+                value = FALSE
+              )
+            ),
+            shiny::conditionalPanel(
+              condition = "input.reference_line_2 == true",
+              colourpicker::colourInput(
+                inputId = "reference_line_2_color",
+                label = "Reference rectangle color",
+                value = "#fe333f20",
+                allowTransparent = TRUE
+              ),
+              shiny::numericInput(
+                inputId = "reference_line_2_value",
+                label = "Reference rectangle x1",
+                value = 0
+              ),
+              shiny::numericInput(
+                inputId = "reference_line_2_value2",
+                label = "Reference rectangle x2",
+                value = 0
+              ),
+              shiny::checkboxInput(
+                inputId = 'reference_line_3',
+                label = 'Add third reference line',
+                value = FALSE
+              )
+            ),
+            shiny::conditionalPanel(
+              condition = "input.reference_line_3 == true",
+              colourpicker::colourInput(
+                inputId = "reference_line_3_color",
+                label = "Reference rectangle color",
+                value = "#fe333f20",
+                allowTransparent = TRUE
+              ),
+              shiny::numericInput(
+                inputId = "reference_line_3_value",
+                label = "Reference rectangle x1",
+                value = 0
+              ),
+              shiny::numericInput(
+                inputId = "reference_line_3_value2",
+                label = "Reference rectangle x2",
+                value = 0
+              ),
+            ),
+            #####
             shiny::numericInput(
               inputId = "event_summary_cutoff",
               label = "Display hover for counts greater than or equal to:",

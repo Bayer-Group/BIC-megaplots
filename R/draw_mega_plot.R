@@ -8,8 +8,20 @@
 #' @param event_tooltips logical value if event tooltips should be turned on/off
 #' @param switch_legend_grouping logical value if events should be grouped in
 #' @param sort_events_groups character vector with drag and drop order of event groups
-#' @param sequencing_object seriation object created with Traminer package
+#' @param sequencing_object seriation object created with TraMineR package
 #' @param sequencing_switch logical value of sequencing should be turned on/off
+#' @param reference_line_1_value numeric value with start value for first reference line/rect (x-axis)
+#' @param reference_line_2_value numeric value with start value for second reference line/rect (x-axis)
+#' @param reference_line_3_value numeric value with start value for third reference line/rect (x-axis)
+#' @param reference_line_1_value2 numeric value with end value for first reference line/rect (x-axis)
+#' @param reference_line_2_value2 numeric value with end value for second reference line/rect (x-axis)
+#' @param reference_line_3_value2 numeric value with end value for third reference line/rect (x-axis)
+#' @param reference_line_1 logical value if first reference line/rect should be drawn
+#' @param reference_line_2 logical value if second reference line/rect should be drawn
+#' @param reference_line_3 logical value if third reference line/rect should be drawn
+#' @param reference_line_1_color character with hex color code for first reference line/rect
+#' @param reference_line_2_color character with hex color code for second reference line/rect
+#' @param reference_line_3_color character with hex color code for third reference line/rect
 #'  plotly legend (default: TRUE)
 #'
 #' @export
@@ -23,7 +35,19 @@ draw_mega_plot <- function(
     switch_legend_grouping = TRUE,
     sort_event_groups,
     sequencing_object,
-    sequencing_switch#,
+    sequencing_switch,
+    reference_line_1,
+    reference_line_2,
+    reference_line_3,
+    reference_line_1_value,
+    reference_line_2_value,
+    reference_line_3_value,
+    reference_line_1_value2,
+    reference_line_2_value2,
+    reference_line_3_value2,
+    reference_line_1_color,
+    reference_line_2_color,
+    reference_line_3_color
     # circular_vision = FALSE
   ) {
 
@@ -165,6 +189,38 @@ draw_mega_plot <- function(
       xend = ~ megaplots_selected_end_time,
       line = list(color = "#2c3336", width = line_width_subjects),
       showlegend = FALSE
+    )
+  }
+  vrect <- function(x = 0, x2, color = "#fe333f20") {
+    list(
+      type = "rect",
+      fillcolor = color,
+      y0 = 0,
+      y1 = 1,
+      yref = "paper",
+      x0 = x,
+      layer = "below",
+      x1 = x2,
+      line = list(color = color)
+    )
+  }
+
+  if (reference_line_1) {
+
+    if (!reference_line_2) {
+      reference_line_2_value <- "NA"
+      reference_line_2_value2 <- "NA"
+    }
+    if (!reference_line_3) {
+      reference_line_3_value <- "NA"
+      reference_line_3_value2 <- "NA"
+    }
+
+    p_1 <- p_1 %>% plotly::layout(
+      shapes = list(vrect(reference_line_1_value, reference_line_1_value2, reference_line_1_color),
+                    vrect(reference_line_2_value, reference_line_2_value2, reference_line_2_color),
+                    vrect(reference_line_3_value, reference_line_3_value2, reference_line_3_color)
+      )
     )
   }
 
