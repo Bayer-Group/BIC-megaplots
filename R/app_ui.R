@@ -204,7 +204,7 @@ app_ui <- function(request) {
               )
             ),
             shiny::conditionalPanel(
-              condition = "input.reference_line_2 == true",
+              condition = "input.reference_line_1 == true && input.reference_line_2 == true",
               colourpicker::colourInput(
                 inputId = "reference_line_2_color",
                 label = "Reference rectangle color",
@@ -228,7 +228,7 @@ app_ui <- function(request) {
               )
             ),
             shiny::conditionalPanel(
-              condition = "input.reference_line_3 == true",
+              condition = "input.reference_line_1 == true && input.reference_line_2 == true && input.reference_line_3 == true",
               colourpicker::colourInput(
                 inputId = "reference_line_3_color",
                 label = "Reference rectangle color",

@@ -1204,6 +1204,12 @@ app_server <- function(input, output, session) {
     reference_line_3_color = NULL
   )
 
+  shiny::observeEvent(input$reference_line_1, {
+    if (!input$reference_line_1) {
+      reference_lines_reactive$reference_line_1 <- FALSE
+    }
+  })
+
   shiny::observeEvent(input$update_reference_lines, {
     reference_lines_reactive$reference_line_1 <- shiny::isolate(input$reference_line_1)
     reference_lines_reactive$reference_line_2 <- shiny::isolate(input$reference_line_2)
