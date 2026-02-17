@@ -1277,7 +1277,19 @@ app_server <- function(input, output, session) {
       event_summary_cutoff = input$event_summary_cutoff,
       event_summary_selection = input$event_summary_selection,
       switch_legend_grouping = input$switch_legend_grouping,
-      hovermode = input$event_summary_hovermode
+      hovermode = input$event_summary_hovermode,
+      reference_line_1 = reference_lines_reactive$reference_line_1,
+      reference_line_2 = reference_lines_reactive$reference_line_2,
+      reference_line_3 = reference_lines_reactive$reference_line_3,
+      reference_line_1_value = reference_lines_reactive$reference_line_1_value,
+      reference_line_2_value = reference_lines_reactive$reference_line_2_value,
+      reference_line_3_value = reference_lines_reactive$reference_line_3_value,
+      reference_line_1_value2 = reference_lines_reactive$reference_line_1_value2,
+      reference_line_2_value2 = reference_lines_reactive$reference_line_2_value2,
+      reference_line_3_value2 = reference_lines_reactive$reference_line_3_value2,
+      reference_line_1_color = reference_lines_reactive$reference_line_1_color,
+      reference_line_2_color = reference_lines_reactive$reference_line_2_color,
+      reference_line_3_color = reference_lines_reactive$reference_line_3_color
 
     )
   })

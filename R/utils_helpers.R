@@ -6,6 +6,19 @@
 #'
 #' @noRd
 
+vrect <- function(x = 0, x2, color = "#fe333f20") {
+  list(
+    type = "rect",
+    fillcolor = color,
+    y0 = 0,
+    y1 = 1,
+    yref = "paper",
+    x0 = x,
+    layer = "below",
+    x1 = x2,
+    line = list(color = color)
+  )
+}
 
 font_color <- function (hex_code) {
   ifelse(
@@ -37,8 +50,8 @@ color_func2 <- function(x,y,z,col) {
     return_colors <- grDevices::colorRampPalette(
       c(grDevices::colorRampPalette(c("white",col), alpha = TRUE)(100)[50],
         col,
-        grDevices::colorRampPalette(c(col,"black"), alpha = TRUE)(100)[50], alpha = TRUE
-      ), alpha = TRUE
+        grDevices::colorRampPalette(c(col,"black"), alpha = TRUE)(100)[50]
+      )
     ) (z)[x]
   }
   if(x == 0 | z == 1) {
