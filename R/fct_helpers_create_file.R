@@ -31,11 +31,12 @@ calc_time_to_first <- function(data,
   if(calc_event_group == FALSE & calc_event == FALSE){
     stop("Error: One of calc_event_group and calc_event must be TRUE.")
   }
+
   if(calc_event == TRUE){
     data_time_to_first <- data %>%
       dplyr::arrange(subjectid,event_group,event,event_start_time) %>%
       dplyr::group_by(subjectid,event_group,event) %>%
-      dplyr::summarize(first = min(as.numeric(event_start_time), na.rm = TRUE), .groups="drop") %>%
+      dplyr::summarize(first = ifelse(all(is.na(event_start_time)), NA, min(event_start_time, na.rm = TRUE)), .groups="drop") %>%
       dplyr::distinct() %>%
       dplyr::mutate(event_group = gsub("[[:punct:][:space:]]+", "_", event_group),
                     event = gsub("[[:punct:][:space:]]+", "_", event)) %>%
@@ -53,7 +54,7 @@ calc_time_to_first <- function(data,
       dplyr::select(-event) %>%
       dplyr::arrange(subjectid,event_group,event_start_time) %>%
       dplyr::group_by(subjectid,event_group) %>%
-      dplyr::summarize(first = min(as.numeric(event_start_time), na.rm = TRUE), .groups="drop") %>%
+      dplyr::summarize(first = ifelse(all(is.na(event_start_time)), NA, min(event_start_time, na.rm = TRUE)), .groups="drop") %>%
       dplyr::distinct() %>%
       dplyr::mutate(event_group = gsub("[[:punct:][:space:]]+", "_", event_group)) %>%
       tidyr::pivot_wider(
@@ -107,9 +108,17 @@ calc_days_with <- function(data,
   if(calc_event == TRUE){
     data_days_with <- data %>%
       dplyr::arrange(subjectid,event_group,event,event_start_time,event_end_time) %>%
-      dplyr::mutate(days = as.numeric(event_end_time) - as.numeric(event_start_time) + 1) %>%
-      dplyr::group_by(subjectid,event_group,event) %>%
-      dplyr::summarize(days_with = sum(.data$days, na.rm=TRUE),.groups="drop") %>%
+      dplyr::mutate(days = purrr::map2(event_start_time, event_end_time,
+                                       ~ if (!is.na(.x) && is.finite(.x)) {
+                                         if (!is.na(.y) && is.finite(.y)) {
+                                           seq(from = .x, to = .y)
+                                         } else {
+                                           .x  # Count as 1 day if end time is NA
+                                         }
+                                       } else {
+                                         NULL
+                                       })) %>%      dplyr::group_by(subjectid,event_group,event) %>%
+      dplyr::summarize(days_with = n_distinct(unlist(.data$days)), .groups = "drop") %>%
       dplyr::distinct() %>%
       dplyr::mutate(event_group = gsub("[[:punct:][:space:]]+", "_", event_group),
                     event = gsub("[[:punct:][:space:]]+", "_", event)) %>%
@@ -126,9 +135,17 @@ calc_days_with <- function(data,
     data_days_with_group <- data %>%
       dplyr::select(-event) %>%
       dplyr::arrange(subjectid,event_group,event_start_time, event_end_time) %>%
-      dplyr::mutate(days = as.numeric(event_end_time) - as.numeric(event_start_time) + 1) %>%
-      dplyr::group_by(subjectid,event_group) %>%
-      dplyr::summarize(days_with = sum(.data$days, na.rm=TRUE),.groups="drop") %>%
+      dplyr::mutate(days = purrr::map2(event_start_time, event_end_time,
+                                       ~ if (!is.na(.x) && is.finite(.x)) {
+                                         if (!is.na(.y) && is.finite(.y)) {
+                                           seq(from = .x, to = .y)
+                                         } else {
+                                           .x  # Count as 1 day if end time is NA
+                                         }
+                                       } else {
+                                         NULL
+                                       })) %>%      dplyr::group_by(subjectid,event_group) %>%
+      dplyr::summarize(days_with = n_distinct(unlist(.data$days)), .groups = "drop") %>%
       dplyr::distinct() %>%
       dplyr::mutate(event_group = gsub("[[:punct:][:space:]]+", "_", event_group)) %>%
       tidyr::pivot_wider(

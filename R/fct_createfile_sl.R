@@ -60,7 +60,7 @@ createFile.sl <- function(path_adsl,
   if (!(is.null(display_start_date) | is.na(display_start_date))) {
     message(sprintf("Reference start date: %s", display_start_date)) # Message for reference start date
   } else {
-    message("None of the input parameters in display_start_date are present as column names in the data.")
+    stop("None of the input parameters in display_start_date are present as column names in the data.")
   }
 
   # Determine the appropriate reference end dates
@@ -68,7 +68,7 @@ createFile.sl <- function(path_adsl,
   if (!(length(display_end_date)==0)) {
     message(sprintf("Reference end date: Maximum of %s", paste(display_end_date, collapse = ", "))) # Message for reference end date
   } else {
-    message("None of the input parameters in display_end_date are present as column names in the data.")
+    stop("None of the input parameters in display_end_date are present as column names in the data.")
   }
 
   # Determine the appropriate relative day 1
@@ -76,7 +76,7 @@ createFile.sl <- function(path_adsl,
   if (!(is.null(relative_day_1) | is.na(relative_day_1))) {
     message(sprintf("Relative day 1: %s", relative_day_1)) # Message for relative day 1
   } else {
-    message("None of the input parameters in relative_day_1 are present as column names in the data.")
+    stop("None of the input parameters in relative_day_1 are present as column names in the data.")
   }
 
   # If treatment dates are to be included
@@ -89,13 +89,13 @@ createFile.sl <- function(path_adsl,
   adsl <- adsl %>%
     dplyr::mutate(ref_date = !!rlang::sym(relative_day_1)) %>%
     dplyr::mutate(
-      dplyr::across(all_of(c(.data$display_start_date,.data$display_end_date,.data$relative_day_1,{if(!is.null(.data$trtstdt) & !is.null(.data$trtendt)){c(.data$trtstdt, .data$trtendt)}})),~as.Date(.x)), # Convert specified columns to Date type
+      dplyr::across(all_of(c(display_start_date,display_end_date,relative_day_1,{if(!is.null(trtstdt) & !is.null(trtendt)){c(trtstdt, trtendt)}})),~as.Date(.x)), # Convert specified columns to Date type
       start_time = as.integer(!!rlang::sym(display_start_date) - !!rlang::sym(relative_day_1) + 1), # Calculate start time relative to day 1
       end_time = as.integer(pmax(!!!rlang::syms(display_end_date), na.rm = TRUE) - !!rlang::sym(relative_day_1) + 1) # Calculate end time
     ) %>%
     { if (!is.null(trtstdt) & !is.null(trtendt)) {
       dplyr::mutate(., treatment_duration = as.integer(!!rlang::sym(trtendt) - !!rlang::sym(trtstdt) + 1)) %>%
-      dplyr::relocate(., "subjectid", "start_time", "end_time", "ref_date", "treatment_duration")  # Rearrange columns if treatment is included
+        dplyr::relocate(., "subjectid", "start_time", "end_time", "ref_date", "treatment_duration")  # Rearrange columns if treatment is included
     } else {
       dplyr::relocate(., "subjectid", "start_time", "end_time", "ref_date")  # Rearrange columns without treatment
     }

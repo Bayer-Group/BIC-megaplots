@@ -5,9 +5,9 @@
 #'
 #' @param mp_data A list containing the subject-level and event data. It must have entries "sl" and "events" (may be NULL).
 #' @param path_data A data frame or a file path to the dataset (SAS, CSV, or RData) to be read. File should be ADaM conform.
+#' @param param A list of character vectors specifying the event group and event names for analysis.
 #' @param id A string representing the subject identifier column name. Default is "USUBJID".
 #' @param data_filter A string for filtering the dataset using dplyr syntax. Default is NULL.
-#' @param param A list of character vectors specifying the event group and event names for analysis.
 #' @param prefix A list of character vectors for prefixes to be added to event group and event names.
 #' @param event_start A character vector of possible event start date/time column names.
 #' @param event_end A character vector of possible event end date/time column names.
@@ -20,14 +20,9 @@
 #' @export
 createFile.events <- function(mp_data,
                               path_data,
+                              param,
                               id = "USUBJID",
                               data_filter = NULL,
-                              param = list(
-                                c("AEBODSYS","AEDECOD"),
-                                c("AEBODSYS","AELLT"),
-                                c("AEDECOD","AESEV"),
-                                c("AEDECOD","AESER")
-                              ),
                               prefix = NULL,
                               event_start = c("ASTDT","AESTDT","ADY"),
                               event_end = c("AENDT","AEENDT"),
@@ -65,6 +60,11 @@ createFile.events <- function(mp_data,
     stop("Please provide a valid dataset or file path.")
   }
 
+  # Check if the subject identifier is present
+  if (!id %in% colnames(data)){
+    stop(sprintf("The specified id '%s' is not a column in the dataset.", id))
+  }
+
   data <- data %>%
     #Filter data
     {if(!is.null(data_filter)) dplyr::filter(., !!!rlang::parse_exprs(data_filter)) else .} %>%
@@ -86,7 +86,7 @@ createFile.events <- function(mp_data,
       # If both are found, print the event group and event
       message(sprintf("Event group: %s, Event: %s", entry[1], entry[2]))
     } else {
-      message("None of the input parameters in param are present as column names in the data.")
+      stop(sprintf("None of the input parameters in param are present as column names in the data: %s, %s", entry[1], entry[2]))
     }
   }
 
@@ -95,7 +95,7 @@ createFile.events <- function(mp_data,
   if (!(is.null(event_start) | is.na(event_start))) {
     message(sprintf("Event start date/time: %s", event_start))
   } else {
-    message("None of the input parameters in event_start are present as column names in the data.")
+    stop(sprintf("None of the input parameters in event_start are present as column names in the data: %s", event_start))
   }
 
   event_end <- event_end[toupper(event_end) %in% toupper(colnames(data))][1]
@@ -103,7 +103,7 @@ createFile.events <- function(mp_data,
   if (!(is.null(event_end) | is.na(event_end))) {
     message(sprintf("Event end date/time: %s", event_end))
   } else {
-    message("None of the input parameters in event_end are present as column names in the data.")
+    stop(sprintf("None of the input parameters in event_end are present as column names in the data: %s", event_end))
   }
 
   keep_vars <- keep_vars[toupper(keep_vars) %in% toupper(colnames(data))]

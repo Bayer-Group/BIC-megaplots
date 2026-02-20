@@ -47,7 +47,7 @@ golem::fill_desc(
       role = c("aut")
     )
   ),
-  repo_url = "github.com/Bayer-Group/BIC-megaplots", # The URL of the GitHub repo (optional),
+  repo_url = "https://github.com/Bayer-Group/BIC-megaplots", # The URL of the GitHub repo (optional),
   pkg_version = "2.0.1", # The version of the package containing the app
   set_options = TRUE # Set the global golem options
 )

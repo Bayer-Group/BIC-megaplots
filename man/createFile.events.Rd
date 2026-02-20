@@ -7,10 +7,9 @@
 createFile.events(
   mp_data,
   path_data,
+  param,
   id = "USUBJID",
   data_filter = NULL,
-  param = list(c("AEBODSYS", "AEDECOD"), c("AEBODSYS", "AELLT"), c("AEDECOD", "AESEV"),
-    c("AEDECOD", "AESER")),
   prefix = NULL,
   event_start = c("ASTDT", "AESTDT", "ADY"),
   event_end = c("AENDT", "AEENDT"),
@@ -25,11 +24,11 @@ createFile.events(
 
 \item{path_data}{A data frame or a file path to the dataset (SAS, CSV, or RData) to be read. File should be ADaM conform.}
 
+\item{param}{A list of character vectors specifying the event group and event names for analysis.}
+
 \item{id}{A string representing the subject identifier column name. Default is "USUBJID".}
 
 \item{data_filter}{A string for filtering the dataset using dplyr syntax. Default is NULL.}
-
-\item{param}{A list of character vectors specifying the event group and event names for analysis.}
 
 \item{prefix}{A list of character vectors for prefixes to be added to event group and event names.}
 
