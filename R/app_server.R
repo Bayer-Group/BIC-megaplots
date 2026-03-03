@@ -988,6 +988,14 @@ app_server <- function(input, output, session) {
       selected = NULL
     )
 
+    # shinyWidgets::updatePickerInput(
+    #   session,
+    #   inputId = "subgroup_selection",
+    #   choices = colnames(megaplot_data)[
+    #     sapply(megaplot_data, class) %in% c("factor", "character")],
+    #   selected = NULL
+    # )
+
     shinyWidgets::updatePickerInput(
       session,
       inputId = "select_strata_var",
@@ -1293,6 +1301,17 @@ app_server <- function(input, output, session) {
 
     )
   })
+
+  # output$subgroup_summary <- plotly::renderPlotly({
+  #   shiny::req(megaplot_prepared_data())
+  #   shiny::req(megaplot_filtered_data())
+  #   draw_subgroup_population_plot(
+  #     megaplot_prepared_data = megaplot_prepared_data(),
+  #     select_grouping = NULL,
+  #     select_subgroups = input$subgroup_selection
+  #   )
+  # })
+
 
   shiny::observeEvent(megaplot_filtered_data(), {
     shiny::req(megaplot_filtered_data())

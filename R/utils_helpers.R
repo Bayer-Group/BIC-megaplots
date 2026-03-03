@@ -48,9 +48,9 @@ color_func <- function(x,y,z,number_event_groups) {
 color_func2 <- function(x,y,z,col) {
   if (x != 0 & z != 1) {
     return_colors <- grDevices::colorRampPalette(
-      c(grDevices::colorRampPalette(c("white",col), alpha = TRUE)(100)[50],
-        col,
-        grDevices::colorRampPalette(c(col,"black"), alpha = TRUE)(100)[50]
+      c("#7FFFD6",
+        "#FFF305",
+        "#FF4FC7"
       )
     ) (z)[x]
   }
