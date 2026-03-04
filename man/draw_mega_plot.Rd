@@ -11,7 +11,22 @@ draw_mega_plot(
   line_width = 3,
   line_width_subjects,
   event_tooltips = TRUE,
-  switch_legend_grouping = TRUE
+  switch_legend_grouping = TRUE,
+  sort_event_groups,
+  sequencing_object,
+  sequencing_switch,
+  reference_line_1,
+  reference_line_2,
+  reference_line_3,
+  reference_line_1_value,
+  reference_line_2_value,
+  reference_line_3_value,
+  reference_line_1_value2,
+  reference_line_2_value2,
+  reference_line_3_value2,
+  reference_line_1_color,
+  reference_line_2_color,
+  reference_line_3_color
 )
 }
 \arguments{
@@ -27,7 +42,37 @@ draw_mega_plot(
 
 \item{event_tooltips}{logical value if event tooltips should be turned on/off}
 
-\item{switch_legend_grouping}{logical value if events should be grouped in
+\item{switch_legend_grouping}{logical value if events should be grouped in}
+
+\item{sort_event_groups}{character vector with drag and drop order of event groups}
+
+\item{sequencing_object}{seriation object created with TraMineR package}
+
+\item{sequencing_switch}{logical value of sequencing should be turned on/off}
+
+\item{reference_line_1}{logical value if first reference line/rect should be drawn}
+
+\item{reference_line_2}{logical value if second reference line/rect should be drawn}
+
+\item{reference_line_3}{logical value if third reference line/rect should be drawn}
+
+\item{reference_line_1_value}{numeric value with start value for first reference line/rect (x-axis)}
+
+\item{reference_line_2_value}{numeric value with start value for second reference line/rect (x-axis)}
+
+\item{reference_line_3_value}{numeric value with start value for third reference line/rect (x-axis)}
+
+\item{reference_line_1_value2}{numeric value with end value for first reference line/rect (x-axis)}
+
+\item{reference_line_2_value2}{numeric value with end value for second reference line/rect (x-axis)}
+
+\item{reference_line_3_value2}{numeric value with end value for third reference line/rect (x-axis)}
+
+\item{reference_line_1_color}{character with hex color code for first reference line/rect}
+
+\item{reference_line_2_color}{character with hex color code for second reference line/rect}
+
+\item{reference_line_3_color}{character with hex color code for third reference line/rect
 plotly legend (default: TRUE)}
 }
 \description{

@@ -671,7 +671,7 @@ app_ui <- function(request) {
                   choices = NULL,
                   selected = NULL,
                   multiple = TRUE,
-                  options =  pickerOptions(
+                  options =  shinyWidgets::pickerOptions(
                     maxOptions = 1,
                     actionsBox = TRUE,
                     deselectAllText = "Clear",
@@ -686,7 +686,7 @@ app_ui <- function(request) {
                   choices = NULL,
                   selected = NULL,
                   multiple = TRUE,
-                  options =  pickerOptions(
+                  options =  shinyWidgets::pickerOptions(
                     maxOptions = 1,
                     actionsBox = TRUE,
                     deselectAllText = "Clear",
@@ -701,7 +701,7 @@ app_ui <- function(request) {
                   choices = NULL,
                   selected = NULL,
                   multiple = TRUE,
-                  options =  pickerOptions(
+                  options =  shinyWidgets::pickerOptions(
                     maxOptions = 1,
                     actionsBox = TRUE,
                     deselectAllText = "Clear",
@@ -718,7 +718,7 @@ app_ui <- function(request) {
                  choices = NULL,
                  selected = NULL,
                  multiple = TRUE,
-                 options =  pickerOptions(
+                 options =  shinyWidgets::pickerOptions(
                    maxOptions = 1,
                    actionsBox = TRUE,
                    deselectAllText = "Clear",
@@ -733,7 +733,7 @@ app_ui <- function(request) {
                  choices = NULL,
                  selected = NULL,
                  multiple = TRUE,
-                 options =  pickerOptions(
+                 options =  shinyWidgets::pickerOptions(
                    maxOptions = 1,
                    actionsBox = TRUE,
                    deselectAllText = "Clear",
@@ -748,7 +748,7 @@ app_ui <- function(request) {
                   choices = NULL,
                   selected = NULL,
                   multiple = TRUE,
-                  options =  pickerOptions(
+                  options =  shinyWidgets::pickerOptions(
                     maxOptions = 1,
                     actionsBox = TRUE,
                     deselectAllText = "Clear",
@@ -763,7 +763,7 @@ app_ui <- function(request) {
                   choices = NULL,
                   selected = NULL,
                   multiple = TRUE,
-                  options =  pickerOptions(
+                  options =  shinyWidgets::pickerOptions(
                     maxOptions = 1,
                     actionsBox = TRUE,
                     deselectAllText = "Clear",

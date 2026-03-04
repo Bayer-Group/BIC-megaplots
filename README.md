@@ -19,7 +19,6 @@ README
   - [Plot Appearance](#plot-appearance)
   - [Filter](#filter)
   - [HTML Download](#html-download)
-- [README](#readme)
 - [Input Data](#input-data)
 - [Additional information](#additional-information)
 
@@ -275,12 +274,17 @@ Further options for this megaplots graph are described in the chapter
 
 ## Event Summary
 
-<img src="inst/app/www/Screenshots/30_Megaplots.png" align="center" width="100%"/>
-<img src="inst/app/www/Screenshots/31_Megaplots.png" align="center" width="100%"/>
-<img src="inst/app/www/Screenshots/32_Megaplots.png" align="center" width="100%"/>
-<img src="inst/app/www/Screenshots/33_Megaplots.png" align="center" width="100%"/>
-<img src="inst/app/www/Screenshots/34_Megaplots.png" align="center" width="100%"/>
-<img src="inst/app/www/Screenshots/35_Megaplots.png" align="center" width="100%"/>
+<!-- <img src="inst/app/www/Screenshots/30_Megaplots.png" align="center" width="100%"/>  -->
+
+<!-- <img src="inst/app/www/Screenshots/31_Megaplots.png" align="center" width="100%"/>  -->
+
+<!-- <img src="inst/app/www/Screenshots/32_Megaplots.png" align="center" width="100%"/>  -->
+
+<!-- <img src="inst/app/www/Screenshots/33_Megaplots.png" align="center" width="100%"/>  -->
+
+<!-- <img src="inst/app/www/Screenshots/34_Megaplots.png" align="center" width="100%"/>  -->
+
+<!-- <img src="inst/app/www/Screenshots/35_Megaplots.png" align="center" width="100%"/>  -->
 
 Explanatory text for this chapter will follow soon.
 
@@ -315,44 +319,57 @@ displayed group boxes.
 
 <img src="inst/app/www/Screenshots/38_Megaplots.png" align="center" width="100%"/>
 
-<img src="inst/app/www/Screenshots/39_Megaplots.png" align="center" width="100%"/>
+<!-- <img src="inst/app/www/Screenshots/39_Megaplots.png" align="center" width="100%"/>  -->
 
-<img src="inst/app/www/Screenshots/40_Megaplots.png" align="center" width="100%"/>
-<img src="inst/app/www/Screenshots/41_Megaplots.png" align="center" width="100%"/>
-<img src="inst/app/www/Screenshots/42_Megaplots.png" align="center" width="100%"/>
-<img src="inst/app/www/Screenshots/43_Megaplots.png" align="center" width="100%"/>
+<!-- <img src="inst/app/www/Screenshots/40_Megaplots.png" align="center" width="100%"/>  -->
+
+<!-- <img src="inst/app/www/Screenshots/41_Megaplots.png" align="center" width="100%"/>  -->
+
+<!-- <img src="inst/app/www/Screenshots/42_Megaplots.png" align="center" width="100%"/>  -->
+
+<!-- <img src="inst/app/www/Screenshots/43_Megaplots.png" align="center" width="100%"/>  -->
 
 Explanatory text for this chapter will follow soon.
 
 ### Plot Appearance
 
-<img src="inst/app/www/Screenshots/44_Megaplots.png" align="center" width="100%"/>
-<img src="inst/app/www/Screenshots/45_Megaplots.png" align="center" width="100%"/>
-<img src="inst/app/www/Screenshots/46_Megaplots.png" align="center" width="100%"/>
-<img src="inst/app/www/Screenshots/47_Megaplots.png" align="center" width="100%"/>
-<img src="inst/app/www/Screenshots/48_Megaplots.png" align="center" width="100%"/>
+<!-- <img src="inst/app/www/Screenshots/44_Megaplots.png" align="center" width="100%"/>  -->
+
+<!-- <img src="inst/app/www/Screenshots/45_Megaplots.png" align="center" width="100%"/>  -->
+
+<!-- <img src="inst/app/www/Screenshots/46_Megaplots.png" align="center" width="100%"/>  -->
+
+<!-- <img src="inst/app/www/Screenshots/47_Megaplots.png" align="center" width="100%"/>  -->
+
+<!-- <img src="inst/app/www/Screenshots/48_Megaplots.png" align="center" width="100%"/>  -->
 
 Explanatory text for this chapter will follow soon.
 
 ### Filter
 
-<img src="inst/app/www/Screenshots/49_Megaplots.png" align="center" width="100%"/>
-<img src="inst/app/www/Screenshots/50_Megaplots.png" align="center" width="100%"/>
-<img src="inst/app/www/Screenshots/51_Megaplots.png" align="center" width="100%"/>
-<img src="inst/app/www/Screenshots/52_Megaplots.png" align="center" width="100%"/>
-<img src="inst/app/www/Screenshots/53_Megaplots.png" align="center" width="100%"/>
+<!-- <img src="inst/app/www/Screenshots/49_Megaplots.png" align="center" width="100%"/>  -->
+
+<!-- <img src="inst/app/www/Screenshots/50_Megaplots.png" align="center" width="100%"/>  -->
+
+<!-- <img src="inst/app/www/Screenshots/51_Megaplots.png" align="center" width="100%"/>  -->
+
+<!-- <img src="inst/app/www/Screenshots/52_Megaplots.png" align="center" width="100%"/>  -->
+
+<!-- <img src="inst/app/www/Screenshots/53_Megaplots.png" align="center" width="100%"/>  -->
 
 Explanatory text for this chapter will follow soon.
 
 ### HTML Download
 
-<img src="inst/app/www/Screenshots/54_Megaplots.png" align="center" width="100%"/>
+<!-- <img src="inst/app/www/Screenshots/54_Megaplots.png" align="center" width="100%"/>  -->
+
 Explanatory text for this chapter will follow soon.
 
-## README
+<!-- ## README  -->
 
-<img src="inst/app/www/Screenshots/55_Megaplots.png" align="center" width="100%"/>
-Explanatory text for this chapter will follow soon.
+<!-- <img src="inst/app/www/Screenshots/55_Megaplots.png" align="center" width="100%"/>  -->
+
+<!-- Explanatory text for this chapter will follow soon. -->
 
 ## Input Data
 
@@ -378,9 +395,14 @@ Grouping” please refer to chapter “Sidebar options”.
 
 ## Additional information
 
-<img src="inst/app/www/Screenshots/56_Megaplots.png" align="center" width="100%"/>
-<img src="inst/app/www/Screenshots/57_Megaplots.png" align="center" width="100%"/>
-<img src="inst/app/www/Screenshots/58_Megaplots.png" align="center" width="100%"/>
-<img src="inst/app/www/Screenshots/59_Megaplots.png" align="center" width="100%"/>
-<img src="inst/app/www/Screenshots/60_Megaplots.png" align="center" width="100%"/>
+<!-- <img src="inst/app/www/Screenshots/56_Megaplots.png" align="center" width="100%"/>  -->
+
+<!-- <img src="inst/app/www/Screenshots/57_Megaplots.png" align="center" width="100%"/>  -->
+
+<!-- <img src="inst/app/www/Screenshots/58_Megaplots.png" align="center" width="100%"/>  -->
+
+<!-- <img src="inst/app/www/Screenshots/59_Megaplots.png" align="center" width="100%"/>  -->
+
+<!-- <img src="inst/app/www/Screenshots/60_Megaplots.png" align="center" width="100%"/>  -->
+
 To use the full screen size for your megaplot hide sidebar, if not used.

@@ -1,4 +1,4 @@
-test_that("function for varialbe checks work", {
+test_that("function for variable checks work", {
   #function should only returns TRUE or FALSE
 
   tmp <- data.frame(
@@ -39,27 +39,31 @@ test_that("function for varialbe checks work", {
 
 
   # expect TRUE (fine variable check)
-  expect_equal(check_megaplot_data_variables(
-    megaplot_data = tmp,
-    subjectid = "subject_id",
-    start_time = "start_tme",
-    end_time = "end_tme",
-    event = "evnt",
-    event_group = "evnt_group",
-    event_time = "ev_time_start",
-    event_time_end = "ev_time_end"
-  ), TRUE)
+  expect_equal(
+    check_megaplot_data_variables(
+      check_megaplot_data = tmp,
+      check_subjectid = "subject_id",
+      check_start_time = "start_tme",
+      check_end_time = "end_tme",
+      check_event = "evnt",
+      check_event_group = "evnt_group",
+      check_event_time = "ev_time_start",
+      check_event_time_end = "ev_time_end"
+    ),
+  TRUE
+  )
 
 
   # different subejctid formats
-  expect_equal(check_megaplot_data_variables(
-    megaplot_data = tmp,
-    subjectid = "subject_id_char",
-    start_time = "start_time",
-    end_time = "end_time",
-    event = "event",
-    event_group = "event_group",
-    event_time = "ev_time_start",
-    event_time_end = "ev_time_end"
-  ), TRUE)
+  expect_equal(
+    check_megaplot_data_variables(
+    check_megaplot_data = tmp,
+    check_subjectid = "subject_id_char",
+    check_start_time = "start_time",
+    check_end_time = "end_time",
+    check_event = "event",
+    check_event_group = "event_group",
+    check_event_time = "ev_time_start",
+    check_event_time_end = "ev_time_end"
+  ), FALSE)
 })

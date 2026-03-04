@@ -7,7 +7,7 @@
 #' @param line_width_subjects numeric value for subject line width
 #' @param event_tooltips logical value if event tooltips should be turned on/off
 #' @param switch_legend_grouping logical value if events should be grouped in
-#' @param sort_events_groups character vector with drag and drop order of event groups
+#' @param sort_event_groups character vector with drag and drop order of event groups
 #' @param sequencing_object seriation object created with TraMineR package
 #' @param sequencing_switch logical value of sequencing should be turned on/off
 #' @param reference_line_1_value numeric value with start value for first reference line/rect (x-axis)
@@ -92,24 +92,24 @@ draw_mega_plot <- function(
 
       sequencing_grouped_data <- megaplot_prepared_data_w_ranks %>%
         dplyr::mutate(n_subjects = n_subjects) %>%
-        dplyr::select(megaplots_selected_subjectid, SEQUENCING, group_index, n_subjects) %>%
+        dplyr::select(.data$megaplots_selected_subjectid, .data$SEQUENCING, .data$group_index, n_subjects) %>%
         dplyr::mutate(SEQUENCING_grouped = .data$SEQUENCING + (.data$group_index - 1) * n_subjects)  %>%
         dplyr::distinct() %>%
-        dplyr::mutate(SEQUENCING_grouped_ranked = rank(SEQUENCING_grouped)) %>%
-        dplyr::select(megaplots_selected_subjectid, SEQUENCING_grouped_ranked) %>%
+        dplyr::mutate(SEQUENCING_grouped_ranked = rank(.data$SEQUENCING_grouped)) %>%
+        dplyr::select(.data$megaplots_selected_subjectid, .data$SEQUENCING_grouped_ranked) %>%
         dplyr::ungroup()
 
       megaplot_prepared_data <- megaplot_prepared_data %>%
         dplyr::left_join(
           sequencing_grouped_data,
           by = "megaplots_selected_subjectid"
-        ) %>% dplyr::mutate(subjectid_n = SEQUENCING_grouped_ranked + (.data$group_index - 1) * 10)
+        ) %>% dplyr::mutate(subjectid_n = .data$SEQUENCING_grouped_ranked + (.data$group_index - 1) * 10)
 
       megaplot_filtered_data <- megaplot_filtered_data %>%
         dplyr::left_join(
           sequencing_grouped_data,
           by = "megaplots_selected_subjectid"
-        ) %>% dplyr::mutate(subjectid_n_jittered = (SEQUENCING_grouped_ranked + (.data$group_index - 1) * 10) + jitter_event_time)
+        ) %>% dplyr::mutate(subjectid_n_jittered = (.data$SEQUENCING_grouped_ranked + (.data$group_index - 1) * 10) + .data$jitter_event_time)
     }
   }
 
@@ -160,13 +160,13 @@ draw_mega_plot <- function(
   # } else {
 
     megaplot_prepared_data <- megaplot_prepared_data %>%
-      dplyr::mutate(subjectid_n_end = subjectid_n)
+      dplyr::mutate(subjectid_n_end = .data$subjectid_n)
     if(!is.null(megaplot_filtered_data)) {
     megaplot_filtered_data <- megaplot_filtered_data %>%
       dplyr::mutate(
-        subjectid_n_jittered_end = subjectid_n_jittered,
-        megaplots_selected_event_time = megaplots_selected_event_time -0.45,
-        megaplots_selected_event_time_end = megaplots_selected_event_time_end + 0.45
+        subjectid_n_jittered_end = .data$subjectid_n_jittered,
+        megaplots_selected_event_time = .data$megaplots_selected_event_time -0.45,
+        megaplots_selected_event_time_end = .data$megaplots_selected_event_time_end + 0.45
       )
     }
 

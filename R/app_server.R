@@ -81,9 +81,9 @@ app_server <- function(input, output, session) {
       if (all(sort(unique(uploaded_colors$megaplots_selected_event)) == sort(unique(color_data$all$megaplots_selected_event)))) {
         uploaded_colors <- uploaded_colors  %>%
           dplyr::mutate(
-            gradient_event_color_1 = dplyr::case_when(is.na(megaplots_selected_event) ~ gradient_event_color_1, !is.na(megaplots_selected_event) ~ NA),
-            gradient_event_color_2 = dplyr::case_when(is.na(megaplots_selected_event) ~ gradient_event_color_2, !is.na(megaplots_selected_event) ~ NA),
-            gradient_event_color_3 = dplyr::case_when(is.na(megaplots_selected_event) ~ gradient_event_color_3, !is.na(megaplots_selected_event) ~ NA)
+            gradient_event_color_1 = dplyr::case_when(is.na(.data$megaplots_selected_event) ~ gradient_event_color_1, !is.na(.data$megaplots_selected_event) ~ NA),
+            gradient_event_color_2 = dplyr::case_when(is.na(.data$megaplots_selected_event) ~ gradient_event_color_2, !is.na(.data$megaplots_selected_event) ~ NA),
+            gradient_event_color_3 = dplyr::case_when(is.na(.data$megaplots_selected_event) ~ gradient_event_color_3, !is.na(.data$megaplots_selected_event) ~ NA)
           )
         color_data_new <- color_data$all %>%
           dplyr::select(.data$megaplots_selected_event, .data$megaplots_selected_event_group, .data$event_id, .data$event_group_id, .data$max_event_id, .data$event_n, .data$n_flag) %>%
@@ -1316,7 +1316,7 @@ app_server <- function(input, output, session) {
   shiny::observeEvent(megaplot_filtered_data(), {
     shiny::req(megaplot_filtered_data())
     choices_data <- megaplot_filtered_data() %>%
-      dplyr::select(megaplots_selected_event, megaplots_selected_event_group) %>%
+      dplyr::select(.data$megaplots_selected_event, .data$megaplots_selected_event_group) %>%
       dplyr::distinct()
 
     shiny::updateSelectInput(
@@ -1476,7 +1476,7 @@ app_server <- function(input, output, session) {
     selected_event_for_sequencing <- input$sequencing_events
 
     megaplot_data <- megaplot_filtered_data() %>%
-      dplyr::filter(event %in% selected_event_for_sequencing)
+      dplyr::filter(.data$event %in% selected_event_for_sequencing)
 
     n_matrix <- length(unique(megaplot_data$megaplots_selected_subjectid))
     m_matrix <- length(min(megaplot_data$megaplots_selected_event_time):max(megaplot_data$megaplots_selected_event_time_end)) #* length(selected_event_for_sequencing)
@@ -1484,7 +1484,7 @@ app_server <- function(input, output, session) {
     dist_list <- list()
 
     index_n <- megaplot_data %>%
-      dplyr::filter(event %in% selected_event_for_sequencing) %>%
+      dplyr::filter(.data$event %in% selected_event_for_sequencing) %>%
       nrow()
 
     index <- 1/index_n
@@ -1496,7 +1496,7 @@ app_server <- function(input, output, session) {
         colnames(dist_init) <- paste0((min(megaplot_data$megaplots_selected_event_time):max(megaplot_data$megaplots_selected_event_time_end)))
 
         megaplot_data_tmp <- megaplot_data %>%
-          dplyr::filter(event %in% selected_event_for_sequencing[i])
+          dplyr::filter(!.data$event %in% selected_event_for_sequencing[i])
         for(j in 1:nrow(megaplot_data_tmp)) {
 
           megaplot_data_tmp[j, ]$megaplots_selected_subjectid

@@ -34,7 +34,7 @@ prepare_megaplot_data <- function(
 
     megaplot_data_arranged <- dplyr::arrange(
       megaplot_data_raw,
-      text_snippet_total,
+      .data$text_snippet_total,
       !!rlang::sym(select_sorting)
     )
   } else {
@@ -63,7 +63,7 @@ prepare_megaplot_data <- function(
   # create column group_index
   if(!is.null(arrange_groups)) {
   megaplot_data_raw <- megaplot_data_raw %>%
-    dplyr::group_by(text_snippet_total) %>%
+    dplyr::group_by(.data$text_snippet_total) %>%
     dplyr::mutate(group_index = dplyr::cur_group_id()) #%>% dplyr::ungroup()
   } else {
     megaplot_data_raw <- megaplot_data_raw %>%
