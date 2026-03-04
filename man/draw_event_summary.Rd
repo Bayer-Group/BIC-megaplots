@@ -11,7 +11,19 @@ draw_event_summary(
   event_summary_cutoff = 1,
   event_summary_selection,
   switch_legend_grouping = TRUE,
-  hovermode = "x"
+  hovermode = "x",
+  reference_line_1,
+  reference_line_2,
+  reference_line_3,
+  reference_line_1_value,
+  reference_line_2_value,
+  reference_line_3_value,
+  reference_line_1_value2,
+  reference_line_2_value2,
+  reference_line_3_value2,
+  reference_line_1_color,
+  reference_line_2_color,
+  reference_line_3_color
 )
 }
 \arguments{
@@ -35,6 +47,30 @@ plotly legend (default: TRUE)}
 
 \item{hovermode}{character for plotly hovermode either "x" or "x unified"
 (default "x")}
+
+\item{reference_line_1}{logical value if first reference line/rect should be drawn}
+
+\item{reference_line_2}{logical value if second reference line/rect should be drawn}
+
+\item{reference_line_3}{logical value if third reference line/rect should be drawn}
+
+\item{reference_line_1_value}{numeric value with start value for first reference line/rect (x-axis)}
+
+\item{reference_line_2_value}{numeric value with start value for second reference line/rect (x-axis)}
+
+\item{reference_line_3_value}{numeric value with start value for third reference line/rect (x-axis)}
+
+\item{reference_line_1_value2}{numeric value with end value for first reference line/rect (x-axis)}
+
+\item{reference_line_2_value2}{numeric value with end value for second reference line/rect (x-axis)}
+
+\item{reference_line_3_value2}{numeric value with end value for third reference line/rect (x-axis)}
+
+\item{reference_line_1_color}{character with hex color code for first reference line/rect}
+
+\item{reference_line_2_color}{character with hex color code for second reference line/rect}
+
+\item{reference_line_3_color}{character with hex color code for third reference line/rect}
 }
 \description{
 Draws a line chart with daily counts of events

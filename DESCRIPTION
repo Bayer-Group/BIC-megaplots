@@ -1,6 +1,6 @@
 Package: Megaplots
 Title: A 'shiny' Application for Pattern Detection
-Version: 2.0.2
+Version: 2.0.3
 Authors@R: c(
     person("Steffen", "Jeske", , "steffen.jeske.ext@bayer.com", role = c("aut", "cre")),
     person("Tammo", "Reinders", , "tammo.reinders.ext@bayer.com", role = c("aut")),
@@ -23,7 +23,6 @@ Imports:
     data.table,
     datamods,
     dplyr,
-    DT,
     ggplot2,
     golem,
     graphics,
@@ -32,15 +31,13 @@ Imports:
     jsTreeR,
     pkgload,
     plotly,
-    plyr,
     purrr,
     RColorBrewer,
-    reshape2,
     rlang,
+    scales,
     seriation,
     shiny,
     shinycssloaders,
-    shinydashboard,
     shinyjqui,
     shinyjs,
     shinyWidgets,
@@ -50,7 +47,6 @@ Imports:
     tidyr,
     tidyselect,
     TraMineR,
-    utils,
     waiter
 Suggests: 
     spelling,
@@ -61,4 +57,3 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.3.3
 URL: github.com/Bayer-Group/BIC-megaplots
-BugReports: github.com/Bayer-Group/BIC-megaplots/issues

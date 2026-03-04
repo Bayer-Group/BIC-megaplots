@@ -25,7 +25,7 @@ app_server <- function(input, output, session) {
 
   shiny::observeEvent(input$upload_1_next_button, {
     # bslib::nav_select("Upload", "Filtering")
-    bslib::nav_select("Upload", "Event & color selection")
+    bslib::nav_select("Upload", "Event & color selection 2")
   })
 
   # shiny::observeEvent(input$upload_2_back_button, {
@@ -34,7 +34,7 @@ app_server <- function(input, output, session) {
 
   shiny::observeEvent(input$upload_3_back_button, {
     #bslib::nav_select("Upload", "Filtering")
-    bslib::nav_select("Upload", "File & variable selection")
+    bslib::nav_select("Upload", "File & variable selection 2")
   })
 
   #### Downloadbutton appearance condition
@@ -81,13 +81,15 @@ app_server <- function(input, output, session) {
       if (all(sort(unique(uploaded_colors$megaplots_selected_event)) == sort(unique(color_data$all$megaplots_selected_event)))) {
         uploaded_colors <- uploaded_colors  %>%
           dplyr::mutate(
-            gradient_event_color_1 = dplyr::case_when(is.na(megaplots_selected_event) ~ gradient_event_color_1, !is.na(megaplots_selected_event) ~ NA),
-            gradient_event_color_2 = dplyr::case_when(is.na(megaplots_selected_event) ~ gradient_event_color_2, !is.na(megaplots_selected_event) ~ NA),
-            gradient_event_color_3 = dplyr::case_when(is.na(megaplots_selected_event) ~ gradient_event_color_3, !is.na(megaplots_selected_event) ~ NA)
+            gradient_event_color_1 = dplyr::case_when(is.na(.data$megaplots_selected_event) ~ gradient_event_color_1, !is.na(.data$megaplots_selected_event) ~ NA),
+            gradient_event_color_2 = dplyr::case_when(is.na(.data$megaplots_selected_event) ~ gradient_event_color_2, !is.na(.data$megaplots_selected_event) ~ NA),
+            gradient_event_color_3 = dplyr::case_when(is.na(.data$megaplots_selected_event) ~ gradient_event_color_3, !is.na(.data$megaplots_selected_event) ~ NA)
           )
-        color_data_new <- color_data$all %>% dplyr::select(.data$megaplots_selected_event, .data$megaplots_selected_event_group, .data$event_id, .data$event_group_id, .data$max_event_id, .data$event_n, .data$n_flag) %>%
+        color_data_new <- color_data$all %>%
+          dplyr::select(.data$megaplots_selected_event, .data$megaplots_selected_event_group, .data$event_id, .data$event_group_id, .data$max_event_id, .data$event_n, .data$n_flag) %>%
           dplyr::left_join(
-            uploaded_colors %>% dplyr::select(.data$megaplots_selected_event, .data$megaplots_selected_event_group, .data$event_color, .data$gradient_event_color_1, .data$gradient_event_color_2, .data$gradient_event_color_3, .data$jittered),
+            uploaded_colors %>%
+              dplyr::select(.data$megaplots_selected_event, .data$megaplots_selected_event_group, .data$event_color, .data$gradient_event_color_1, .data$gradient_event_color_2, .data$gradient_event_color_3, .data$jittered),
             by = c("megaplots_selected_event", "megaplots_selected_event_group")
           )
         #check new dimension matches
@@ -441,7 +443,7 @@ app_server <- function(input, output, session) {
       dnd = dnd,
       checkCallback = check_callback,
       types = types,
-      contextMenu = list(create =TRUE, delete = TRUE),
+      contextMenu = list(create =FALSE, delete = FALSE),
       checkboxes = TRUE
     )
   })
@@ -467,7 +469,7 @@ app_server <- function(input, output, session) {
       session,
       inputId = "select_sorting",
       choices = choices,
-      selected = "megaplots_selected_end_time",
+      selected = ifelse("megaplots_selected_end_time" %in% choices,"megaplots_selected_end_time" ,"megaplots_selected_subjectid"),
       choicesOpt = list(style =  rep_len(
         "font-size: 60%; line-height: 1.6;", length(choices)
       )
@@ -593,13 +595,19 @@ app_server <- function(input, output, session) {
     shiny::req(js_column$number)
     if (!is.null(color_data$all)) {
       if (!is.null(color_data$selected)) {
-      if (is.na(color_data$selected[js_column$number, c("megaplots_selected_event")])) {
-
+        if (is.na(color_data$selected[js_column$number, c("megaplots_selected_event")])) {
         #create new color for entire event group
-        if (input$color_method == "gradient") {
-          f_col_z <- grDevices::colorRamp(c(input$colour_picker_panel_1,
-                                            input$colour_picker_panel_2,
-                                            input$colour_picker_panel_3))
+          if (input$color_method == "gradient") {
+
+            # f_col_z <- grDevices::colorRamp(c(input$colour_picker_panel_1,
+            #                                   input$colour_picker_panel_2,
+            #                                   input$colour_picker_panel_3))
+            f_col_z <- scales::colour_ramp(
+              c(input$colour_picker_panel_1,
+                input$colour_picker_panel_2,
+                input$colour_picker_panel_3
+              )
+            )
 
           cds_tmp <- color_data$selected[color_data$selected$megaplots_selected_event_group ==
             color_data$selected[js_column$number,
@@ -622,9 +630,9 @@ app_server <- function(input, output, session) {
         new_event_group_color <- new_event_group_color %>%
           dplyr::select(-tidyselect::all_of(c("new_event_id"))) %>%
           dplyr::mutate(
-            event_color =  grDevices::rgb(
-              f_col_z(seq(0, 1, length = nrow(.))),
-              maxColorValue = 255
+            event_color =  #grDevices::rgb(
+              f_col_z(seq(0, 1, length = nrow(.))#),
+              # maxColorValue = 255
             )[.data$event_id]
           ) %>%
           dplyr::pull(.data$event_color)
@@ -740,7 +748,8 @@ app_server <- function(input, output, session) {
      input[["tree2"]],
      input[["tree2_checked_tree"]]
    ), {
-    checked_tree <- input[["tree2_checked_tree"]]
+
+  checked_tree <- input[["tree2_checked_tree"]]
    selected_data <- data.frame(megaplots_selected_event_group = NULL, megaplots_selected_event = NULL)
     if (!is.null(checked_tree)) {
       if (length(checked_tree) > 0) {
@@ -763,6 +772,13 @@ app_server <- function(input, output, session) {
       }
       }
     }
+
+   shinyjqui::updateOrderInput(
+     session,
+     inputId = "sort_event_groups",
+     label = "Sort event groups",
+     items = unique(selected_data$megaplots_selected_event_group)
+   )
     checked_data$val <- selected_data
   })
 
@@ -836,10 +852,13 @@ app_server <- function(input, output, session) {
             !is.na(color_data$selected$megaplots_selected_event),
           ])
 
-      f_col_z <- grDevices::colorRamp(
-        c(input$colour_picker_panel_1,
+      f_col_z  <- scales::colour_ramp(
+        colors = c(
+          input$colour_picker_panel_1,
           input$colour_picker_panel_2,
-          input$colour_picker_panel_3)
+          input$colour_picker_panel_3
+        ),
+        alpha = TRUE
       )
 
       par(oma = c(0, 0, 0, 0), mar = c(0, 0, 0, 0))
@@ -847,8 +866,10 @@ app_server <- function(input, output, session) {
         1:number_events,
         1,
         as.matrix(1:number_events),
-        col = grDevices::rgb(f_col_z(seq(0, 1, length = number_events)),
-                             maxColorValue = 255),
+        col = #grDevices::rgb(
+          f_col_z(seq(0, 1, length = number_events)),
+                             #,maxColorValue = 255
+                            #),
         xlab = "",
         ylab = "",
         xaxt = "n",
@@ -955,7 +976,6 @@ app_server <- function(input, output, session) {
     #       by ="subjectid"
     #     )
     # }
-
     uploaded_data$val <- megaplot_data  #update reactive value 'uploaded_data'
 
     # update choices of grouping variable based on uploaded data
@@ -967,6 +987,14 @@ app_server <- function(input, output, session) {
         sapply(megaplot_data, class) %in% c("factor", "character")],
       selected = NULL
     )
+
+    # shinyWidgets::updatePickerInput(
+    #   session,
+    #   inputId = "subgroup_selection",
+    #   choices = colnames(megaplot_data)[
+    #     sapply(megaplot_data, class) %in% c("factor", "character")],
+    #   selected = NULL
+    # )
 
     shinyWidgets::updatePickerInput(
       session,
@@ -1009,12 +1037,13 @@ app_server <- function(input, output, session) {
     )
   })
 
-  uploaded_data_w_ids_filtered <- shiny::reactive({
-    create_unique_event_identifier(
-      #megaplot_data_raw = shiny::req(uploaded_data$val)
-      megaplot_data_raw = shiny::req(filtered_data_reactive$val)
-    )
-  })
+  # uploaded_data_w_ids_filtered <- shiny::reactive({
+  #
+  #   create_unique_event_identifier(
+  #     #megaplot_data_raw = shiny::req(uploaded_data$val)
+  #     megaplot_data_raw = shiny::req(filtered_data_reactive$val)
+  #   )
+  # })
 
 
   #create a data frame which includes unique rows with
@@ -1035,7 +1064,8 @@ app_server <- function(input, output, session) {
   megaplot_prepared_data <- shiny::eventReactive(
     c(uploaded_data_w_ids(),
       filtered_data_reactive$val,
-      input$select_grouping,
+      #input$select_grouping,
+      input$arrange_groups,
       input$select_sorting), {
 
     prepare_megaplot_data(
@@ -1043,7 +1073,8 @@ app_server <- function(input, output, session) {
       megaplot_data_raw = shiny::req(filtered_data_reactive$val),
       uploaded_data_w_ids = uploaded_data_w_ids(),
       select_sorting = input$select_sorting,
-      select_grouping = input$select_grouping
+      select_grouping = input$select_grouping,
+      arrange_groups = input$arrange_groups
     )
   })
 
@@ -1063,12 +1094,7 @@ app_server <- function(input, output, session) {
       #remove nas from required variables
       filtered_data <- filtered_data %>%
         dplyr::filter(!is.na(.data$megaplots_selected_subjectid)) %>%
-        dplyr::filter(!is.na(.data$megaplots_selected_start_time))%>%
-        dplyr::filter(!is.na(.data$megaplots_selected_end_time))%>%
-        dplyr::filter(!is.na(.data$megaplots_selected_event))%>%
-        dplyr::filter(!is.na(.data$megaplots_selected_event_group))%>%
-        dplyr::filter(!is.na(.data$megaplots_selected_event_time))%>%
-        dplyr::filter(!is.na(.data$megaplots_selected_event_time_end))
+        dplyr::filter(!is.na(.data$megaplots_selected_event))
     }
     #return
     filtered_data
@@ -1134,6 +1160,78 @@ app_server <- function(input, output, session) {
   #### Mega Plot ####
   #create reactive variable for saving html output
   session_store <- shiny::reactiveValues(val = NULL)
+  output$arrange_groups <- shiny::renderUI({
+    shinyjqui::orderInput(
+      inputId = "arrange_groups",
+      label = "Arrange Groups",
+      items = NULL,
+      width = 300
+    )
+  })
+
+  shiny::observeEvent(c(uploaded_data_renamed(), input$select_grouping), {
+    if(!is.null(input$select_grouping)) {
+      grouping_label_data <- uploaded_data_renamed() %>%
+        dplyr::select(!!!rlang::syms(input$select_grouping)) %>%
+        dplyr::distinct() %>%
+        dplyr::mutate(
+          text_snippet_1 = paste(input$select_grouping, collapse = " "),
+          text_snippet_2 = paste(!!!rlang::syms(input$select_grouping), sep = ", ")) %>%
+        dplyr::rowwise() %>%
+        dplyr::mutate(text_snippet_total = paste(unlist(strsplit(.data$text_snippet_1," ")), gsub(" ", "", unlist(strsplit(.data$text_snippet_2, ", "))), sep = ": ", collapse = " & "))
+
+      shinyjqui::updateOrderInput(
+        session,
+        inputId = "arrange_groups",
+        items = grouping_label_data$text_snippet_total
+      )
+    } else {
+      output$arrange_groups <- shiny::renderUI({
+        shinyjqui::orderInput(
+          inputId = "arrange_groups",
+          label = "Arrange Groups",
+          items = NULL,
+          width = 300
+        )
+      })
+    }
+  })
+
+  reference_lines_reactive <- shiny::reactiveValues(
+    reference_line_1 = FALSE,
+    reference_line_2 = FALSE,
+    reference_line_3 = FALSE,
+    reference_line_1_value = NULL,
+    reference_line_2_value = NULL,
+    reference_line_3_value = NULL,
+    reference_line_1_value2 = NULL,
+    reference_line_2_value2 = NULL,
+    reference_line_3_value2 = NULL,
+    reference_line_1_color = NULL,
+    reference_line_2_color = NULL,
+    reference_line_3_color = NULL
+  )
+
+  shiny::observeEvent(input$reference_line_1, {
+    if (!input$reference_line_1) {
+      reference_lines_reactive$reference_line_1 <- FALSE
+    }
+  })
+
+  shiny::observeEvent(input$update_reference_lines, {
+    reference_lines_reactive$reference_line_1 <- shiny::isolate(input$reference_line_1)
+    reference_lines_reactive$reference_line_2 <- shiny::isolate(input$reference_line_2)
+    reference_lines_reactive$reference_line_3 <- shiny::isolate(input$reference_line_3)
+    reference_lines_reactive$reference_line_1_value <- shiny::isolate(input$reference_line_1_value)
+    reference_lines_reactive$reference_line_2_value <- shiny::isolate(input$reference_line_2_value)
+    reference_lines_reactive$reference_line_3_value <- shiny::isolate(input$reference_line_3_value)
+    reference_lines_reactive$reference_line_1_value2 <- shiny::isolate(input$reference_line_1_value2)
+    reference_lines_reactive$reference_line_2_value2 <- shiny::isolate(input$reference_line_2_value2)
+    reference_lines_reactive$reference_line_3_value2 <- shiny::isolate(input$reference_line_3_value2)
+    reference_lines_reactive$reference_line_1_color <- shiny::isolate(input$reference_line_1_color)
+    reference_lines_reactive$reference_line_2_color <- shiny::isolate(input$reference_line_2_color)
+    reference_lines_reactive$reference_line_3_color <- shiny::isolate(input$reference_line_3_color)
+  })
 
   output$mega_plots <- plotly::renderPlotly({
 
@@ -1142,10 +1240,26 @@ app_server <- function(input, output, session) {
     tmp <- draw_mega_plot(
       megaplot_prepared_data = megaplot_prepared_data(),
       megaplot_filtered_data = megaplot_filtered_data(),
-      select_grouping = input$select_grouping,
+      select_grouping = shiny::isolate(input$select_grouping),
       line_width = input$line_width,
       line_width_subjects = input$line_width_subjects,
-      switch_legend_grouping = input$switch_legend_grouping
+      switch_legend_grouping = input$switch_legend_grouping,
+      sort_event_groups = input$sort_event_groups,
+      sequencing_object = shiny::isolate(sequencing_object$val),
+      sequencing_switch = input$sequencing_switch,
+      reference_line_1 = reference_lines_reactive$reference_line_1,
+      reference_line_2 = reference_lines_reactive$reference_line_2,
+      reference_line_3 = reference_lines_reactive$reference_line_3,
+      reference_line_1_value = reference_lines_reactive$reference_line_1_value,
+      reference_line_2_value = reference_lines_reactive$reference_line_2_value,
+      reference_line_3_value = reference_lines_reactive$reference_line_3_value,
+      reference_line_1_value2 = reference_lines_reactive$reference_line_1_value2,
+      reference_line_2_value2 = reference_lines_reactive$reference_line_2_value2,
+      reference_line_3_value2 = reference_lines_reactive$reference_line_3_value2,
+      reference_line_1_color = reference_lines_reactive$reference_line_1_color,
+      reference_line_2_color = reference_lines_reactive$reference_line_2_color,
+      reference_line_3_color = reference_lines_reactive$reference_line_3_color
+      # circular_vision = input$circular_vision
     )
     session_store$val <- tmp
     tmp
@@ -1171,19 +1285,43 @@ app_server <- function(input, output, session) {
       event_summary_cutoff = input$event_summary_cutoff,
       event_summary_selection = input$event_summary_selection,
       switch_legend_grouping = input$switch_legend_grouping,
-      hovermode = input$event_summary_hovermode
+      hovermode = input$event_summary_hovermode,
+      reference_line_1 = reference_lines_reactive$reference_line_1,
+      reference_line_2 = reference_lines_reactive$reference_line_2,
+      reference_line_3 = reference_lines_reactive$reference_line_3,
+      reference_line_1_value = reference_lines_reactive$reference_line_1_value,
+      reference_line_2_value = reference_lines_reactive$reference_line_2_value,
+      reference_line_3_value = reference_lines_reactive$reference_line_3_value,
+      reference_line_1_value2 = reference_lines_reactive$reference_line_1_value2,
+      reference_line_2_value2 = reference_lines_reactive$reference_line_2_value2,
+      reference_line_3_value2 = reference_lines_reactive$reference_line_3_value2,
+      reference_line_1_color = reference_lines_reactive$reference_line_1_color,
+      reference_line_2_color = reference_lines_reactive$reference_line_2_color,
+      reference_line_3_color = reference_lines_reactive$reference_line_3_color
 
     )
   })
 
-  #### Kaplan Meier Plots ####
-  #update kaplan meier event selection based on selected events
+  # output$subgroup_summary <- plotly::renderPlotly({
+  #   shiny::req(megaplot_prepared_data())
+  #   shiny::req(megaplot_filtered_data())
+  #   draw_subgroup_population_plot(
+  #     megaplot_prepared_data = megaplot_prepared_data(),
+  #     select_grouping = NULL,
+  #     select_subgroups = input$subgroup_selection
+  #   )
+  # })
+
+
   shiny::observeEvent(megaplot_filtered_data(), {
     shiny::req(megaplot_filtered_data())
-    megaplot_filtered_data()$unique_event
-    shinyWidgets::updatePickerInput(
-      inputId = "select_event_kaplan_meier",
-      choices = unique(megaplot_filtered_data()$unique_event),
+    choices_data <- megaplot_filtered_data() %>%
+      dplyr::select(.data$megaplots_selected_event, .data$megaplots_selected_event_group) %>%
+      dplyr::distinct()
+
+    shiny::updateSelectInput(
+      inputId = "sequencing_events",
+      choices = split(choices_data$megaplots_selected_event, choices_data$megaplots_selected_event_group),
       selected = NULL
     )
   })
@@ -1277,4 +1415,175 @@ app_server <- function(input, output, session) {
       )
     )
   })
+
+  #### sequencing ####
+  shiny::observeEvent(input$sequencing_distmeasure_name, {
+    if (input$sequencing_distmeasure_name == "DHD") {
+      choices_sub_cost <- sort(c(
+        "INDELS", "INDELSLOG", "TRATE"
+      ))
+      selected_sub_cost  <- "INDELS"
+    } else if (input$sequencing_distmeasure_name %in% c("OM", "OMloc", "OMslen", "OMspell", "OMstran","HAM")) {
+      choices_sub_cost  <- sort(c(
+        "CONSTANT", "INDELS", "INDELSLOG", "TRATE", "ORDINAL"
+      ))
+      selected_sub_cost  <- "CONSTANT"
+    }
+
+    if (input$sequencing_distmeasure_name %in% c("OM", "OMloc", "OMslen", "OMspell", "OMstran","DHD","HAM")) {
+      shinyWidgets::updatePickerInput(
+        session,
+        inputId = "sequencing_substitution_cost",
+        choices = choices_sub_cost ,
+        selected = selected_sub_cost
+      )
+    }
+    if(input$sequencing_distmeasure_name %in% c("CHI2", "EUCLID")){
+      choices_norm <- sort(
+        c("auto", "none")
+      )
+      selected_norm <- "auto"
+    } else if (input$sequencing_distmeasure_name %in% c('OM', 'OMloc', 'OMslen', 'OMspell',
+                  'OMstran', 'DHD', 'LCS', 'LCP', 'RLCP')) {
+      choices_norm <- sort(
+        c("auto", "none", "maxlength", "gmean",
+          "maxdist", "YujianBo")
+      )
+      selected_norm <- "auto"
+    }
+    if (input$sequencing_distmeasure_name %in% c("OM", "OMloc", "OMslen", "OMspell","OMstran",
+          "DHD", "LCS", "LCP", "RLCP","CHI2", "EUCLID")) {
+      shinyWidgets::updatePickerInput(
+        session,
+        inputId =  "sequencing_normalization",
+        label = "Normalization",
+        choices = choices_norm,
+        selected = selected_norm
+      )
+    }
+  })
+
+
+  shiny::observeEvent(input$sequencing_button, {
+    shiny::req(input$sequencing_events)
+
+    shinyWidgets::updatePrettySwitch(
+      session,
+      inputId = "sequencing_switch",
+      value = FALSE
+    )
+
+    selected_event_for_sequencing <- input$sequencing_events
+
+    megaplot_data <- megaplot_filtered_data() %>%
+      dplyr::filter(.data$event %in% selected_event_for_sequencing)
+
+    n_matrix <- length(unique(megaplot_data$megaplots_selected_subjectid))
+    m_matrix <- length(min(megaplot_data$megaplots_selected_event_time):max(megaplot_data$megaplots_selected_event_time_end)) #* length(selected_event_for_sequencing)
+
+    dist_list <- list()
+
+    index_n <- megaplot_data %>%
+      dplyr::filter(.data$event %in% selected_event_for_sequencing) %>%
+      nrow()
+
+    index <- 1/index_n
+
+    shiny::withProgress(message = "Apply seriation", value = 0, {
+      for ( i in 1:length(selected_event_for_sequencing)) {
+        dist_init <- matrix(NA, n_matrix, m_matrix)
+        rownames(dist_init) <- unique(megaplot_data$megaplots_selected_subjectid)
+        colnames(dist_init) <- paste0((min(megaplot_data$megaplots_selected_event_time):max(megaplot_data$megaplots_selected_event_time_end)))
+
+        megaplot_data_tmp <- megaplot_data %>%
+          dplyr::filter(!.data$event %in% selected_event_for_sequencing[i])
+        for(j in 1:nrow(megaplot_data_tmp)) {
+
+          megaplot_data_tmp[j, ]$megaplots_selected_subjectid
+          dist_init[paste0(megaplot_data_tmp[j, ]$megaplots_selected_subjectid),
+                    paste0(megaplot_data_tmp[j, ]$megaplots_selected_event_time:megaplot_data_tmp[j, ]$megaplots_selected_event_time_end)] <- 1
+          shiny::incProgress(amount = index)
+        }
+
+        par <- list(
+          # distmeasure =  "OM",
+          distmeasure =  input$sequencing_distmeasure_name,
+          #sm = "CONSTANT",
+          sm = input$sequencing_substitution_cost,
+          # sm and smDHD are same input with different selections
+          smDHD = input$sequencing_substitution_cost,
+          norm = input$sequencing_normalization,
+          #norm = "auto",
+          norm2 = input$sequencing_normalization,
+          #indel = "auto",
+          indel = input$sequencing_insertion_deletion_cost,
+          indel_numeric = 1,
+          #indel_numeric = input$sequencing_insertion_deletion_cost_numeric,
+          # expcost = 0.5,
+          expcost = input$sequencing_exponential_weight_spell_length,
+          # context =  0,
+          context =  input$sequencing_local_insertion_cost,
+          # link = "mean",
+          link = input$sequencing_substitution_costs_function,
+          # h_OMslen = 0.5,
+          h_OMslen = input$sequencing_exponential_weight_spell_length,
+          # transindel =  "constant",
+          transindel =  input$sequencing_sequencing_transition_indel_cost_method,
+          # tpow =  1,
+          #Exponential weight of spell length
+          tpow = input$sequencing_exponential_weight_spell_length,
+          # otto =  0.5,
+          otto = input$sequencing_origin_transition_trade_off_weight,
+          # previous = "FALSE",
+          previous = input$sequencing_account_transition_previous_state,
+          #add.column = "TRUE",
+          add.column = input$sequencing_duplicate_last_column,
+          # overlap = "FALSE",
+          overlap = input$sequencing_intervals_overlapping,
+          # step = 1,
+          step = input$sequencing_interval_length,
+          #weighted ="TRUE",
+          weighted = input$sequencing_distribution_states_weights,
+          # methMissing =  "new state"
+          methMissing = input$sequencing_missing_method
+        )
+        # Check for OMloc and empty sequences
+        if (par$distmeasure == "OMloc" &
+            any(apply(dist_init[, -1], 1, function(x)
+              all(is.na(x))))) {
+          method_missing <- "new state"
+          par$methMissing <- "new state"
+          dist_init[is.na(dist_init)] <- 0
+        }
+
+        seq <- suppressMessages(TraMineR::seqdef(dist_init, 2:ncol(dist_init)))
+        # Get the parameters for the distance function
+
+        seqargs_all <- get_parameters(seq, par)
+
+
+        # Calculate the pairwise distances for this variable:
+        dist_list[[i]] <-
+          suppressMessages(do.call(TraMineR::seqdist, seqargs_all))
+      }
+
+    })
+    dist <- Reduce(`+`, dist_list)
+
+    ddist <-
+      stats::as.dist(dist) # the following needs it to be a dist object
+
+    # Use the seriation package to compute the order
+    sq <- suppressMessages(seriation::seriate(ddist, method = input$sequencing_seriation_method))
+
+    shinyWidgets::updatePrettySwitch(
+      session,
+      inputId = "sequencing_switch",
+      value = TRUE
+    )
+    sequencing_object$val <- sq
+  })
+
+  sequencing_object <- shiny::reactiveValues(val = NULL)
+
 }

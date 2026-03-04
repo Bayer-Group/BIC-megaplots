@@ -14,6 +14,18 @@
 #'  plotly legend (default: TRUE)
 #' @param hovermode character for plotly hovermode either "x" or "x unified"
 #'  (default "x")
+#' @param reference_line_1_value numeric value with start value for first reference line/rect (x-axis)
+#' @param reference_line_2_value numeric value with start value for second reference line/rect (x-axis)
+#' @param reference_line_3_value numeric value with start value for third reference line/rect (x-axis)
+#' @param reference_line_1_value2 numeric value with end value for first reference line/rect (x-axis)
+#' @param reference_line_2_value2 numeric value with end value for second reference line/rect (x-axis)
+#' @param reference_line_3_value2 numeric value with end value for third reference line/rect (x-axis)
+#' @param reference_line_1 logical value if first reference line/rect should be drawn
+#' @param reference_line_2 logical value if second reference line/rect should be drawn
+#' @param reference_line_3 logical value if third reference line/rect should be drawn
+#' @param reference_line_1_color character with hex color code for first reference line/rect
+#' @param reference_line_2_color character with hex color code for second reference line/rect
+#' @param reference_line_3_color character with hex color code for third reference line/rect
 #'
 #' @export
 draw_event_summary <- function(
@@ -23,7 +35,19 @@ draw_event_summary <- function(
     event_summary_cutoff = 1,
     event_summary_selection,
     switch_legend_grouping = TRUE,
-    hovermode = "x"
+    hovermode = "x",
+    reference_line_1,
+    reference_line_2,
+    reference_line_3,
+    reference_line_1_value,
+    reference_line_2_value,
+    reference_line_3_value,
+    reference_line_1_value2,
+    reference_line_2_value2,
+    reference_line_3_value2,
+    reference_line_1_color,
+    reference_line_2_color,
+    reference_line_3_color
 ) {
 
   #get number of groups from variable group_index
@@ -130,6 +154,24 @@ draw_event_summary <- function(
         x = ~ megaplots_selected_event_time
       )
 
+      #reference lines/rectangle part
+      if (reference_line_1) {
+        if (!reference_line_2) {
+          reference_line_2_value <- "NA"
+          reference_line_2_value2 <- "NA"
+        }
+        if (!reference_line_3) {
+          reference_line_3_value <- "NA"
+          reference_line_3_value2 <- "NA"
+        }
+
+        fig<- fig %>% plotly::layout(
+          shapes = list(vrect(reference_line_1_value, reference_line_1_value2, reference_line_1_color),
+                        vrect(reference_line_2_value, reference_line_2_value2, reference_line_2_color),
+                        vrect(reference_line_3_value, reference_line_3_value2, reference_line_3_color)
+          )
+        )
+      }
       #add lines to initial figure
         if (switch_legend_grouping) {
           fig2 <- fig  %>%
@@ -260,6 +302,25 @@ draw_event_summary <- function(
 
       #initial plotly figure
       fig <- plotly::plot_ly(data = df_group, x = ~ day)
+
+      #reference lines/rectangle part
+      if (reference_line_1) {
+        if (!reference_line_2) {
+          reference_line_2_value <- "NA"
+          reference_line_2_value2 <- "NA"
+        }
+        if (!reference_line_3) {
+          reference_line_3_value <- "NA"
+          reference_line_3_value2 <- "NA"
+        }
+
+        fig<- fig %>% plotly::layout(
+          shapes = list(vrect(reference_line_1_value, reference_line_1_value2, reference_line_1_color),
+                        vrect(reference_line_2_value, reference_line_2_value2, reference_line_2_color),
+                        vrect(reference_line_3_value, reference_line_3_value2, reference_line_3_color)
+          )
+        )
+      }
 
       # add lines to plotly figur
       if (hovermode == "x") {

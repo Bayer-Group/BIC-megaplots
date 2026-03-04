@@ -65,7 +65,7 @@ artificial_intelligence_ui <- function(id) {
                      ),
                      ns = NS(id)
     ),
-    seriation_ui(ns("parametersModule")),
+    # seriation_ui(ns("parametersModule")),
     shinyWidgets::actionBttn(
       inputId = ns('seq.button'),
       label = 'Apply sequencing',
@@ -121,13 +121,13 @@ artificial_intelligence_server <- function(
   })
 
   # call seriation module
-  input_seriation <- seriation_server(
-    "parametersModule",
-    shiny::reactive({input$varSeq}),
-    shiny::reactive({input$multiple_distmeasures}),
-    shiny::reactive({megaplot_filtered_data()}),
-    shiny::reactive({input$seq.button})
-  )
+  # input_seriation <- seriation_server(
+  #   "parametersModule",
+  #   shiny::reactive({input$varSeq}),
+  #   shiny::reactive({input$multiple_distmeasures}),
+  #   shiny::reactive({megaplot_filtered_data()}),
+  #   shiny::reactive({input$seq.button})
+  # )
 
   collectSeq <- shiny::reactiveValues(
     varSeq = NULL,
@@ -179,7 +179,7 @@ artificial_intelligence_server <- function(
   return(list(
     varSeq = shiny::reactive({collectSeq$varSeq}),
     methSer = shiny::reactive({collectSeq$methSer}),
-    input_seriation = shiny::reactive({input_seriation$input_seriation()}),
+    # input_seriation = shiny::reactive({input_seriation$input_seriation()}),
     seq.button = shiny::reactive({input$seq.button}),
     multiple_distmeasures = shiny::reactive({input$multiple_distmeasures})
   ))
