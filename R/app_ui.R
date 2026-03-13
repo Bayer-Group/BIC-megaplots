@@ -31,34 +31,8 @@ app_ui <- function(request) {
       functions = c("init")
     ),
 
-    # custom css style of custom "helptext_status" used in fct_help_text_dropdown_button.R
-    shiny::tags$style(
-      ".btn-helptext_status {background-color: #404A4E; color: #0091DF; border: 0.2px solid; border-color:#6d787d;}"
-    ),
-    # Add CSS styles (overwrite color appearance of fileInput button)
-    tags$style(
-      type = "text/css",
-      ".btn-outline-default,
-      .btn-default:not(
-      .btn-primary,
-      .btn-secondary,
-      .btn-info,.btn-success,
-      .btn-danger,
-      .btn-warning,
-      .btn-light,
-      .btn-dark,
-      .btn-link,[class*='btn-outline-']
-      ) {
-        --bs-btn-color: white;
-        --bs-btn-border-color: white;
-        --bs-btn-hover-border-color: white;
-        --bs-btn-hover-color: white;
-      }"
-    ),
-
     # Add CSS styles (overwrite shinyTree hover/highlight appearance and search highlight color)
     ## shinyTree appearances
-    tags$style(type = 'text/css', ".jstree-default .jstree-clicked {background-color: #404A4E}"),
     tags$style(type = 'text/css', ".jstree-default .jstree-hovered {background-color: #1d2224}"),
     tags$style(type = 'text/css', ".jstree-default .jstree-search { color: yellow;}"),
 
@@ -81,25 +55,37 @@ app_ui <- function(request) {
 
     # Use page_navbar from bslib package
     bslib::page_navbar(
-      title = "MEGAPLOTS",
+      title = HTML(paste0("<b> MEGAPLOTS </b>")),
+      # title = tagList(
+      #   #depending on theme display hexsticker in theme colors
+      #   shiny::conditionalPanel(condition = "input.theme_toggle == 'dark'",
+      #                           img(src = "www/Megaplot_Rebuild_Logo_Dark3.png", height = "45px")
+      #   ),
+      #   shiny::conditionalPanel(condition = "input.theme_toggle != 'dark'",
+      #                           img(src = "www/Megaplot_Rebuild_Logo_White3.png", height = "45px")
+      #   )
+      # ),
       id = "MEGAPLOTS",
-      #create color theme for user interface
+      #create  theme for user interface
       theme = bslib::bs_theme(
         version = 5,
-        primary = "#0091DF",                     #primary color used for inputs
-        "navbar-bg" = "#0091DF",                 #navbar background color
-        bg = "#404A4E",                          #app background-color
-        fg = "white",                            #font-color
         heading_font = "Agency FB",              #font
         base_font = "Agency FB",                 #font
-        font_scale = 1.6,                        #font size
-        "input-border-color" = "#d2d2d2"
+        font_scale = 1.4                    #font size
       ),
       #### Sidebar ####
       # Use accordion_panels from bslib
       sidebar = bslib::sidebar(
-        width = 300,
-        title = div(img(src = "www/megaplot_hexsticker.png", height = "175px")),
+        width = 250,
+        title = tagList(
+          #depending on theme display hexsticker in theme colors
+          shiny::conditionalPanel(condition = "input.theme_toggle == 'dark'",
+            div(img(src = "www/megaplot_hexsticker_n.png", height = "175px",style = "display: block; margin-left: auto; margin-right: auto;"))
+          ),
+          shiny::conditionalPanel(condition = "input.theme_toggle != 'dark'",
+            div(img(src = "www/megaplot_hexsticker_n2.png", height = "175px",style = "display: block; margin-left: auto; margin-right: auto;"))
+          )
+        ),
         bslib::accordion(open = FALSE,
           bslib::accordion_panel(
             "Sorting/Grouping",
@@ -113,7 +99,8 @@ app_ui <- function(request) {
               options = list(
                 `live-search` = TRUE
               ),
-              choicesOpt = list(style =  rep_len("font-size: 60%; line-height: 1.6;", 3)
+              choicesOpt = list(
+                style =  rep_len("font-size: 60%; line-height: 1.6;", 3)
               )
             ),
             shiny::selectizeInput(
@@ -166,7 +153,6 @@ app_ui <- function(request) {
               inline = TRUE,
               selected = "x"
             ),
-            ####
             shiny::checkboxInput(
               inputId = 'reference_line_1',
               label = 'Add reference rectangle',
@@ -246,7 +232,6 @@ app_ui <- function(request) {
                 value = 0
               ),
             ),
-            #####
             shiny::numericInput(
               inputId = "event_summary_cutoff",
               label = "Display hover for counts greater than or equal to:",
@@ -570,20 +555,23 @@ app_ui <- function(request) {
             # )
           )
         )
+        ,
+        HTML(paste0("<p style = 'color: #dedede;'> Version: ",utils::packageVersion("Megaplots")))
       ),
       #### Main area ####
       bslib::nav_panel(
         id = "Data Upload",
         title = "Data Upload",
         #initialize waiter functions
-        waiter::useGarcon(),
+        # waiter::useGarcon(),
         waiter::useWaiter(),
         waiter::waiterShowOnLoad(
           tags$img(
-            src = "www/megaplot_hexsticker.png",
+            src = "www/megaplot_hexsticker_n.png",
             height = "175px",
             id = "megaplot_hexsticker"
-          )
+          ),
+          color = "#1D1F21"
         ),
         bslib::navset_card_underline(
           id = "Upload",
@@ -641,7 +629,27 @@ app_ui <- function(request) {
           # bslib::nav_select() to switch panels after pressing
           # "NEXT-"/"BACK"-buttons
           value = "File & variable selection 2",
-          shiny::fluidRow(
+            shiny::wellPanel(
+            HTML(paste0("<b>
+                        Welcome!
+                </b>")),
+            HTML(
+              paste0(
+                "<p>
+                  MEGAPLOTS is a huge graphical display showing individual-level data over time.
+                  MEGAPLOTS seek to represent longitudinal data while focusing on event visualization!
+                </p>"
+              )
+            ),
+            HTML(
+              paste0(
+                "<p>
+                  To get started, please upload your data below, select the desired
+                  variables, and click the 'NEXT' button.
+                </p>"
+              )
+            )),
+          shiny::wellPanel(
             shiny::column(3,
               shiny::fileInput(
                 inputId = 'file',
@@ -650,8 +658,7 @@ app_ui <- function(request) {
                 accept = '.RData'
               )
             ),
-            span(textOutput("file_upload_message"),style = "color:#cc0a21;")
-          ),
+            span(textOutput("file_upload_message"),style = "color:#cc0a21;"),
           tags$style(
             HTML(
               "select[data-max-options=\"1\"] ~ .dropdown-menu .bs-actionsbox .bs-select-all {display: none;}"
@@ -782,7 +789,7 @@ app_ui <- function(request) {
                   icon = shiny::icon("angle-right")
                 )
               )
-            ),theme = bslib::bs_theme(version = 5)
+            )),theme = bslib::bs_theme(version = 5)
           ),
           bslib::nav_panel(
             tags$div(
@@ -1179,7 +1186,7 @@ app_ui <- function(request) {
               shinycssloaders::withSpinner(
                  plotly::plotlyOutput("mega_plots"),
                  color = "white",
-                 image = "www/megaplot_hexsticker.png",
+                 image = "www/megaplot_hexsticker_n.png",
                  image.height = "175px",
                  caption = "Loading..."
               )
@@ -1223,7 +1230,7 @@ app_ui <- function(request) {
               shinycssloaders::withSpinner(
                 ui_element = plotly::plotlyOutput("event_summary"),
                 color = "white",
-                image = "www/megaplot_hexsticker.png",
+                image = "www/megaplot_hexsticker_n.png",
                 image.height = "175px",
                 caption = "Loading..."
               )
@@ -1275,6 +1282,10 @@ app_ui <- function(request) {
           #    plotly::plotlyOutput("kaplan_meier")
           # )
         )
+      ),
+      bslib::nav_spacer(),
+      bslib::nav_item(
+        bslib::input_dark_mode(id = "theme_toggle", mode = "dark")
       )
     )
   )

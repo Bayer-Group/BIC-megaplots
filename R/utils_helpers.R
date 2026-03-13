@@ -129,3 +129,34 @@ create_palette <- function(n, name) {
   return(selected_color_palette)
 }
 
+
+# light_theme <- bslib::bs_theme(
+#  # version = 5
+# )
+#
+# dark_theme <- bslib::bs_theme(
+# #  version = 5,
+#   primary = "#0091DF",                     #primary color used for inputs
+#   "navbar-bg" = "#0091DF",                 #navbar background color
+#   bg = "#404A4E",                          #app background-color
+#   fg = "white",                            #font-color
+#   heading_font = "Agency FB",              #font
+#   base_font = "Agency FB",                 #font
+#   font_scale = 1.6,                        #font size
+#   "input-border-color" = "#d2d2d2"
+# )
+
+
+vrect <- function(x = 0, x2, color = "#fe333f20") {
+  list(
+    type = "rect",
+    fillcolor = color,
+    y0 = 0,
+    y1 = 1,
+    yref = "paper",
+    x0 = x,
+    layer = "below",
+    x1 = x2,
+    line = list(color = color)
+  )
+}

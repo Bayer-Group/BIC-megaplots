@@ -47,7 +47,8 @@ draw_event_summary <- function(
     reference_line_3_value2,
     reference_line_1_color,
     reference_line_2_color,
-    reference_line_3_color
+    reference_line_3_color,
+    theme
 ) {
 
   #get number of groups from variable group_index
@@ -173,7 +174,7 @@ draw_event_summary <- function(
         )
       }
       #add lines to initial figure
-        if (switch_legend_grouping) {
+        # if (switch_legend_grouping) {
           fig2 <- fig  %>%
             plotly::add_lines(
               color = ~I(event_color),
@@ -183,39 +184,45 @@ draw_event_summary <- function(
               legendgroup = ~ megaplots_selected_event_group,
               legendgrouptitle = list(text = ~ megaplots_selected_event_group)
             )
-        } else {
-          fig2 <- fig  %>%
-            plotly::add_lines(
-              color = ~I(event_color),
-              line = list(shape = "hv", width = 3),
-              name = ~ unique_event,
-              showlegend = FALSE,
-              legendgroup = ~ unique_event
-            )
-        }
+          if (!switch_legend_grouping) {
+            fig2 <-  fig2 %>%
+              plotly::layout(legend = list(traceorder = "grouped", groupclick = "toggleitem"))
+          }
+        # } else {
+        #   fig2 <- fig  %>%
+        #     plotly::add_lines(
+        #       color = ~I(event_color),
+        #       line = list(shape = "hv", width = 3),
+        #       name = ~ unique_event,
+        #       showlegend = FALSE,
+        #       legendgroup = ~ unique_event
+        #     )
+        # }
 
       #update figure layout
       fig3 <- fig2 %>%
         plotly::layout(
-          plot_bgcolor = "#404A4E",
-          paper_bgcolor ='#404A4E',
+          plot_bgcolor = ifelse(theme =="dark","#1D1F21","#fff"),
+          paper_bgcolor =ifelse(theme =="dark","#1D1F21","#fff"),
           xaxis = list(
-            color='#FFFFFF',
+            color=ifelse(theme =="dark","#fff","#000"),
             title = "Study Day",
             zeroline = FALSE,
             spikemode = 'across+marker',
             spikethickness = 1,
             spikedash = "dash",
-            spikecolor = "#FFFFFF"
+            spikecolor = ifelse(theme =="dark","#fff","#000")
           ),
           yaxis = list(
-            color='#FFFFFF',
+            color=ifelse(theme =="dark","#fff","#000"),
             showgrid = TRUE,
             title = "Cumulative event count per day",
             zeroline = FALSE,
             autotick = TRUE
           ),
-          font = list(family = "Agency FB", color = "#FFFFFF")#,
+          font = list(
+            family = "Agency FB",
+            color = ifelse(theme =="dark","#fff","#000"))#,
           # barmode = "stack"
         )
       figure_list[[k]] <- fig3
@@ -324,7 +331,7 @@ draw_event_summary <- function(
 
       # add lines to plotly figur
       if (hovermode == "x") {
-        if (switch_legend_grouping) {
+        # if (switch_legend_grouping) {
           fig2 <- fig %>%
             plotly::add_lines(
               y = ~ value,
@@ -337,21 +344,25 @@ draw_event_summary <- function(
               legendgroup = ~ megaplots_selected_event_group,
               legendgrouptitle = list(text = ~ megaplots_selected_event_group)
             )
-        } else {
-          fig2 <- fig %>%
-            plotly::add_lines(
-              y = ~ value,
-              color = ~I(event_color),
-              line = list(shape = "hv", width = 3),
-              name = ~ unique_event,
-              showlegend = FALSE,
-              hoverinfo = ~ tooltip,
-              text = ~ tooltip_text,
-              legendgroup = ~ unique_event
-            )
-        }
+          if (!switch_legend_grouping) {
+            fig2 <-  fig2 %>%
+              plotly::layout(legend = list(traceorder = "grouped", groupclick = "toggleitem"))
+          }
+        # } else {
+        #   fig2 <- fig %>%
+        #     plotly::add_lines(
+        #       y = ~ value,
+        #       color = ~I(event_color),
+        #       line = list(shape = "hv", width = 3),
+        #       name = ~ unique_event,
+        #       showlegend = FALSE,
+        #       hoverinfo = ~ tooltip,
+        #       text = ~ tooltip_text,
+        #       legendgroup = ~ unique_event
+        #     )
+        # }
       } else {
-        if (switch_legend_grouping) {
+        # if (switch_legend_grouping) {
           fig2 <- fig %>%
             plotly::add_lines(
               y = ~ value,
@@ -362,40 +373,44 @@ draw_event_summary <- function(
               legendgroup = ~ megaplots_selected_event_group,
               legendgrouptitle = list(text = ~ megaplots_selected_event_group)
             )
-        } else {
-          fig2 <- fig %>%
-            plotly::add_lines(
-              y = ~ value,
-              color = ~I(event_color),
-              line = list(shape = "hv", width = 3),
-              name = ~ unique_event,
-              showlegend = FALSE,
-              legendgroup = ~ unique_event
-            )
-        }
+          if (!switch_legend_grouping) {
+            fig2 <-  fig2 %>%
+              plotly::layout(legend = list(traceorder = "grouped", groupclick = "toggleitem"))
+          }
+        # } else {
+        #   fig2 <- fig %>%
+        #     plotly::add_lines(
+        #       y = ~ value,
+        #       color = ~I(event_color),
+        #       line = list(shape = "hv", width = 3),
+        #       name = ~ unique_event,
+        #       showlegend = FALSE,
+        #       legendgroup = ~ unique_event
+        #     )
+        # }
       }
 
       fig3 <- fig2 %>%
         plotly::layout(
-          plot_bgcolor = "#404A4E",
-          paper_bgcolor ='#404A4E',
+          plot_bgcolor = ifelse(theme =="dark","#1D1F21","#fff"),
+          paper_bgcolor =ifelse(theme =="dark","#1D1F21","#fff"),
           xaxis = list(
-            color='#FFFFFF',
+            color=ifelse(theme =="dark","#fff","#000"),
             title = "Study Day",
             zeroline = FALSE,
             spikemode = 'across+marker',
             spikethickness = 1,
             spikedash = "dash",
-            spikecolor = "#FFFFFF"
+            spikecolor = ifelse(theme =="dark","#fff","#000")
           ),
           yaxis = list(
-            color='#FFFFFF',
+            color=ifelse(theme =="dark","#fff","#000"),
             showgrid = TRUE,
             title ="Event count per day",
             zeroline = FALSE,
             autotick = TRUE
           ),
-          font = list(family = "Agency FB", color = "#FFFFFF")
+          font = list(family = "Agency FB", color = ifelse(theme =="dark","#fff","#000"))
         )
 
       figure_list[[k]] <- fig3

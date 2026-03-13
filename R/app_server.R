@@ -274,7 +274,7 @@ app_server <- function(input, output, session) {
       check_event_time_end = input$select_event_time_end
     )
     # variable_check$val <- variable_check
-      # when check is successful display next button
+    # when check is successful display next button
     if(!is.null(variable_check))  {
       if (variable_check) {
         shinyjs::showElement(id = "upload_1_next_button")
@@ -537,6 +537,21 @@ app_server <- function(input, output, session) {
 
   })
 
+  shiny::observeEvent(input$theme_toggle, {
+    if (!is.null(color_data$all)) {
+      if (nrow(color_data$all)>0) {
+        header_color <- ifelse(input$theme_toggle =="dark", "#1D1F21", "#fff")
+        color_data$all <- color_data$all %>%
+          dplyr::mutate(
+            event_color = dplyr::case_when(
+              is.na(megaplots_selected_event) ~ header_color,
+              !is.na(megaplots_selected_event) ~ event_color
+            )
+          )
+      }
+    }
+  })
+
   # The purpose of this observer is to create/initialize a logical vector
   # for every event/event_group available in the data. By default events within
   # event_groups are jittered on the y-axis.
@@ -637,7 +652,7 @@ app_server <- function(input, output, session) {
           ) %>%
           dplyr::pull(.data$event_color)
 
-        new_event_group_color <- c(new_event_group_color, "#404A4E")
+        new_event_group_color <- c(new_event_group_color, "#1D1F21")
 
         color_data$all[
           color_data$all$megaplots_selected_event_group ==
@@ -815,7 +830,8 @@ app_server <- function(input, output, session) {
                 "border-color: ",font_color(selected_data[column_number, ]$event_color),";",
                 "background:", ifelse(
                   selected_data[column_number, ]$type == "megaplots_selected_event",
-                  selected_data[column_number, ]$event_color,  "#404A4E"),
+                  selected_data[column_number, ]$event_color,  ifelse(input$theme_toggle =="dark","#1D1F21","#fff")),
+                  #selected_data[column_number, ]$event_color,  "#1D1F21"),
                 ";",
                 "padding:", ifelse(
                   selected_data[column_number, ]$type == "megaplots_selected_event",
@@ -824,6 +840,7 @@ app_server <- function(input, output, session) {
                 ";",
                 "color: ",
                 font_color(selected_data[column_number, ]$event_color),
+                #"#9e9e9e",
                 ";"
 
               ),
@@ -1033,7 +1050,8 @@ app_server <- function(input, output, session) {
   uploaded_data_w_ids <- shiny::reactive({
     create_unique_event_identifier(
       #megaplot_data_raw = shiny::req(uploaded_data$val)
-      megaplot_data_raw = shiny::req(uploaded_data_renamed())
+      megaplot_data_raw = shiny::req(uploaded_data_renamed())#,
+      #theme = shiny::isolate(input$theme_toggle)
     )
   })
 
@@ -1258,7 +1276,8 @@ app_server <- function(input, output, session) {
       reference_line_3_value2 = reference_lines_reactive$reference_line_3_value2,
       reference_line_1_color = reference_lines_reactive$reference_line_1_color,
       reference_line_2_color = reference_lines_reactive$reference_line_2_color,
-      reference_line_3_color = reference_lines_reactive$reference_line_3_color
+      reference_line_3_color = reference_lines_reactive$reference_line_3_color,
+      theme = input$theme_toggle
       # circular_vision = input$circular_vision
     )
     session_store$val <- tmp
@@ -1297,7 +1316,8 @@ app_server <- function(input, output, session) {
       reference_line_3_value2 = reference_lines_reactive$reference_line_3_value2,
       reference_line_1_color = reference_lines_reactive$reference_line_1_color,
       reference_line_2_color = reference_lines_reactive$reference_line_2_color,
-      reference_line_3_color = reference_lines_reactive$reference_line_3_color
+      reference_line_3_color = reference_lines_reactive$reference_line_3_color,
+      theme = input$theme_toggle
 
     )
   })

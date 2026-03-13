@@ -47,14 +47,14 @@ draw_mega_plot <- function(
     reference_line_3_value2,
     reference_line_1_color,
     reference_line_2_color,
-    reference_line_3_color
+    reference_line_3_color,
+    theme
     # circular_vision = FALSE
   ) {
 
   #check if sequencing switch is on and if a sequencing object is available
   if (sequencing_switch) {
     if (!is.null(sequencing_object)) {
-
       #Save Sequencing with corresponding identifier
       sequencing_ranks_data <- data.frame(
         megaplots_selected_subjectid = as.numeric(names(seriation::get_rank(sequencing_object))),
@@ -77,7 +77,7 @@ draw_mega_plot <- function(
         }
       }
 
-      #join/merge Sequencing order to prepared data
+      # join/merge Sequencing order to prepared data
       megaplot_prepared_data_w_ranks <- megaplot_prepared_data %>%
         dplyr::ungroup() %>%
         dplyr::left_join(
@@ -85,7 +85,7 @@ draw_mega_plot <- function(
           by = "megaplots_selected_subjectid"
         )
 
-      #get number of subjects
+      # get number of subjects
       n_subjects <- megaplot_prepared_data_w_ranks$megaplots_selected_subjectid %>%
         unique() %>%
         length()
@@ -109,12 +109,16 @@ draw_mega_plot <- function(
         dplyr::left_join(
           sequencing_grouped_data,
           by = "megaplots_selected_subjectid"
-        ) %>% dplyr::mutate(subjectid_n_jittered = (.data$SEQUENCING_grouped_ranked + (.data$group_index - 1) * 10) + .data$jitter_event_time)
+        ) %>%
+        dplyr::mutate(
+          subjectid_n_jittered = (.data$SEQUENCING_grouped_ranked + (.data$group_index - 1) * 10) + .data$jitter_event_time
+        )
     }
   }
 
   min_start_day <- min(megaplot_prepared_data$megaplots_selected_event_time, na.rm = TRUE)
   max_end_day <- max(megaplot_prepared_data$megaplots_selected_event_time_end, na.rm = TRUE)
+
   if (!is.null(megaplot_filtered_data)) {
     megaplot_filtered_data <- megaplot_filtered_data %>%
       dplyr::mutate(
@@ -137,7 +141,6 @@ draw_mega_plot <- function(
     dplyr::mutate(
       text_lines = paste0("Subject identifier: ", .data$megaplots_selected_subjectid)
     )
-
 
   # if (circular_vision) {
   #   number_subjects <- length(megaplot_prepared_data$subjectid_n)
@@ -170,14 +173,16 @@ draw_mega_plot <- function(
       )
     }
 
+  # initialize plotly object
   p_1 <- megaplot_prepared_data %>%
     plotly::plot_ly(                            #create empty plot_ly object
       source = "plotSource",
       #color = ~I(event_color),
       type ="scatter",
       mode = "lines+markers"
-    ) #%>%
+    )
 
+  #add subjects line when start_time and end_time is available
   if (!(all(is.na(megaplot_prepared_data$megaplots_selected_start_time)) | all(is.na(megaplot_prepared_data$megaplots_selected_end_time)))) {
     p_1 <- p_1 %>%
     plotly::add_segments(                       # create subject lines via add_segments
@@ -187,26 +192,13 @@ draw_mega_plot <- function(
       hoverinfo = "text",
       text = ~ text_lines,
       xend = ~ megaplots_selected_end_time,
-      line = list(color = "#2c3336", width = line_width_subjects),
+      line = list(color = ifelse(theme =="dark", "#2c3336","#dedede"), width = line_width_subjects),
       showlegend = FALSE
     )
   }
-  vrect <- function(x = 0, x2, color = "#fe333f20") {
-    list(
-      type = "rect",
-      fillcolor = color,
-      y0 = 0,
-      y1 = 1,
-      yref = "paper",
-      x0 = x,
-      layer = "below",
-      x1 = x2,
-      line = list(color = color)
-    )
-  }
 
+  #draw reference lines/rectagnles (if applicable)
   if (reference_line_1) {
-
     if (!reference_line_2) {
       reference_line_2_value <- "NA"
       reference_line_2_value2 <- "NA"
@@ -215,18 +207,19 @@ draw_mega_plot <- function(
       reference_line_3_value <- "NA"
       reference_line_3_value2 <- "NA"
     }
-
     p_1 <- p_1 %>% plotly::layout(
-      shapes = list(vrect(reference_line_1_value, reference_line_1_value2, reference_line_1_color),
-                    vrect(reference_line_2_value, reference_line_2_value2, reference_line_2_color),
-                    vrect(reference_line_3_value, reference_line_3_value2, reference_line_3_color)
+      shapes = list(
+        #use vrect function from utils_helpers.R
+        vrect(reference_line_1_value, reference_line_1_value2, reference_line_1_color),
+        vrect(reference_line_2_value, reference_line_2_value2, reference_line_2_color),
+        vrect(reference_line_3_value, reference_line_3_value2, reference_line_3_color)
       )
     )
   }
 
   if (!is.null(megaplot_filtered_data)) {
     if (event_tooltips) {
-      if (switch_legend_grouping) {
+      # if (switch_legend_grouping) {
         p_2 <- p_1 %>%
           plotly::add_segments(
             data = plotly::highlight_key(megaplot_filtered_data %>% dplyr::filter(is.na(.data$n_flag)), ~ megaplots_selected_event),
@@ -244,24 +237,32 @@ draw_mega_plot <- function(
             hoverlabel = list(orientation = "h")
           ) %>%
           plotly::highlight(~ megaplots_selected_event, on = "plotly_click", off = "plotly_doubleclick")
-      } else {
-        p_2 <- p_1 %>%
-          plotly::add_segments(
-            data = plotly::highlight_key(megaplot_filtered_data %>% dplyr::filter(is.na(.data$n_flag)), ~ megaplots_selected_event),
-            name = ~ unique_event,
-            x = ~ megaplots_selected_event_time,
-            xend =~ megaplots_selected_event_time_end,
-            y = ~subjectid_n_jittered,
-            yend = ~subjectid_n_jittered,
-            color = ~I(event_color),
-            line = list(color = ~ event_color, width = line_width),
-            showlegend = TRUE,
-            hoverinfo = "text",
-            text = ~ text_events,
-            hoverlabel = list(orientation = "h")
-          ) %>%
-          plotly::highlight(~ megaplots_selected_event, on = "plotly_click", off="plotly_doubleclick")
+
+
+      if (!switch_legend_grouping) {
+        p_2 <-  p_2 %>%
+          plotly::layout(legend = list(traceorder = "grouped", groupclick = "toggleitem"))
       }
+      #else {
+
+
+        # p_2 <- p_1 %>%
+        #   plotly::add_segments(
+        #     data = plotly::highlight_key(megaplot_filtered_data %>% dplyr::filter(is.na(.data$n_flag)), ~ megaplots_selected_event),
+        #     name = ~ unique_event,
+        #     x = ~ megaplots_selected_event_time,
+        #     xend =~ megaplots_selected_event_time_end,
+        #     y = ~subjectid_n_jittered,
+        #     yend = ~subjectid_n_jittered,
+        #     color = ~I(event_color),
+        #     line = list(color = ~ event_color, width = line_width),
+        #     showlegend = TRUE,
+        #     hoverinfo = "text",
+        #     text = ~ text_events,
+        #     hoverlabel = list(orientation = "h")
+        #   ) %>%
+        #   plotly::highlight(~ megaplots_selected_event, on = "plotly_click", off="plotly_doubleclick")
+      # }
     }# else {
     #   p_2 <- p_1 %>%
     #     plotly::add_segments(
@@ -318,7 +319,7 @@ draw_mega_plot <- function(
           type = "scatter",
           mode = "text",
           text = ~text_snippet_total,
-          textfont = list(color = "white",size = 20), # font size grouping
+          textfont = list(color = ifelse(theme =="dark","#fff","#000"),size = 20), # font size grouping
           textposition = "middle right",
           x = ~text_position_x,
           y = ~text_position_y,
@@ -340,10 +341,10 @@ draw_mega_plot <- function(
 
   p_4 <- p_3 %>%
     plotly::layout(
-      plot_bgcolor = "#404A4E",
-      paper_bgcolor ='#404A4E',
+      plot_bgcolor = ifelse(theme =="dark","#1D1F21","#fff"),
+      paper_bgcolor = ifelse(theme =="dark","#1D1F21","#fff"),
       xaxis = list(
-        color='#FFFFFF',
+        color=ifelse(theme =="dark","#fff","#000"),
         title = "Day",
         zeroline = FALSE
       ),
@@ -359,7 +360,9 @@ draw_mega_plot <- function(
         # scaleratio = 1,
         # scaleanchor = "x"
       ),
-      font = list(family = "Agency FB", color = "#FFFFFF"),
+      font = list(
+        family = "Agency FB",
+        color = ifelse(theme =="dark","#fff","#000")),
       barmode = "overlay"#,
       #hovermode = "x unified"
     ) %>%

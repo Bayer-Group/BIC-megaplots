@@ -22,6 +22,8 @@ prepare_megaplot_data <- function(
   # create arranged dataset 'megaplot_data_arranged'
   # to create a "subject_index" variable in next step
 
+  if (is.null(megaplot_data_raw))  {return(NULL)}
+
   if(!is.null(arrange_groups)) {
     megaplot_data_raw <- megaplot_data_raw %>%
       dplyr::mutate(
