@@ -56,15 +56,6 @@ app_ui <- function(request) {
     # Use page_navbar from bslib package
     bslib::page_navbar(
       title = HTML(paste0("<b> MEGAPLOTS </b>")),
-      # title = tagList(
-      #   #depending on theme display hexsticker in theme colors
-      #   shiny::conditionalPanel(condition = "input.theme_toggle == 'dark'",
-      #                           img(src = "www/Megaplot_Rebuild_Logo_Dark3.png", height = "45px")
-      #   ),
-      #   shiny::conditionalPanel(condition = "input.theme_toggle != 'dark'",
-      #                           img(src = "www/Megaplot_Rebuild_Logo_White3.png", height = "45px")
-      #   )
-      # ),
       id = "MEGAPLOTS",
       #create  theme for user interface
       theme = bslib::bs_theme(
@@ -113,7 +104,7 @@ app_ui <- function(request) {
             ),
             # orderInput widget from shinyjqui package to drag and drop the
             # order of groups (if applicable)
-            shiny::uiOutput("arrange_groups"),
+            shiny::uiOutput("arrange_groups")
           ),
           bslib::accordion_panel(
             "Plot appearance",
@@ -630,9 +621,13 @@ app_ui <- function(request) {
           # "NEXT-"/"BACK"-buttons
           value = "File & variable selection 2",
             shiny::wellPanel(
-            HTML(paste0("<b>
-                        Welcome!
-                </b>")),
+              HTML(
+                paste0(
+                  "<p>
+                  WELCOME!
+                </p>"
+                )
+              ),
             HTML(
               paste0(
                 "<p>
@@ -648,7 +643,8 @@ app_ui <- function(request) {
                   variables, and click the 'NEXT' button.
                 </p>"
               )
-            )),
+            )
+          ),
           shiny::wellPanel(
             shiny::column(3,
               shiny::fileInput(

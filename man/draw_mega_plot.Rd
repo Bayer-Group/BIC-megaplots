@@ -26,7 +26,8 @@ draw_mega_plot(
   reference_line_3_value2,
   reference_line_1_color,
   reference_line_2_color,
-  reference_line_3_color
+  reference_line_3_color,
+  theme
 )
 }
 \arguments{
@@ -72,7 +73,9 @@ draw_mega_plot(
 
 \item{reference_line_2_color}{character with hex color code for second reference line/rect}
 
-\item{reference_line_3_color}{character with hex color code for third reference line/rect
+\item{reference_line_3_color}{character with hex color code for third reference line/rect}
+
+\item{theme}{character with app theme ["dark"/"light"]
 plotly legend (default: TRUE)}
 }
 \description{

@@ -26,6 +26,7 @@
 #' @param reference_line_1_color character with hex color code for first reference line/rect
 #' @param reference_line_2_color character with hex color code for second reference line/rect
 #' @param reference_line_3_color character with hex color code for third reference line/rect
+#' @param theme character with app theme ["dark"/"light"]
 #'
 #' @export
 draw_event_summary <- function(

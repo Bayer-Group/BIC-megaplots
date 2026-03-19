@@ -9,7 +9,8 @@
 #' @noRd
 
 create_unique_event_identifier <- function(
-    megaplot_data_raw
+    megaplot_data_raw,
+    theme = "dark"
 ) {
 
   if (is.null(megaplot_data_raw)) {return(NULL)}
@@ -88,6 +89,16 @@ create_unique_event_identifier <- function(
   megaplot_event_data_w_color <- megaplot_event_data_w_color %>% dplyr::mutate(
     jittered = TRUE
   )
+
+
+  header_color <- ifelse(theme =="dark", "#1D1F21", "#fff")
+  megaplot_event_data_w_color <- megaplot_event_data_w_color %>%
+    dplyr::mutate(
+      event_color = dplyr::case_when(
+        is.na(megaplots_selected_event) ~ header_color,
+        !is.na(megaplots_selected_event) ~ event_color
+      )
+    )
 
   # add created color vector to reactive object color_data$all
   return(megaplot_event_data_w_color)

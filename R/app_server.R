@@ -19,26 +19,18 @@ app_server <- function(input, output, session) {
     bslib::nav_select("MEGAPLOTS", "Megaplots")
   })
 
-  # shiny::observeEvent(input$upload_2_next_button, {
-  #   bslib::nav_select("Upload", "Event & color selection")
-  # })
-
   shiny::observeEvent(input$upload_1_next_button, {
     # bslib::nav_select("Upload", "Filtering")
     bslib::nav_select("Upload", "Event & color selection 2")
   })
-
-  # shiny::observeEvent(input$upload_2_back_button, {
-  #   bslib::nav_select("Upload", "File & variable selection")
-  # })
 
   shiny::observeEvent(input$upload_3_back_button, {
     #bslib::nav_select("Upload", "Filtering")
     bslib::nav_select("Upload", "File & variable selection 2")
   })
 
-  #### Downloadbutton appearance condition
-  #### Output: Funnel Availability ####
+  # reactive value used for conditionalpanel in ui to display "Save color file"-
+  # button only when colors are updated
   color_changed_reactive <- shiny::reactiveValues(val = FALSE)
 
   shiny::observeEvent(c(input$update_color_palette, input$update_color_palette_2), {
@@ -50,6 +42,7 @@ app_server <- function(input, output, session) {
   })
   outputOptions(output, "color_changed", suspendWhenHidden = FALSE)
 
+  # downloadHandler for "Save color file"-option
   output$save_colors <- shiny::downloadHandler(
     filename = function() {
       paste("Megaplot_color_file", gsub(":", "-", Sys.Date()), ".rds", sep = "")
@@ -71,8 +64,10 @@ app_server <- function(input, output, session) {
     }
   )
 
+  #observer for uploading a saved color file
   shiny::observeEvent(input$upload_saved_color_file, {
 
+    #get dimension of color file and uploaded saved color file
     dimension_color_data <- dim(color_data$all)
     uploaded_colors <- readRDS(input$upload_saved_color_file$datapath)
 
@@ -278,10 +273,8 @@ app_server <- function(input, output, session) {
     if(!is.null(variable_check))  {
       if (variable_check) {
         shinyjs::showElement(id = "upload_1_next_button")
-        # variable_check$val <- variable_check
       } else {
         shinyjs::hideElement(id = "upload_1_next_button")
-        # variable_check$val <- variable_check
       }
     }
   })
@@ -435,7 +428,7 @@ app_server <- function(input, output, session) {
       child = list(icon = "fa-regular fa-arrow_pointer")
     )
 
-    jsTreeR::jstree(
+    suppressMessages(jsTreeR::jstree(
       create_jsTree_input(data = unique_event_group_data()),
       #use create_jsTree_input function to create desired list input
       dragAndDrop = TRUE,
@@ -446,8 +439,8 @@ app_server <- function(input, output, session) {
       contextMenu = list(create =FALSE, delete = FALSE),
       checkboxes = TRUE
     )
+    )
   })
-
 
   #### Reactive value color_data ####
   # initialize reactive value color_data with entries "all" and "selected"
@@ -464,7 +457,8 @@ app_server <- function(input, output, session) {
 
   #### update sorting ####
   shiny::observeEvent(uploaded_data_renamed(), {
-    choices <- names(which(unlist(lapply(uploaded_data_renamed() %>% dplyr::relocate(tidyr::starts_with("megaplots_")), is.numeric))))
+    choices <- names(which(unlist(lapply(uploaded_data_renamed() %>%
+                                           dplyr::relocate(tidyr::starts_with("megaplots_")), is.numeric))))
     shinyWidgets::updatePickerInput(
       session,
       inputId = "select_sorting",
@@ -477,10 +471,8 @@ app_server <- function(input, output, session) {
     )
   })
 
-
   #observer to update ColourInput based on container click
   shiny::observeEvent(js_column$number, {
-
     output$colorization_selection <- shiny::renderText(
       ifelse(
         is.na(color_data$selected[js_column$number, "event"]),
@@ -613,10 +605,6 @@ app_server <- function(input, output, session) {
         if (is.na(color_data$selected[js_column$number, c("megaplots_selected_event")])) {
         #create new color for entire event group
           if (input$color_method == "gradient") {
-
-            # f_col_z <- grDevices::colorRamp(c(input$colour_picker_panel_1,
-            #                                   input$colour_picker_panel_2,
-            #                                   input$colour_picker_panel_3))
             f_col_z <- scales::colour_ramp(
               c(input$colour_picker_panel_1,
                 input$colour_picker_panel_2,
@@ -641,13 +629,11 @@ app_server <- function(input, output, session) {
 
         new_group_id <- c(new_event_group_color$new_event_id, 0)
 
-
         new_event_group_color <- new_event_group_color %>%
           dplyr::select(-tidyselect::all_of(c("new_event_id"))) %>%
           dplyr::mutate(
-            event_color =  #grDevices::rgb(
-              f_col_z(seq(0, 1, length = nrow(.))#),
-              # maxColorValue = 255
+            event_color =
+              f_col_z(seq(0, 1, length = nrow(.))
             )[.data$event_id]
           ) %>%
           dplyr::pull(.data$event_color)
@@ -831,7 +817,6 @@ app_server <- function(input, output, session) {
                 "background:", ifelse(
                   selected_data[column_number, ]$type == "megaplots_selected_event",
                   selected_data[column_number, ]$event_color,  ifelse(input$theme_toggle =="dark","#1D1F21","#fff")),
-                  #selected_data[column_number, ]$event_color,  "#1D1F21"),
                 ";",
                 "padding:", ifelse(
                   selected_data[column_number, ]$type == "megaplots_selected_event",
@@ -840,7 +825,6 @@ app_server <- function(input, output, session) {
                 ";",
                 "color: ",
                 font_color(selected_data[column_number, ]$event_color),
-                #"#9e9e9e",
                 ";"
 
               ),
@@ -857,18 +841,15 @@ app_server <- function(input, output, session) {
 
 
 
-  output$colour_palette <- renderPlot({
-
+  output$colour_palette <- shiny::renderPlot({
     if (!is.null(color_data$selected) & !is.null(js_column$number)) {
       if (input$color_method == "gradient") {
-
       number_events <- nrow(
         color_data$selected[
           color_data$selected$megaplots_selected_event_group ==
             color_data$selected[js_column$number, "megaplots_selected_event_group"] &
             !is.na(color_data$selected$megaplots_selected_event),
           ])
-
       f_col_z  <- scales::colour_ramp(
         colors = c(
           input$colour_picker_panel_1,
@@ -877,7 +858,6 @@ app_server <- function(input, output, session) {
         ),
         alpha = TRUE
       )
-
       par(oma = c(0, 0, 0, 0), mar = c(0, 0, 0, 0))
       graphics::image(
         1:number_events,
@@ -924,7 +904,6 @@ app_server <- function(input, output, session) {
               !is.na(color_data$selected$megaplots_selected_event), ]
         )
 
-
         selected_color_palette <- create_palette(n = number_events, name = input$select_color_palette)
 
         par(oma = c(0, 0, 0, 0), mar = c(0, 0, 0, 0))
@@ -966,8 +945,7 @@ app_server <- function(input, output, session) {
   file_upload_message <- shiny::reactiveValues(val = NULL)
   output$file_upload_message <- renderText(file_upload_message$val)
   # Update widgets and reactive data object when fileinput is observed
-  shiny::observeEvent(c(input$file#, sequencing_order_data$val
-                        ), {
+  shiny::observeEvent(c(input$file), {
     shiny::req(input$file) #requires input$file
 
     # load data
@@ -986,13 +964,6 @@ app_server <- function(input, output, session) {
       megaplot_data <- NULL
       file_upload_message$val <- "Note: Only .RData files are allowed!"
     }
-    # if (!is.null(sequencing_order_data$val)) {
-    #   megaplot_data <- megaplot_data %>%
-    #     dplyr::left_join(
-    #       sequencing_order_data$val,
-    #       by ="subjectid"
-    #     )
-    # }
     uploaded_data$val <- megaplot_data  #update reactive value 'uploaded_data'
 
     # update choices of grouping variable based on uploaded data
@@ -1004,14 +975,6 @@ app_server <- function(input, output, session) {
         sapply(megaplot_data, class) %in% c("factor", "character")],
       selected = NULL
     )
-
-    # shinyWidgets::updatePickerInput(
-    #   session,
-    #   inputId = "subgroup_selection",
-    #   choices = colnames(megaplot_data)[
-    #     sapply(megaplot_data, class) %in% c("factor", "character")],
-    #   selected = NULL
-    # )
 
     shinyWidgets::updatePickerInput(
       session,
@@ -1040,29 +1003,15 @@ app_server <- function(input, output, session) {
     )
   })
 
-
-  # uploaded_data_filtered <- shiny::reactive({
-  #   shiny::req(uploaded_data_renamed())
-  # })
-
   # add event & event group identifier to data set and number
   # events within group
   uploaded_data_w_ids <- shiny::reactive({
     create_unique_event_identifier(
       #megaplot_data_raw = shiny::req(uploaded_data$val)
-      megaplot_data_raw = shiny::req(uploaded_data_renamed())#,
-      #theme = shiny::isolate(input$theme_toggle)
+      megaplot_data_raw = shiny::req(uploaded_data_renamed()),
+      theme = shiny::isolate(input$theme_toggle)
     )
   })
-
-  # uploaded_data_w_ids_filtered <- shiny::reactive({
-  #
-  #   create_unique_event_identifier(
-  #     #megaplot_data_raw = shiny::req(uploaded_data$val)
-  #     megaplot_data_raw = shiny::req(filtered_data_reactive$val)
-  #   )
-  # })
-
 
   #create a data frame which includes unique rows with
   # event /event group information
@@ -1150,7 +1099,7 @@ app_server <- function(input, output, session) {
 
   shiny::observeEvent(input$select_filter_variables, {
     savedFilterValues <<- res_filter$values()
-  },ignoreInit = T)
+  },ignoreInit = TRUE)
 
   defaults <- shiny::reactive({
     #input$load_filter_values
@@ -1322,17 +1271,6 @@ app_server <- function(input, output, session) {
     )
   })
 
-  # output$subgroup_summary <- plotly::renderPlotly({
-  #   shiny::req(megaplot_prepared_data())
-  #   shiny::req(megaplot_filtered_data())
-  #   draw_subgroup_population_plot(
-  #     megaplot_prepared_data = megaplot_prepared_data(),
-  #     select_grouping = NULL,
-  #     select_subgroups = input$subgroup_selection
-  #   )
-  # })
-
-
   shiny::observeEvent(megaplot_filtered_data(), {
     shiny::req(megaplot_filtered_data())
     choices_data <- megaplot_filtered_data() %>%
@@ -1363,30 +1301,6 @@ app_server <- function(input, output, session) {
   #sequencing/ai module (server part)
   sequencing_order_data <- shiny::reactiveValues(val = NULL)
 
-  # artificial_intelligence <- shiny::callModule(
-  #   artificial_intelligence_server,
-  #   "ai",
-  #   shiny::reactive({megaplot_filtered_data()})
-  # )
-
-  # shiny::observeEvent(artificial_intelligence$seq.button(), {
-  #   if (!is.null(artificial_intelligence$varSeq())) {
-  #
-  #
-  #     sequencing_output <- megaplots_sequencing_functions(
-  #       final_data = megaplot_filtered_data(),
-  #       variable = artificial_intelligence$varSeq(),
-  #       seriation_parameter = artificial_intelligence$input_seriation(),
-  #       seriation_method = artificial_intelligence$methSer(),
-  #       group = input$select_grouping,
-  #       multiple_distmeasures = artificial_intelligence$multiple_distmeasures()
-  #     )
-  #     sequencing_order_data$val <- sequencing_output
-  #   }
-  #   #data_w_ai_information_reacVal$df <- data_w_ai_information
-  #   # megaplot_filtered_data(sequencing_output)
-  # })
-
   shiny::observeEvent(input$megaplots_help_button, {
     shiny::showModal(
       shiny::modalDialog(
@@ -1399,6 +1313,7 @@ app_server <- function(input, output, session) {
       )
     )
   })
+
   shiny::observeEvent(input$event_summary_help_button, {
     shiny::showModal(
       shiny::modalDialog(
@@ -1411,6 +1326,7 @@ app_server <- function(input, output, session) {
       )
     )
   })
+
   shiny::observeEvent(input$file_variable_help_button, {
     shiny::showModal(
       shiny::modalDialog(
@@ -1423,6 +1339,7 @@ app_server <- function(input, output, session) {
       )
     )
   })
+
   shiny::observeEvent(input$event_color_selection_help_button, {
     shiny::showModal(
       shiny::modalDialog(

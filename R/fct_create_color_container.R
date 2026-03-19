@@ -37,15 +37,6 @@ create_color_container <- function(
     # Every shinyTree list element gets an id which can be received via attributes(x)$id.
     # This id will be merged to the data and used for sorting
 
-
-    # sort_id <- as.numeric(unlist(lapply(shinyTree::get_selected(tree, format="classid"), function(x){attributes(x)$id})))
-    # selected_data <- cbind(selected_data, sort_id) %>%
-    #   dplyr::arrange(sort_id)
-    # selected_data <- rbind(
-    #   selected_data %>% dplyr::filter(event_group == "Select all event(s)"),
-    #   selected_data %>%dplyr::filter(event_group != "Select all event(s)")
-    # )
-
     # join color vector to the data and create variables "names_for_color_list" & "type_for_color" which will
     # be used to colorize the div container and make sure that also event_groups are displayed
     selected_data <- selected_data %>%

@@ -22,6 +22,7 @@
 #' @param reference_line_1_color character with hex color code for first reference line/rect
 #' @param reference_line_2_color character with hex color code for second reference line/rect
 #' @param reference_line_3_color character with hex color code for third reference line/rect
+#' @param theme character with app theme ["dark"/"light"]
 #'  plotly legend (default: TRUE)
 #'
 #' @export
@@ -136,7 +137,14 @@ draw_mega_plot <- function(
   }
 
   megaplot_prepared_data  <- megaplot_prepared_data %>%
-    dplyr::select(tidyselect::all_of(c("megaplots_selected_subjectid", "subjectid_n", "megaplots_selected_start_time", "megaplots_selected_end_time", "group_index", select_grouping))) %>%
+    dplyr::select(
+      tidyselect::all_of(
+        c("megaplots_selected_subjectid", "subjectid_n",
+          "megaplots_selected_start_time", "megaplots_selected_end_time",
+          "group_index", select_grouping
+        )
+      )
+    ) %>%
     dplyr::distinct() %>%
     dplyr::mutate(
       text_lines = paste0("Subject identifier: ", .data$megaplots_selected_subjectid)
@@ -220,6 +228,8 @@ draw_mega_plot <- function(
   if (!is.null(megaplot_filtered_data)) {
     if (event_tooltips) {
       # if (switch_legend_grouping) {
+
+
         p_2 <- p_1 %>%
           plotly::add_segments(
             data = plotly::highlight_key(megaplot_filtered_data %>% dplyr::filter(is.na(.data$n_flag)), ~ megaplots_selected_event),
@@ -348,6 +358,9 @@ draw_mega_plot <- function(
         title = "Day",
         zeroline = FALSE
       ),
+      legend = list(
+        orientation = 'v'
+      ),
       yaxis = list(
         color='#FFFFFF',
         showgrid = FALSE,
@@ -362,7 +375,8 @@ draw_mega_plot <- function(
       ),
       font = list(
         family = "Agency FB",
-        color = ifelse(theme =="dark","#fff","#000")),
+        color = ifelse(theme =="dark","#fff","#000")
+      ),
       barmode = "overlay"#,
       #hovermode = "x unified"
     ) %>%

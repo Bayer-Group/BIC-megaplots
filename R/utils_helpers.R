@@ -6,21 +6,8 @@
 #'
 #' @noRd
 
-vrect <- function(x = 0, x2, color = "#fe333f20") {
-  list(
-    type = "rect",
-    fillcolor = color,
-    y0 = 0,
-    y1 = 1,
-    yref = "paper",
-    x0 = x,
-    layer = "below",
-    x1 = x2,
-    line = list(color = color)
-  )
-}
-
 font_color <- function (hex_code) {
+  if (is.null(hex_code)){return(NULL)}
   ifelse(
     ((grDevices::col2rgb(hex_code)[1] * 0.299) + (grDevices::col2rgb(hex_code)[2] * 0.587) + (grDevices::col2rgb(hex_code)[3] * 0.114) > 186),
     "#000000",
@@ -29,7 +16,7 @@ font_color <- function (hex_code) {
 }
 
 
-color_func <- function(x,y,z,number_event_groups) {
+color_func <- function(x, y, z, number_event_groups) {
   megaplot_color <- grDevices::rainbow(number_event_groups)
   if (x != 0 & z != 1) {
     return_colors <- grDevices::colorRampPalette(
@@ -45,20 +32,20 @@ color_func <- function(x,y,z,number_event_groups) {
   return(return_colors)
 }
 
-color_func2 <- function(x,y,z,col) {
-  if (x != 0 & z != 1) {
-    return_colors <- grDevices::colorRampPalette(
-      c("#7FFFD6",
-        "#FFF305",
-        "#FF4FC7"
-      )
-    ) (z)[x]
-  }
-  if(x == 0 | z == 1) {
-    return_colors <- col
-  }
-  return(return_colors)
-}
+# color_func2 <- function(x,y,z,col) {
+#   if (x != 0 & z != 1) {
+#     return_colors <- grDevices::colorRampPalette(
+#       c("#7FFFD6",
+#         "#FFF305",
+#         "#FF4FC7"
+#       )
+#     ) (z)[x]
+#   }
+#   if(x == 0 | z == 1) {
+#     return_colors <- col
+#   }
+#   return(return_colors)
+# }
 
 get_trace_info <- function(plotly_object) {
   plotly_build_p <- plotly::plotly_build(plotly_object)
@@ -129,24 +116,6 @@ create_palette <- function(n, name) {
   return(selected_color_palette)
 }
 
-
-# light_theme <- bslib::bs_theme(
-#  # version = 5
-# )
-#
-# dark_theme <- bslib::bs_theme(
-# #  version = 5,
-#   primary = "#0091DF",                     #primary color used for inputs
-#   "navbar-bg" = "#0091DF",                 #navbar background color
-#   bg = "#404A4E",                          #app background-color
-#   fg = "white",                            #font-color
-#   heading_font = "Agency FB",              #font
-#   base_font = "Agency FB",                 #font
-#   font_scale = 1.6,                        #font size
-#   "input-border-color" = "#d2d2d2"
-# )
-
-
 vrect <- function(x = 0, x2, color = "#fe333f20") {
   list(
     type = "rect",
@@ -160,3 +129,4 @@ vrect <- function(x = 0, x2, color = "#fe333f20") {
     line = list(color = color)
   )
 }
+
