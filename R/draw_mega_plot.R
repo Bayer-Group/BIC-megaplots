@@ -31,12 +31,12 @@ draw_mega_plot <- function(
     megaplot_filtered_data = megaplot_filtered_data(),
     select_grouping = NULL,
     line_width = 3,
-    line_width_subjects,
+    line_width_subjects = 3,
     event_tooltips = TRUE,
     switch_legend_grouping = TRUE,
-    sort_event_groups,
-    sequencing_object,
-    sequencing_switch,
+    sort_event_groups = NULL,
+    sequencing_object = NULL,
+    sequencing_switch = FALSE,
     reference_line_1,
     reference_line_2,
     reference_line_3,
@@ -52,6 +52,10 @@ draw_mega_plot <- function(
     theme
     # circular_vision = FALSE
   ) {
+
+  if (nrow(megaplot_prepared_data) == 0) {
+    stop("megaplot_prepared_data is empty.")
+  }
 
   #check if sequencing switch is on and if a sequencing object is available
   if (sequencing_switch) {

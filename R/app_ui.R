@@ -62,7 +62,8 @@ app_ui <- function(request) {
         version = 5,
         heading_font = "Agency FB",              #font
         base_font = "Agency FB",                 #font
-        font_scale = 1.4                    #font size
+        font_scale = 1.4,                    #font size
+        primary = "#007CBF"
       ),
       #### Sidebar ####
       # Use accordion_panels from bslib
@@ -260,294 +261,11 @@ app_ui <- function(request) {
             icon = bsicons::bs_icon("download"),
             shiny::downloadButton("download_plotly_widget", "Download Mega plot as HTML")
           ),
-          bslib::accordion_panel(
-            "Sequencing",
-            icon = bsicons::bs_icon("shuffle"),
-            shinyWidgets::pickerInput(
-              inputId = 'sequencing_seriation_method',
-              label = 'Seriation method',
-              choices = sort(
-                c(
-                  'GW_average',
-                  'GW_complete',
-                  'GW_single',
-                  'GW_ward',
-                  'HC_single',
-                  'HC_average',
-                  'HC_complete',
-                  'HC_ward',
-                  'OLO_average',
-                  'OLO_complete',
-                  'OLO_single',
-                  'OLO_ward',
-                  'VAT',
-                  'TSP',
-                  'ARSA'
-                )
-              ),
-              selected = 'GW_average',
-              multiple = FALSE,
-              options = list(
-                `live-search` = TRUE,
-                `header` = 'Select item'
-              )
-            ),
-            shiny::selectInput(
-              inputId = "sequencing_events",
-              label = "Select Events for Sequencing",
-              choices = NULL,
-              selected = NULL,
-              multiple = TRUE
-            ),
-            shinyWidgets::pickerInput(
-              inputId = "sequencing_distmeasure_name",
-              label = paste0('Distance Measure '),
-              choices = c(
-                "OM",
-                "OMloc",
-                "OMslen",
-                "OMspell",
-                "OMstran",
-                "CHI2",
-                "EUCLID",
-                "LCS",
-                "LCP",
-                "RLCP"#,
-                #"HAM",
-                #"DHD"
-              ),
-              selected = 'OM',
-              multiple = FALSE,
-              options = list(`live-search` = TRUE,
-                             `header` = 'Select item'),
-            ),
-            bslib::accordion_panel(
-              "Parameters",
-              icon = bsicons::bs_icon("plus-circle"),
-              shiny::conditionalPanel(
-                condition = "input.sequencing_distmeasure_name == 'OM' ||
-                             input.sequencing_distmeasure_name == 'OMloc' ||
-                             input.sequencing_distmeasure_name == 'OMslen' ||
-                             input.sequencing_distmeasure_name == 'OMspell' ||
-                             input.sequencing_distmeasure_name == 'OMstran' ||
-                             input.sequencing_distmeasure_name == 'DHD' ||
-                             input.sequencing_distmeasure_name == 'HAM'
-                ",
-                shinyWidgets::pickerInput(
-                  inputId = "sequencing_substitution_cost",
-                  label = "Substitution Cost",
-                  choices = sort(c(
-                    "CONSTANT", "INDELS", "INDELSLOG", "TRATE", "ORDINAL"
-                  )),
-                  selected = 'CONSTANT',
-                  multiple = FALSE,
-                  options = list(`live-search` = TRUE,
-                                 `header` = 'Select item'),
-                )
-              ),
-              shiny::conditionalPanel(
-                condition = "input.sequencing_distmeasure_name == 'OM' ||
-                             input.sequencing_distmeasure_name == 'OMslen' ||
-                             input.sequencing_distmeasure_name == 'OMspell' ||
-                             input.sequencing_distmeasure_name == 'OMstran'
-                ",
-                shinyWidgets::pickerInput(
-                  inputId = "sequencing_insertion_deletion_cost",
-                  label = "Insertion/Deletion Cost",
-                  choices = sort(c("auto", "numeric value")),
-                  selected = "auto",
-                  multiple = FALSE,
-                  options = list(`live-search` = TRUE,
-                                 `header` = 'Select item')
-                ),
-                shiny::conditionalPanel(condition = "input.sequencing_insertion_deletion_cost == 'numeric value'",
-                  shiny::numericInput(
-                    inputId =  "sequencing_insertion_deletion_cost_numeric",
-                    label = "Insertion/Deletion Cost (double)",
-                    value = 1,
-                    min = 0,
-                  )
-                )
-              ),
-              shiny::conditionalPanel(
-                condition = "input.sequencing_distmeasure_name != 'HAM'
-                ",
-              shinyWidgets::pickerInput(
-                inputId =  "sequencing_normalization",
-                label = "Normalization",
-                choices = sort(
-                  c("auto", "none", "maxlength", "gmean",
-                    "maxdist", "YujianBo")
-                ),
-                selected = 'auto',
-                multiple = FALSE,
-                options = list(`live-search` = TRUE,
-                               `header` = 'Select item')
-              )
-              ),
-              shiny::conditionalPanel(
-                condition = "input.sequencing_distmeasure_name == 'OMloc' ||
-                             input.sequencing_distmeasure_name == 'OMspell'
-                ",
-                shiny::numericInput(
-                  inputId =  "sequencing_cost_spell_length_transformation",
-                  label = "Cost of spell length transformation",
-                  value = 0.5,
-                  min = 0,
-                  step = 0.1
-                )
-                ),
-              shiny::conditionalPanel(
-                condition = "input.sequencing_distmeasure_name == 'OMloc'
-                ",
-                shiny::numericInput(
-                  inputId =  "sequencing_local_insertion_cost",
-                  label = "Local Insertion Cost",
-                  value = 0,
-                  min = 0
-                )
-              ),
-              shiny::conditionalPanel(condition = "input.sequencing_distmeasure_name == 'OMslen'
-                ",
-                shinyWidgets::pickerInput(
-                  inputId =  "sequencing_substitution_costs_function",
-                  label = "Substituion Costs Function",
-                  choices = sort(c("mean", "gmean")),
-                  selected = 'mean',
-                  multiple = FALSE,
-                  options = list(`live-search` = TRUE,
-                                 `header` = 'Select item')
-                )
-              ),
-              shiny::conditionalPanel(condition = "input.sequencing_distmeasure_name == 'OMslen' ||
-                             input.sequencing_distmeasure_name == 'OMspell'
-                ",
-                shiny::numericInput(
-                  inputId =  "sequencing_exponential_weight_spell_length",
-                  label = "Exponential weight of spell length",
-                  value = 0.5,
-                  min = 0
-                )
-              ),
-              shiny::conditionalPanel(condition = "input.sequencing_distmeasure_name == 'OMstran'",
-                shinyWidgets::pickerInput(
-                  inputId =  "sequencing_transition_indel_cost_method",
-                  label = "Transition Indel Cost Method",
-                  choices = sort(c("constant", "subcost", "prob")),
-                  selected = 'constant',
-                  multiple = FALSE,
-                  options = list(`live-search` = TRUE,
-                                 `header` = 'Select item')
-                ),
-                shinyWidgets::pickerInput(
-                  inputId =  "sequencing_account_transition_previous_state",
-                  label = "Account for the transition from the previous state",
-                  choices = sort(c("TRUE", "FALSE")),
-                  selected = 'FALSE',
-                  multiple = FALSE,
-                  options = list(`live-search` = TRUE,
-                                 `header` = 'Select item')
-
-                ),
-                shinyWidgets::pickerInput(
-                  inputId =  "sequencing_duplicate_last_column",
-                  label = "Duplicate the last column",
-                  choices = sort(c("TRUE", "FALSE")),
-                  selected = 'TRUE',
-                  multiple = FALSE,
-                  options = list(`live-search` = TRUE,
-                                 `header` = 'Select item')
-                ),
-                shiny::numericInput(
-                  inputId =  "sequencing_origin_transition_trade_off_weight",
-                  label = "Origin-Transition Trade-Off Weight",
-                  value = 0.5,
-                  min = 0,
-                  step = 0.1,
-                  max = 1
-                )
-              ),
-              shiny::conditionalPanel(
-                condition = "input.sequencing_distmeasure_name == 'CHI2' ||
-                             input.sequencing_distmeasure_name == 'EUCLID'
-                ",
-                shinyWidgets::pickerInput(
-                  inputId = "sequencing_intervals_overlapping",
-                  label = "Intervals overlapping",
-                  choices = sort(c("TRUE", "FALSE")),
-                  selected = 'FALSE',
-                  multiple = FALSE,
-                  width = 150,
-                  options = list(`live-search` = TRUE,
-                                 `header` = 'Select item'),
-                ),
-                shiny::numericInput(
-                  inputId =  "sequencing_interval_length",
-                  label = "Interval Length",
-                  value = 1,
-                  min = 1,
-                  step = 1
-                )
-              ),
-              shiny::conditionalPanel(
-                condition = "input.sequencing_distmeasure_name == 'CHI2'
-                ",
-                shinyWidgets::pickerInput(
-                  inputId =  "sequencing_distribution_states_weights",
-                  label = "Distribution of states as weights",
-                  choices = sort(c("TRUE", "FALSE")),
-                  selected = 'TRUE',
-                  multiple = FALSE,
-                  options = list(`live-search` = TRUE,
-                                 `header` = 'Select item')
-                )
-              ),
-              shinyWidgets::pickerInput(
-                inputId =  "sequencing_missing_method",
-                label = 'Missing method',
-                choices = c("new state", "last observed state"),
-                selected = "new state",
-                multiple = FALSE,
-                options = list(`live-search` = TRUE,
-                               `header` = 'Select item')
-              )
-            ),
-            conditionalPanel(
-              condition = "input.sequencing_distmeasure_name == 'HAM' ||
-                             input.sequencing_distmeasure_name == 'DHD'
-                ",
-              shiny::span(shiny::HTML(
-                gsub(
-                  '\n',
-                  '<br/>',
-                  stringr::str_wrap(
-                    'This distance measure only works for sequences of the same length!',
-                    width = 30
-                  )
-                )
-              ), style = 'color:#e6250b'),
-              shiny::br()
-            ),
-            shiny::actionButton(
-              inputId ="sequencing_button",
-              label  = "Apply"
-            ),
-            shinyWidgets::prettySwitch(
-              inputId = "sequencing_switch",
-              label = "On/Off Sequencing Sorting",
-              value = FALSE,
-              status = "primary"
-            )#,
-            # shinyWidgets::prettySwitch(
-            #   inputId = "circular_vision",
-            #   label = "Circular Vision",
-            #   value = FALSE,
-            #   status = "primary"
-            # )
-          )
+          # module call for sequencing
+          sequencing_ui("sequencing_module")
         )
         ,
-        HTML(paste0("<p style = 'color: #dedede;'> Version: ",utils::packageVersion("Megaplots")))
+        HTML(paste0("<p style = 'color: #dedede;'> Version: ", utils::packageVersion("Megaplots")))
       ),
       #### Main area ####
       bslib::nav_panel(
@@ -670,7 +388,7 @@ app_ui <- function(request) {
               shiny::column(2,
                 shinyWidgets::pickerInput(
                   inputId = "select_subjectid",
-                  label = "Identifier",
+                  label = HTML("<p> Identifier <em style = 'color: #f9b8c7;'> *required </em></p>"),
                   choices = NULL,
                   selected = NULL,
                   multiple = TRUE,
@@ -717,7 +435,7 @@ app_ui <- function(request) {
              shiny::column(2,
                shinyWidgets::pickerInput(
                  inputId = "select_event",
-                 label = "Event",
+                 label = HTML("<p> Event <em style = 'color: #f9b8c7;'> *required </em></p>"),
                  choices = NULL,
                  selected = NULL,
                  multiple = TRUE,
@@ -732,7 +450,7 @@ app_ui <- function(request) {
              shiny::column(2,
                shinyWidgets::pickerInput(
                  inputId = "select_event_group",
-                 label = "Event Group",
+                 label = HTML("<p> Event Group <em style = 'color: #f9b8c7;'> *required </em></p>"),
                  choices = NULL,
                  selected = NULL,
                  multiple = TRUE,
@@ -747,7 +465,7 @@ app_ui <- function(request) {
               shiny::column(2,
                 shinyWidgets::pickerInput(
                   inputId = "select_event_time",
-                  label = "Event Start Day",
+                  label = HTML("<p> Event Start Day <em style = 'color: #f9b8c7;'> *required </em></p>"),
                   choices = NULL,
                   selected = NULL,
                   multiple = TRUE,
@@ -762,7 +480,7 @@ app_ui <- function(request) {
               shiny::column(2,
                 shinyWidgets::pickerInput(
                   inputId = "select_event_time_end",
-                  label = "Event End Day",
+                  label = HTML("<p> Event End Day <em style = 'color: #f9b8c7;'> *required </em></p>"),
                   choices = NULL,
                   selected = NULL,
                   multiple = TRUE,
