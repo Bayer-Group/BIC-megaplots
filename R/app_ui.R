@@ -101,6 +101,7 @@ app_ui <- function(request) {
         width = 300,
         title = div(img(src = "www/megaplot_hexsticker.png", height = "175px")),
         bslib::accordion(open = FALSE,
+          # Sorting/Grouping (Sidebar)
           bslib::accordion_panel(
             "Sorting/Grouping",
             icon = bsicons::bs_icon("sort-down"),
@@ -128,15 +129,19 @@ app_ui <- function(request) {
             # order of groups (if applicable)
             shiny::uiOutput("arrange_groups"),
           ),
+          # Plot appearance (Sidebar)
           bslib::accordion_panel(
             "Plot appearance",
             icon = bsicons::bs_icon("border-width"),
+            #orderInput to change event group order (influences which event group
+            # is plotted first and thus may overlap others events)
             shinyjqui::orderInput(
               inputId = "sort_event_groups",
               label = "Change Event Group Order",
               items = NULL,
               width = 300
             ),
+            # sliderInput to adjust subject line width
             shiny::sliderInput(
               inputId = "line_width_subjects",
               label = "Subject line width",
@@ -145,6 +150,7 @@ app_ui <- function(request) {
               value = 1,
               step = 0.5
             ),
+            # sliderInput to adjust event line width
             shiny::sliderInput(
               inputId = "line_width",
               label = "Event line width",
@@ -153,12 +159,14 @@ app_ui <- function(request) {
               value = 3,
               step = 0.5
             ),
+            # prettySwitch to turn on/off legend grouping option
             shinyWidgets::prettySwitch(
               inputId = "switch_legend_grouping",
               label = "On/Off Legend Grouping",
               value = TRUE,
               status = "primary"
             ),
+            # radioButton change hover window style
             shiny::radioButtons(
               inputId = "event_summary_hovermode",
               label = "Hover mode (Event Summary)",
@@ -166,12 +174,13 @@ app_ui <- function(request) {
               inline = TRUE,
               selected = "x"
             ),
-            ####
+            #checkboxInput to add a reference line or rectangle
             shiny::checkboxInput(
               inputId = 'reference_line_1',
               label = 'Add reference rectangle',
               value = FALSE
             ),
+            #action button to update reference line selection
             shiny::conditionalPanel(
               condition = "input.reference_line_1 == true",
               shinyWidgets::actionBttn(
@@ -181,6 +190,7 @@ app_ui <- function(request) {
                 style = "simple",
                 icon = icon("refresh")
               ),
+              #colourInput to adjust color of first reference line/rectangle
               colourpicker::colourInput(
                 inputId = "reference_line_1_color",
                 label = "Reference rectangle color",
@@ -205,6 +215,7 @@ app_ui <- function(request) {
             ),
             shiny::conditionalPanel(
               condition = "input.reference_line_1 == true && input.reference_line_2 == true",
+              #colourInput to adjust color of first reference line/rectangle
               colourpicker::colourInput(
                 inputId = "reference_line_2_color",
                 label = "Reference rectangle color",
@@ -230,6 +241,7 @@ app_ui <- function(request) {
             shiny::conditionalPanel(
               condition = "input.reference_line_1 == true && input.reference_line_2 == true && input.reference_line_3 == true",
               colourpicker::colourInput(
+                #colourInput to adjust color of first reference line/rectangle
                 inputId = "reference_line_3_color",
                 label = "Reference rectangle color",
                 value = "#fe333f20",
