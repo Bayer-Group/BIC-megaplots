@@ -1,8 +1,9 @@
 #' Helper function to calculate time to first event and time to first event group
 #'
 #' This function calculates the time to the first occurrence of specific events
-#' and event groups for each subject in the provided dataset. It can compute the
-#' time for individual events as well as for event groups, based on the specified parameters.
+#' and event groups for each subject in the provided dataset.
+#' Expects columns subjectid, event_group, event, event_start_time,
+#' event_end_time.
 #'
 #' @param data A data frame containing event data with columns for subject ID,
 #' event group, event, event start time, and event end time.
@@ -10,63 +11,86 @@
 #' event group. Default is TRUE.
 #' @param calc_event Logical indicating whether to calculate time to the first
 #' individual event. Default is TRUE.
-#' @param subjectid Column name for subject ID in the data frame.
-#' @param event_group Column name for event group in the data frame.
-#' @param event Column name for event in the data frame.
-#' @param event_start_time Column name for event start time in the data frame.
-#' @param event_end_time Column name for event end time in the data frame.
 #'
 #' @return A data frame with the time to the first occurrence of each subject's
 #' events and event groups.
 #' @export
-calc_time_to_first <- function(data,
-                          calc_event_group = TRUE,
-                          calc_event = TRUE,
-                          subjectid = subjectid,
-                          event_group = event_group,
-                          event = event,
-                          event_start_time = event_start_time,
-                          event_end_time = event_end_time){
-
-  if(calc_event_group == FALSE & calc_event == FALSE){
+calc_time_to_first <- function(
+  data,
+  calc_event_group = TRUE,
+  calc_event = TRUE
+  # subjectid = subjectid,
+  # event_group = event_group,
+  # event = event,
+  # event_start_time = event_start_time,
+  # event_end_time = event_end_time
+) {
+  if (!calc_event_group && !calc_event) {
     stop("Error: One of calc_event_group and calc_event must be TRUE.")
   }
 
-  if(calc_event == TRUE){
+  if (calc_event) {
     data_time_to_first <- data %>%
-      dplyr::arrange(subjectid,event_group,event,event_start_time) %>%
-      dplyr::group_by(subjectid,event_group,event) %>%
-      dplyr::summarize(first = ifelse(all(is.na(event_start_time)), NA, min(event_start_time, na.rm = TRUE)), .groups="drop") %>%
+      dplyr::arrange(
+        .data$subjectid,
+        .data$event_group,
+        .data$event,
+        .data$event_start_time
+      ) %>%
+      dplyr::group_by(.data$subjectid, .data$event_group, .data$event) %>%
+      dplyr::summarize(
+        first = ifelse(
+          all(is.na(.data$event_start_time)),
+          NA,
+          min(.data$event_start_time, na.rm = TRUE)
+        ),
+        .groups = "drop"
+      ) %>%
       dplyr::distinct() %>%
-      dplyr::mutate(event_group = gsub("[[:punct:][:space:]]+", "_", event_group),
-                    event = gsub("[[:punct:][:space:]]+", "_", event)) %>%
+      dplyr::mutate(
+        event_group = gsub("[[:punct:][:space:]]+", "_", event_group),
+        event = gsub("[[:punct:][:space:]]+", "_", event)
+      ) %>%
       tidyr::pivot_wider(
-        id_cols="subjectid",
-        names_from = c("event_group","event"),
+        id_cols = "subjectid",
+        names_from = c("event_group", "event"),
         names_prefix = "ttf_",
         names_sep = "_",
         values_from = "first"
       )
   }
 
-  if(calc_event_group == TRUE){
+  if (calc_event_group) {
     data_time_to_first_group <- data %>%
-      dplyr::select(-event) %>%
-      dplyr::arrange(subjectid,event_group,event_start_time) %>%
-      dplyr::group_by(subjectid,event_group) %>%
-      dplyr::summarize(first = ifelse(all(is.na(event_start_time)), NA, min(event_start_time, na.rm = TRUE)), .groups="drop") %>%
+      dplyr::select(-"event") %>%
+      dplyr::arrange(
+        .data$subjectid,
+        .data$event_group,
+        .data$event_start_time
+      ) %>%
+      dplyr::group_by(.data$subjectid, .data$event_group) %>%
+      dplyr::summarize(
+        first = ifelse(
+          all(is.na(event_start_time)),
+          NA,
+          min(event_start_time, na.rm = TRUE)
+        ),
+        .groups = "drop"
+      ) %>%
       dplyr::distinct() %>%
-      dplyr::mutate(event_group = gsub("[[:punct:][:space:]]+", "_", event_group)) %>%
+      dplyr::mutate(
+        event_group = gsub("[[:punct:][:space:]]+", "_", .data$event_group)
+      ) %>%
       tidyr::pivot_wider(
-        id_cols="subjectid",
-        names_from = c("event_group"),
+        id_cols = "subjectid",
+        names_from = "event_group",
         names_prefix = "ttf_",
         names_sep = "_",
         values_from = "first"
       )
-    if(calc_event == TRUE){
+    if (calc_event) {
       data_time_to_first <- data_time_to_first %>%
-        dplyr::left_join(data_time_to_first_group, by="subjectid")
+        dplyr::left_join(data_time_to_first_group, by = "subjectid")
     } else {
       data_time_to_first <- data_time_to_first_group
     }
@@ -77,88 +101,118 @@ calc_time_to_first <- function(data,
 #' Helper function to calculate days with event and days with event group
 #'
 #' This function calculates the number of days with specific events
-#' for each subject in the provided dataset. It can compute days for individual
-#' events as well as for event groups, based on the specified parameters.
+#' for each subject in the provided dataset.
+#' Expects columns subjectid, event_group, event, event_start_time,
+#' event_end_time.
 #'
 #' @param data A data frame containing event data with columns for subject ID,
 #' event group, event, event start time, and event end time.
 #' @param calc_event_group Logical indicating whether to calculate days for event groups. Default is TRUE.
 #' @param calc_event Logical indicating whether to calculate days for individual events. Default is TRUE.
-#' @param subjectid Column name for subject ID in the data frame.
-#' @param event_group Column name for event group in the data frame.
-#' @param event Column name for event in the data frame.
-#' @param event_start_time Column name for event start time in the data frame.
-#' @param event_end_time Column name for event end time in the data frame.
 #'
 #' @return A data frame with the number of days associated with each subject's
 #' events and event groups.
 #' @export
-calc_days_with <- function(data,
-                      calc_event_group = TRUE,
-                      calc_event = TRUE,
-                      subjectid = subjectid,
-                      event_group = event_group,
-                      event = event,
-                      event_start_time = event_start_time,
-                      event_end_time = event_end_time){
-
-  if(calc_event_group == FALSE & calc_event == FALSE){
+calc_days_with <- function(
+  data,
+  calc_event_group = TRUE,
+  calc_event = TRUE
+  # subjectid = subjectid,
+  # event_group = event_group,
+  # event = event,
+  # event_start_time = event_start_time,
+  # event_end_time = event_end_time
+) {
+  if (!calc_event_group && !calc_event) {
     stop("Error: One of calc_event_group and calc_event must be TRUE.")
   }
-  if(calc_event == TRUE){
+  if (calc_event) {
     data_days_with <- data %>%
-      dplyr::arrange(subjectid,event_group,event,event_start_time,event_end_time) %>%
-      dplyr::mutate(days = purrr::map2(event_start_time, event_end_time,
-                                       ~ if (!is.na(.x) && is.finite(.x)) {
-                                         if (!is.na(.y) && is.finite(.y)) {
-                                           seq(from = .x, to = .y)
-                                         } else {
-                                           .x  # Count as 1 day if end time is NA
-                                         }
-                                       } else {
-                                         NULL
-                                       })) %>%      dplyr::group_by(subjectid,event_group,event) %>%
-      dplyr::summarize(days_with = n_distinct(unlist(.data$days)), .groups = "drop") %>%
+      dplyr::arrange(
+        .data$subjectid,
+        .data$event_group,
+        .data$event,
+        .data$event_start_time,
+        .data$event_end_time
+      ) %>%
+      dplyr::mutate(
+        days = purrr::map2(
+          .data$event_start_time,
+          .data$event_end_time,
+          ~ if (!is.na(.x) && is.finite(.x)) {
+            if (!is.na(.y) && is.finite(.y)) {
+              seq(from = .x, to = .y)
+            } else {
+              .x # Count as 1 day if end time is NA
+            }
+          } else {
+            NULL
+          }
+        )
+      ) %>%
+      dplyr::group_by(.data$subjectid, .data$event_group, .data$event) %>%
+      dplyr::summarize(
+        days_with = n_distinct(unlist(.data$days)),
+        .groups = "drop"
+      ) %>%
       dplyr::distinct() %>%
-      dplyr::mutate(event_group = gsub("[[:punct:][:space:]]+", "_", event_group),
-                    event = gsub("[[:punct:][:space:]]+", "_", event)) %>%
+      dplyr::mutate(
+        event_group = gsub("[[:punct:][:space:]]+", "_", .data$event_group),
+        event = gsub("[[:punct:][:space:]]+", "_", .data$event)
+      ) %>%
       tidyr::pivot_wider(
-        id_cols="subjectid",
-        names_from = c("event_group","event"),
+        id_cols = "subjectid",
+        names_from = c("event_group", "event"),
         names_prefix = "dw_",
         names_sep = "_",
         values_from = "days_with",
         values_fill = 0
       )
   }
-  if(calc_event_group == TRUE){
+  if (calc_event_group) {
     data_days_with_group <- data %>%
       dplyr::select(-event) %>%
-      dplyr::arrange(subjectid,event_group,event_start_time, event_end_time) %>%
-      dplyr::mutate(days = purrr::map2(event_start_time, event_end_time,
-                                       ~ if (!is.na(.x) && is.finite(.x)) {
-                                         if (!is.na(.y) && is.finite(.y)) {
-                                           seq(from = .x, to = .y)
-                                         } else {
-                                           .x  # Count as 1 day if end time is NA
-                                         }
-                                       } else {
-                                         NULL
-                                       })) %>%      dplyr::group_by(subjectid,event_group) %>%
-      dplyr::summarize(days_with = n_distinct(unlist(.data$days)), .groups = "drop") %>%
+      dplyr::arrange(
+        .data$subjectid,
+        .data$event_group,
+        .data$event_start_time,
+        .data$event_end_time
+      ) %>%
+      dplyr::mutate(
+        days = purrr::map2(
+          .data$event_start_time,
+          .data$event_end_time,
+          ~ if (!is.na(.x) && is.finite(.x)) {
+            if (!is.na(.y) && is.finite(.y)) {
+              seq(from = .x, to = .y)
+            } else {
+              .x # Count as 1 day if end time is NA
+            }
+          } else {
+            NULL
+          }
+        )
+      ) %>%
+      dplyr::group_by(.data$subjectid, .data$event_group) %>%
+      dplyr::summarize(
+        days_with = n_distinct(unlist(.data$days)),
+        .groups = "drop"
+      ) %>%
       dplyr::distinct() %>%
-      dplyr::mutate(event_group = gsub("[[:punct:][:space:]]+", "_", event_group)) %>%
+      dplyr::mutate(
+        event_group = gsub("[[:punct:][:space:]]+", "_", .data$event_group)
+      ) %>%
       tidyr::pivot_wider(
-        id_cols="subjectid",
+        id_cols = "subjectid",
         names_from = c("event_group"),
         names_prefix = "dw_",
         names_sep = "_",
         values_from = "days_with",
         values_fill = 0
       )
-    if(calc_event == TRUE){
+    if (calc_event) {
       data_days_with <- data_days_with %>%
-        dplyr::left_join(data_days_with_group, by="subjectid")
+        dplyr::left_join(data_days_with_group, by = "subjectid")
     } else {
       data_days_with <- data_days_with_group
     }
@@ -168,7 +222,9 @@ calc_days_with <- function(data,
 
 #' Helper function to read datasets
 #'
-#' @param path Path to a file (.sas7bdat, .csv, .rdata). If .rdata-format the file should best contain only one dataset.
+#' @param path Path to a file (.sas7bdat, .csv, .rdata). For `.RData`, the
+#'   first object listed by [load()] is returned (a warning is emitted if more
+#'   than one object exists).
 #'
 #' @export
 read_dataset <- function(path) {
@@ -177,10 +233,39 @@ read_dataset <- function(path) {
     return(haven::read_sas(path)) # Read SAS file
   } else if (grepl("\\.csv$", path, ignore.case = TRUE)) {
     return(readr::read_csv(path)) # Read CSV file
-  } else if (grepl("\\.RData$", path, ignore.case = TRUE)) {
-    name_data <- load(path) # Load RData file
-    return(get(ls()[ls() == name_data]))
+  } else if (grepl("\\.rdata$", path, ignore.case = TRUE)) {
+    env <- new.env(parent = emptyenv())
+    objs <- load(path, envir = env)
+    if (length(objs) > 1L) {
+      warning(
+        "RData file contains multiple objects; returning the first: ",
+        objs[[1]]
+      )
+    }
+    return(get(objs[[1]], envir = env))
+    # name_data <- load(path) # Load RData file
+    # return(get(ls()[ls() == name_data]))
   } else {
     stop("Unsupported file format. Please provide a SAS, CSV, or RData file.") # Error for unsupported format
   }
+}
+
+resolve_colname <- function(label, colnames_df) {
+  idx <- which(toupper(colnames_df) == toupper(label))
+  if (!length(idx)) {
+    stop("Column '", label, "' not found in dataset.", call. = FALSE)
+  }
+  colnames_df[idx[[1]]]
+}
+
+resolve_first_match <- function(candidates, colnames_df) {
+  hit <- candidates[toupper(candidates) %in% toupper(colnames_df)]
+  if (!length(hit) || is.na(hit[[1]])) {
+    stop(
+      "None of these column names exist in the data: ",
+      paste(candidates, collapse = ", "),
+      call. = FALSE
+    )
+  }
+  hit[[1]]
 }

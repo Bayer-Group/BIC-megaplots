@@ -7,7 +7,9 @@
 read_dataset(path)
 }
 \arguments{
-\item{path}{Path to a file (.sas7bdat, .csv, .rdata). If .rdata-format the file should best contain only one dataset.}
+\item{path}{Path to a file (.sas7bdat, .csv, .rdata). For `.RData`, the
+first object listed by [load()] is returned (a warning is emitted if more
+than one object exists).}
 }
 \description{
 Helper function to read datasets

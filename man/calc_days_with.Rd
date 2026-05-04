@@ -4,16 +4,7 @@
 \alias{calc_days_with}
 \title{Helper function to calculate days with event and days with event group}
 \usage{
-calc_days_with(
-  data,
-  calc_event_group = TRUE,
-  calc_event = TRUE,
-  subjectid = subjectid,
-  event_group = event_group,
-  event = event,
-  event_start_time = event_start_time,
-  event_end_time = event_end_time
-)
+calc_days_with(data, calc_event_group = TRUE, calc_event = TRUE)
 }
 \arguments{
 \item{data}{A data frame containing event data with columns for subject ID,
@@ -22,16 +13,6 @@ event group, event, event start time, and event end time.}
 \item{calc_event_group}{Logical indicating whether to calculate days for event groups. Default is TRUE.}
 
 \item{calc_event}{Logical indicating whether to calculate days for individual events. Default is TRUE.}
-
-\item{subjectid}{Column name for subject ID in the data frame.}
-
-\item{event_group}{Column name for event group in the data frame.}
-
-\item{event}{Column name for event in the data frame.}
-
-\item{event_start_time}{Column name for event start time in the data frame.}
-
-\item{event_end_time}{Column name for event end time in the data frame.}
 }
 \value{
 A data frame with the number of days associated with each subject's
@@ -39,6 +20,7 @@ events and event groups.
 }
 \description{
 This function calculates the number of days with specific events
-for each subject in the provided dataset. It can compute days for individual
-events as well as for event groups, based on the specified parameters.
+for each subject in the provided dataset.
+Expects columns subjectid, event_group, event, event_start_time,
+event_end_time.
 }

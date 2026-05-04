@@ -4,16 +4,7 @@
 \alias{calc_time_to_first}
 \title{Helper function to calculate time to first event and time to first event group}
 \usage{
-calc_time_to_first(
-  data,
-  calc_event_group = TRUE,
-  calc_event = TRUE,
-  subjectid = subjectid,
-  event_group = event_group,
-  event = event,
-  event_start_time = event_start_time,
-  event_end_time = event_end_time
-)
+calc_time_to_first(data, calc_event_group = TRUE, calc_event = TRUE)
 }
 \arguments{
 \item{data}{A data frame containing event data with columns for subject ID,
@@ -24,16 +15,6 @@ event group. Default is TRUE.}
 
 \item{calc_event}{Logical indicating whether to calculate time to the first
 individual event. Default is TRUE.}
-
-\item{subjectid}{Column name for subject ID in the data frame.}
-
-\item{event_group}{Column name for event group in the data frame.}
-
-\item{event}{Column name for event in the data frame.}
-
-\item{event_start_time}{Column name for event start time in the data frame.}
-
-\item{event_end_time}{Column name for event end time in the data frame.}
 }
 \value{
 A data frame with the time to the first occurrence of each subject's
@@ -41,6 +22,7 @@ events and event groups.
 }
 \description{
 This function calculates the time to the first occurrence of specific events
-and event groups for each subject in the provided dataset. It can compute the
-time for individual events as well as for event groups, based on the specified parameters.
+and event groups for each subject in the provided dataset.
+Expects columns subjectid, event_group, event, event_start_time,
+event_end_time.
 }

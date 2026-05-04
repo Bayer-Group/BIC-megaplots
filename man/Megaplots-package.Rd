@@ -11,8 +11,8 @@ Depicts individual study courses per day. Pre-specified events on certain days, 
 \seealso{
 Useful links:
 \itemize{
-  \item \url{github.com/Bayer-Group/BIC-megaplots}
-  \item Report bugs at \url{github.com/Bayer-Group/BIC-megaplots/issues}
+  \item \url{https://github.com/Bayer-Group/BIC-megaplots}
+  \item Report bugs at \url{https://github.com/Bayer-Group/BIC-megaplots/issues}
 }
 
 }
