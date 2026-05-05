@@ -57,6 +57,6 @@ A modified list containing updated "sl" and "events" entries with the processed 
 This function processes ADaM datasets to create a comprehensive dataset for event-level analysis with megaplots,
 including the ability to calculate time to first event or days with event, left censor data and manage additional variables.
 Processes a single pair of columns (e.g. "AEBODSYS" and "AEDECOD"). New rows are appended to "mp$events".
-Call multiple times to stack several pairs or domains, then call "finalize_mp_data()"" to create upload
+Call multiple times to stack several pairs or domains, then call "finalize_mp_object()"" to create upload
 data for the megaplots app.
 }
