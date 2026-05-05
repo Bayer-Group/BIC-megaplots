@@ -21,7 +21,19 @@ finalize_mp_object <- function(mp) {
   }
 
   mp <- mp$sl %>%
-    dplyr::left_join(mp$events, by = "subjectid")
+    dplyr::left_join(
+      mp$events,
+      by = intersect(colnames(mp$sl), colnames(mp$events))
+    ) %>%
+    dplyr::arrange(
+      subjectid,
+      start_time,
+      end_time,
+      event_start_time,
+      event_end_time,
+      event_group,
+      event
+    )
 
   return(mp)
 }
