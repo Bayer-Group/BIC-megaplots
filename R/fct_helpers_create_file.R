@@ -250,6 +250,7 @@ read_dataset <- function(path) {
   }
 }
 
+#' @noRd
 resolve_colname <- function(label, colnames_df) {
   idx <- which(toupper(colnames_df) == toupper(label))
   if (!length(idx)) {
@@ -258,6 +259,7 @@ resolve_colname <- function(label, colnames_df) {
   colnames_df[idx[[1]]]
 }
 
+#' @noRd
 resolve_first_match <- function(candidates, colnames_df) {
   hit <- candidates[toupper(candidates) %in% toupper(colnames_df)]
   if (!length(hit) || is.na(hit[[1]])) {

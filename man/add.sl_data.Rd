@@ -21,9 +21,11 @@ add.sl_data(
 
 \item{path_adsl}{Path to the adsl-dataset (can be a dataframe or file path).}
 
-\item{id}{Unique subject identifier (default: "USUBJID").}
+\item{id}{Column name of the unique subject identifier (default `"USUBJID"`). Must match `path_adsl`
+column names exactly.}
 
-\item{data_filter}{Subset dataset according to the filter conditions (default: NULL). Using dplyr::filter() syntax. Conditions should be wrapped in '' and concatenated by c(). Example: data_filter='SAFFL == "Y"'}
+\item{data_filter}{Optional; passed to [rlang::parse_exprs()] for [dplyr::filter()]. Example:
+`data_filter = "SAFFL == \"Y\""`.}
 
 \item{display_start_date}{Columns to be used as start dates (date of the first contact to the participant). If a vector with multiple column names is given, the first one present in the provided dataset is used. Per default, the following column names are checked: "REFSTDT","RFSTDT","RFSTDTC","RFICDT","RANDDT","TRTSTDT"}
 
@@ -42,4 +44,9 @@ A list containing the processed subject level dataset and NULL for events.
 This function reads an ADSL dataset from various file formats (SAS, CSV, RData) and processes it
 to create a subject-level dataset suitable for generating megaplots. It allows for filtering of
 the dataset based on specified conditions and computes relevant date variables.
+}
+\details{
+**Subject identifier (`id`):** Must match a column name in `path_adsl` **exactly** (case-sensitive).
+Subject keys are coerced to numeric by keeping only digits and periods (`0123456789.`); distinct labels
+that map to the same numeric id can **collide**. Avoid by using unique digit patterns or pre-mapping keys.
 }

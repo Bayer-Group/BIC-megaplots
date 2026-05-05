@@ -4,10 +4,17 @@
 #' to create a subject-level dataset suitable for generating megaplots. It allows for filtering of
 #' the dataset based on specified conditions and computes relevant date variables.
 #'
+#' @details
+#' **Subject identifier (`id`):** Must match a column name in `path_adsl` **exactly** (case-sensitive).
+#' Subject keys are coerced to numeric by keeping only digits and periods (`0123456789.`); distinct labels
+#' that map to the same numeric id can **collide**. Avoid by using unique digit patterns or pre-mapping keys.
+#'
 #' @param mp An object of class "mp_data_builder", generated init_mp_object() function.
 #' @param path_adsl Path to the adsl-dataset (can be a dataframe or file path).
-#' @param id Unique subject identifier (default: "USUBJID").
-#' @param data_filter Subset dataset according to the filter conditions (default: NULL). Using dplyr::filter() syntax. Conditions should be wrapped in '' and concatenated by c(). Example: data_filter='SAFFL == "Y"'
+#' @param id Column name of the unique subject identifier (default `"USUBJID"`). Must match `path_adsl`
+#'   column names exactly.
+#' @param data_filter Optional; passed to [rlang::parse_exprs()] for [dplyr::filter()]. Example:
+#'   `data_filter = "SAFFL == \"Y\""`.
 #' @param display_start_date Columns to be used as start dates (date of the first contact to the participant). If a vector with multiple column names is given, the first one present in the provided dataset is used. Per default, the following column names are checked: "REFSTDT","RFSTDT","RFSTDTC","RFICDT","RANDDT","TRTSTDT"
 #' @param display_end_date Columns to be used as end dates (date of the last contact to the participant. If a vector with multiple column names is given, the maximum of all present in the provided dataset is used. Per default, the following column names are checked: "REFENDT","RFENDTC","RFENDT", "LVDT", "WDICDT"
 #' @param relative_day_1 Columns to be used as the reference for relative day 1.

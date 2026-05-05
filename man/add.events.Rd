@@ -30,9 +30,10 @@ add.events(
 
 \item{event}{Name of the column to use as Megaplots `event`.}
 
-\item{id}{A string representing the subject identifier column name in `path_data`. Default is "USUBJID".}
+\item{id}{Column name of the subject identifier in `path_data` (default `"USUBJID"`). Must match the data
+frame column name exactly.}
 
-\item{data_filter}{A string for filtering the dataset using dplyr syntax. Default is NULL.}
+\item{data_filter}{Optional character vector passed to [rlang::parse_exprs()] and used inside}
 
 \item{prefix_group}{Prefix applied to values from `event_group`.}
 
@@ -46,7 +47,7 @@ add.events(
 
 \item{calc_days_with}{A logical indicating whether to calculate the days with the event. Default is FALSE.}
 
-\item{left_censor}{A numeric value specifying the left censoring time. Default NULL means no left cesnoring will be performed.}
+\item{left_censor}{A numeric value specifying the left censoring time. Default NULL means no left censoring will be performed.}
 
 \item{keep_vars}{A character vector of additional event level variables to keep in the final dataset.}
 }
@@ -57,6 +58,16 @@ A modified list containing updated "sl" and "events" entries with the processed 
 This function processes ADaM datasets to create a comprehensive dataset for event-level analysis with megaplots,
 including the ability to calculate time to first event or days with event, left censor data and manage additional variables.
 Processes a single pair of columns (e.g. "AEBODSYS" and "AEDECOD"). New rows are appended to "mp$events".
-Call multiple times to stack several pairs or domains, then call "finalize_mp_object()"" to create upload
+Call multiple times to stack several pairs or domains, then call "finalize_mp_object()" to create upload
 data for the megaplots app.
+}
+\details{
+**Subject identifier (`id`):** `id` must match a column name in `path_data` exactly (case-sensitive).
+Subject keys are coerced to numeric by keeping only digits and periods (`0123456789.`); distinct labels
+that map to the same numeric id can collide. Avoid by using unique digit patterns or pre-mapping keys.
+
+**`calc_time_to_first` / `calc_days_with` across multiple `add.events()` calls:** Each run with these
+flags joins `ttf_*` / `dw_*` columns onto `mp$sl`. Another call can duplicate or rename columns (e.g.
+`...x` / `...y`) if derived names overlap. Prefer one pair of calls per analysis, or rely on distinct
+event labels from `prefix_group` / `prefix_event` / domain-specific columns so pivot names do not clash.
 }

@@ -5,8 +5,7 @@
 #'
 #' @param mp A populated `mp_data_builder`.
 #'
-#' @return A `list` with elements `sl` and `events`. If no event rows were
-#'   added, `events` is `NULL`.
+#' @return A data frame ready for use in the Megaplots app
 #' @export
 #' @importFrom dplyr left_join
 finalize_mp_object <- function(mp) {

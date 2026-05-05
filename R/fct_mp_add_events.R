@@ -3,22 +3,33 @@
 #' This function processes ADaM datasets to create a comprehensive dataset for event-level analysis with megaplots,
 #' including the ability to calculate time to first event or days with event, left censor data and manage additional variables.
 #' Processes a single pair of columns (e.g. "AEBODSYS" and "AEDECOD"). New rows are appended to "mp$events".
-#' Call multiple times to stack several pairs or domains, then call "finalize_mp_object()"" to create upload
+#' Call multiple times to stack several pairs or domains, then call "finalize_mp_object()" to create upload
 #' data for the megaplots app.
+#'
+#' @details
+#' **Subject identifier (`id`):** `id` must match a column name in `path_data` exactly (case-sensitive).
+#' Subject keys are coerced to numeric by keeping only digits and periods (`0123456789.`); distinct labels
+#' that map to the same numeric id can collide. Avoid by using unique digit patterns or pre-mapping keys.
+#'
+#' **`calc_time_to_first` / `calc_days_with` across multiple `add.events()` calls:** Each run with these
+#' flags joins `ttf_*` / `dw_*` columns onto `mp$sl`. Another call can duplicate or rename columns (e.g.
+#' `...x` / `...y`) if derived names overlap. Prefer one pair of calls per analysis, or rely on distinct
+#' event labels from `prefix_group` / `prefix_event` / domain-specific columns so pivot names do not clash.
 #'
 #' @param mp An object from init_mp_object() after add.sl_data().
 #' @param path_data A data frame or a file path to the dataset (SAS, CSV, or RData) to be read. File should be ADaM conform.
 #' @param event_group Name of the column to use as Megaplots `event_group`.
 #' @param event Name of the column to use as Megaplots `event`.
-#' @param id A string representing the subject identifier column name in `path_data`. Default is "USUBJID".
-#' @param data_filter A string for filtering the dataset using dplyr syntax. Default is NULL.
+#' @param id Column name of the subject identifier in `path_data` (default `"USUBJID"`). Must match the data
+#'   frame column name exactly.
+#' @param data_filter Optional character vector passed to [rlang::parse_exprs()] and used inside
 #' @param prefix_group Prefix applied to values from `event_group`.
 #' @param prefix_event Prefix applied to values from `event`.
 #' @param event_start A character vector of possible event start date/time column names.
 #' @param event_end A character vector of possible event end date/time column names.
 #' @param calc_time_to_first A logical indicating whether to calculate the time to the first event. Default is FALSE.
 #' @param calc_days_with A logical indicating whether to calculate the days with the event. Default is FALSE.
-#' @param left_censor A numeric value specifying the left censoring time. Default NULL means no left cesnoring will be performed.
+#' @param left_censor A numeric value specifying the left censoring time. Default NULL means no left censoring will be performed.
 #' @param keep_vars A character vector of additional event level variables to keep in the final dataset.
 #'
 #' @return A modified list containing updated "sl" and "events" entries with the processed event-level data.
@@ -202,7 +213,7 @@ add.events <- function(
 
   time_to_first <- NULL
   if (calc_time_to_first) {
-    print("calcuating time to first event")
+    message("calculating time to first event")
     time_to_first <- calc_time_to_first(data = data_tmp)
 
     mp$sl <- mp$sl %>%
@@ -211,7 +222,7 @@ add.events <- function(
 
   days_with <- NULL
   if (calc_days_with) {
-    print("calcuating days with event")
+    message("calculating days with event")
     days_with <- calc_days_with(data = data_tmp)
 
     mp$sl <- mp$sl %>%

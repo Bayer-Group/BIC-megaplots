@@ -10,8 +10,7 @@ finalize_mp_object(mp)
 \item{mp}{A populated `mp_data_builder`.}
 }
 \value{
-A `list` with elements `sl` and `events`. If no event rows were
-  added, `events` is `NULL`.
+A data frame ready for use in the Megaplots app
 }
 \description{
 Completes the build started with [init_mp_object()], [add.sl_data()], and
