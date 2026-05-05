@@ -18,7 +18,7 @@ empty_mp_events <- function() {
 #'
 #' @return An object of class `mp_data_builder`.
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' library(Megaplots)
 #' library(dplyr)
 #' library(safetyData)

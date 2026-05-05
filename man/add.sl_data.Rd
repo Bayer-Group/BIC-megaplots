@@ -17,6 +17,8 @@ add.sl_data(
 )
 }
 \arguments{
+\item{mp}{An object of class "mp_data_builder", generated init_mp_object() function.}
+
 \item{path_adsl}{Path to the adsl-dataset (can be a dataframe or file path).}
 
 \item{id}{Unique subject identifier (default: "USUBJID").}

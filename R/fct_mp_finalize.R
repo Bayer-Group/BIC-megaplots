@@ -26,13 +26,13 @@ finalize_mp_object <- function(mp) {
       by = intersect(colnames(mp$sl), colnames(mp$events))
     ) %>%
     dplyr::arrange(
-      subjectid,
-      start_time,
-      end_time,
-      event_start_time,
-      event_end_time,
-      event_group,
-      event
+      .data$subjectid,
+      .data$start_time,
+      .data$end_time,
+      .data$event_start_time,
+      .data$event_end_time,
+      .data$event_group,
+      .data$event
     )
 
   return(mp)

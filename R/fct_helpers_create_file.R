@@ -48,8 +48,8 @@ calc_time_to_first <- function(
       ) %>%
       dplyr::distinct() %>%
       dplyr::mutate(
-        event_group = gsub("[[:punct:][:space:]]+", "_", event_group),
-        event = gsub("[[:punct:][:space:]]+", "_", event)
+        event_group = gsub("[[:punct:][:space:]]+", "_", .data$event_group),
+        event = gsub("[[:punct:][:space:]]+", "_", .data$event)
       ) %>%
       tidyr::pivot_wider(
         id_cols = "subjectid",
@@ -71,9 +71,9 @@ calc_time_to_first <- function(
       dplyr::group_by(.data$subjectid, .data$event_group) %>%
       dplyr::summarize(
         first = ifelse(
-          all(is.na(event_start_time)),
+          all(is.na(.data$event_start_time)),
           NA,
-          min(event_start_time, na.rm = TRUE)
+          min(.data$event_start_time, na.rm = TRUE)
         ),
         .groups = "drop"
       ) %>%
@@ -171,7 +171,7 @@ calc_days_with <- function(
   }
   if (calc_event_group) {
     data_days_with_group <- data %>%
-      dplyr::select(-event) %>%
+      dplyr::select(-.data$event) %>%
       dplyr::arrange(
         .data$subjectid,
         .data$event_group,

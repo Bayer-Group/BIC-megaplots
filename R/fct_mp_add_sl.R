@@ -4,6 +4,7 @@
 #' to create a subject-level dataset suitable for generating megaplots. It allows for filtering of
 #' the dataset based on specified conditions and computes relevant date variables.
 #'
+#' @param mp An object of class "mp_data_builder", generated init_mp_object() function.
 #' @param path_adsl Path to the adsl-dataset (can be a dataframe or file path).
 #' @param id Unique subject identifier (default: "USUBJID").
 #' @param data_filter Subset dataset according to the filter conditions (default: NULL). Using dplyr::filter() syntax. Conditions should be wrapped in '' and concatenated by c(). Example: data_filter='SAFFL == "Y"'
