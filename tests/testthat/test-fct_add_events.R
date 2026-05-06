@@ -1,50 +1,122 @@
-# # Sample subject-level data for testing
-# mp_data <- list(
-#   sl = data.frame(
-#     subjectid = c(1, 2, 3),
-#     start_time = c(1, 2, 3),
-#     end_time = c(10, 12, 15),
-#     ref_date = as.Date(c("2022-01-01", "2022-01-01", "2022-01-01"))
-#   ),
-#   events = NULL
-# )
+adsl_min <- data.frame(
+  USUBJID = c("01-001", "01-002"),
+  REFSTDT = as.Date(c("2020-01-01", "2020-01-05")),
+  REFENDT = as.Date(c("2020-02-01", "2020-02-10")),
+  TRTSTDT = as.Date(c("2020-01-01", "2020-01-05")),
+  stringsAsFactors = FALSE
+)
 
-# # Sample dataset for testing
-# test_data <- data.frame(
-#   USUBJID = c("001", "002", "003"),
-#   AEBODSYS = c("System A", "System B", "System C"),
-#   AEDECOD = c("Event A", "Event B", "Event C"),
-#   ASTDT = as.Date(c("2022-01-01", "2022-01-02", "2022-01-03")),
-#   AENDT = as.Date(c("2022-01-05", "2022-01-06", "2022-01-07")),
-#   stringsAsFactors = FALSE
-# )
+adae_min <- data.frame(
+  USUBJID = c("01-001", "01-002"),
+  AEBODSYS = c("SOC", "SOC"),
+  AEDECOD = c("PTa", "PTb"),
+  ASTDT = as.Date(c("2020-01-02", "2020-01-06")),
+  AENDT = as.Date(c("2020-01-03", "2020-01-07")),
+  stringsAsFactors = FALSE
+)
 
-# # Test for processing event-level data correctly
-# test_that("Function processes event-level data correctly", {
-#   result <- createFile.events(mp_data, test_data, param = list(c("AEBODSYS", "AEDECOD")))
-#   expect_true(is.list(result))
-#   expect_true(is.data.frame(result$sl))
-#   expect_true(is.data.frame(result$events))
-# })
+mp_with_sl <- function() {
+  init_mp_object() %>% add.sl_data(adsl_min)
+}
 
-# # Test for missing subject identifier
-# test_that("Function throws error for missing subject identifier", {
-#   expect_error(createFile.events(mp_data, test_data, param = list(c("AEBODSYS", "AEDECOD")), id = "NON_EXISTENT_ID"),
-#                "The specified id 'NON_EXISTENT_ID' is not a column in the dataset.")
-# })
+test_that("add.events appends rows and applies prefix_group / prefix_event", {
+  mp <- mp_with_sl() %>%
+    add.events(
+      adae_min,
+      event_group = "AEBODSYS",
+      event = "AEDECOD",
+      prefix_group = "G:",
+      prefix_event = "E:"
+    )
 
-# # Test for filtering data
-# test_that("Function applies data filter correctly", {
-#   result <- createFile.events(mp_data, test_data, param = list(c("AEBODSYS", "AEDECOD")), data_filter = 'AEBODSYS == "System A"')
-#   expect_equal(nrow(result$events), 1)  # Expect one event for filtering
-# })
+  expect_equal(nrow(mp$events), 2L)
+  expect_true(all(grepl("^G:", mp$events$event_group)))
+  expect_true(all(grepl("^E:", mp$events$event)))
+})
 
-# # Test for missing event columns
-# test_that("Function throws error for missing event columns", {
-#   test_data_no_event <- data.frame(
-#     USUBJID = c("001", "002", "003"),
-#     stringsAsFactors = FALSE
-#   )
-#   expect_error(createFile.events(mp_data, test_data_no_event, param = list(c("AEBODSYS", "AEDECOD"))),
-#                "None of the input parameters in param are present as column names in the data: AEBODSYS, AEDECOD")
-# })
+test_that("add.events resolves event column names case-insensitively", {
+  adae <- adae_min
+  names(adae) <- c("USUBJID", "aebodsys", "aedecod", "ASTDT", "AENDT")
+
+  mp <- mp_with_sl() %>%
+    add.events(
+      adae,
+      event_group = "AEBODSYS",
+      event = "AEDECOD"
+    )
+
+  expect_equal(nrow(mp$events), 2L)
+})
+
+test_that("add.events stacks multiple calls on mp$events", {
+  mp <- mp_with_sl() %>%
+    add.events(adae_min, event_group = "AEBODSYS", event = "AEDECOD") %>%
+    add.events(adae_min, event_group = "AEBODSYS", event = "AEDECOD")
+
+  expect_equal(nrow(mp$events), 4L)
+})
+
+test_that("add.events errors when mp is not mp_data_builder", {
+  expect_error(
+    add.events(list(), adae_min, event_group = "AEBODSYS", event = "AEDECOD"),
+    "`mp` must be an object created by init_mp_object()"
+  )
+})
+
+test_that("add.events errors when subject-level data was not added", {
+  expect_error(
+    init_mp_object() %>%
+      add.events(adae_min, event_group = "AEBODSYS", event = "AEDECOD"),
+    "Subject-level data is missing; call add.sl_data() first."
+  )
+})
+
+test_that("add.events errors when id column is absent", {
+  bad <- adae_min
+  names(bad)[1] <- "SUBJ"
+
+  expect_error(
+    mp_with_sl() %>%
+      add.events(bad, event_group = "AEBODSYS", event = "AEDECOD"),
+    "The specified id 'USUBJID' is not a column in the dataset."
+  )
+})
+
+test_that("add.events errors when event_group column is absent", {
+  bad <- adae_min
+  names(bad)[2] <- "WRONG"
+
+  expect_error(
+    mp_with_sl() %>%
+      add.events(bad, event_group = "AEBODSYS", event = "AEDECOD"),
+    "Column 'AEBODSYS' not found in dataset."
+  )
+})
+
+test_that("add.events keeps keep_vars when present", {
+  adae <- adae_min
+  adae$EXTRA <- c("x", "y")
+
+  mp <- mp_with_sl() %>%
+    add.events(
+      adae,
+      event_group = "AEBODSYS",
+      event = "AEDECOD",
+      keep_vars = "EXTRA"
+    )
+
+  expect_true("EXTRA" %in% names(mp$events))
+})
+
+test_that("add.events joins time-to-first columns when calc_time_to_first is TRUE", {
+  mp <- mp_with_sl() %>%
+    add.events(
+      adae_min,
+      event_group = "AEBODSYS",
+      event = "AEDECOD",
+      calc_time_to_first = TRUE
+    )
+
+  ttf_cols <- grep("^ttf_", names(mp$sl), value = TRUE)
+  expect_true(length(ttf_cols) > 0L)
+})
