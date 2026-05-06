@@ -13,6 +13,8 @@ Description: Depicts individual study courses per day.  Pre-specified
     events is supported by several functions, such as sorting, grouping,
     and changing the complexity of the graphical display.
 License: GPL (>= 3)
+Depends:
+    R (>= 3.6.0)
 Imports: 
     bsicons,
     bslib,
@@ -28,14 +30,17 @@ Imports:
     haven,
     htmlwidgets,
     jsTreeR,
+    pkgload,
     plotly,
     purrr,
     RColorBrewer,
     readr,
     rlang,
+    scales,
     seriation,
     shiny,
     shinycssloaders,
+    shinyjqui,
     shinyjs,
     shinyWidgets,
     stats,

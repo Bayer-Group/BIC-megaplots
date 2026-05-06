@@ -38,6 +38,7 @@ usethis::use_package("seriation")
 usethis::use_package("haven")
 usethis::use_package("readr")
 usethis::use_package("safetyData", type = "Suggests")
+usethis::use_package("markdown")
 
 ## Amend DESCRIPTION with dependencies read from package code parsing
 ## install.packages('attachment') # if needed.
