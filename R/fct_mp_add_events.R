@@ -16,7 +16,15 @@
 #' `...x` / `...y`) if derived names overlap. Prefer one pair of calls per analysis, or rely on distinct
 #' event labels from `prefix_group` / `prefix_event` / domain-specific columns so pivot names do not clash.
 #'
-#' @param mp An object from init_mp_object() after add.sl_data().
+#' **Building `mp$sl` from `path_data`:** When `mp$sl` is NULL (i.e. [add.sl_data()] was not used),
+#' you must pass `sl_ref_date`: either a column name in `path_data` with the reference date per subject,
+#' or a single numeric value when `event_start` / `event_end` are already on the same relative-day scale
+#' (e.g. `sl_ref_date = 1`). Only `subjectid` and `ref_date` are added to `mp$sl` (no `start_time` / `end_time`).
+#' One row per `subjectid` is kept (first after filtering). Later `add.events()` calls keep only subjects already
+#' in `mp$sl`; use [add.sl_data()] first when you need the full population from ADSL or subject-level timeline
+#' columns.
+#'
+#' @param mp An object from [init_mp_object()]. If `mp$sl` is NULL, `sl_ref_date` is required.
 #' @param path_data A data frame or a file path to the dataset (SAS, CSV, or RData) to be read. File should be ADaM conform.
 #' @param event_group Name of the column to use as Megaplots `event_group`.
 #' @param event Name of the column to use as Megaplots `event`.
@@ -31,6 +39,10 @@
 #' @param calc_days_with A logical indicating whether to calculate the days with the event. Default is FALSE.
 #' @param left_censor A numeric value specifying the left censoring time. Default NULL means no left censoring will be performed.
 #' @param keep_vars A character vector of additional event level variables to keep in the final dataset.
+#' @param sl_ref_date Required when `mp$sl` is NULL. Character: column name in `path_data` whose values
+#'   are the reference value (typically `Date`) for converting event dates to study days. Numeric
+#'   length 1: constant reference on the same scale as `event_start` / `event_end` when those columns
+#'   are already relative days (not dates). Ignored when `mp$sl` is already set (e.g. after [add.sl_data()]).
 #'
 #' @return A modified list containing updated "sl" and "events" entries with the processed event-level data.
 #' @export
@@ -48,30 +60,17 @@ add.events <- function(
   calc_time_to_first = FALSE,
   calc_days_with = FALSE,
   left_censor = NULL,
-  keep_vars = NULL
+  keep_vars = NULL,
+  sl_ref_date = NULL
 ) {
   if (!inherits(mp, "mp_data_builder")) {
     stop("`mp` must be an object created by init_mp_object().", call. = FALSE)
-  }
-  if (is.null(mp$sl)) {
-    stop(
-      "Subject-level data is missing; call add.sl_data() first.",
-      call. = FALSE
-    )
   }
 
   #set global variable . to NULL to
   #avoid note: no visible binding for global variable '.' when
   # performing package check (via devtools)
   . <- NULL
-
-  adsl <- mp$sl %>%
-    dplyr::select(
-      .data$subjectid,
-      .data$start_time,
-      .data$end_time,
-      .data$ref_date
-    )
 
   # Read data ----
   if (is.data.frame(path_data)) {
@@ -90,19 +89,72 @@ add.events <- function(
     stop(sprintf("The specified id '%s' is not a column in the dataset.", id))
   }
 
+  if (!is.null(data_filter)) {
+    data <- dplyr::filter(data, !!!rlang::parse_exprs(data_filter))
+  }
+
+  if (is.null(mp$sl)) {
+    if (is.null(sl_ref_date)) {
+      stop(
+        "When subject-level data has not been added (`mp$sl` is NULL), supply `sl_ref_date` ",
+        "(column name or numeric constant); or call add.sl_data() first.",
+        call. = FALSE
+      )
+    }
+    if (length(sl_ref_date) != 1L) {
+      stop("`sl_ref_date` must have length 1.", call. = FALSE)
+    }
+    sl_tmp <- data %>%
+      dplyr::mutate(
+        subjectid = as.numeric(base::gsub(
+          "[^0-9.]",
+          "",
+          as.character(!!rlang::sym(id))
+        ))
+      ) %>%
+      dplyr::distinct(.data$subjectid, .keep_all = TRUE) %>%
+      dplyr::relocate(.data$subjectid)
+
+    if (is.character(sl_ref_date)) {
+      if (is.na(sl_ref_date)) {
+        stop("`sl_ref_date` must not be NA.", call. = FALSE)
+      }
+      sl_col <- resolve_colname(sl_ref_date, colnames(sl_tmp))
+      mp$sl <- sl_tmp %>%
+        dplyr::select(.data$subjectid, dplyr::all_of(sl_col)) %>%
+        dplyr::rename(ref_date = !!rlang::sym(sl_col))
+    } else if (is.numeric(sl_ref_date)) {
+      if (anyNA(sl_ref_date)) {
+        stop(
+          "`sl_ref_date` must be a single non-missing numeric value.",
+          call. = FALSE
+        )
+      }
+      mp$sl <- sl_tmp %>%
+        dplyr::select(.data$subjectid) %>%
+        dplyr::mutate(ref_date = as.numeric(sl_ref_date))
+    } else {
+      stop(
+        "`sl_ref_date` must be a column name (character) or a numeric constant.",
+        call. = FALSE
+      )
+    }
+  }
+
+  sl_join_cols <- c("subjectid", "ref_date")
+  if ("start_time" %in% names(mp$sl)) {
+    sl_join_cols <- c(sl_join_cols, "start_time")
+  }
+  if ("end_time" %in% names(mp$sl)) {
+    sl_join_cols <- c(sl_join_cols, "end_time")
+  }
+  adsl <- mp$sl %>% dplyr::select(tidyselect::all_of(sl_join_cols))
+
   eg_col <- resolve_colname(event_group, colnames(data))
   ev_col <- resolve_colname(event, colnames(data))
   message("Event group column: ", eg_col, ", event column: ", ev_col)
 
   data <- data %>%
-    #Filter data
-    {
-      if (!is.null(data_filter)) {
-        dplyr::filter(., !!!rlang::parse_exprs(data_filter))
-      } else {
-        .
-      }
-    } %>%
     #rename and relocate id-variable.
     dplyr::mutate(
       subjectid = as.numeric(gsub(
@@ -158,8 +210,7 @@ add.events <- function(
       !!rlang::sym(event_start),
       !!rlang::sym(event_end),
       .data$ref_date,
-      .data$start_time,
-      .data$end_time,
+      tidyselect::any_of(c("start_time", "end_time")),
       tidyselect::any_of(keep_vars)
     ) %>%
     dplyr::filter(!is.na(!!rlang::sym(event_start))) %>%
@@ -169,25 +220,62 @@ add.events <- function(
       .data$event,
       !!rlang::sym(event_start),
       !!rlang::sym(event_end)
-    ) %>%
+    )
+
+  is_cal <- function(x) {
+    inherits(x, "Date") || inherits(x, "POSIXct")
+  }
+  ev_is_date <- is_cal(data_tmp[[event_start]])
+  ref_is_date <- is_cal(data_tmp$ref_date)
+  if (ev_is_date != ref_is_date) {
+    stop(
+      "`event_start` / `event_end` and `ref_date` must be all dates or all numeric; mixed types are not supported.",
+      call. = FALSE
+    )
+  }
+
+  has_sl_start <- "start_time" %in% names(data_tmp)
+
+  data_tmp <- data_tmp %>%
     dplyr::group_by(.data$subjectid, .data$event_group, .data$event) %>%
     dplyr::mutate(
-      event_start_time = as.integer(
-        !!rlang::sym(event_start) - .data$ref_date + 1L
-      )
-    ) %>% # Calculate start time of adverse events
-    dplyr::mutate(
-      event_end_time = dplyr::case_when(
-        !is.na(!!rlang::sym(event_end)) ~ as.integer(
-          !!rlang::sym(event_end) - .data$ref_date + 1L
-        ), # Keep existing End_day if not missing
-        TRUE ~ as.integer(!!rlang::sym(event_start) - .data$ref_date + 1L) # Set event_end_time to start_time, if missing
-      )
+      event_start_time = if (ev_is_date) {
+        as.integer(
+          !!rlang::sym(event_start) - .data$ref_date + 1L
+        )
+      } else {
+        as.integer(!!rlang::sym(event_start)) -
+          as.integer(.data$ref_date) +
+          1L
+      },
+      event_end_time = if (ev_is_date) {
+        dplyr::case_when(
+          !is.na(!!rlang::sym(event_end)) ~ as.integer(
+            !!rlang::sym(event_end) - .data$ref_date + 1L
+          ),
+          TRUE ~ as.integer(
+            !!rlang::sym(event_start) - .data$ref_date + 1L
+          )
+        )
+      } else {
+        dplyr::case_when(
+          !is.na(!!rlang::sym(event_end)) ~ as.integer(
+            !!rlang::sym(event_end)
+          ) -
+            as.integer(.data$ref_date) +
+            1L,
+          TRUE ~ as.integer(!!rlang::sym(event_start)) -
+            as.integer(.data$ref_date) +
+            1L
+        )
+      }
     ) %>%
     dplyr::ungroup() %>%
-    # left censor data if provided
+    # left censor data if provided ans start_time is available in sl;
     dplyr::mutate(
       event_start_time = if (is.null(left_censor)) {
+        .data$event_start_time
+      } else if (!has_sl_start) {
         .data$event_start_time
       } else {
         dplyr::case_when(

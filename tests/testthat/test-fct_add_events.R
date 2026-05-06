@@ -15,6 +15,17 @@ adae_min <- data.frame(
   stringsAsFactors = FALSE
 )
 
+# Event data with TRTSTDT only (enough for sl_ref_date when add.sl_data was not called)
+adae_with_ref_col <- data.frame(
+  USUBJID = c("01-001", "01-002"),
+  TRTSTDT = as.Date(c("2020-01-01", "2020-01-05")),
+  AEBODSYS = c("SOC", "SOC"),
+  AEDECOD = c("PTa", "PTb"),
+  ASTDT = as.Date(c("2020-01-02", "2020-01-06")),
+  AENDT = as.Date(c("2020-01-03", "2020-01-07")),
+  stringsAsFactors = FALSE
+)
+
 mp_with_sl <- function() {
   init_mp_object() %>% add.sl_data(adsl_min)
 }
@@ -63,13 +74,78 @@ test_that("add.events errors when mp is not mp_data_builder", {
   )
 })
 
-test_that("add.events errors when subject-level data was not added", {
+test_that("add.events builds minimal mp$sl from sl_ref_date column when add.sl_data was not used", {
+  mp <- init_mp_object() %>%
+    add.events(
+      adae_with_ref_col,
+      event_group = "AEBODSYS",
+      event = "AEDECOD",
+      sl_ref_date = "TRTSTDT"
+    )
+
+  expect_named(mp$sl, c("subjectid", "ref_date"))
+  expect_equal(nrow(mp$sl), 2L)
+  expect_equal(nrow(mp$events), 2L)
+})
+
+test_that("add.events uses numeric sl_ref_date with relative-day event columns", {
+  adae_rel <- data.frame(
+    USUBJID = c("01-001", "01-002"),
+    AEBODSYS = c("SOC", "SOC"),
+    AEDECOD = c("PTa", "PTb"),
+    day_s = c(2L, 6L),
+    day_e = c(3L, 7L),
+    stringsAsFactors = FALSE
+  )
+
+  mp <- init_mp_object() %>%
+    add.events(
+      adae_rel,
+      event_group = "AEBODSYS",
+      event = "AEDECOD",
+      event_start = "day_s",
+      event_end = "day_e",
+      sl_ref_date = 1L
+    )
+
+  expect_equal(mp$events$event_start_time, c(2L, 6L))
+  expect_equal(mp$events$event_end_time, c(3L, 7L))
+})
+
+test_that("add.events errors when mp$sl is NULL and sl_ref_date is missing", {
   expect_error(
     init_mp_object() %>%
       add.events(adae_min, event_group = "AEBODSYS", event = "AEDECOD"),
-    "Subject-level data is missing; call add.sl_data() first."
+    regexp = "sl_ref_date"
   )
 })
+
+test_that("add.events errors when sl_ref_date names a missing column", {
+  expect_error(
+    init_mp_object() %>%
+      add.events(
+        adae_min,
+        event_group = "AEBODSYS",
+        event = "AEDECOD",
+        sl_ref_date = "NOT_A_COLUMN"
+      ),
+    regexp = "NOT_A_COLUMN"
+  )
+})
+
+test_that("add.events does not require sl_ref_date once mp$sl exists", {
+  mp <- init_mp_object() %>%
+    add.events(
+      adae_with_ref_col,
+      event_group = "AEBODSYS",
+      event = "AEDECOD",
+      sl_ref_date = "TRTSTDT"
+    ) %>%
+    add.events(adae_min, event_group = "AEBODSYS", event = "AEDECOD")
+
+  expect_equal(nrow(mp$events), 4L)
+})
+
 
 test_that("add.events errors when id column is absent", {
   bad <- adae_min
@@ -119,4 +195,29 @@ test_that("add.events joins time-to-first columns when calc_time_to_first is TRU
 
   ttf_cols <- grep("^ttf_", names(mp$sl), value = TRUE)
   expect_true(length(ttf_cols) > 0L)
+})
+
+test_that("add.events errors when event dates and ref_date scale are mixed", {
+  adae_bad <- data.frame(
+    USUBJID = "01-001",
+    TRTSTDT = as.Date("2020-01-01"),
+    AEBODSYS = "S",
+    AEDECOD = "P",
+    day_only = 5L,
+    day_end = 6L,
+    stringsAsFactors = FALSE
+  )
+
+  expect_error(
+    init_mp_object() %>%
+      add.events(
+        adae_bad,
+        event_group = "AEBODSYS",
+        event = "AEDECOD",
+        event_start = "day_only",
+        event_end = "day_end",
+        sl_ref_date = "TRTSTDT"
+      ),
+    regexp = "mixed types"
+  )
 })

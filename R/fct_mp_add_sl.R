@@ -17,7 +17,7 @@
 #'   `data_filter = "SAFFL == \"Y\""`.
 #' @param display_start_date Columns to be used as start dates (date of the first contact to the participant). If a vector with multiple column names is given, the first one present in the provided dataset is used. Per default, the following column names are checked: "REFSTDT","RFSTDT","RFSTDTC","RFICDT","RANDDT","TRTSTDT"
 #' @param display_end_date Columns to be used as end dates (date of the last contact to the participant. If a vector with multiple column names is given, the maximum of all present in the provided dataset is used. Per default, the following column names are checked: "REFENDT","RFENDTC","RFENDT", "LVDT", "WDICDT"
-#' @param relative_day_1 Columns to be used as the reference for relative day 1.
+#' @param relative_day_1 Columns to be used as the reference for relative day 1. If a vector with multiple column names is given, the first one present in the provided dataset is used. Per default, the following column names are checked: "TRTSTDT", "TRTSDT"
 #' @param trtstdt Columns to be used as treatment start dates.
 #' @param trtendt Columns to be used as treatment end dates.
 #'
