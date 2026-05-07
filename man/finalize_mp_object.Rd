@@ -4,10 +4,21 @@
 \alias{finalize_mp_object}
 \title{Finalize Megaplots data for the app}
 \usage{
-finalize_mp_object(mp)
+finalize_mp_object(
+  mp,
+  event_label_case = c("none", "lower", "upper", "title"),
+  event_group_label_case = c("none", "lower", "upper", "title")
+)
 }
 \arguments{
 \item{mp}{A populated `mp_data_builder`.}
+
+\item{event_label_case}{How to normalize `event` and `event_group` text:
+`none` (default, unchanged), `lower`, `upper`, or `title` (first
+letter of each word capitalized).}
+
+\item{event_group_label_case}{How to normalize the `event_group` column;
+same choices as `event_label_case`.}
 }
 \value{
 A data frame ready for use in the Megaplots app

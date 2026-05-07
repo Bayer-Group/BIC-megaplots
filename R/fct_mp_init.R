@@ -14,7 +14,7 @@ empty_mp_events <- function() {
 #'
 #' Returned object is meant to be used with [add.events()] and [finalize_mp_object()];
 #' call [add.sl_data()] first when you want subject-level rows from ADSL.
-#' "events" starts as an empty table with the core Megaplots event columns so rows 
+#' "events" starts as an empty table with the core Megaplots event columns so rows
 #' can be stacked with [add.events()].
 #'
 #' @return An object of class `mp_data_builder`.
@@ -51,7 +51,8 @@ empty_mp_events <- function() {
 #'     event_end = "ADT",
 #'     prefix_group = "Lab: "
 #'   ) %>%
-#'   finalize_mp_object()
+#'   finalize_mp_object(event_group_label_case = "title",
+#'                      event_label_case = "title")
 #' }
 #' @export
 init_mp_object <- function() {

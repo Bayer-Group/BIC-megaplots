@@ -12,7 +12,7 @@ An object of class `mp_data_builder`.
 \description{
 Returned object is meant to be used with [add.events()] and [finalize_mp_object()];
 call [add.sl_data()] first when you want subject-level rows from ADSL.
-"events" starts as an empty table with the core Megaplots event columns so rows 
+"events" starts as an empty table with the core Megaplots event columns so rows
 can be stacked with [add.events()].
 }
 \examples{
@@ -48,6 +48,7 @@ mp_data <- init_mp_object() \%>\%
     event_end = "ADT",
     prefix_group = "Lab: "
   ) \%>\%
-  finalize_mp_object()
+  finalize_mp_object(event_group_label_case = "title",
+                     event_label_case = "title")
 }
 }
