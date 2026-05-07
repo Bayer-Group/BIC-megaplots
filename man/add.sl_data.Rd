@@ -31,7 +31,7 @@ column names exactly.}
 
 \item{display_end_date}{Columns to be used as end dates (date of the last contact to the participant. If a vector with multiple column names is given, the maximum of all present in the provided dataset is used. Per default, the following column names are checked: "REFENDT","RFENDTC","RFENDT", "LVDT", "WDICDT"}
 
-\item{relative_day_1}{Columns to be used as the reference for relative day 1.}
+\item{relative_day_1}{Columns to be used as the reference for relative day 1. If a vector with multiple column names is given, the first one present in the provided dataset is used. Per default, the following column names are checked: "TRTSTDT", "TRTSDT"}
 
 \item{trtstdt}{Columns to be used as treatment start dates.}
 

@@ -26,8 +26,10 @@
 #'
 #' @param mp An object from [init_mp_object()]. If `mp$sl` is NULL, `sl_ref_date` is required.
 #' @param path_data A data frame or a file path to the dataset (SAS, CSV, or RData) to be read. File should be ADaM conform.
-#' @param event_group Name of the column to use as Megaplots `event_group`.
-#' @param event Name of the column to use as Megaplots `event`.
+#' @param event_group Character vector of one or more column names used to build Megaplots `event_group`.
+#'   When multiple names are provided, values are pasted together.
+#' @param event Character vector of one or more column names used to build Megaplots `event`.
+#'   When multiple names are provided, values are pasted together.
 #' @param id Column name of the subject identifier in `path_data` (default `"USUBJID"`). Must match the data
 #'   frame column name exactly.
 #' @param data_filter Optional character vector passed to [rlang::parse_exprs()] and used inside
@@ -150,9 +152,63 @@ add.events <- function(
   }
   adsl <- mp$sl %>% dplyr::select(tidyselect::all_of(sl_join_cols))
 
-  eg_col <- resolve_colname(event_group, colnames(data))
-  ev_col <- resolve_colname(event, colnames(data))
-  message("Event group column: ", eg_col, ", event column: ", ev_col)
+  if (
+    !is.character(event_group) || !length(event_group) || anyNA(event_group)
+  ) {
+    stop("`event_group` must be a non-missing character vector.", call. = FALSE)
+  }
+  if (!is.character(event) || !length(event) || anyNA(event)) {
+    stop("`event` must be a non-missing character vector.", call. = FALSE)
+  }
+
+  eg_cols <- vapply(
+    event_group,
+    resolve_colname,
+    FUN.VALUE = character(1),
+    colnames_df = colnames(data),
+    USE.NAMES = FALSE
+  )
+  ev_cols <- vapply(
+    event,
+    resolve_colname,
+    FUN.VALUE = character(1),
+    colnames_df = colnames(data),
+    USE.NAMES = FALSE
+  )
+
+  if (length(eg_cols) > 1L) {
+    message(
+      "Multiple `event_group` columns provided (",
+      paste(eg_cols, collapse = ", "),
+      "); values are combined with paste(..., sep = '; ')."
+    )
+  }
+  if (length(ev_cols) > 1L) {
+    message(
+      "Multiple `event` columns provided (",
+      paste(ev_cols, collapse = ", "),
+      "); values are combined with paste(..., sep = '; ')."
+    )
+  }
+  if (length(eg_cols) > 2L) {
+    warning(
+      "More than 2 `event_group` columns were provided. It is recommended to restrict to a maximum of 2.",
+      call. = FALSE
+    )
+  }
+  if (length(ev_cols) > 2L) {
+    warning(
+      "More than 2 `event` columns were provided. It is recommended to restrict to a maximum of 2.",
+      call. = FALSE
+    )
+  }
+
+  message(
+    "Event group column(s): ",
+    paste(eg_cols, collapse = ", "),
+    "; event column(s): ",
+    paste(ev_cols, collapse = ", ")
+  )
 
   data <- data %>%
     #rename and relocate id-variable.
@@ -187,21 +243,30 @@ add.events <- function(
     keep_vars <- character(0)
   }
 
-  #   # Add missing columns as NA
-  #   for (var in setdiff(keep_vars, colnames(events))) {
-  #     events[[var]] <- NA
-  #     if (!is.null(mp_data$events)) {
-  #       mp_data$events[[var]] <- NA
-  #     }
-  #   }
-  # }
-
   data_tmp <- data %>%
-    dplyr::filter(!is.na(!!rlang::sym(eg_col)), !!rlang::sym(eg_col) != "") %>%
-    dplyr::filter(!is.na(!!rlang::sym(ev_col)), !!rlang::sym(ev_col) != "") %>%
+    dplyr::filter(dplyr::if_all(
+      dplyr::all_of(eg_cols),
+      ~ !is.na(.) & . != ""
+    )) %>%
+    dplyr::filter(dplyr::if_all(
+      dplyr::all_of(ev_cols),
+      ~ !is.na(.) & . != ""
+    )) %>%
     dplyr::mutate(
-      event_group = paste0(prefix_group, !!rlang::sym(eg_col)),
-      event = paste0(prefix_event, !!rlang::sym(ev_col))
+      event_group = paste0(
+        prefix_group,
+        do.call(
+          base::paste,
+          c(dplyr::across(dplyr::all_of(eg_cols)), sep = "; ")
+        )
+      ),
+      event = paste0(
+        prefix_event,
+        do.call(
+          base::paste,
+          c(dplyr::across(dplyr::all_of(ev_cols)), sep = "; ")
+        )
+      )
     ) %>%
     dplyr::select(
       .data$subjectid,

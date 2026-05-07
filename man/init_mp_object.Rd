@@ -10,9 +10,10 @@ init_mp_object()
 An object of class `mp_data_builder`.
 }
 \description{
-Returned object is meant to be used with [add.sl_data()], [add.events()],
-and [finalize_mp_object()]. "events" starts as an empty table with the core
-Megaplots event columns so rows can be stacked with [add.events()].
+Returned object is meant to be used with [add.events()] and [finalize_mp_object()];
+call [add.sl_data()] first when you want subject-level rows from ADSL.
+"events" starts as an empty table with the core Megaplots event columns so rows 
+can be stacked with [add.events()].
 }
 \examples{
 \dontrun{

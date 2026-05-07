@@ -59,6 +59,49 @@ test_that("add.events resolves event column names case-insensitively", {
   expect_equal(nrow(mp$events), 2L)
 })
 
+test_that("add.events pastes multiple columns for event_group and event", {
+  adae <- adae_min
+  adae$GRP2 <- c("X", "Y")
+  adae$EV2 <- c("aa", "bb")
+
+  mp <- mp_with_sl() %>%
+    add.events(
+      adae,
+      event_group = c("AEBODSYS", "GRP2"),
+      event = c("AEDECOD", "EV2")
+    )
+
+  expect_equal(mp$events$event_group, c("SOC; X", "SOC; Y"))
+  expect_equal(mp$events$event, c("PTa; aa", "PTb; bb"))
+})
+
+test_that("add.events messages and warns for multiple event_group/event columns", {
+  adae <- adae_min
+  adae$GRP2 <- c("X", "Y")
+  adae$GRP3 <- c("U", "V")
+  adae$EV2 <- c("aa", "bb")
+  adae$EV3 <- c("cc", "dd")
+
+  expect_message(
+    expect_message(
+      expect_warning(
+        expect_warning(
+          mp_with_sl() %>%
+            add.events(
+              adae,
+              event_group = c("AEBODSYS", "GRP2", "GRP3"),
+              event = c("AEDECOD", "EV2", "EV3")
+            ),
+          regexp = "More than 2 `event_group` columns"
+        ),
+        regexp = "More than 2 `event` columns"
+      ),
+      regexp = "Multiple `event_group` columns provided"
+    ),
+    regexp = "Multiple `event` columns provided"
+  )
+})
+
 test_that("add.events stacks multiple calls on mp$events", {
   mp <- mp_with_sl() %>%
     add.events(adae_min, event_group = "AEBODSYS", event = "AEDECOD") %>%

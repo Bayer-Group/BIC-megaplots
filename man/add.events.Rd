@@ -18,17 +18,20 @@ add.events(
   calc_time_to_first = FALSE,
   calc_days_with = FALSE,
   left_censor = NULL,
-  keep_vars = NULL
+  keep_vars = NULL,
+  sl_ref_date = NULL
 )
 }
 \arguments{
-\item{mp}{An object from init_mp_object() after add.sl_data().}
+\item{mp}{An object from [init_mp_object()]. If `mp$sl` is NULL, `sl_ref_date` is required.}
 
 \item{path_data}{A data frame or a file path to the dataset (SAS, CSV, or RData) to be read. File should be ADaM conform.}
 
-\item{event_group}{Name of the column to use as Megaplots `event_group`.}
+\item{event_group}{Character vector of one or more column names used to build Megaplots `event_group`.
+When multiple names are provided, values are pasted together.}
 
-\item{event}{Name of the column to use as Megaplots `event`.}
+\item{event}{Character vector of one or more column names used to build Megaplots `event`.
+When multiple names are provided, values are pasted together.}
 
 \item{id}{Column name of the subject identifier in `path_data` (default `"USUBJID"`). Must match the data
 frame column name exactly.}
@@ -50,6 +53,11 @@ frame column name exactly.}
 \item{left_censor}{A numeric value specifying the left censoring time. Default NULL means no left censoring will be performed.}
 
 \item{keep_vars}{A character vector of additional event level variables to keep in the final dataset.}
+
+\item{sl_ref_date}{Required when `mp$sl` is NULL. Character: column name in `path_data` whose values
+are the reference value (typically `Date`) for converting event dates to study days. Numeric
+length 1: constant reference on the same scale as `event_start` / `event_end` when those columns
+are already relative days (not dates). Ignored when `mp$sl` is already set (e.g. after [add.sl_data()]).}
 }
 \value{
 A modified list containing updated "sl" and "events" entries with the processed event-level data.
@@ -70,4 +78,12 @@ that map to the same numeric id can collide. Avoid by using unique digit pattern
 flags joins `ttf_*` / `dw_*` columns onto `mp$sl`. Another call can duplicate or rename columns (e.g.
 `...x` / `...y`) if derived names overlap. Prefer one pair of calls per analysis, or rely on distinct
 event labels from `prefix_group` / `prefix_event` / domain-specific columns so pivot names do not clash.
+
+**Building `mp$sl` from `path_data`:** When `mp$sl` is NULL (i.e. [add.sl_data()] was not used),
+you must pass `sl_ref_date`: either a column name in `path_data` with the reference date per subject,
+or a single numeric value when `event_start` / `event_end` are already on the same relative-day scale
+(e.g. `sl_ref_date = 1`). Only `subjectid` and `ref_date` are added to `mp$sl` (no `start_time` / `end_time`).
+One row per `subjectid` is kept (first after filtering). Later `add.events()` calls keep only subjects already
+in `mp$sl`; use [add.sl_data()] first when you need the full population from ADSL or subject-level timeline
+columns.
 }
