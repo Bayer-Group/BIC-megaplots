@@ -382,7 +382,7 @@ add.events <- function(
       dplyr::left_join(days_with, by = "subjectid")
   }
 
-  mp$events <- rbind(mp$events, data_tmp)
+  mp$events <- dplyr::bind_rows(mp$events, data_tmp)
 
   return(mp)
 }

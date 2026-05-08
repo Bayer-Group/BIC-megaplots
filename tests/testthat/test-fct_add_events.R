@@ -227,6 +227,42 @@ test_that("add.events keeps keep_vars when present", {
   expect_true("EXTRA" %in% names(mp$events))
 })
 
+test_that("add.events retains keep_vars across multiple calls and datasets", {
+  adae_same <- adae_min
+  adae_same$EXTRA_A <- c("a1", "a2")
+  adae_same$EXTRA_B <- c("b1", "b2")
+
+  adae_other <- adae_min
+  adae_other$AEBODSYS <- c("NEURO", "CARD")
+  adae_other$AEDECOD <- c("Headache", "Palpitation")
+  adae_other$EXTRA_C <- c("c1", "c2")
+
+  mp <- mp_with_sl() %>%
+    add.events(
+      adae_same,
+      event_group = "AEBODSYS",
+      event = "AEDECOD",
+      keep_vars = "EXTRA_A"
+    ) %>%
+    add.events(
+      adae_same,
+      event_group = "AEBODSYS",
+      event = "AEDECOD",
+      keep_vars = "EXTRA_B"
+    ) %>%
+    add.events(
+      adae_other,
+      event_group = "AEBODSYS",
+      event = "AEDECOD",
+      keep_vars = "EXTRA_C"
+    )
+
+  expect_true(all(c("EXTRA_A", "EXTRA_B", "EXTRA_C") %in% names(mp$events)))
+  expect_true(any(!is.na(mp$events$EXTRA_A)))
+  expect_true(any(!is.na(mp$events$EXTRA_B)))
+  expect_true(any(!is.na(mp$events$EXTRA_C)))
+})
+
 test_that("add.events joins time-to-first columns when calc_time_to_first is TRUE", {
   mp <- mp_with_sl() %>%
     add.events(
