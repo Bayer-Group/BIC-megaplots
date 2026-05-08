@@ -91,10 +91,12 @@ add.events <- function(
     stop(sprintf("The specified id '%s' is not a column in the dataset.", id))
   }
 
+  # Apply data filter if provided
   if (!is.null(data_filter)) {
     data <- dplyr::filter(data, !!!rlang::parse_exprs(data_filter))
   }
 
+  # Build subject-level dataset (mp$sl) if not already set ----
   if (is.null(mp$sl)) {
     if (is.null(sl_ref_date)) {
       stop(
@@ -108,15 +110,18 @@ add.events <- function(
     }
     sl_tmp <- data %>%
       dplyr::mutate(
+        # Create a numeric subject ID by removing non-numeric characters from the specified ID column
         subjectid = as.numeric(base::gsub(
           "[^0-9.]",
           "",
           as.character(!!rlang::sym(id))
         ))
       ) %>%
+      # Keep one baseline row per subject when creating minimal mp$sl on the fly
       dplyr::distinct(.data$subjectid, .keep_all = TRUE) %>%
       dplyr::relocate(.data$subjectid)
 
+    # Build mp$sl with subjectid and ref_date from sl_ref_date column or constant
     if (is.character(sl_ref_date)) {
       if (is.na(sl_ref_date)) {
         stop("`sl_ref_date` must not be NA.", call. = FALSE)
@@ -144,6 +149,7 @@ add.events <- function(
   }
 
   sl_join_cols <- c("subjectid", "ref_date")
+  # If start_time and end_time are present in mp$sl, include them in the join to preserve these columns for left censoring and potential later use; if not present, they will simply be ignored in the downstream processing.
   if ("start_time" %in% names(mp$sl)) {
     sl_join_cols <- c(sl_join_cols, "start_time")
   }
@@ -152,6 +158,7 @@ add.events <- function(
   }
   adsl <- mp$sl %>% dplyr::select(tidyselect::all_of(sl_join_cols))
 
+  # Validate event_group and event column specifications ----
   if (
     !is.character(event_group) || !length(event_group) || anyNA(event_group)
   ) {
@@ -220,7 +227,7 @@ add.events <- function(
       ))
     ) %>%
     dplyr::filter(.data$subjectid %in% adsl$subjectid) %>%
-    dplyr::left_join(adsl, by = "subjectid") %>% # Join with ADSL for TRTSDT
+    dplyr::left_join(adsl, by = "subjectid") %>% # Join to add ref_date and potential start_time / end_time for left censoring
     dplyr::relocate(.data$subjectid, .data$ref_date)
 
   event_start <- resolve_first_match(event_start, colnames(data))
@@ -243,6 +250,7 @@ add.events <- function(
     keep_vars <- character(0)
   }
 
+  # Filter to rows with non-missing and non-empty values in all event_group and event columns, then create event_group and event by pasting together specified columns with optional prefixes.
   data_tmp <- data %>%
     dplyr::filter(dplyr::if_all(
       dplyr::all_of(eg_cols),
@@ -287,6 +295,7 @@ add.events <- function(
       !!rlang::sym(event_end)
     )
 
+  # Validate that event_start/event_end and ref_date are on the same scale (dates or numeric); mixed types are not supported.
   is_cal <- function(x) {
     inherits(x, "Date") || inherits(x, "POSIXct")
   }
@@ -299,8 +308,12 @@ add.events <- function(
     )
   }
 
+  # Check if start_time is available in mp$sl for potential left censoring
   has_sl_start <- "start_time" %in% names(data_tmp)
 
+  # Calculate event start and end times relative to ref_date,
+  # then apply left censoring to event_start_time if requested and start_time is available in mp$sl.
+  # Original event_start, event_end, and ref_date columns are dropped after calculations.
   data_tmp <- data_tmp %>%
     dplyr::group_by(.data$subjectid, .data$event_group, .data$event) %>%
     dplyr::mutate(
@@ -318,6 +331,7 @@ add.events <- function(
           !is.na(!!rlang::sym(event_end)) ~ as.integer(
             !!rlang::sym(event_end) - .data$ref_date + 1L
           ),
+          # Open events are treated as one-day events at start date
           TRUE ~ as.integer(
             !!rlang::sym(event_start) - .data$ref_date + 1L
           )
@@ -329,6 +343,7 @@ add.events <- function(
           ) -
             as.integer(.data$ref_date) +
             1L,
+          # Open events are treated as one-day events at start date
           TRUE ~ as.integer(!!rlang::sym(event_start)) -
             as.integer(.data$ref_date) +
             1L
@@ -336,7 +351,7 @@ add.events <- function(
       }
     ) %>%
     dplyr::ungroup() %>%
-    # left censor data if provided ans start_time is available in sl;
+    # left censor data if provided and start_time is available in sl;
     dplyr::mutate(
       event_start_time = if (is.null(left_censor)) {
         .data$event_start_time
@@ -382,6 +397,7 @@ add.events <- function(
       dplyr::left_join(days_with, by = "subjectid")
   }
 
+  # Bind new events to mp$events ----
   mp$events <- dplyr::bind_rows(mp$events, data_tmp)
 
   return(mp)

@@ -258,9 +258,9 @@ test_that("add.events retains keep_vars across multiple calls and datasets", {
     )
 
   expect_true(all(c("EXTRA_A", "EXTRA_B", "EXTRA_C") %in% names(mp$events)))
-  expect_true(any(!is.na(mp$events$EXTRA_A)))
-  expect_true(any(!is.na(mp$events$EXTRA_B)))
-  expect_true(any(!is.na(mp$events$EXTRA_C)))
+  expect_true(!all(is.na(mp$events$EXTRA_A)))
+  expect_true(!all(is.na(mp$events$EXTRA_B)))
+  expect_true(!all(is.na(mp$events$EXTRA_C)))
 })
 
 test_that("add.events joins time-to-first columns when calc_time_to_first is TRUE", {

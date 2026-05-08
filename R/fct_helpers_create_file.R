@@ -19,16 +19,12 @@ calc_time_to_first <- function(
   data,
   calc_event_group = TRUE,
   calc_event = TRUE
-  # subjectid = subjectid,
-  # event_group = event_group,
-  # event = event,
-  # event_start_time = event_start_time,
-  # event_end_time = event_end_time
 ) {
   if (!calc_event_group && !calc_event) {
     stop("Error: One of calc_event_group and calc_event must be TRUE.")
   }
 
+  # Calculate time to first event if requested
   if (calc_event) {
     data_time_to_first <- data %>%
       dplyr::arrange(
@@ -38,6 +34,7 @@ calc_time_to_first <- function(
         .data$event_start_time
       ) %>%
       dplyr::group_by(.data$subjectid, .data$event_group, .data$event) %>%
+      # Use ifelse to handle cases where all event_start_time values are NA for a group
       dplyr::summarize(
         first = ifelse(
           all(is.na(.data$event_start_time)),
@@ -48,6 +45,7 @@ calc_time_to_first <- function(
       ) %>%
       dplyr::distinct() %>%
       dplyr::mutate(
+        # Replace punctuation and spaces with underscores for valid column names
         event_group = gsub("[[:punct:][:space:]]+", "_", .data$event_group),
         event = gsub("[[:punct:][:space:]]+", "_", .data$event)
       ) %>%
@@ -60,6 +58,7 @@ calc_time_to_first <- function(
       )
   }
 
+  # Calculate time to first event group if requested
   if (calc_event_group) {
     data_time_to_first_group <- data %>%
       dplyr::select(-"event") %>%
@@ -79,6 +78,7 @@ calc_time_to_first <- function(
       ) %>%
       dplyr::distinct() %>%
       dplyr::mutate(
+        # Replace punctuation and spaces with underscores for valid column names
         event_group = gsub("[[:punct:][:space:]]+", "_", .data$event_group)
       ) %>%
       tidyr::pivot_wider(
@@ -136,6 +136,7 @@ calc_days_with <- function(
         .data$event_end_time
       ) %>%
       dplyr::mutate(
+        # Expand each interval to a day sequence to count unique covered days
         days = purrr::map2(
           .data$event_start_time,
           .data$event_end_time,
@@ -152,11 +153,13 @@ calc_days_with <- function(
       ) %>%
       dplyr::group_by(.data$subjectid, .data$event_group, .data$event) %>%
       dplyr::summarize(
+        # Count unique days across all events for each subject
         days_with = n_distinct(unlist(.data$days)),
         .groups = "drop"
       ) %>%
       dplyr::distinct() %>%
       dplyr::mutate(
+        # Replace punctuation and spaces with underscores for valid column names
         event_group = gsub("[[:punct:][:space:]]+", "_", .data$event_group),
         event = gsub("[[:punct:][:space:]]+", "_", .data$event)
       ) %>%
@@ -179,6 +182,7 @@ calc_days_with <- function(
         .data$event_end_time
       ) %>%
       dplyr::mutate(
+        # Expand each interval to a day sequence to count unique covered days
         days = purrr::map2(
           .data$event_start_time,
           .data$event_end_time,
@@ -195,11 +199,13 @@ calc_days_with <- function(
       ) %>%
       dplyr::group_by(.data$subjectid, .data$event_group) %>%
       dplyr::summarize(
+        # Count unique days across all events in the group for each subject
         days_with = n_distinct(unlist(.data$days)),
         .groups = "drop"
       ) %>%
       dplyr::distinct() %>%
       dplyr::mutate(
+        # Replace punctuation and spaces with underscores for valid column names
         event_group = gsub("[[:punct:][:space:]]+", "_", .data$event_group)
       ) %>%
       tidyr::pivot_wider(
@@ -243,8 +249,6 @@ read_dataset <- function(path) {
       )
     }
     return(get(objs[[1]], envir = env))
-    # name_data <- load(path) # Load RData file
-    # return(get(ls()[ls() == name_data]))
   } else {
     stop("Unsupported file format. Please provide a SAS, CSV, or RData file.") # Error for unsupported format
   }

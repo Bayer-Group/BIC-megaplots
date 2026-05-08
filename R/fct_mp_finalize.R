@@ -31,11 +31,13 @@ finalize_mp_object <- function(
   mp <- mp$sl %>%
     dplyr::left_join(
       mp$events,
+      # Join by all common columns (e.g., subjectid) to combine subject-level and event data
       by = intersect(colnames(mp$sl), colnames(mp$events))
     )
 
   event_label_case <- match.arg(event_label_case)
   if (event_label_case != "none") {
+    # Normalize the event labels according to the specified case transformation
     x <- as.character(mp[["event"]])
     mp[["event"]] <- switch(
       event_label_case,
@@ -47,6 +49,7 @@ finalize_mp_object <- function(
   }
   event_group_label_case <- match.arg(event_group_label_case)
   if (event_group_label_case != "none") {
+    # Normalize the event group labels according to the specified case transformation
     x <- as.character(mp[["event_group"]])
     mp[["event_group"]] <- switch(
       event_group_label_case,

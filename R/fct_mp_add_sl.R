@@ -131,6 +131,7 @@ add.sl_data <- function(
     )
   }
 
+  # Collect all date columns to be processed
   date_cols <- c(
     display_start_date,
     display_end_date,
@@ -147,11 +148,13 @@ add.sl_data <- function(
         !!rlang::sym(display_start_date) - !!rlang::sym(relative_day_1) + 1L
       ), # Calculate start time relative to day 1
       end_time = as.integer(
+        # Use the latest available end date when several candidates exist
         pmax(!!!rlang::syms(display_end_date), na.rm = TRUE) -
           !!rlang::sym(relative_day_1) + 1L
       ) # Calculate end time
     )
 
+  # If treatment start and end dates are provided, calculate treatment duration
   if (!is.null(trtstdt) && !is.null(trtendt)) {
     adsl <- adsl %>%
       dplyr::mutate(
