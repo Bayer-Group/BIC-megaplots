@@ -204,12 +204,12 @@ draw_mega_plot <- function(
       hoverinfo = "text",
       text = ~ text_lines,
       xend = ~ megaplots_selected_end_time,
-      line = list(color = ifelse(theme =="dark", "#2c3336","#dedede"), width = line_width_subjects),
+      line = list(color = ifelse(theme =="dark", "#454545","#bababa"), width = line_width_subjects),
       showlegend = FALSE
     )
   }
 
-  #draw reference lines/rectagnles (if applicable)
+  #draw reference lines/rectangles (if applicable)
   if (reference_line_1) {
     if (!reference_line_2) {
       reference_line_2_value <- "NA"
@@ -386,6 +386,9 @@ draw_mega_plot <- function(
     ) %>%
     plotly::config(
       toImageButtonOptions = list(format = "svg", filename = "Megaplot")
+    ) %>%
+    plotly::config(
+      doubleClick = FALSE
     )
 
   return(p_4)

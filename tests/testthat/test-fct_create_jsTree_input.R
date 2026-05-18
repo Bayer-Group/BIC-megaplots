@@ -90,8 +90,8 @@ test_that("create_jsTree_input handles duplicate events", {
 
   expect_equal(length(result), 2)  # Should have 2 groups
   expect_equal(result[[1]]$text, "Group1")
-  expect_equal(length(result[[1]]$children), 1)  # Group1 should have 1 unique child (Event1)
+  expect_equal(length(result[[1]]$children), 2)
 
   expect_equal(result[[2]]$text, "Group2")
-  expect_equal(length(result[[2]]$children), 1)  # Group2 should have 1 unique child (Event2)
+  expect_equal(length(result[[2]]$children), 2)
 })

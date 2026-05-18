@@ -400,17 +400,7 @@ app_server <- function(input, output, session) {
   #### START jsTreeR PART ####
   output$tree2 <- jsTreeR::renderJstree({
     #javascript code to avoid that child nodes moved into another child nodes
-    # check_callback <- jsTreeR::JS(
-    #   "function(operation, node, parent, position, more) {",
-    #   "  if (operation === 'move_node') {",
-    #   "    var sameParent = node.parent === parent.id;",  # guard: same-parent only
-    #   "    if (parent.id === '#' || parent.type === 'child' || !sameParent) {",
-    #   "      return false;",
-    #   "    }",
-    #   "  }",
-    #   "  return true;",
-    #   "}"
-    # )
+
     check_callback <- jsTreeR::JS(
       "function(operation, node, parent, position, more) {",
       "  if (operation === 'move_node') {",
@@ -427,23 +417,15 @@ app_server <- function(input, output, session) {
       "}"
     )
 
-
-    # drag_and_drop_config <- list(
-    #   is_draggable = jsTreeR::JS(
-    #     "function(node) {",
-    #     "  return node[0].type === 'child';",  # concise boolean return
-    #     "}"
-    #   )
-    # )
     drag_and_drop_config <- list(
       is_draggable = jsTreeR::JS(
         "function(node) {",
         "  return node[0].type === 'child';",
         "}"
       ),
-      always_copy = FALSE, # move semantics, never copy on drop
-      use_html5   = FALSE, # jsTree native DnD is more reliable than HTML5
-      copy        = FALSE  # disable copy modifier key during drag
+      always_copy = FALSE,
+      use_html5   = FALSE,
+      copy        = FALSE
     )
 
     single_node_drag_restriction <- "
@@ -472,18 +454,18 @@ app_server <- function(input, output, session) {
       child = list(icon = "fa-regular fa-arrow_pointer")
     )
 
-    suppressMessages(jsTreeR::jstree(
-      create_jsTree_input(data = unique_event_group_data()),
-      #use create_jsTree_input function to create desired list input
-      dragAndDrop = TRUE,
-      search = list(show_only_matches = TRUE),
-      dnd = drag_and_drop_config,
-      checkCallback = check_callback,
-      types = types,
-      contextMenu = list(create =FALSE, delete = FALSE),
-      checkboxes = TRUE
-    ) #|>
-      #htmlwidgets::onRender(single_node_drag_restriction)
+    suppressMessages(
+      jsTreeR::jstree(
+        create_jsTree_input(data = unique_event_group_data()),
+        #use create_jsTree_input function to create desired list input
+        dragAndDrop = TRUE,
+        search = list(show_only_matches = TRUE),
+        dnd = drag_and_drop_config,
+        checkCallback = check_callback,
+        types = types,
+        contextMenu = list(create = FALSE, delete = FALSE),
+        checkboxes = TRUE
+      )
     )
   })
 
@@ -1335,248 +1317,11 @@ app_server <- function(input, output, session) {
   })
   #### END EVENT SUMMARY PART ####
 
-
-  # output$kaplan_meier <- plotly::renderPlotly({
-  #   shiny::req(megaplot_prepared_data())
-  #   shiny::req(megaplot_filtered_data())
-  #
-  #   draw_kaplan_meier(
-  #     megaplot_prepared_data = megaplot_prepared_data(),
-  #     megaplot_filtered_data = megaplot_filtered_data(),
-  #     select_grouping = input$select_grouping,
-  #     select_event_kaplan_meier = input$select_event_kaplan_meier,
-  #     select_strata_var = input$select_grouping
-  #   )
-  # })
-
-
-
-  # shiny::observeEvent(input$megaplots_help_button, {
-  #   shiny::showModal(
-  #     shiny::modalDialog(
-  #       HTML("Help text page will available soon!"),
-  #       footer = tagList(
-  #         modalButton('RETURN')
-  #       ),
-  #       easyClose = TRUE,
-  #       size = "l"
-  #     )
-  #   )
-  # })
-
-  # shiny::observeEvent(input$event_summary_help_button, {
-  #   shiny::showModal(
-  #     shiny::modalDialog(
-  #       HTML("Help text page will available soon!"),
-  #       footer = tagList(
-  #         modalButton('RETURN')
-  #       ),
-  #       easyClose = TRUE,
-  #       size = "l"
-  #     )
-  #   )
-  # })
-
-  # shiny::observeEvent(input$file_variable_help_button, {
-  #   shiny::showModal(
-  #     shiny::modalDialog(
-  #       HTML("Help text page will available soon!"),
-  #       footer = tagList(
-  #         modalButton('RETURN')
-  #       ),
-  #       easyClose = TRUE,
-  #       size = "l"
-  #     )
-  #   )
-  # })
-
-  # shiny::observeEvent(input$event_color_selection_help_button, {
-  #   shiny::showModal(
-  #     shiny::modalDialog(
-  #       HTML("Help text page will available soon!"),
-  #       footer = tagList(
-  #         modalButton('RETURN')
-  #       ),
-  #       easyClose = TRUE,
-  #       size = "l"
-  #     )
-  #   )
-  # })
-
-  # #### START SEQUENCING PART ####
-  # shiny::observeEvent(megaplot_filtered_data(), {
-  #   shiny::req(megaplot_filtered_data())
-  #   choices_data <- megaplot_filtered_data() %>%
-  #     dplyr::select(.data$megaplots_selected_event, .data$megaplots_selected_event_group) %>%
-  #     dplyr::distinct()
-  #
-  #   shiny::updateSelectInput(
-  #     inputId = "sequencing_events",
-  #     choices = split(choices_data$megaplots_selected_event, choices_data$megaplots_selected_event_group),
-  #     selected = NULL
-  #   )
-  # })
-  #
-  # #sequencing
-  # #sequencing/ai module (server part)
-  # sequencing_order_data <- shiny::reactiveValues(val = NULL)
-  #
-  # shiny::observeEvent(input$sequencing_distmeasure_name, {
-  #   if (input$sequencing_distmeasure_name == "DHD") {
-  #     choices_sub_cost <- sort(c(
-  #       "INDELS", "INDELSLOG", "TRATE"
-  #     ))
-  #     selected_sub_cost  <- "INDELS"
-  #   } else if (input$sequencing_distmeasure_name %in% c("OM", "OMloc", "OMslen", "OMspell", "OMstran","HAM")) {
-  #     choices_sub_cost  <- sort(c(
-  #       "CONSTANT", "INDELS", "INDELSLOG", "TRATE", "ORDINAL"
-  #     ))
-  #     selected_sub_cost  <- "CONSTANT"
-  #   }
-  #
-  #   if (input$sequencing_distmeasure_name %in% c("OM", "OMloc", "OMslen", "OMspell", "OMstran","DHD","HAM")) {
-  #     shinyWidgets::updatePickerInput(
-  #       session,
-  #       inputId = "sequencing_substitution_cost",
-  #       choices = choices_sub_cost ,
-  #       selected = selected_sub_cost
-  #     )
-  #   }
-  #   if(input$sequencing_distmeasure_name %in% c("CHI2", "EUCLID")){
-  #     choices_norm <- sort(
-  #       c("auto", "none")
-  #     )
-  #     selected_norm <- "auto"
-  #   } else if (input$sequencing_distmeasure_name %in% c('OM', 'OMloc', 'OMslen', 'OMspell',
-  #                 'OMstran', 'DHD', 'LCS', 'LCP', 'RLCP')) {
-  #     choices_norm <- sort(
-  #       c("auto", "none", "maxlength", "gmean",
-  #         "maxdist", "YujianBo")
-  #     )
-  #     selected_norm <- "auto"
-  #   }
-  #   if (input$sequencing_distmeasure_name %in% c("OM", "OMloc", "OMslen", "OMspell","OMstran",
-  #         "DHD", "LCS", "LCP", "RLCP","CHI2", "EUCLID")) {
-  #     shinyWidgets::updatePickerInput(
-  #       session,
-  #       inputId =  "sequencing_normalization",
-  #       label = "Normalization",
-  #       choices = choices_norm,
-  #       selected = selected_norm
-  #     )
-  #   }
-  # })
-  #
-  #
-  # shiny::observeEvent(input$sequencing_button, {
-  #   shiny::req(input$sequencing_events)
-  #
-  #   shinyWidgets::updatePrettySwitch(
-  #     session,
-  #     inputId = "sequencing_switch",
-  #     value = FALSE
-  #   )
-  #
-  #   selected_event_for_sequencing <- input$sequencing_events
-  #
-  #   megaplot_data <- megaplot_filtered_data() %>%
-  #     dplyr::filter(.data$event %in% selected_event_for_sequencing)
-  #
-  #   n_matrix <- length(unique(megaplot_data$megaplots_selected_subjectid))
-  #   m_matrix <- length(min(megaplot_data$megaplots_selected_event_time, na.rm = TRUE):max(megaplot_data$megaplots_selected_event_time_end, na.rm = TRUE)) #* length(selected_event_for_sequencing)
-  #   dist_list <- list()
-  #
-  #   index_n <- megaplot_data %>%
-  #     dplyr::filter(.data$event %in% selected_event_for_sequencing) %>%
-  #     nrow()
-  #
-  #   index <- 1/index_n
-  #
-  #   shiny::withProgress(message = "Apply seriation", value = 0, {
-  #     for ( i in 1:length(selected_event_for_sequencing)) {
-  #
-  #       dist_init <- matrix(NA, n_matrix, m_matrix)
-  #       rownames(dist_init) <- unique(megaplot_data$megaplots_selected_subjectid)
-  #       colnames(dist_init) <- paste0((min(megaplot_data$megaplots_selected_event_time):max(megaplot_data$megaplots_selected_event_time_end)))
-  #
-  #
-  #       megaplot_data_tmp <- megaplot_data %>%
-  #         dplyr::filter(.data$megaplots_selected_event %in% selected_event_for_sequencing[i])
-  #       for(j in 1:nrow(megaplot_data_tmp)) {
-  #
-  #
-  #         megaplot_data_tmp[j, ]$megaplots_selected_subjectid
-  #         dist_init[paste0(megaplot_data_tmp[j, ]$megaplots_selected_subjectid),
-  #                   paste0(megaplot_data_tmp[j, ]$megaplots_selected_event_time:megaplot_data_tmp[j, ]$megaplots_selected_event_time_end)] <- 1
-  #
-  #         shiny::incProgress(amount = index)
-  #       }
-  #
-  #       par <- list(
-  #         distmeasure =  input$sequencing_distmeasure_name,
-  #         sm = input$sequencing_substitution_cost,
-  #         smDHD = input$sequencing_substitution_cost,
-  #         norm = input$sequencing_normalization,
-  #         norm2 = input$sequencing_normalization,
-  #         indel = input$sequencing_insertion_deletion_cost,
-  #         indel_numeric = 1,
-  #         expcost = input$sequencing_exponential_weight_spell_length,
-  #         context =  input$sequencing_local_insertion_cost,
-  #         link = input$sequencing_substitution_costs_function,
-  #         h_OMslen = input$sequencing_exponential_weight_spell_length,
-  #         transindel =  input$sequencing_sequencing_transition_indel_cost_method,
-  #         tpow = input$sequencing_exponential_weight_spell_length,
-  #         otto = input$sequencing_origin_transition_trade_off_weight,
-  #         previous = input$sequencing_account_transition_previous_state,
-  #         add.column = input$sequencing_duplicate_last_column,
-  #         overlap = input$sequencing_intervals_overlapping,
-  #         step = input$sequencing_interval_length,
-  #         weighted = input$sequencing_distribution_states_weights,
-  #         methMissing = input$sequencing_missing_method
-  #       )
-  #
-  #       # Check for OMloc and empty sequences
-  #       if (par$distmeasure == "OMloc" &
-  #           any(apply(dist_init[, -1], 1, function(x)
-  #             all(is.na(x))))) {
-  #         method_missing <- "new state"
-  #         par$methMissing <- "new state"
-  #         dist_init[is.na(dist_init)] <- 0
-  #       }
-  #
-  #       seq <- suppressMessages(TraMineR::seqdef(dist_init, 2:ncol(dist_init)))
-  #       # Get the parameters for the distance function
-  #
-  #       seqargs_all <- get_parameters(seq, par)
-  #
-  #
-  #       # Calculate the pairwise distances for this variable:
-  #       dist_list[[i]] <-
-  #         suppressMessages(do.call(TraMineR::seqdist, seqargs_all))
-  #     }
-  #
-  #   })
-  #   dist <- Reduce(`+`, dist_list)
-  #
-  #   ddist <-
-  #     stats::as.dist(dist) # the following needs it to be a dist object
-  #
-  #   # Use the seriation package to compute the order
-  #   sq <- suppressMessages(seriation::seriate(ddist, method = input$sequencing_seriation_method))
-  #
-  #   shinyWidgets::updatePrettySwitch(
-  #     session,
-  #     inputId = "sequencing_switch",
-  #     value = TRUE
-  #   )
-  #   sequencing_object$val <- sq
-  # })
-  #
-  # sequencing_object <- shiny::reactiveValues(val = NULL)
-
+  #### START SEQUENCING PART ####
   shiny::observe({
     sequencing_object$sequencing_object()
   })
+
   sequencing_object <- callModule(sequencing_server, "sequencing_module", megaplot_filtered_data = shiny::reactive({megaplot_filtered_data()}))
   #### END SEQUENCING PART ####
 }
