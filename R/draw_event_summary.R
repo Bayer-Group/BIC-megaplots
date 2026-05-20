@@ -52,8 +52,10 @@ draw_event_summary <- function(
     theme
 ) {
 
+
   #get number of groups from variable group_index
-  number_group_levels <-  max(megaplot_filtered_data$group_index, na.rm = TRUE)
+  #number_group_levels <-  max(megaplot_filtered_data$group_index, na.rm = TRUE)
+  group_levels <- unique(megaplot_filtered_data$group_index)
   #initialize list for figures used in subplots (when multiple groups are selected)
   figure_list <- list()
   #create empty vector for maximum y_range (used for calculate maximum y-value over all subplots)
@@ -77,7 +79,7 @@ draw_event_summary <- function(
     }
 
     # create cumulative total counts (for every group)
-    for (k in 1:number_group_levels) {
+    for (k in group_levels) {
       if (event_summary_selection == "event_by_subject_cumulative") {
         #recurring events are not taken into account
         megaplot_filtered_data_by_group <- megaplot_filtered_data %>%
@@ -229,7 +231,7 @@ draw_event_summary <- function(
       figure_list[[k]] <- fig3
     }
 
-    for (k in 1:number_group_levels) {
+    for (k in group_levels) {
       if (!is.null(select_grouping)) {
         megaplot_prepared_data_w_group_text_sorted <- megaplot_prepared_data_w_group_text %>%
           dplyr::arrange(.data$group_index)
@@ -255,7 +257,7 @@ draw_event_summary <- function(
       rev(figure_list),
       shareY = TRUE,
       shareX = TRUE,
-      nrows = number_group_levels
+      nrows = length(group_levels)
     )
 
     g <- g %>%
@@ -297,7 +299,7 @@ draw_event_summary <- function(
         tooltip_text = ifelse(.data$value < event_summary_cutoff, NA, paste0(.data$megaplots_selected_event,": ", .data$value))
       )
 
-    for(k in 1:number_group_levels) {
+    for(k in group_levels) {
 
       df_group <- df %>% dplyr::filter(.data$group_index == k)
 
@@ -417,12 +419,12 @@ draw_event_summary <- function(
       figure_list[[k]] <- fig3
     }
 
-    for (k in 1:number_group_levels) {
+    for (k in group_levels) {
       if (!is.null(select_grouping)) {
         megaplot_prepared_data_w_group_text_sorted <- megaplot_prepared_data_w_group_text %>%
           dplyr::arrange(.data$group_index)
         figure_list[[k]] <- figure_list[[k]] %>%
-          plotly::layout(annotations =list(list(x = mean(c(x_min, x_max)), y = max_y_range, showarrow = FALSE, xacnhor = 'center', yanchor = "top", text = megaplot_prepared_data_w_group_text_sorted$text_snippet_total[[k]])))
+          plotly::layout(annotations =list(list(x = mean(c(x_min, x_max)), y = max_y_range, showarrow = FALSE, xacnhor = 'center', yanchor = "top", text = megaplot_prepared_data_w_group_text_sorted %>% dplyr::filter(group_index == k) %>% dplyr::pull(text_snippet_total))))
       }
 
       figure_list[[k]] <- figure_list[[k]] %>%
@@ -436,13 +438,18 @@ draw_event_summary <- function(
         )
     }
 
+    #remove empty list entries to avoid errors
     figure_list[[1]] <- plotly::style(figure_list[[1]], showlegend = TRUE)
+
+    figure_list <- figure_list[!sapply(figure_list, is.null)]
+
+
 
     g <- plotly::subplot(
       rev(figure_list),
       shareY = TRUE,
       shareX =TRUE,
-      nrows = number_group_levels
+      nrows = length(group_levels)
     )
 
     g <- g %>%
