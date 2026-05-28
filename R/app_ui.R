@@ -297,355 +297,357 @@ app_ui <- function(request) {
         ),
         bslib::navset_card_underline(
           id = "Upload",
-          bslib::nav_panel(
-            # create a div with nav panel name and help button
-            tags$div(
-              HTML(
-                paste0(
-                  "File & variable selection", "&emsp;","&emsp;"
-                )
-              )
-          ),
-          # create a different named value "File & variable selection 2"
-          # used in app_server.R for
-          # bslib::nav_select() to switch panels after pressing
-          # "NEXT-"/"BACK"-buttons
-          value = "File & variable selection 2",
-            shiny::wellPanel(
-              HTML(
-                paste0(
-                  "<p>
-                  WELCOME!
-                </p>"
-                )
-              ),
-            HTML(
-              paste0(
-                "<p>
-                  MEGAPLOTS is a huge graphical display showing individual-level data over time.
-                  MEGAPLOTS seek to represent longitudinal data while focusing on event visualization!
-                </p>"
-              )
-            ),
-            HTML(
-              paste0(
-                "<p>
-                  To get started, please upload your data below, select the desired
-                  variables, and click the 'NEXT' button.
-                </p>"
-              )
-            )
-          ),
-          shiny::wellPanel(
-            shiny::column(3,
-              shiny::fileInput(
-                inputId = 'file',
-                label = "Choose RData file",
-                multiple = FALSE,
-                accept = '.RData'
-              )
-            ),
-            span(textOutput("file_upload_message"),style = "color:#cc0a21;"),
-          tags$style(
-            HTML(
-              "select[data-max-options=\"1\"] ~ .dropdown-menu .bs-actionsbox .bs-select-all {display: none;}"
-            )
-          ),
-          tags$style(HTML(paste0(
-            ".dropdown-toggle::after{
-                  content: none;
-              }
-             "
-          ))),
-            shiny::fluidRow(
-              shiny::column(2,
-                shinyWidgets::pickerInput(
-                  inputId = "select_subjectid",
-                  label = HTML("<p> Identifier <em style = 'color: #f9b8c7;'> *required </em></p>"),
-                  choices = NULL,
-                  selected = NULL,
-                  multiple = TRUE,
-                  options =  shinyWidgets::pickerOptions(
-                    maxOptions = 1,
-                    actionsBox = TRUE,
-                    deselectAllText = "Clear",
-                    dropupAuto = FALSE
-                  )
-                )
-              ),
-              shiny::column(2,
-                shinyWidgets::pickerInput(
-                  inputId = "select_start_time",
-                  label = "Timeline Start Day",
-                  choices = NULL,
-                  selected = NULL,
-                  multiple = TRUE,
-                  options =  shinyWidgets::pickerOptions(
-                    maxOptions = 1,
-                    actionsBox = TRUE,
-                    deselectAllText = "Clear",
-                    dropupAuto = FALSE
-                  )
-                )
-              ),
-              shiny::column(2,
-                shinyWidgets::pickerInput(
-                  inputId = "select_end_time",
-                  label = "Timeline End Day",
-                  choices = NULL,
-                  selected = NULL,
-                  multiple = TRUE,
-                  options =  shinyWidgets::pickerOptions(
-                    maxOptions = 1,
-                    actionsBox = TRUE,
-                    deselectAllText = "Clear",
-                    dropupAuto = FALSE
-                  )
-                )
-              )
-            ),
-           shiny::fluidRow(
-             shiny::column(2,
-               shinyWidgets::pickerInput(
-                 inputId = "select_event",
-                 label = HTML("<p> Event <em style = 'color: #f9b8c7;'> *required </em></p>"),
-                 choices = NULL,
-                 selected = NULL,
-                 multiple = TRUE,
-                 options =  shinyWidgets::pickerOptions(
-                   maxOptions = 1,
-                   actionsBox = TRUE,
-                   deselectAllText = "Clear",
-                   dropupAuto = FALSE
-                 )
-               )
-             ),
-             shiny::column(2,
-               shinyWidgets::pickerInput(
-                 inputId = "select_event_group",
-                 label = HTML("<p> Event Group <em style = 'color: #f9b8c7;'> *required </em></p>"),
-                 choices = NULL,
-                 selected = NULL,
-                 multiple = TRUE,
-                 options =  shinyWidgets::pickerOptions(
-                   maxOptions = 1,
-                   actionsBox = TRUE,
-                   deselectAllText = "Clear",
-                   dropupAuto = FALSE
-                 )
-               )
-             ),
-              shiny::column(2,
-                shinyWidgets::pickerInput(
-                  inputId = "select_event_time",
-                  label = HTML("<p> Event Start Day <em style = 'color: #f9b8c7;'> *required </em></p>"),
-                  choices = NULL,
-                  selected = NULL,
-                  multiple = TRUE,
-                  options =  shinyWidgets::pickerOptions(
-                    maxOptions = 1,
-                    actionsBox = TRUE,
-                    deselectAllText = "Clear",
-                    dropupAuto = FALSE
-                  )
-                )
-              ),
-              shiny::column(2,
-                shinyWidgets::pickerInput(
-                  inputId = "select_event_time_end",
-                  label = HTML("<p> Event End Day <em style = 'color: #f9b8c7;'> *required </em></p>"),
-                  choices = NULL,
-                  selected = NULL,
-                  multiple = TRUE,
-                  options =  shinyWidgets::pickerOptions(
-                    maxOptions = 1,
-                    actionsBox = TRUE,
-                    deselectAllText = "Clear",
-                    dropupAuto = FALSE
-                  )
-                )
-              )
-            ),
-            shiny::fluidRow(
-              shiny::column(2,
-                shinyWidgets::actionBttn(
-                  inputId = "upload_1_next_button",
-                  label = "Next",
-                  style = "material-flat",
-                  color = "primary",
-                  icon = shiny::icon("angle-right")
-                )
-              )
-            )),theme = bslib::bs_theme(version = 5)
-          ),
-          bslib::nav_panel(
-            tags$div(
-              HTML(
-                paste0(
-                  "Event & color selection",  "&emsp;","&emsp;"
-                )
-              )
-            ),
-            # create a different named value "File & variable selection 2"
-            # used in app_server.R for
-            # bslib::nav_select() to switch panels after pressing
-            # "NEXT-"/"BACK"-buttons
-            value = "Event & color selection 2",
-            shiny::fluidRow(
-              shiny::column(4,
-                shiny::wellPanel(
-                  id = "selected_events_panel",
-                  style = "overflow-y:scroll; max-height: 10000px;", #init high value and then update max height within server.R
-                  jsTreeR::jstreeOutput(
-                    "tree2"
-                  )
-                )
-              ),
-              shiny::column(4,
-                shiny::wellPanel(id = "selected_events_color_container_panel",
-                  style ="overflow-y:scroll;max-height: 10000px;",
-                  div(
-                    id = "header-section",
-                    div(
-                      id = "selected-cols-row",
-                    uiOutput("selected_events_color_container")
-                    )
-                  )
-                )
-              ),
-              shiny::column(4,
-                shiny::wellPanel(id = "colour_picker_panel",
-                  shiny::fluidRow(
-                    shiny::column(12,
-                      shiny::radioButtons(
-                        inputId = "color_method",
-                        label = "Select method to colorize events:",
-                        choices = c(
-                        "Color gradient (3 colors)" = "gradient",
-                        "Unique color for all events within group" = "unique",
-                        "Distinct color by selected palette" = "palette"
-                        )
-                      )
-                    ),
-                    shiny::column(12,
-                      shiny::selectInput(
-                        inputId = "select_color_palette",
-                        label = "Select color palette",
-                        choices = c("Set1", "Set2", "Set3", "Pastel1", "Pastel2", "Paired", "Dark2", "Accent", "Spectral", "Rainbow")
-                      )
-                    ),
-                    shiny::column(12,
-                      shiny::textOutput(
-                        "colorization_selection"
-                      )
-                    ),
-                    shiny::column(4,
-                      colourpicker::colourInput(
-                        inputId = "colour_picker_panel_1",
-                        label = "Click colored event container and use this Picker to update any color",
-                        value = "white", allowTransparent = TRUE
-                      )
-                    ),
-                    shiny::column(4,
-                      colourpicker::colourInput(
-                        inputId = "colour_picker_panel_2",
-                        label = "Color 2",
-                        value = "white", allowTransparent = TRUE
-                      )
-                    ),
-                    shiny::column(4,
-                      colourpicker::colourInput(
-                        inputId = "colour_picker_panel_3",
-                        label = "Color 3",
-                        value = "blue", allowTransparent = TRUE
-                      )
-                    ),
-                    shiny::column(12,
-                      shiny::fluidRow(
-                        shiny::column(6,
-                          colourpicker::colourInput(
-                            inputId = "colour_picker_panel_event",
-                            label = NULL,
-                            value = "white", allowTransparent = TRUE
-                          )
-                        ),
-                        shiny::column(6,
-                          shinyWidgets::actionBttn(
-                            inputId = "update_color_palette_2",
-                            label = "Update color",
-                            color = "success",
-                            style = "simple",
-                            icon = icon("refresh")
-                          )
-                        )
-                      )
-                    ),
-                    shiny::column(12,
-                      shiny::column(4,
-                        colourpicker::colourInput(
-                          inputId = "colour_picker_panel_unique",
-                          label = "",
-                          value = "white", allowTransparent = TRUE
-                        )
-                      )
-                    ),
-                    column(12,
-                      shiny::plotOutput("colour_palette", height = "40px")
-                    )
-                  ),
-                  br(),
-                  shinyWidgets::actionBttn(
-                    inputId = "update_color_palette",
-                    label = "Update colors",
-                    color = "success",
-                    style = "simple",
-                    icon = icon("refresh")
-                  ),
-                  br(),
-                  shiny::checkboxInput(
-                    inputId = "jitter_events",
-                    label = "Jitter events for event group",
-                    value = TRUE
-                  )
-                ),
-                shiny::conditionalPanel(condition = "output.color_changed == true",
-                  shinyWidgets::downloadBttn(
-                    outputId = "save_colors",
-                    label = "Save color file",
-                    icon = icon("save"),
-                    style = "material-flat",
-                    color = "primary"
-                  )
-                ),
-                shiny::fileInput(
-                  inputId = 'upload_saved_color_file',
-                  label = "Upload saved color file",
-                  multiple = FALSE,
-                  accept = '.rds'
-                )
-              )
-            ),
-            shiny::fluidRow(
-              shiny::column(1,
-                shinyWidgets::actionBttn(
-                  inputId = "upload_3_back_button",
-                  label = "Back",
-                  style = "material-flat",
-                  color = "primary",
-                  icon = icon("angle-left")
-                )
-              ),
-              shiny::column(1,
-                shinyWidgets::actionBttn(
-                  inputId = "upload_3_next_button",
-                  label = "Next",
-                  style = "material-flat",
-                  color = "primary",
-                  icon = icon("angle-right")
-                )
-              )
-            )
-          )
+          mod_data_upload_ui("data_upload"),
+          mod_color_selection_ui("color_selection")
+          # bslib::nav_panel(
+          #   # create a div with nav panel name and help button
+          #   tags$div(
+          #     HTML(
+          #       paste0(
+          #         "File & variable selection", "&emsp;","&emsp;"
+          #       )
+          #     )
+          # ),
+          # # create a different named value "File & variable selection 2"
+          # # used in app_server.R for
+          # # bslib::nav_select() to switch panels after pressing
+          # # "NEXT-"/"BACK"-buttons
+          # value = "File & variable selection 2",
+          #   shiny::wellPanel(
+          #     HTML(
+          #       paste0(
+          #         "<p>
+          #         WELCOME!
+          #       </p>"
+          #       )
+          #     ),
+          #   HTML(
+          #     paste0(
+          #       "<p>
+          #         MEGAPLOTS is a huge graphical display showing individual-level data over time.
+          #         MEGAPLOTS seek to represent longitudinal data while focusing on event visualization!
+          #       </p>"
+          #     )
+          #   ),
+          #   HTML(
+          #     paste0(
+          #       "<p>
+          #         To get started, please upload your data below, select the desired
+          #         variables, and click the 'NEXT' button.
+          #       </p>"
+          #     )
+          #   )
+          # ),
+          # shiny::wellPanel(
+          #   shiny::column(3,
+          #     shiny::fileInput(
+          #       inputId = 'file',
+          #       label = "Choose RData file",
+          #       multiple = FALSE,
+          #       accept = '.RData'
+          #     )
+          #   ),
+          #   span(textOutput("file_upload_message"),style = "color:#cc0a21;"),
+          # tags$style(
+          #   HTML(
+          #     "select[data-max-options=\"1\"] ~ .dropdown-menu .bs-actionsbox .bs-select-all {display: none;}"
+          #   )
+          # ),
+          # tags$style(HTML(paste0(
+          #   ".dropdown-toggle::after{
+          #         content: none;
+          #     }
+          #    "
+          # ))),
+          #   shiny::fluidRow(
+          #     shiny::column(2,
+          #       shinyWidgets::pickerInput(
+          #         inputId = "select_subjectid",
+          #         label = HTML("<p> Identifier <em style = 'color: #f9b8c7;'> *required </em></p>"),
+          #         choices = NULL,
+          #         selected = NULL,
+          #         multiple = TRUE,
+          #         options =  shinyWidgets::pickerOptions(
+          #           maxOptions = 1,
+          #           actionsBox = TRUE,
+          #           deselectAllText = "Clear",
+          #           dropupAuto = FALSE
+          #         )
+          #       )
+          #     ),
+          #     shiny::column(2,
+          #       shinyWidgets::pickerInput(
+          #         inputId = "select_start_time",
+          #         label = "Timeline Start Day",
+          #         choices = NULL,
+          #         selected = NULL,
+          #         multiple = TRUE,
+          #         options =  shinyWidgets::pickerOptions(
+          #           maxOptions = 1,
+          #           actionsBox = TRUE,
+          #           deselectAllText = "Clear",
+          #           dropupAuto = FALSE
+          #         )
+          #       )
+          #     ),
+          #     shiny::column(2,
+          #       shinyWidgets::pickerInput(
+          #         inputId = "select_end_time",
+          #         label = "Timeline End Day",
+          #         choices = NULL,
+          #         selected = NULL,
+          #         multiple = TRUE,
+          #         options =  shinyWidgets::pickerOptions(
+          #           maxOptions = 1,
+          #           actionsBox = TRUE,
+          #           deselectAllText = "Clear",
+          #           dropupAuto = FALSE
+          #         )
+          #       )
+          #     )
+          #   ),
+          #  shiny::fluidRow(
+          #    shiny::column(2,
+          #      shinyWidgets::pickerInput(
+          #        inputId = "select_event",
+          #        label = HTML("<p> Event <em style = 'color: #f9b8c7;'> *required </em></p>"),
+          #        choices = NULL,
+          #        selected = NULL,
+          #        multiple = TRUE,
+          #        options =  shinyWidgets::pickerOptions(
+          #          maxOptions = 1,
+          #          actionsBox = TRUE,
+          #          deselectAllText = "Clear",
+          #          dropupAuto = FALSE
+          #        )
+          #      )
+          #    ),
+          #    shiny::column(2,
+          #      shinyWidgets::pickerInput(
+          #        inputId = "select_event_group",
+          #        label = HTML("<p> Event Group <em style = 'color: #f9b8c7;'> *required </em></p>"),
+          #        choices = NULL,
+          #        selected = NULL,
+          #        multiple = TRUE,
+          #        options =  shinyWidgets::pickerOptions(
+          #          maxOptions = 1,
+          #          actionsBox = TRUE,
+          #          deselectAllText = "Clear",
+          #          dropupAuto = FALSE
+          #        )
+          #      )
+          #    ),
+          #     shiny::column(2,
+          #       shinyWidgets::pickerInput(
+          #         inputId = "select_event_time",
+          #         label = HTML("<p> Event Start Day <em style = 'color: #f9b8c7;'> *required </em></p>"),
+          #         choices = NULL,
+          #         selected = NULL,
+          #         multiple = TRUE,
+          #         options =  shinyWidgets::pickerOptions(
+          #           maxOptions = 1,
+          #           actionsBox = TRUE,
+          #           deselectAllText = "Clear",
+          #           dropupAuto = FALSE
+          #         )
+          #       )
+          #     ),
+          #     shiny::column(2,
+          #       shinyWidgets::pickerInput(
+          #         inputId = "select_event_time_end",
+          #         label = HTML("<p> Event End Day <em style = 'color: #f9b8c7;'> *required </em></p>"),
+          #         choices = NULL,
+          #         selected = NULL,
+          #         multiple = TRUE,
+          #         options =  shinyWidgets::pickerOptions(
+          #           maxOptions = 1,
+          #           actionsBox = TRUE,
+          #           deselectAllText = "Clear",
+          #           dropupAuto = FALSE
+          #         )
+          #       )
+          #     )
+          #   ),
+          #   shiny::fluidRow(
+          #     shiny::column(2,
+          #       shinyWidgets::actionBttn(
+          #         inputId = "upload_1_next_button",
+          #         label = "Next",
+          #         style = "material-flat",
+          #         color = "primary",
+          #         icon = shiny::icon("angle-right")
+          #       )
+          #     )
+          #   )),theme = bslib::bs_theme(version = 5)
+          # ),
+          # bslib::nav_panel(
+          #   tags$div(
+          #     HTML(
+          #       paste0(
+          #         "Event & color selection",  "&emsp;","&emsp;"
+          #       )
+          #     )
+          #   ),
+          #   # create a different named value "File & variable selection 2"
+          #   # used in app_server.R for
+          #   # bslib::nav_select() to switch panels after pressing
+          #   # "NEXT-"/"BACK"-buttons
+          #   value = "Event & color selection 2",
+          #   shiny::fluidRow(
+          #     shiny::column(4,
+          #       shiny::wellPanel(
+          #         id = "selected_events_panel",
+          #         style = "overflow-y:scroll; max-height: 10000px;", #init high value and then update max height within server.R
+          #         jsTreeR::jstreeOutput(
+          #           "tree2"
+          #         )
+          #       )
+          #     ),
+          #     shiny::column(4,
+          #       shiny::wellPanel(id = "selected_events_color_container_panel",
+          #         style ="overflow-y:scroll;max-height: 10000px;",
+          #         div(
+          #           id = "header-section",
+          #           div(
+          #             id = "selected-cols-row",
+          #           uiOutput("selected_events_color_container")
+          #           )
+          #         )
+          #       )
+          #     ),
+          #     shiny::column(4,
+          #       shiny::wellPanel(id = "colour_picker_panel",
+          #         shiny::fluidRow(
+          #           shiny::column(12,
+          #             shiny::radioButtons(
+          #               inputId = "color_method",
+          #               label = "Select method to colorize events:",
+          #               choices = c(
+          #               "Color gradient (3 colors)" = "gradient",
+          #               "Unique color for all events within group" = "unique",
+          #               "Distinct color by selected palette" = "palette"
+          #               )
+          #             )
+          #           ),
+          #           shiny::column(12,
+          #             shiny::selectInput(
+          #               inputId = "select_color_palette",
+          #               label = "Select color palette",
+          #               choices = c("Set1", "Set2", "Set3", "Pastel1", "Pastel2", "Paired", "Dark2", "Accent", "Spectral", "Rainbow")
+          #             )
+          #           ),
+          #           shiny::column(12,
+          #             shiny::textOutput(
+          #               "colorization_selection"
+          #             )
+          #           ),
+          #           shiny::column(4,
+          #             colourpicker::colourInput(
+          #               inputId = "colour_picker_panel_1",
+          #               label = "Click colored event container and use this Picker to update any color",
+          #               value = "white", allowTransparent = TRUE
+          #             )
+          #           ),
+          #           shiny::column(4,
+          #             colourpicker::colourInput(
+          #               inputId = "colour_picker_panel_2",
+          #               label = "Color 2",
+          #               value = "white", allowTransparent = TRUE
+          #             )
+          #           ),
+          #           shiny::column(4,
+          #             colourpicker::colourInput(
+          #               inputId = "colour_picker_panel_3",
+          #               label = "Color 3",
+          #               value = "blue", allowTransparent = TRUE
+          #             )
+          #           ),
+          #           shiny::column(12,
+          #             shiny::fluidRow(
+          #               shiny::column(6,
+          #                 colourpicker::colourInput(
+          #                   inputId = "colour_picker_panel_event",
+          #                   label = NULL,
+          #                   value = "white", allowTransparent = TRUE
+          #                 )
+          #               ),
+          #               shiny::column(6,
+          #                 shinyWidgets::actionBttn(
+          #                   inputId = "update_color_palette_2",
+          #                   label = "Update color",
+          #                   color = "success",
+          #                   style = "simple",
+          #                   icon = icon("refresh")
+          #                 )
+          #               )
+          #             )
+          #           ),
+          #           shiny::column(12,
+          #             shiny::column(4,
+          #               colourpicker::colourInput(
+          #                 inputId = "colour_picker_panel_unique",
+          #                 label = "",
+          #                 value = "white", allowTransparent = TRUE
+          #               )
+          #             )
+          #           ),
+          #           column(12,
+          #             shiny::plotOutput("colour_palette", height = "40px")
+          #           )
+          #         ),
+          #         br(),
+          #         shinyWidgets::actionBttn(
+          #           inputId = "update_color_palette",
+          #           label = "Update colors",
+          #           color = "success",
+          #           style = "simple",
+          #           icon = icon("refresh")
+          #         ),
+          #         br(),
+          #         shiny::checkboxInput(
+          #           inputId = "jitter_events",
+          #           label = "Jitter events for event group",
+          #           value = TRUE
+          #         )
+          #       ),
+          #       shiny::conditionalPanel(condition = "output.color_changed == true",
+          #         shinyWidgets::downloadBttn(
+          #           outputId = "save_colors",
+          #           label = "Save color file",
+          #           icon = icon("save"),
+          #           style = "material-flat",
+          #           color = "primary"
+          #         )
+          #       ),
+          #       shiny::fileInput(
+          #         inputId = 'upload_saved_color_file',
+          #         label = "Upload saved color file",
+          #         multiple = FALSE,
+          #         accept = '.rds'
+          #       )
+          #     )
+          #   ),
+          #   shiny::fluidRow(
+          #     shiny::column(1,
+          #       shinyWidgets::actionBttn(
+          #         inputId = "upload_3_back_button",
+          #         label = "Back",
+          #         style = "material-flat",
+          #         color = "primary",
+          #         icon = icon("angle-left")
+          #       )
+          #     ),
+          #     shiny::column(1,
+          #       shinyWidgets::actionBttn(
+          #         inputId = "upload_3_next_button",
+          #         label = "Next",
+          #         style = "material-flat",
+          #         color = "primary",
+          #         icon = icon("angle-right")
+          #       )
+          #     )
+          #   )
+          # )
         )
       ),
       bslib::nav_panel(
