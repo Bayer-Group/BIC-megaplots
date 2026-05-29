@@ -5,8 +5,8 @@
 \title{Function to create event level megaplots dataset from ADaM datasets}
 \usage{
 add.events(
-  mp,
-  path_data,
+  mp = NULL,
+  path_data = NULL,
   event_group,
   event,
   id = "USUBJID",
@@ -23,7 +23,8 @@ add.events(
 )
 }
 \arguments{
-\item{mp}{An object from [init_mp_object()]. If `mp$sl` is NULL, `sl_ref_date` is required.}
+\item{mp}{A builder object from a previous pipeline step, or `NULL` (default) on the first call.
+If `mp$sl` is NULL, `sl_ref_date` is required.}
 
 \item{path_data}{A data frame or a file path to the dataset (SAS, CSV, or RData) to be read. File should be ADaM conform.}
 
@@ -63,6 +64,8 @@ are already relative days (not dates). Ignored when `mp$sl` is already set (e.g.
 A modified list containing updated "sl" and "events" entries with the processed event-level data.
 }
 \description{
+Start for the builder when [add.sl_data()] is not used; otherwise call after subject-level
+data has been added. See [add.sl_data()] for a full multi-domain pipeline example.
 This function processes ADaM datasets to create a comprehensive dataset for event-level analysis with megaplots,
 including the ability to calculate time to first event or days with event, left censor data and manage additional variables.
 Processes a single pair of columns (e.g. "AEBODSYS" and "AEDECOD"). New rows are appended to "mp$events".
@@ -86,4 +89,24 @@ or a single numeric value when `event_start` / `event_end` are already on the sa
 One row per `subjectid` is kept (first after filtering). Later `add.events()` calls keep only subjects already
 in `mp$sl`; use [add.sl_data()] first when you need the full population from ADSL or subject-level timeline
 columns.
+}
+\examples{
+\dontrun{
+library(Megaplots)
+library(dplyr)
+library(safetyData)
+
+data(adam_adae, package = "safetyData")
+
+# Events only: first call builds minimal subject-level data from sl_ref_date
+mp_data <- add.events(
+  adam_adae,
+  event_group = "AEBODSYS",
+  event = "AEDECOD",
+  sl_ref_date = "TRTSDT",
+  prefix_group = "SOC: ",
+  prefix_event = "PT: "
+) \%>\%
+  finalize_mp_object()
+}
 }

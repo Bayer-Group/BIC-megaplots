@@ -5,8 +5,8 @@
 \title{Add subject-level data to megaplots dataset builder}
 \usage{
 add.sl_data(
-  mp,
-  path_adsl,
+  mp = NULL,
+  path_adsl = NULL,
   id = "USUBJID",
   data_filter = NULL,
   display_start_date = c("REFSTDT", "RFSTDT", "RFSTDTC", "RFICDT", "RANDDT", "TRTSTDT"),
@@ -17,7 +17,7 @@ add.sl_data(
 )
 }
 \arguments{
-\item{mp}{An object of class "mp_data_builder", generated init_mp_object() function.}
+\item{mp}{A builder object from a previous pipeline step, or `NULL` (default) on the first call.}
 
 \item{path_adsl}{Path to the adsl-dataset (can be a dataframe or file path).}
 
@@ -41,6 +41,7 @@ column names exactly.}
 A list containing the processed subject level dataset and NULL for events.
 }
 \description{
+Optional start of the megaplots data builder when subject-level ADSL data is available.
 This function reads an ADSL dataset from various file formats (SAS, CSV, RData) and processes it
 to create a subject-level dataset suitable for generating megaplots. It allows for filtering of
 the dataset based on specified conditions and computes relevant date variables.
@@ -49,4 +50,42 @@ the dataset based on specified conditions and computes relevant date variables.
 **Subject identifier (`id`):** Must match a column name in `path_adsl` **exactly** (case-sensitive).
 Subject keys are coerced to numeric by keeping only digits and periods (`0123456789.`); distinct labels
 that map to the same numeric id can **collide**. Avoid by using unique digit patterns or pre-mapping keys.
+}
+\examples{
+\dontrun{
+library(Megaplots)
+library(dplyr)
+library(safetyData)
+
+data(adam_adsl, adam_adae, adam_adlbc, package = "safetyData")
+
+mp_data <- add.sl_data(adam_adsl) \%>\%
+  add.events(
+    adam_adae,
+    event_group = "AEBODSYS",
+    event = "AEDECOD",
+    prefix_group = "SOC: ",
+    prefix_event = "PT: ",
+    calc_time_to_first = TRUE,
+    calc_days_with = TRUE
+  ) \%>\%
+  add.events(
+    adam_adae,
+    event_group = "CQ01NAM",
+    event = "AETERM",
+    prefix_group = "CQ: "
+  ) \%>\%
+  add.events(
+    adam_adlbc,
+    event_group = "PARAM",
+    event = "LBNRIND",
+    event_start = "ADT",
+    event_end = "ADT",
+    prefix_group = "Lab: "
+  ) \%>\%
+  finalize_mp_object(
+    event_group_label_case = "title",
+    event_label_case = "title"
+  )
+}
 }

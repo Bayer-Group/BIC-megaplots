@@ -30,7 +30,6 @@ Imports:
     haven,
     htmlwidgets,
     jsTreeR,
-    pkgload,
     plotly,
     purrr,
     RColorBrewer,
@@ -52,6 +51,7 @@ Imports:
     waiter
 Suggests: 
     here,
+    pkgload,
     safetyData,
     spelling,
     testthat (>= 3.0.0),

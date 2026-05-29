@@ -1,5 +1,7 @@
 #' Function to create event level megaplots dataset from ADaM datasets
 #'
+#' Start for the builder when [add.sl_data()] is not used; otherwise call after subject-level
+#' data has been added. See [add.sl_data()] for a full multi-domain pipeline example.
 #' This function processes ADaM datasets to create a comprehensive dataset for event-level analysis with megaplots,
 #' including the ability to calculate time to first event or days with event, left censor data and manage additional variables.
 #' Processes a single pair of columns (e.g. "AEBODSYS" and "AEDECOD"). New rows are appended to "mp$events".
@@ -24,7 +26,8 @@
 #' in `mp$sl`; use [add.sl_data()] first when you need the full population from ADSL or subject-level timeline
 #' columns.
 #'
-#' @param mp An object from [init_mp_object()]. If `mp$sl` is NULL, `sl_ref_date` is required.
+#' @param mp A builder object from a previous pipeline step, or `NULL` (default) on the first call.
+#'   If `mp$sl` is NULL, `sl_ref_date` is required.
 #' @param path_data A data frame or a file path to the dataset (SAS, CSV, or RData) to be read. File should be ADaM conform.
 #' @param event_group Character vector of one or more column names used to build Megaplots `event_group`.
 #'   When multiple names are provided, values are pasted together.
@@ -47,10 +50,29 @@
 #'   are already relative days (not dates). Ignored when `mp$sl` is already set (e.g. after [add.sl_data()]).
 #'
 #' @return A modified list containing updated "sl" and "events" entries with the processed event-level data.
+#' @examples
+#' \dontrun{
+#' library(Megaplots)
+#' library(dplyr)
+#' library(safetyData)
+#'
+#' data(adam_adae, package = "safetyData")
+#'
+#' # Events only: first call builds minimal subject-level data from sl_ref_date
+#' mp_data <- add.events(
+#'   adam_adae,
+#'   event_group = "AEBODSYS",
+#'   event = "AEDECOD",
+#'   sl_ref_date = "TRTSDT",
+#'   prefix_group = "SOC: ",
+#'   prefix_event = "PT: "
+#' ) %>%
+#'   finalize_mp_object()
+#' }
 #' @export
 add.events <- function(
-  mp,
-  path_data,
+  mp = NULL,
+  path_data = NULL,
   event_group,
   event,
   id = "USUBJID",
@@ -65,8 +87,26 @@ add.events <- function(
   keep_vars = NULL,
   sl_ref_date = NULL
 ) {
+  if (
+    is.null(path_data) &&
+      !is.null(mp) &&
+      !inherits(mp, "mp_data_builder")
+  ) {
+    path_data <- mp
+    mp <- NULL
+  }
+  if (is.null(path_data)) {
+    stop("Please provide a valid dataset or file path.", call. = FALSE)
+  }
+  if (is.null(mp)) {
+    mp <- init_mp_object()
+  }
   if (!inherits(mp, "mp_data_builder")) {
-    stop("`mp` must be an object created by init_mp_object().", call. = FALSE)
+    stop(
+      "
+      `mp` must be a megaplots data builder (`mp_data_builder`).",
+      call. = FALSE
+    )
   }
 
   #set global variable . to NULL to

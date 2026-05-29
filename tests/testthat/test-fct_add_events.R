@@ -27,13 +27,24 @@ adae_with_ref_col <- data.frame(
 )
 
 mp_with_sl <- function() {
-  init_mp_object() %>% add.sl_data(adsl_min)
+  add.sl_data(adsl_min)
 }
+
+test_that("add.events initializes builder when mp is omitted", {
+  mp <- add.events(
+    path_data=adae_with_ref_col,
+    event_group = "AEBODSYS",
+    event = "AEDECOD",
+    sl_ref_date = "TRTSTDT"
+  )
+  expect_s3_class(mp, "mp_data_builder")
+  expect_gt(nrow(mp$events), 0L)
+})
 
 test_that("add.events appends rows and applies prefix_group / prefix_event", {
   mp <- mp_with_sl() %>%
     add.events(
-      adae_min,
+      path_data=adae_min,
       event_group = "AEBODSYS",
       event = "AEDECOD",
       prefix_group = "G:",
@@ -113,18 +124,17 @@ test_that("add.events stacks multiple calls on mp$events", {
 test_that("add.events errors when mp is not mp_data_builder", {
   expect_error(
     add.events(list(), adae_min, event_group = "AEBODSYS", event = "AEDECOD"),
-    "`mp` must be an object created by init_mp_object()"
+    "`mp` must be a megaplots data builder"
   )
 })
 
 test_that("add.events builds minimal mp$sl from sl_ref_date column when add.sl_data was not used", {
-  mp <- init_mp_object() %>%
-    add.events(
-      adae_with_ref_col,
-      event_group = "AEBODSYS",
-      event = "AEDECOD",
-      sl_ref_date = "TRTSTDT"
-    )
+  mp <- add.events(
+    adae_with_ref_col,
+    event_group = "AEBODSYS",
+    event = "AEDECOD",
+    sl_ref_date = "TRTSTDT"
+  )
 
   expect_named(mp$sl, c("subjectid", "ref_date"))
   expect_equal(nrow(mp$sl), 2L)
@@ -141,15 +151,14 @@ test_that("add.events uses numeric sl_ref_date with relative-day event columns",
     stringsAsFactors = FALSE
   )
 
-  mp <- init_mp_object() %>%
-    add.events(
-      adae_rel,
-      event_group = "AEBODSYS",
-      event = "AEDECOD",
-      event_start = "day_s",
-      event_end = "day_e",
-      sl_ref_date = 1L
-    )
+  mp <- add.events(
+    adae_rel,
+    event_group = "AEBODSYS",
+    event = "AEDECOD",
+    event_start = "day_s",
+    event_end = "day_e",
+    sl_ref_date = 1L
+  )
 
   expect_equal(mp$events$event_start_time, c(2L, 6L))
   expect_equal(mp$events$event_end_time, c(3L, 7L))
@@ -157,33 +166,30 @@ test_that("add.events uses numeric sl_ref_date with relative-day event columns",
 
 test_that("add.events errors when mp$sl is NULL and sl_ref_date is missing", {
   expect_error(
-    init_mp_object() %>%
-      add.events(adae_min, event_group = "AEBODSYS", event = "AEDECOD"),
+    add.events(adae_min, event_group = "AEBODSYS", event = "AEDECOD"),
     regexp = "sl_ref_date"
   )
 })
 
 test_that("add.events errors when sl_ref_date names a missing column", {
   expect_error(
-    init_mp_object() %>%
-      add.events(
-        adae_min,
-        event_group = "AEBODSYS",
-        event = "AEDECOD",
-        sl_ref_date = "NOT_A_COLUMN"
-      ),
+    add.events(
+      adae_min,
+      event_group = "AEBODSYS",
+      event = "AEDECOD",
+      sl_ref_date = "NOT_A_COLUMN"
+    ),
     regexp = "NOT_A_COLUMN"
   )
 })
 
 test_that("add.events does not require sl_ref_date once mp$sl exists", {
-  mp <- init_mp_object() %>%
-    add.events(
-      adae_with_ref_col,
-      event_group = "AEBODSYS",
-      event = "AEDECOD",
-      sl_ref_date = "TRTSTDT"
-    ) %>%
+  mp <- add.events(
+    adae_with_ref_col,
+    event_group = "AEBODSYS",
+    event = "AEDECOD",
+    sl_ref_date = "TRTSTDT"
+  ) %>%
     add.events(adae_min, event_group = "AEBODSYS", event = "AEDECOD")
 
   expect_equal(nrow(mp$events), 4L)
@@ -288,15 +294,14 @@ test_that("add.events errors when event dates and ref_date scale are mixed", {
   )
 
   expect_error(
-    init_mp_object() %>%
-      add.events(
-        adae_bad,
-        event_group = "AEBODSYS",
-        event = "AEDECOD",
-        event_start = "day_only",
-        event_end = "day_end",
-        sl_ref_date = "TRTSTDT"
-      ),
+    add.events(
+      adae_bad,
+      event_group = "AEBODSYS",
+      event = "AEDECOD",
+      event_start = "day_only",
+      event_end = "day_end",
+      sl_ref_date = "TRTSTDT"
+    ),
     regexp = "mixed types"
   )
 })

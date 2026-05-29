@@ -16,3 +16,6 @@ $run_dev.*
 ^\.github$
 ^Dockerfile$
 ^README.Rmd
+^\.positai$
+^\.claude$
+^app\.R$

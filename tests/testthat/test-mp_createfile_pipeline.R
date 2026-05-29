@@ -1,4 +1,4 @@
-# Minimal end-to-end checks for init_mp_object -> add.sl_data / add.events -> finalize_mp_object
+# Minimal end-to-end checks for add.sl_data / add.events -> finalize_mp_object
 
 test_that("builder pipeline with add.sl_data stacks events and finalize returns one row per event", {
   adsl <- data.frame(
@@ -18,8 +18,7 @@ test_that("builder pipeline with add.sl_data stacks events and finalize returns 
     stringsAsFactors = FALSE
   )
 
-  mp <- init_mp_object() %>%
-    add.sl_data(adsl) %>%
+  mp <- add.sl_data(adsl) %>%
     add.events(
       adae,
       event_group = "AEBODSYS",
@@ -58,8 +57,7 @@ test_that("data_filter on add.events restricts rows", {
     stringsAsFactors = FALSE
   )
 
-  mp <- init_mp_object() %>%
-    add.sl_data(adsl) %>%
+  mp <- add.sl_data(adsl) %>%
     add.events(
       adae,
       event_group = "AEBODSYS",
@@ -81,13 +79,12 @@ test_that("builder pipeline without add.sl_data uses sl_ref_date and finalize re
     stringsAsFactors = FALSE
   )
 
-  mp <- init_mp_object() %>%
-    add.events(
-      adae,
-      event_group = "AEBODSYS",
-      event = "AEDECOD",
-      sl_ref_date = "TRTSTDT"
-    )
+  mp <- add.events(
+    adae,
+    event_group = "AEBODSYS",
+    event = "AEDECOD",
+    sl_ref_date = "TRTSTDT"
+  )
 
   expect_equal(nrow(mp$sl), 2L)
   expect_named(mp$sl, c("subjectid", "ref_date"))

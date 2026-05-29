@@ -1,5 +1,6 @@
 #' Add subject-level data to megaplots dataset builder
 #'
+#' Optional start of the megaplots data builder when subject-level ADSL data is available.
 #' This function reads an ADSL dataset from various file formats (SAS, CSV, RData) and processes it
 #' to create a subject-level dataset suitable for generating megaplots. It allows for filtering of
 #' the dataset based on specified conditions and computes relevant date variables.
@@ -9,7 +10,7 @@
 #' Subject keys are coerced to numeric by keeping only digits and periods (`0123456789.`); distinct labels
 #' that map to the same numeric id can **collide**. Avoid by using unique digit patterns or pre-mapping keys.
 #'
-#' @param mp An object of class "mp_data_builder", generated init_mp_object() function.
+#' @param mp A builder object from a previous pipeline step, or `NULL` (default) on the first call.
 #' @param path_adsl Path to the adsl-dataset (can be a dataframe or file path).
 #' @param id Column name of the unique subject identifier (default `"USUBJID"`). Must match `path_adsl`
 #'   column names exactly.
@@ -22,10 +23,47 @@
 #' @param trtendt Columns to be used as treatment end dates.
 #'
 #' @return A list containing the processed subject level dataset and NULL for events.
+#' @examples
+#' \dontrun{
+#' library(Megaplots)
+#' library(dplyr)
+#' library(safetyData)
+#'
+#' data(adam_adsl, adam_adae, adam_adlbc, package = "safetyData")
+#'
+#' mp_data <- add.sl_data(adam_adsl) %>%
+#'   add.events(
+#'     adam_adae,
+#'     event_group = "AEBODSYS",
+#'     event = "AEDECOD",
+#'     prefix_group = "SOC: ",
+#'     prefix_event = "PT: ",
+#'     calc_time_to_first = TRUE,
+#'     calc_days_with = TRUE
+#'   ) %>%
+#'   add.events(
+#'     adam_adae,
+#'     event_group = "CQ01NAM",
+#'     event = "AETERM",
+#'     prefix_group = "CQ: "
+#'   ) %>%
+#'   add.events(
+#'     adam_adlbc,
+#'     event_group = "PARAM",
+#'     event = "LBNRIND",
+#'     event_start = "ADT",
+#'     event_end = "ADT",
+#'     prefix_group = "Lab: "
+#'   ) %>%
+#'   finalize_mp_object(
+#'     event_group_label_case = "title",
+#'     event_label_case = "title"
+#'   )
+#' }
 #' @export
 add.sl_data <- function(
-  mp,
-  path_adsl,
+  mp = NULL,
+  path_adsl = NULL,
   id = "USUBJID",
   data_filter = NULL,
   display_start_date = c(
@@ -41,8 +79,25 @@ add.sl_data <- function(
   trtstdt = NULL,
   trtendt = NULL
 ) {
+  if (
+    is.null(path_adsl) &&
+      !is.null(mp) &&
+      !inherits(mp, "mp_data_builder")
+  ) {
+    path_adsl <- mp
+    mp <- NULL
+  }
+  if (is.null(mp)) {
+    mp <- init_mp_object()
+  }
+  if (is.null(path_adsl)) {
+    stop("Please provide a valid dataset or file path.", call. = FALSE)
+  }
   if (!inherits(mp, "mp_data_builder")) {
-    stop("`mp` must be an object created by init_mp_object().", call. = FALSE)
+    stop(
+      "`mp` must be a megaplots data builder (`mp_data_builder`).",
+      call. = FALSE
+    )
   }
 
   options(scipen = 999) # Set options to avoid scientific notation in numbers

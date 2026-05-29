@@ -1,7 +1,7 @@
 #' Finalize Megaplots data for the app
 #'
-#' Completes the build started with [init_mp_object()] and [add.events()] (and
-#' optionally [add.sl_data()] if you attach subject-level data before events).
+#' Completes the build started with [add.events()] (and optionally [add.sl_data()]
+#' if you attach subject-level data before events).
 #'
 #' @param mp A populated `mp_data_builder`.
 #' @param event_label_case How to normalize `event` and `event_group` text:
@@ -19,7 +19,10 @@ finalize_mp_object <- function(
   event_group_label_case = c("none", "lower", "upper", "title")
 ) {
   if (!inherits(mp, "mp_data_builder")) {
-    stop("`mp` must be an object created by init_mp_object().", call. = FALSE)
+    stop(
+      "`mp` must be a megaplots data builder (`mp_data_builder`).",
+      call. = FALSE
+    )
   }
   if (is.null(mp$sl)) {
     stop(

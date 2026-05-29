@@ -24,6 +24,6 @@ same choices as `event_label_case`.}
 A data frame ready for use in the Megaplots app
 }
 \description{
-Completes the build started with [init_mp_object()] and [add.events()] (and
-optionally [add.sl_data()] if you attach subject-level data before events).
+Completes the build started with [add.events()] (and optionally [add.sl_data()]
+if you attach subject-level data before events).
 }

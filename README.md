@@ -21,7 +21,6 @@ README
   - [HTML Download](#html-download)
 - [Input Data](#input-data)
 - [Building Upload Data](#building-upload-data)
-  - [init_mp_object()](#init_mp_object)
   - [add.sl_data()](#addsl_data)
   - [add.events()](#addevents)
   - [finalize_mp_object()](#finalize_mp_object)
@@ -402,18 +401,14 @@ Grouping” please refer to chapter “Sidebar options”.
 
 The package provides a small pipe-style data builder that turns one or
 more datasets into a megaplots upload file without any manual reshaping.
-The pipeline always starts with init_mp_object() and ends with
-finalize_mp_object(), with one optional add.sl_data() call and one or
-more add.events() calls in between. Each step returns an
+The pipeline starts with add.sl_data() or add.events() and ends with
+finalize_mp_object(), Use add.sl_data() when ADSL subject-level data is
+available; otherwise start with add.events() and supply sl_ref_date on
+that first call. Each step returns an
 ‘mp_data_builder’ object that is passed on to the next step. The builder
 is designed to work with CDISC (Clinical Data Interchange Standards
 Consortium) conform ADaM (Analysis Data Model) datasets but can be used
 with any datasets that have the required variables.
-
-### init_mp_object()
-
-Creates an empty ‘mp_data_builder’. This is the seed for the pipeline
-and must be called first.
 
 ### add.sl_data()
 

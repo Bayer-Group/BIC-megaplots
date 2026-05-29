@@ -6,8 +6,14 @@ adsl_three <- data.frame(
   stringsAsFactors = FALSE
 )
 
+test_that("add.sl_data initializes builder when mp is omitted", {
+  mp <- add.sl_data(adsl_three)
+  expect_s3_class(mp, "mp_data_builder")
+  expect_equal(nrow(mp$sl), 3L)
+})
+
 test_that("add.sl_data accepts a data frame and builds subject-level columns", {
-  mp <- init_mp_object() %>% add.sl_data(adsl_three)
+  mp <- add.sl_data(adsl_three)
 
   expect_s3_class(mp, "mp_data_builder")
   expect_true(is.data.frame(mp$sl))
@@ -19,8 +25,7 @@ test_that("add.sl_data accepts a data frame and builds subject-level columns", {
 })
 
 test_that("add.sl_data applies data_filter", {
-  mp <- init_mp_object() %>%
-    add.sl_data(adsl_three, data_filter = "USUBJID == \"001\"")
+  mp <- add.sl_data(adsl_three, data_filter = "USUBJID == \"001\"")
 
   expect_equal(nrow(mp$sl), 1L)
   expect_equal(mp$sl$subjectid[[1]], 1)
@@ -28,15 +33,15 @@ test_that("add.sl_data applies data_filter", {
 
 test_that("add.sl_data errors when id is not a column", {
   expect_error(
-    init_mp_object() %>% add.sl_data(adsl_three, id = "NON_EXISTENT_ID"),
+    add.sl_data(adsl_three, id = "NON_EXISTENT_ID"),
     "The specified id 'NON_EXISTENT_ID' is not a column in the dataset."
   )
 })
 
-test_that("add.sl_data errors when mp is not from init_mp_object()", {
+test_that("add.sl_data errors when mp is not mp_data_builder", {
   expect_error(
     add.sl_data(list(), adsl_three),
-    "`mp` must be an object created by init_mp_object()"
+    "`mp` must be a megaplots data builder"
   )
 })
 
@@ -48,7 +53,7 @@ test_that("add.sl_data errors when no display_start_date column matches", {
   )
 
   expect_error(
-    init_mp_object() %>% add.sl_data(bad),
+    add.sl_data(bad),
     "None of the input parameters in display_start_date are present as column names in the data."
   )
 })
@@ -62,15 +67,14 @@ test_that("add.sl_data errors when no display_end_date column matches", {
   )
 
   expect_error(
-    init_mp_object() %>% add.sl_data(bad),
+    add.sl_data(bad),
     "None of the input parameters in display_end_date are present as column names in the data."
   )
 })
 
 test_that("add.sl_data errors when relative_day_1 does not match any column", {
   expect_error(
-    init_mp_object() %>%
-      add.sl_data(adsl_three, relative_day_1 = "NON_EXISTENT_COLUMN"),
+    add.sl_data(adsl_three, relative_day_1 = "NON_EXISTENT_COLUMN"),
     "None of the input parameters in relative_day_1 are present as column names in the data."
   )
 })
@@ -85,8 +89,7 @@ test_that("add.sl_data computes treatment_duration when trt columns are set", {
     stringsAsFactors = FALSE
   )
 
-  mp <- init_mp_object() %>%
-    add.sl_data(trt, trtstdt = "TRTSTDT", trtendt = "TRTENDT")
+  mp <- add.sl_data(trt, trtstdt = "TRTSTDT", trtendt = "TRTENDT")
 
   expect_true("treatment_duration" %in% names(mp$sl))
   expect_equal(mp$sl$treatment_duration[[1]], 5L)
