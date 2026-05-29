@@ -3,7 +3,7 @@
 #' Completes the build started with [add.events()] (and optionally [add.sl_data()]
 #' if you attach subject-level data before events).
 #'
-#' @param mp A populated `mp_data_builder`.
+#' @param mp_builder A populated `mp_data_builder`.
 #' @param event_label_case How to normalize `event` and `event_group` text:
 #'   `none` (default, unchanged), `lower`, `upper`, or `title` (first
 #'   letter of each word capitalized).
@@ -14,35 +14,35 @@
 #' @export
 #' @importFrom dplyr left_join
 finalize_mp_object <- function(
-  mp,
+  mp_builder,
   event_label_case = c("none", "lower", "upper", "title"),
   event_group_label_case = c("none", "lower", "upper", "title")
 ) {
-  if (!inherits(mp, "mp_data_builder")) {
+  if (!inherits(mp_builder, "mp_data_builder")) {
     stop(
-      "`mp` must be a megaplots data builder (`mp_data_builder`).",
+      "`mp_builder` must be a megaplots data builder (`mp_data_builder`).",
       call. = FALSE
     )
   }
-  if (is.null(mp$sl)) {
+  if (is.null(mp_builder$sl)) {
     stop(
       "Subject-level data is missing; call add.events() (and/or add.sl_data()) first.",
       call. = FALSE
     )
   }
 
-  mp <- mp$sl %>%
+  out <- mp_builder$sl %>%
     dplyr::left_join(
-      mp$events,
+      mp_builder$events,
       # Join by all common columns (e.g., subjectid) to combine subject-level and event data
-      by = intersect(colnames(mp$sl), colnames(mp$events))
+      by = intersect(colnames(mp_builder$sl), colnames(mp_builder$events))
     )
 
   event_label_case <- match.arg(event_label_case)
   if (event_label_case != "none") {
     # Normalize the event labels according to the specified case transformation
-    x <- as.character(mp[["event"]])
-    mp[["event"]] <- switch(
+    x <- as.character(out[["event"]])
+    out[["event"]] <- switch(
       event_label_case,
       lower = tolower(x),
       upper = toupper(x),
@@ -53,8 +53,8 @@ finalize_mp_object <- function(
   event_group_label_case <- match.arg(event_group_label_case)
   if (event_group_label_case != "none") {
     # Normalize the event group labels according to the specified case transformation
-    x <- as.character(mp[["event_group"]])
-    mp[["event_group"]] <- switch(
+    x <- as.character(out[["event_group"]])
+    out[["event_group"]] <- switch(
       event_group_label_case,
       lower = tolower(x),
       upper = toupper(x),
@@ -73,11 +73,11 @@ finalize_mp_object <- function(
       "event_group",
       "event"
     ),
-    names(mp)
+    names(out)
   )
   if (length(arrange_cols)) {
-    mp <- mp %>% dplyr::arrange(dplyr::across(dplyr::all_of(arrange_cols)))
+    out <- out %>% dplyr::arrange(dplyr::across(dplyr::all_of(arrange_cols)))
   }
 
-  return(mp)
+  return(out)
 }

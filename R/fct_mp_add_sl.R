@@ -6,13 +6,13 @@
 #' the dataset based on specified conditions and computes relevant date variables.
 #'
 #' @details
-#' **Subject identifier (`id`):** Must match a column name in `path_adsl` **exactly** (case-sensitive).
+#' **Subject identifier (`id`):** Must match a column name in `sl_data` **exactly** (case-sensitive).
 #' Subject keys are coerced to numeric by keeping only digits and periods (`0123456789.`); distinct labels
 #' that map to the same numeric id can **collide**. Avoid by using unique digit patterns or pre-mapping keys.
 #'
-#' @param mp A builder object from a previous pipeline step, or `NULL` (default) on the first call.
-#' @param path_adsl Path to the adsl-dataset (can be a dataframe or file path).
-#' @param id Column name of the unique subject identifier (default `"USUBJID"`). Must match `path_adsl`
+#' @param mp_builder A builder object from a previous pipeline step, or `NULL` (default) on the first call.
+#' @param sl_data Path to the adsl-dataset (can be a dataframe or file path).
+#' @param id Column name of the unique subject identifier (default `"USUBJID"`). Must match `sl_data`
 #'   column names exactly.
 #' @param data_filter Optional; passed to [rlang::parse_exprs()] for [dplyr::filter()]. Example:
 #'   `data_filter = "SAFFL == \"Y\""`.
@@ -62,8 +62,8 @@
 #' }
 #' @export
 add.sl_data <- function(
-  mp = NULL,
-  path_adsl = NULL,
+  mp_builder = NULL,
+  sl_data = NULL,
   id = "USUBJID",
   data_filter = NULL,
   display_start_date = c(
@@ -80,22 +80,22 @@ add.sl_data <- function(
   trtendt = NULL
 ) {
   if (
-    is.null(path_adsl) &&
-      !is.null(mp) &&
-      !inherits(mp, "mp_data_builder")
+    is.null(sl_data) &&
+      !is.null(mp_builder) &&
+      !inherits(mp_builder, "mp_data_builder")
   ) {
-    path_adsl <- mp
-    mp <- NULL
+    sl_data <- mp_builder
+    mp_builder <- NULL
   }
-  if (is.null(mp)) {
-    mp <- init_mp_object()
+  if (is.null(mp_builder)) {
+    mp_builder <- init_mp_object()
   }
-  if (is.null(path_adsl)) {
+  if (is.null(sl_data)) {
     stop("Please provide a valid dataset or file path.", call. = FALSE)
   }
-  if (!inherits(mp, "mp_data_builder")) {
+  if (!inherits(mp_builder, "mp_data_builder")) {
     stop(
-      "`mp` must be a megaplots data builder (`mp_data_builder`).",
+      "`mp_builder` must be a megaplots data builder (`mp_data_builder`).",
       call. = FALSE
     )
   }
@@ -106,11 +106,11 @@ add.sl_data <- function(
   . <- NULL
 
   # Read adsl data ----
-  if (is.data.frame(path_adsl)) {
-    adsl <- path_adsl # If input is a dataframe, assign it directly
-  } else if (!is.null(path_adsl)) {
+  if (is.data.frame(sl_data)) {
+    adsl <- sl_data # If input is a dataframe, assign it directly
+  } else if (!is.null(sl_data)) {
     adsl <- tryCatch(
-      read_dataset(path_adsl),
+      read_dataset(sl_data),
       error = function(e) stop("Error reading the dataset: ", e$message) # Catch and display any errors during reading
     )
   } else {
@@ -230,6 +230,6 @@ add.sl_data <- function(
       dplyr::relocate("subjectid", "start_time", "end_time", "ref_date") # Rearrange columns without treatment
   }
 
-  mp$sl <- adsl
-  return(mp)
+  mp_builder$sl <- adsl
+  return(mp_builder)
 }

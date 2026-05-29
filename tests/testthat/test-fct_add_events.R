@@ -32,7 +32,7 @@ mp_with_sl <- function() {
 
 test_that("add.events initializes builder when mp is omitted", {
   mp <- add.events(
-    path_data=adae_with_ref_col,
+    events_data=adae_with_ref_col,
     event_group = "AEBODSYS",
     event = "AEDECOD",
     sl_ref_date = "TRTSTDT"
@@ -44,7 +44,7 @@ test_that("add.events initializes builder when mp is omitted", {
 test_that("add.events appends rows and applies prefix_group / prefix_event", {
   mp <- mp_with_sl() %>%
     add.events(
-      path_data=adae_min,
+      events_data=adae_min,
       event_group = "AEBODSYS",
       event = "AEDECOD",
       prefix_group = "G:",
@@ -124,7 +124,7 @@ test_that("add.events stacks multiple calls on mp$events", {
 test_that("add.events errors when mp is not mp_data_builder", {
   expect_error(
     add.events(list(), adae_min, event_group = "AEBODSYS", event = "AEDECOD"),
-    "`mp` must be a megaplots data builder"
+    "`mp_builder` must be a megaplots data builder"
   )
 })
 

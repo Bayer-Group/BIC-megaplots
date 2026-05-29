@@ -41,7 +41,7 @@ test_that("add.sl_data errors when id is not a column", {
 test_that("add.sl_data errors when mp is not mp_data_builder", {
   expect_error(
     add.sl_data(list(), adsl_three),
-    "`mp` must be a megaplots data builder"
+    "`mp_builder` must be a megaplots data builder"
   )
 })
 

@@ -4,36 +4,36 @@
 #' data has been added. See [add.sl_data()] for a full multi-domain pipeline example.
 #' This function processes ADaM datasets to create a comprehensive dataset for event-level analysis with megaplots,
 #' including the ability to calculate time to first event or days with event, left censor data and manage additional variables.
-#' Processes a single pair of columns (e.g. "AEBODSYS" and "AEDECOD"). New rows are appended to "mp$events".
+#' Processes a single pair of columns (e.g. "AEBODSYS" and "AEDECOD"). New rows are appended to "mp_builder$events".
 #' Call multiple times to stack several pairs or domains, then call "finalize_mp_object()" to create upload
 #' data for the megaplots app.
 #'
 #' @details
-#' **Subject identifier (`id`):** `id` must match a column name in `path_data` exactly (case-sensitive).
+#' **Subject identifier (`id`):** `id` must match a column name in `events_data` exactly (case-sensitive).
 #' Subject keys are coerced to numeric by keeping only digits and periods (`0123456789.`); distinct labels
 #' that map to the same numeric id can collide. Avoid by using unique digit patterns or pre-mapping keys.
 #'
 #' **`calc_time_to_first` / `calc_days_with` across multiple `add.events()` calls:** Each run with these
-#' flags joins `ttf_*` / `dw_*` columns onto `mp$sl`. Another call can duplicate or rename columns (e.g.
+#' flags joins `ttf_*` / `dw_*` columns onto `mp_builder$sl`. Another call can duplicate or rename columns (e.g.
 #' `...x` / `...y`) if derived names overlap. Prefer one pair of calls per analysis, or rely on distinct
 #' event labels from `prefix_group` / `prefix_event` / domain-specific columns so pivot names do not clash.
 #'
-#' **Building `mp$sl` from `path_data`:** When `mp$sl` is NULL (i.e. [add.sl_data()] was not used),
-#' you must pass `sl_ref_date`: either a column name in `path_data` with the reference date per subject,
+#' **Building `mp_builder$sl` from `events_data`:** When `mp_builder$sl` is NULL (i.e. [add.sl_data()] was not used),
+#' you must pass `sl_ref_date`: either a column name in `events_data` with the reference date per subject,
 #' or a single numeric value when `event_start` / `event_end` are already on the same relative-day scale
-#' (e.g. `sl_ref_date = 1`). Only `subjectid` and `ref_date` are added to `mp$sl` (no `start_time` / `end_time`).
+#' (e.g. `sl_ref_date = 1`). Only `subjectid` and `ref_date` are added to `mp_builder$sl` (no `start_time` / `end_time`).
 #' One row per `subjectid` is kept (first after filtering). Later `add.events()` calls keep only subjects already
-#' in `mp$sl`; use [add.sl_data()] first when you need the full population from ADSL or subject-level timeline
+#' in `mp_builder$sl`; use [add.sl_data()] first when you need the full population from ADSL or subject-level timeline
 #' columns.
 #'
-#' @param mp A builder object from a previous pipeline step, or `NULL` (default) on the first call.
-#'   If `mp$sl` is NULL, `sl_ref_date` is required.
-#' @param path_data A data frame or a file path to the dataset (SAS, CSV, or RData) to be read. File should be ADaM conform.
+#' @param mp_builder A builder object from a previous pipeline step, or `NULL` (default) on the first call.
+#'   If `mp_builder$sl` is NULL, `sl_ref_date` is required.
+#' @param events_data A data frame or a file path to the dataset (SAS, CSV, or RData) to be read. File should be ADaM conform.
 #' @param event_group Character vector of one or more column names used to build Megaplots `event_group`.
 #'   When multiple names are provided, values are pasted together.
 #' @param event Character vector of one or more column names used to build Megaplots `event`.
 #'   When multiple names are provided, values are pasted together.
-#' @param id Column name of the subject identifier in `path_data` (default `"USUBJID"`). Must match the data
+#' @param id Column name of the subject identifier in `events_data` (default `"USUBJID"`). Must match the data
 #'   frame column name exactly.
 #' @param data_filter Optional character vector passed to [rlang::parse_exprs()] and used inside
 #' @param prefix_group Prefix applied to values from `event_group`.
@@ -44,10 +44,10 @@
 #' @param calc_days_with A logical indicating whether to calculate the days with the event. Default is FALSE.
 #' @param left_censor A numeric value specifying the left censoring time. Default NULL means no left censoring will be performed.
 #' @param keep_vars A character vector of additional event level variables to keep in the final dataset.
-#' @param sl_ref_date Required when `mp$sl` is NULL. Character: column name in `path_data` whose values
+#' @param sl_ref_date Required when `mp_builder$sl` is NULL. Character: column name in `events_data` whose values
 #'   are the reference value (typically `Date`) for converting event dates to study days. Numeric
 #'   length 1: constant reference on the same scale as `event_start` / `event_end` when those columns
-#'   are already relative days (not dates). Ignored when `mp$sl` is already set (e.g. after [add.sl_data()]).
+#'   are already relative days (not dates). Ignored when `mp_builder$sl` is already set (e.g. after [add.sl_data()]).
 #'
 #' @return A modified list containing updated "sl" and "events" entries with the processed event-level data.
 #' @examples
@@ -71,8 +71,8 @@
 #' }
 #' @export
 add.events <- function(
-  mp = NULL,
-  path_data = NULL,
+  mp_builder = NULL,
+  events_data = NULL,
   event_group,
   event,
   id = "USUBJID",
@@ -88,23 +88,23 @@ add.events <- function(
   sl_ref_date = NULL
 ) {
   if (
-    is.null(path_data) &&
-      !is.null(mp) &&
-      !inherits(mp, "mp_data_builder")
+    is.null(events_data) &&
+      !is.null(mp_builder) &&
+      !inherits(mp_builder, "mp_data_builder")
   ) {
-    path_data <- mp
-    mp <- NULL
+    events_data <- mp_builder
+    mp_builder <- NULL
   }
-  if (is.null(path_data)) {
+  if (is.null(events_data)) {
     stop("Please provide a valid dataset or file path.", call. = FALSE)
   }
-  if (is.null(mp)) {
-    mp <- init_mp_object()
+  if (is.null(mp_builder)) {
+    mp_builder <- init_mp_object()
   }
-  if (!inherits(mp, "mp_data_builder")) {
+  if (!inherits(mp_builder, "mp_data_builder")) {
     stop(
       "
-      `mp` must be a megaplots data builder (`mp_data_builder`).",
+      `mp_builder` must be a megaplots data builder (`mp_data_builder`).",
       call. = FALSE
     )
   }
@@ -115,11 +115,11 @@ add.events <- function(
   . <- NULL
 
   # Read data ----
-  if (is.data.frame(path_data)) {
-    data <- path_data
-  } else if (!is.null(path_data)) {
+  if (is.data.frame(events_data)) {
+    data <- events_data
+  } else if (!is.null(events_data)) {
     data <- tryCatch(
-      read_dataset(path_data),
+      read_dataset(events_data),
       error = function(e) stop("Error reading the dataset: ", e$message)
     )
   } else {
@@ -137,10 +137,10 @@ add.events <- function(
   }
 
   # Build subject-level dataset (mp$sl) if not already set ----
-  if (is.null(mp$sl)) {
+  if (is.null(mp_builder$sl)) {
     if (is.null(sl_ref_date)) {
       stop(
-        "When subject-level data has not been added (`mp$sl` is NULL), supply `sl_ref_date` ",
+        "When subject-level data has not been added (`mp_builder$sl` is NULL), supply `sl_ref_date` ",
         "(column name or numeric constant); or call add.sl_data() first.",
         call. = FALSE
       )
@@ -157,17 +157,17 @@ add.events <- function(
           as.character(!!rlang::sym(id))
         ))
       ) %>%
-      # Keep one baseline row per subject when creating minimal mp$sl on the fly
+      # Keep one baseline row per subject when creating minimal mp_builder$sl on the fly
       dplyr::distinct(.data$subjectid, .keep_all = TRUE) %>%
       dplyr::relocate(.data$subjectid)
 
-    # Build mp$sl with subjectid and ref_date from sl_ref_date column or constant
+    # Build mp_builder$sl with subjectid and ref_date from sl_ref_date column or constant
     if (is.character(sl_ref_date)) {
       if (is.na(sl_ref_date)) {
         stop("`sl_ref_date` must not be NA.", call. = FALSE)
       }
       sl_col <- resolve_colname(sl_ref_date, colnames(sl_tmp))
-      mp$sl <- sl_tmp %>%
+      mp_builder$sl <- sl_tmp %>%
         dplyr::select(.data$subjectid, dplyr::all_of(sl_col)) %>%
         dplyr::rename(ref_date = !!rlang::sym(sl_col))
     } else if (is.numeric(sl_ref_date)) {
@@ -177,7 +177,7 @@ add.events <- function(
           call. = FALSE
         )
       }
-      mp$sl <- sl_tmp %>%
+      mp_builder$sl <- sl_tmp %>%
         dplyr::select(.data$subjectid) %>%
         dplyr::mutate(ref_date = as.numeric(sl_ref_date))
     } else {
@@ -189,14 +189,14 @@ add.events <- function(
   }
 
   sl_join_cols <- c("subjectid", "ref_date")
-  # If start_time and end_time are present in mp$sl, include them in the join to preserve these columns for left censoring and potential later use; if not present, they will simply be ignored in the downstream processing.
-  if ("start_time" %in% names(mp$sl)) {
+  # If start_time and end_time are present in mp_builder$sl, include them in the join to preserve these columns for left censoring and potential later use; if not present, they will simply be ignored in the downstream processing.
+  if ("start_time" %in% names(mp_builder$sl)) {
     sl_join_cols <- c(sl_join_cols, "start_time")
   }
-  if ("end_time" %in% names(mp$sl)) {
+  if ("end_time" %in% names(mp_builder$sl)) {
     sl_join_cols <- c(sl_join_cols, "end_time")
   }
-  adsl <- mp$sl %>% dplyr::select(tidyselect::all_of(sl_join_cols))
+  adsl <- mp_builder$sl %>% dplyr::select(tidyselect::all_of(sl_join_cols))
 
   # Validate event_group and event column specifications ----
   if (
@@ -348,11 +348,11 @@ add.events <- function(
     )
   }
 
-  # Check if start_time is available in mp$sl for potential left censoring
+  # Check if start_time is available in mp_builder$sl for potential left censoring
   has_sl_start <- "start_time" %in% names(data_tmp)
 
   # Calculate event start and end times relative to ref_date,
-  # then apply left censoring to event_start_time if requested and start_time is available in mp$sl.
+  # then apply left censoring to event_start_time if requested and start_time is available in mp_builder$sl.
   # Original event_start, event_end, and ref_date columns are dropped after calculations.
   data_tmp <- data_tmp %>%
     dplyr::group_by(.data$subjectid, .data$event_group, .data$event) %>%
@@ -424,7 +424,7 @@ add.events <- function(
     message("calculating time to first event")
     time_to_first <- calc_time_to_first(data = data_tmp)
 
-    mp$sl <- mp$sl %>%
+    mp_builder$sl <- mp_builder$sl %>%
       dplyr::left_join(time_to_first, by = "subjectid")
   }
 
@@ -433,12 +433,12 @@ add.events <- function(
     message("calculating days with event")
     days_with <- calc_days_with(data = data_tmp)
 
-    mp$sl <- mp$sl %>%
+    mp_builder$sl <- mp_builder$sl %>%
       dplyr::left_join(days_with, by = "subjectid")
   }
 
-  # Bind new events to mp$events ----
-  mp$events <- dplyr::bind_rows(mp$events, data_tmp)
+  # Bind new events to mp_builder$events ----
+  mp_builder$events <- dplyr::bind_rows(mp_builder$events, data_tmp)
 
-  return(mp)
+  return(mp_builder)
 }

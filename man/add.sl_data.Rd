@@ -5,8 +5,8 @@
 \title{Add subject-level data to megaplots dataset builder}
 \usage{
 add.sl_data(
-  mp = NULL,
-  path_adsl = NULL,
+  mp_builder = NULL,
+  sl_data = NULL,
   id = "USUBJID",
   data_filter = NULL,
   display_start_date = c("REFSTDT", "RFSTDT", "RFSTDTC", "RFICDT", "RANDDT", "TRTSTDT"),
@@ -17,11 +17,11 @@ add.sl_data(
 )
 }
 \arguments{
-\item{mp}{A builder object from a previous pipeline step, or `NULL` (default) on the first call.}
+\item{mp_builder}{A builder object from a previous pipeline step, or `NULL` (default) on the first call.}
 
-\item{path_adsl}{Path to the adsl-dataset (can be a dataframe or file path).}
+\item{sl_data}{Path to the adsl-dataset (can be a dataframe or file path).}
 
-\item{id}{Column name of the unique subject identifier (default `"USUBJID"`). Must match `path_adsl`
+\item{id}{Column name of the unique subject identifier (default `"USUBJID"`). Must match `sl_data`
 column names exactly.}
 
 \item{data_filter}{Optional; passed to [rlang::parse_exprs()] for [dplyr::filter()]. Example:
@@ -47,7 +47,7 @@ to create a subject-level dataset suitable for generating megaplots. It allows f
 the dataset based on specified conditions and computes relevant date variables.
 }
 \details{
-**Subject identifier (`id`):** Must match a column name in `path_adsl` **exactly** (case-sensitive).
+**Subject identifier (`id`):** Must match a column name in `sl_data` **exactly** (case-sensitive).
 Subject keys are coerced to numeric by keeping only digits and periods (`0123456789.`); distinct labels
 that map to the same numeric id can **collide**. Avoid by using unique digit patterns or pre-mapping keys.
 }
