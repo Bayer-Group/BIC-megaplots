@@ -1,6 +1,6 @@
 #' Finalize Megaplots data for the app
 #'
-#' Completes the build started with [add.events()] (and optionally [add.sl_data()]
+#' Completes the build started with [add_events()] (and optionally [add_sl_data()]
 #' if you attach subject-level data before events).
 #'
 #' @param mp_builder A populated `mp_data_builder`.
@@ -26,7 +26,7 @@ finalize_mp_object <- function(
   }
   if (is.null(mp_builder$sl)) {
     stop(
-      "Subject-level data is missing; call add.events() (and/or add.sl_data()) first.",
+      "Subject-level data is missing; call add_events() (and/or add_sl_data()) first.",
       call. = FALSE
     )
   }

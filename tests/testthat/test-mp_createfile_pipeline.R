@@ -1,6 +1,6 @@
-# Minimal end-to-end checks for add.sl_data / add.events -> finalize_mp_object
+# Minimal end-to-end checks for add_sl_data / add_events -> finalize_mp_object
 
-test_that("builder pipeline with add.sl_data stacks events and finalize returns one row per event", {
+test_that("builder pipeline with add_sl_data stacks events and finalize returns one row per event", {
   adsl <- data.frame(
     USUBJID = c("01-001", "01-002"),
     REFSTDT = as.Date(c("2020-01-01", "2020-01-05")),
@@ -18,8 +18,8 @@ test_that("builder pipeline with add.sl_data stacks events and finalize returns 
     stringsAsFactors = FALSE
   )
 
-  mp <- add.sl_data(adsl) %>%
-    add.events(
+  mp <- add_sl_data(adsl) %>%
+    add_events(
       adae,
       event_group = "AEBODSYS",
       event = "AEDECOD"
@@ -39,7 +39,7 @@ test_that("builder pipeline with add.sl_data stacks events and finalize returns 
   ))
 })
 
-test_that("data_filter on add.events restricts rows", {
+test_that("data_filter on add_events restricts rows", {
   adsl <- data.frame(
     USUBJID = "01-001",
     REFSTDT = as.Date("2020-01-01"),
@@ -57,8 +57,8 @@ test_that("data_filter on add.events restricts rows", {
     stringsAsFactors = FALSE
   )
 
-  mp <- add.sl_data(adsl) %>%
-    add.events(
+  mp <- add_sl_data(adsl) %>%
+    add_events(
       adae,
       event_group = "AEBODSYS",
       event = "AEDECOD",
@@ -68,7 +68,7 @@ test_that("data_filter on add.events restricts rows", {
   expect_equal(nrow(mp$events), 1L)
 })
 
-test_that("builder pipeline without add.sl_data uses sl_ref_date and finalize returns one row per event", {
+test_that("builder pipeline without add_sl_data uses sl_ref_date and finalize returns one row per event", {
   adae <- data.frame(
     USUBJID = c("01-001", "01-001", "01-002"),
     TRTSTDT = as.Date(c("2020-01-01", "2020-01-01", "2020-01-05")),
@@ -79,7 +79,7 @@ test_that("builder pipeline without add.sl_data uses sl_ref_date and finalize re
     stringsAsFactors = FALSE
   )
 
-  mp <- add.events(
+  mp <- add_events(
     adae,
     event_group = "AEBODSYS",
     event = "AEDECOD",

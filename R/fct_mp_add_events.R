@@ -1,7 +1,7 @@
 #' Function to create event level megaplots dataset from ADaM datasets
 #'
-#' Start for the builder when [add.sl_data()] is not used; otherwise call after subject-level
-#' data has been added. See [add.sl_data()] for a full multi-domain pipeline example.
+#' Start for the builder when [add_sl_data()] is not used; otherwise call after subject-level
+#' data has been added. See [add_sl_data()] for a full multi-domain pipeline example.
 #' This function processes ADaM datasets to create a comprehensive dataset for event-level analysis with megaplots,
 #' including the ability to calculate time to first event or days with event, left censor data and manage additional variables.
 #' Processes a single pair of columns (e.g. "AEBODSYS" and "AEDECOD"). New rows are appended to "mp_builder$events".
@@ -13,17 +13,17 @@
 #' Subject keys are coerced to numeric by keeping only digits and periods (`0123456789.`); distinct labels
 #' that map to the same numeric id can collide. Avoid by using unique digit patterns or pre-mapping keys.
 #'
-#' **`calc_time_to_first` / `calc_days_with` across multiple `add.events()` calls:** Each run with these
+#' **`calc_time_to_first` / `calc_days_with` across multiple `add_events()` calls:** Each run with these
 #' flags joins `ttf_*` / `dw_*` columns onto `mp_builder$sl`. Another call can duplicate or rename columns (e.g.
 #' `...x` / `...y`) if derived names overlap. Prefer one pair of calls per analysis, or rely on distinct
 #' event labels from `prefix_group` / `prefix_event` / domain-specific columns so pivot names do not clash.
 #'
-#' **Building `mp_builder$sl` from `events_data`:** When `mp_builder$sl` is NULL (i.e. [add.sl_data()] was not used),
+#' **Building `mp_builder$sl` from `events_data`:** When `mp_builder$sl` is NULL (i.e. [add_sl_data()] was not used),
 #' you must pass `sl_ref_date`: either a column name in `events_data` with the reference date per subject,
 #' or a single numeric value when `event_start` / `event_end` are already on the same relative-day scale
 #' (e.g. `sl_ref_date = 1`). Only `subjectid` and `ref_date` are added to `mp_builder$sl` (no `start_time` / `end_time`).
-#' One row per `subjectid` is kept (first after filtering). Later `add.events()` calls keep only subjects already
-#' in `mp_builder$sl`; use [add.sl_data()] first when you need the full population from ADSL or subject-level timeline
+#' One row per `subjectid` is kept (first after filtering). Later `add_events()` calls keep only subjects already
+#' in `mp_builder$sl`; use [add_sl_data()] first when you need the full population from ADSL or subject-level timeline
 #' columns.
 #'
 #' @param mp_builder A builder object from a previous pipeline step, or `NULL` (default) on the first call.
@@ -47,7 +47,7 @@
 #' @param sl_ref_date Required when `mp_builder$sl` is NULL. Character: column name in `events_data` whose values
 #'   are the reference value (typically `Date`) for converting event dates to study days. Numeric
 #'   length 1: constant reference on the same scale as `event_start` / `event_end` when those columns
-#'   are already relative days (not dates). Ignored when `mp_builder$sl` is already set (e.g. after [add.sl_data()]).
+#'   are already relative days (not dates). Ignored when `mp_builder$sl` is already set (e.g. after [add_sl_data()]).
 #'
 #' @return A modified list containing updated "sl" and "events" entries with the processed event-level data.
 #' @examples
@@ -59,7 +59,7 @@
 #' data(adam_adae, package = "safetyData")
 #'
 #' # Events only: first call builds minimal subject-level data from sl_ref_date
-#' mp_data <- add.events(
+#' mp_data <- add_events(
 #'   adam_adae,
 #'   event_group = "AEBODSYS",
 #'   event = "AEDECOD",
@@ -70,7 +70,7 @@
 #'   finalize_mp_object()
 #' }
 #' @export
-add.events <- function(
+add_events <- function(
   mp_builder = NULL,
   events_data = NULL,
   event_group,
@@ -141,7 +141,7 @@ add.events <- function(
     if (is.null(sl_ref_date)) {
       stop(
         "When subject-level data has not been added (`mp_builder$sl` is NULL), supply `sl_ref_date` ",
-        "(column name or numeric constant); or call add.sl_data() first.",
+        "(column name or numeric constant); or call add_sl_data() first.",
         call. = FALSE
       )
     }

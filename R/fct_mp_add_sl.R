@@ -31,8 +31,8 @@
 #'
 #' data(adam_adsl, adam_adae, adam_adlbc, package = "safetyData")
 #'
-#' mp_data <- add.sl_data(adam_adsl) %>%
-#'   add.events(
+#' mp_data <- add_sl_data(adam_adsl) %>%
+#'   add_events(
 #'     adam_adae,
 #'     event_group = "AEBODSYS",
 #'     event = "AEDECOD",
@@ -41,13 +41,13 @@
 #'     calc_time_to_first = TRUE,
 #'     calc_days_with = TRUE
 #'   ) %>%
-#'   add.events(
+#'   add_events(
 #'     adam_adae,
 #'     event_group = "CQ01NAM",
 #'     event = "AETERM",
 #'     prefix_group = "CQ: "
 #'   ) %>%
-#'   add.events(
+#'   add_events(
 #'     adam_adlbc,
 #'     event_group = "PARAM",
 #'     event = "LBNRIND",
@@ -61,7 +61,7 @@
 #'   )
 #' }
 #' @export
-add.sl_data <- function(
+add_sl_data <- function(
   mp_builder = NULL,
   sl_data = NULL,
   id = "USUBJID",

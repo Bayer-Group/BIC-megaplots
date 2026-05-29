@@ -21,8 +21,8 @@ README
   - [HTML Download](#html-download)
 - [Input Data](#input-data)
 - [Building Upload Data](#building-upload-data)
-  - [add.sl_data()](#addsl_data)
-  - [add.events()](#addevents)
+  - [add_sl_data()](#addsl_data)
+  - [add_events()](#addevents)
   - [finalize_mp_object()](#finalize_mp_object)
 - [Additional information](#additional-information)
 
@@ -401,16 +401,16 @@ Grouping” please refer to chapter “Sidebar options”.
 
 The package provides a small pipe-style data builder that turns one or
 more datasets into a megaplots upload file without any manual reshaping.
-The pipeline starts with add.sl_data() or add.events() and ends with
-finalize_mp_object(), Use add.sl_data() when ADSL subject-level data is
-available; otherwise start with add.events() and supply sl_ref_date on
+The pipeline starts with add_sl_data() or add_events() and ends with
+finalize_mp_object(), Use add_sl_data() when ADSL subject-level data is
+available; otherwise start with add_events() and supply sl_ref_date on
 that first call. Each step returns an
 ‘mp_data_builder’ object that is passed on to the next step. The builder
 is designed to work with CDISC (Clinical Data Interchange Standards
 Consortium) conform ADaM (Analysis Data Model) datasets but can be used
 with any datasets that have the required variables.
 
-### add.sl_data()
+### add_sl_data()
 
 Reads a subject-level (ADaM standard domain: ADSL) dataset (a data frame
 or a path to a SAS, CSV or RData file) and attaches subject-level
@@ -423,13 +423,13 @@ candidate list that is based on ADaM standards(e.g. ‘TRTSTDT’,
 columns add a ‘treatment_duration’ variable, and a ‘data_filter’
 argument allows for ADSL-level filtering (e.g. “SAFFL == ‘Y’”).
 
-If add.sl_data() is skipped, the first add.events() call will build a
+If add_sl_data() is skipped, the first add_events() call will build a
 minimal subject-level table from the events dataset itself; in that case
 the argument ‘sl_ref_date’ (column name or numeric constant) must be
-supplied to the add.events() call to define the relative day 1
+supplied to the add_events() call to define the relative day 1
 reference.
 
-### add.events()
+### add_events()
 
 Stacks event rows onto the builder from any ADaM domain (e.g. ADAE,
 ADLB, ADCM) or non-standardized raw events dataset. Each call processes
@@ -443,7 +443,7 @@ resulting labels concise. The arguments ‘prefix_group’ and
 “PT:”, “Lab:”) to keep events from different domains visually distinct.
 
 The event start and end day are derived in the same way as in
-add.sl_data(): either by selecting columns explicitly via ‘event_start’
+add_sl_data(): either by selecting columns explicitly via ‘event_start’
 and ‘event_end’ or automatically from a default candidate list that is
 again based on ADaM standard (‘ASTDT’, ‘AESTDT’, ‘ADY’ etc.). Optional
 flags ‘calc_time_to_first’ and ‘calc_days_with’ add subject-level

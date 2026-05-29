@@ -15,7 +15,7 @@ adae_min <- data.frame(
   stringsAsFactors = FALSE
 )
 
-# Event data with TRTSTDT only (enough for sl_ref_date when add.sl_data was not called)
+# Event data with TRTSTDT only (enough for sl_ref_date when add_sl_data was not called)
 adae_with_ref_col <- data.frame(
   USUBJID = c("01-001", "01-002"),
   TRTSTDT = as.Date(c("2020-01-01", "2020-01-05")),
@@ -27,11 +27,11 @@ adae_with_ref_col <- data.frame(
 )
 
 mp_with_sl <- function() {
-  add.sl_data(adsl_min)
+  add_sl_data(adsl_min)
 }
 
-test_that("add.events initializes builder when mp is omitted", {
-  mp <- add.events(
+test_that("add_events initializes builder when mp is omitted", {
+  mp <- add_events(
     events_data=adae_with_ref_col,
     event_group = "AEBODSYS",
     event = "AEDECOD",
@@ -41,9 +41,9 @@ test_that("add.events initializes builder when mp is omitted", {
   expect_gt(nrow(mp$events), 0L)
 })
 
-test_that("add.events appends rows and applies prefix_group / prefix_event", {
+test_that("add_events appends rows and applies prefix_group / prefix_event", {
   mp <- mp_with_sl() %>%
-    add.events(
+    add_events(
       events_data=adae_min,
       event_group = "AEBODSYS",
       event = "AEDECOD",
@@ -56,12 +56,12 @@ test_that("add.events appends rows and applies prefix_group / prefix_event", {
   expect_true(all(grepl("^E:", mp$events$event)))
 })
 
-test_that("add.events resolves event column names case-insensitively", {
+test_that("add_events resolves event column names case-insensitively", {
   adae <- adae_min
   names(adae) <- c("USUBJID", "aebodsys", "aedecod", "ASTDT", "AENDT")
 
   mp <- mp_with_sl() %>%
-    add.events(
+    add_events(
       adae,
       event_group = "AEBODSYS",
       event = "AEDECOD"
@@ -70,13 +70,13 @@ test_that("add.events resolves event column names case-insensitively", {
   expect_equal(nrow(mp$events), 2L)
 })
 
-test_that("add.events pastes multiple columns for event_group and event", {
+test_that("add_events pastes multiple columns for event_group and event", {
   adae <- adae_min
   adae$GRP2 <- c("X", "Y")
   adae$EV2 <- c("aa", "bb")
 
   mp <- mp_with_sl() %>%
-    add.events(
+    add_events(
       adae,
       event_group = c("AEBODSYS", "GRP2"),
       event = c("AEDECOD", "EV2")
@@ -86,7 +86,7 @@ test_that("add.events pastes multiple columns for event_group and event", {
   expect_equal(mp$events$event, c("PTa; aa", "PTb; bb"))
 })
 
-test_that("add.events messages and warns for multiple event_group/event columns", {
+test_that("add_events messages and warns for multiple event_group/event columns", {
   adae <- adae_min
   adae$GRP2 <- c("X", "Y")
   adae$GRP3 <- c("U", "V")
@@ -98,7 +98,7 @@ test_that("add.events messages and warns for multiple event_group/event columns"
       expect_warning(
         expect_warning(
           mp_with_sl() %>%
-            add.events(
+            add_events(
               adae,
               event_group = c("AEBODSYS", "GRP2", "GRP3"),
               event = c("AEDECOD", "EV2", "EV3")
@@ -113,23 +113,23 @@ test_that("add.events messages and warns for multiple event_group/event columns"
   )
 })
 
-test_that("add.events stacks multiple calls on mp$events", {
+test_that("add_events stacks multiple calls on mp$events", {
   mp <- mp_with_sl() %>%
-    add.events(adae_min, event_group = "AEBODSYS", event = "AEDECOD") %>%
-    add.events(adae_min, event_group = "AEBODSYS", event = "AEDECOD")
+    add_events(adae_min, event_group = "AEBODSYS", event = "AEDECOD") %>%
+    add_events(adae_min, event_group = "AEBODSYS", event = "AEDECOD")
 
   expect_equal(nrow(mp$events), 4L)
 })
 
-test_that("add.events errors when mp is not mp_data_builder", {
+test_that("add_events errors when mp is not mp_data_builder", {
   expect_error(
-    add.events(list(), adae_min, event_group = "AEBODSYS", event = "AEDECOD"),
+    add_events(list(), adae_min, event_group = "AEBODSYS", event = "AEDECOD"),
     "`mp_builder` must be a megaplots data builder"
   )
 })
 
-test_that("add.events builds minimal mp$sl from sl_ref_date column when add.sl_data was not used", {
-  mp <- add.events(
+test_that("add_events builds minimal mp$sl from sl_ref_date column when add_sl_data was not used", {
+  mp <- add_events(
     adae_with_ref_col,
     event_group = "AEBODSYS",
     event = "AEDECOD",
@@ -141,7 +141,7 @@ test_that("add.events builds minimal mp$sl from sl_ref_date column when add.sl_d
   expect_equal(nrow(mp$events), 2L)
 })
 
-test_that("add.events uses numeric sl_ref_date with relative-day event columns", {
+test_that("add_events uses numeric sl_ref_date with relative-day event columns", {
   adae_rel <- data.frame(
     USUBJID = c("01-001", "01-002"),
     AEBODSYS = c("SOC", "SOC"),
@@ -151,7 +151,7 @@ test_that("add.events uses numeric sl_ref_date with relative-day event columns",
     stringsAsFactors = FALSE
   )
 
-  mp <- add.events(
+  mp <- add_events(
     adae_rel,
     event_group = "AEBODSYS",
     event = "AEDECOD",
@@ -164,16 +164,16 @@ test_that("add.events uses numeric sl_ref_date with relative-day event columns",
   expect_equal(mp$events$event_end_time, c(3L, 7L))
 })
 
-test_that("add.events errors when mp$sl is NULL and sl_ref_date is missing", {
+test_that("add_events errors when mp$sl is NULL and sl_ref_date is missing", {
   expect_error(
-    add.events(adae_min, event_group = "AEBODSYS", event = "AEDECOD"),
+    add_events(adae_min, event_group = "AEBODSYS", event = "AEDECOD"),
     regexp = "sl_ref_date"
   )
 })
 
-test_that("add.events errors when sl_ref_date names a missing column", {
+test_that("add_events errors when sl_ref_date names a missing column", {
   expect_error(
-    add.events(
+    add_events(
       adae_min,
       event_group = "AEBODSYS",
       event = "AEDECOD",
@@ -183,47 +183,47 @@ test_that("add.events errors when sl_ref_date names a missing column", {
   )
 })
 
-test_that("add.events does not require sl_ref_date once mp$sl exists", {
-  mp <- add.events(
+test_that("add_events does not require sl_ref_date once mp$sl exists", {
+  mp <- add_events(
     adae_with_ref_col,
     event_group = "AEBODSYS",
     event = "AEDECOD",
     sl_ref_date = "TRTSTDT"
   ) %>%
-    add.events(adae_min, event_group = "AEBODSYS", event = "AEDECOD")
+    add_events(adae_min, event_group = "AEBODSYS", event = "AEDECOD")
 
   expect_equal(nrow(mp$events), 4L)
 })
 
 
-test_that("add.events errors when id column is absent", {
+test_that("add_events errors when id column is absent", {
   bad <- adae_min
   names(bad)[1] <- "SUBJ"
 
   expect_error(
     mp_with_sl() %>%
-      add.events(bad, event_group = "AEBODSYS", event = "AEDECOD"),
+      add_events(bad, event_group = "AEBODSYS", event = "AEDECOD"),
     "The specified id 'USUBJID' is not a column in the dataset."
   )
 })
 
-test_that("add.events errors when event_group column is absent", {
+test_that("add_events errors when event_group column is absent", {
   bad <- adae_min
   names(bad)[2] <- "WRONG"
 
   expect_error(
     mp_with_sl() %>%
-      add.events(bad, event_group = "AEBODSYS", event = "AEDECOD"),
+      add_events(bad, event_group = "AEBODSYS", event = "AEDECOD"),
     "Column 'AEBODSYS' not found in dataset."
   )
 })
 
-test_that("add.events keeps keep_vars when present", {
+test_that("add_events keeps keep_vars when present", {
   adae <- adae_min
   adae$EXTRA <- c("x", "y")
 
   mp <- mp_with_sl() %>%
-    add.events(
+    add_events(
       adae,
       event_group = "AEBODSYS",
       event = "AEDECOD",
@@ -233,7 +233,7 @@ test_that("add.events keeps keep_vars when present", {
   expect_true("EXTRA" %in% names(mp$events))
 })
 
-test_that("add.events retains keep_vars across multiple calls and datasets", {
+test_that("add_events retains keep_vars across multiple calls and datasets", {
   adae_same <- adae_min
   adae_same$EXTRA_A <- c("a1", "a2")
   adae_same$EXTRA_B <- c("b1", "b2")
@@ -244,19 +244,19 @@ test_that("add.events retains keep_vars across multiple calls and datasets", {
   adae_other$EXTRA_C <- c("c1", "c2")
 
   mp <- mp_with_sl() %>%
-    add.events(
+    add_events(
       adae_same,
       event_group = "AEBODSYS",
       event = "AEDECOD",
       keep_vars = "EXTRA_A"
     ) %>%
-    add.events(
+    add_events(
       adae_same,
       event_group = "AEBODSYS",
       event = "AEDECOD",
       keep_vars = "EXTRA_B"
     ) %>%
-    add.events(
+    add_events(
       adae_other,
       event_group = "AEBODSYS",
       event = "AEDECOD",
@@ -269,9 +269,9 @@ test_that("add.events retains keep_vars across multiple calls and datasets", {
   expect_true(!all(is.na(mp$events$EXTRA_C)))
 })
 
-test_that("add.events joins time-to-first columns when calc_time_to_first is TRUE", {
+test_that("add_events joins time-to-first columns when calc_time_to_first is TRUE", {
   mp <- mp_with_sl() %>%
-    add.events(
+    add_events(
       adae_min,
       event_group = "AEBODSYS",
       event = "AEDECOD",
@@ -282,7 +282,7 @@ test_that("add.events joins time-to-first columns when calc_time_to_first is TRU
   expect_true(length(ttf_cols) > 0L)
 })
 
-test_that("add.events errors when event dates and ref_date scale are mixed", {
+test_that("add_events errors when event dates and ref_date scale are mixed", {
   adae_bad <- data.frame(
     USUBJID = "01-001",
     TRTSTDT = as.Date("2020-01-01"),
@@ -294,7 +294,7 @@ test_that("add.events errors when event dates and ref_date scale are mixed", {
   )
 
   expect_error(
-    add.events(
+    add_events(
       adae_bad,
       event_group = "AEBODSYS",
       event = "AEDECOD",
