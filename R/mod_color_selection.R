@@ -501,7 +501,7 @@ mod_color_selection_server <- function(
 
       shinyjqui::updateOrderInput(
         parent_session,
-        inputId = "sort_event_groups",
+        inputId = "plot_appearance-sort_event_groups",
         label = "Sort event groups",
         items = unique(selected_data$megaplots_selected_event_group)
       )

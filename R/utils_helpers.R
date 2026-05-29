@@ -15,6 +15,7 @@ font_color <- function (hex_code) {
   )
 }
 
+`%||%` <- rlang::`%||%`
 
 color_func <- function(x, y, z, number_event_groups) {
   megaplot_color <- grDevices::rainbow(number_event_groups)

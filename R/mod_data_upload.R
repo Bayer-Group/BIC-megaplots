@@ -60,13 +60,13 @@ mod_data_upload_server <- function(id, parent_session, theme) {
 
       # update choices of grouping variable based on uploaded data
       # includes all factor and character variables
-      shiny::updateSelectizeInput(
-        parent_session,
-        inputId = "select_grouping",
-        choices = colnames(megaplot_data)[
-          sapply(megaplot_data, class) %in% c("factor", "character")],
-        selected = NULL
-      )
+      # shiny::updateSelectizeInput(
+      #   parent_session,
+      #   inputId = "select_grouping",
+      #   choices = colnames(megaplot_data)[
+      #     sapply(megaplot_data, class) %in% c("factor", "character")],
+      #   selected = NULL
+      # )
       # Update grouping pickerInput in sidebar (since outside this module,
       # parent_session is required)
       shinyWidgets::updatePickerInput(

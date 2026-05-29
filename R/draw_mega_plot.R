@@ -233,7 +233,6 @@ draw_mega_plot <- function(
     if (event_tooltips) {
       # if (switch_legend_grouping) {
 
-
         p_2 <- p_1 %>%
           plotly::add_segments(
             data = plotly::highlight_key(megaplot_filtered_data %>% dplyr::filter(is.na(.data$n_flag)), ~ megaplots_selected_event),
