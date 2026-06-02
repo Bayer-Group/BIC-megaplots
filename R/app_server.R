@@ -7,11 +7,6 @@
 
 app_server <- function(input, output, session) {
 
-  #set global variable . to NULL to
-  #avoid note: no visible binding for global variable '.' when
-  # performing package check (via devtools)
-  . <- NULL
-
   waiter::waiter_hide()
 
   #### 1. Data Upload Module ####
@@ -53,18 +48,13 @@ app_server <- function(input, output, session) {
   #### 5. Plot Appearance Module ####
   plot_appearance <- mod_plot_appearance_server("plot_appearance")
 
-  observe({print(plot_appearance$line_width())})
-  #### 5. Sequencing Module####
-  sequencing_object <- callModule(
-    sequencing_server,
-    "sequencing_module",
-    megaplot_filtered_data = shiny::reactive({megaplot_filtered_data()})
+  #### 6. Sorting & Grouping Module ####
+  sorting_grouping <- mod_sorting_grouping_server(
+    id = "sorting_grouping",
+    uploaded_data_renamed = uploaded_data_renamed
   )
 
-  shiny::observe({sequencing_object$sequencing_object()})
-
-
-  #### reactive object megaplot_prepared_data ####
+  #### 7. reactive object megaplot_prepared_data ####
   megaplot_prepared_data <- shiny::eventReactive(
     c(uploaded_data_w_ids(),
       filter_result$filtered_data(),
@@ -72,17 +62,18 @@ app_server <- function(input, output, session) {
       sorting_grouping$arrange_groups(),
       sorting_grouping$select_sorting()), {
 
-    prepare_megaplot_data(
-      #megaplot_data_raw = uploaded_data$val,
-      megaplot_data_raw = shiny::req(filter_result$filtered_data()),
-      uploaded_data_w_ids = uploaded_data_w_ids(),
-      select_sorting = sorting_grouping$select_sorting(),
-      select_grouping = sorting_grouping$select_grouping(),
-      arrange_groups = sorting_grouping$arrange_groups()
-    )
-  })
+        prepare_megaplot_data(
+          #megaplot_data_raw = uploaded_data$val,
+          megaplot_data_raw = shiny::req(filter_result$filtered_data()),
+          uploaded_data_w_ids = uploaded_data_w_ids(),
+          select_sorting = sorting_grouping$select_sorting(),
+          select_grouping = sorting_grouping$select_grouping(),
+          arrange_groups = sorting_grouping$arrange_groups()
+        )
+      })
 
-  #### reactive object megaplot_filtered_data ####
+
+  #### 8. reactive object megaplot_filtered_data ####
   megaplot_filtered_data <- shiny::reactive({
     filtered_data <- filter_megaplot_data(
       tree = shiny::req(checked_data$val),
@@ -91,21 +82,25 @@ app_server <- function(input, output, session) {
     )
     if (!is.null(filtered_data)) {
       #remove nas from required variables
-      filtered_data <- filtered_data %>%
-        dplyr::filter(!is.na(.data$megaplots_selected_subjectid)) %>%
+      filtered_data <- filtered_data |>
+        dplyr::filter(!is.na(.data$megaplots_selected_subjectid)) |>
         dplyr::filter(!is.na(.data$megaplots_selected_event))
     }
     #return
     filtered_data
   })
 
-  #### 6. Sorting & Grouping Module ####
-  sorting_grouping <- mod_sorting_grouping_server(
-    id = "sorting_grouping",
-    uploaded_data_renamed = uploaded_data_renamed
+
+  #### 9. Sequencing Module####
+  sequencing_object <- callModule(
+    sequencing_server,
+    "sequencing_module",
+    megaplot_filtered_data = shiny::reactive({megaplot_filtered_data()})
   )
 
-  #### 7. Megaplot Module ####
+  shiny::observe({sequencing_object$sequencing_object()})
+
+  #### 10. Megaplot Module ####
   megaplot_result <- mod_megaplot_server(
     id = "megaplot",
     megaplot_prepared_data = megaplot_prepared_data,
@@ -122,11 +117,15 @@ app_server <- function(input, output, session) {
         event_summary_cutoff = plot_appearance$event_summary_cutoff(),
         event_summary_hovermode = plot_appearance$event_summary_hovermode(),
         sequencing_object = sequencing_object$sequencing_object(),
-        sequencing_switch = sequencing_object$sequencing_switch()
+        sequencing_switch = sequencing_object$sequencing_switch(),
+        line_color_subjects_dark = plot_appearance$line_color_subjects_dark(),
+        line_color_subjects_light = plot_appearance$line_color_subjects_light(),
+        circular_vision = sequencing_object$circular_vision()
       )
     )
   )
 
+  ####11. download handler ####
   output$download_plotly_widget <- downloadHandler(
     filename = function() {
       paste("data-", Sys.Date(), ".html", sep = "")

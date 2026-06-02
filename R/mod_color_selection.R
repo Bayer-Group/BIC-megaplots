@@ -384,10 +384,10 @@ mod_color_selection_server <- function(
     unique_event_group_data <- shiny::eventReactive(uploaded_data_renamed(), {
       #megaplot_data_raw <- shiny::req(uploaded_data$val)
       megaplot_data_raw <- shiny::req(uploaded_data_renamed())
-      reduced_event_data <- megaplot_data_raw %>%
-        dplyr::filter(!is.na(.data$megaplots_selected_event)) %>%
-        dplyr::select(tidyselect::all_of(c("megaplots_selected_event_group", "megaplots_selected_event"))) %>%
-        dplyr::distinct() %>%
+      reduced_event_data <- megaplot_data_raw |>
+        dplyr::filter(!is.na(.data$megaplots_selected_event)) |>
+        dplyr::select(tidyselect::all_of(c("megaplots_selected_event_group", "megaplots_selected_event"))) |>
+        dplyr::distinct() |>
         dplyr::arrange(.data$megaplots_selected_event_group, .data$megaplots_selected_event)
 
       reduced_event_data
@@ -531,7 +531,7 @@ mod_color_selection_server <- function(
       if (!is.null(color_data$all)) {
         if (nrow(color_data$all)>0) {
           header_color <- ifelse(theme() =="dark", "#1D1F21", "#fff")
-          color_data$all <- color_data$all %>%
+          color_data$all <- color_data$all |>
             dplyr::mutate(
               event_color = dplyr::case_when(
                 is.na(megaplots_selected_event) ~ header_color,
@@ -681,26 +681,26 @@ mod_color_selection_server <- function(
               cds_tmp <- color_data$selected[color_data$selected$megaplots_selected_event_group ==
                                                color_data$selected[js_column$number,
                                                                    c("megaplots_selected_event_group")],
-                                             c("megaplots_selected_event_group", "megaplots_selected_event")] %>%
-                dplyr::filter(!is.na(.data$megaplots_selected_event)) %>%
+                                             c("megaplots_selected_event_group", "megaplots_selected_event")] |>
+                dplyr::filter(!is.na(.data$megaplots_selected_event)) |>
                 dplyr::mutate(new_event_id = dplyr::row_number(.data$megaplots_selected_event_group))
 
               new_event_group_color <- color_data$all[
                 color_data$all$megaplots_selected_event_group ==
                   color_data$selected[
-                    js_column$number, c("megaplots_selected_event_group")], ] %>%
-                dplyr::left_join(cds_tmp, by = c("megaplots_selected_event", "megaplots_selected_event_group")) %>%
+                    js_column$number, c("megaplots_selected_event_group")], ] |>
+                dplyr::left_join(cds_tmp, by = c("megaplots_selected_event", "megaplots_selected_event_group")) |>
                 dplyr::mutate(event_id = .data$new_event_id)
 
               new_group_id2 <- c(new_event_group_color$new_event_id)
 
-              new_event_group_color2 <- new_event_group_color %>%
-                dplyr::select(-tidyselect::all_of(c("new_event_id"))) %>%
+              new_event_group_color2 <- new_event_group_color |>
+                dplyr::select(-tidyselect::all_of(c("new_event_id"))) |>
                 dplyr::mutate(
                   event_color =
                     f_col_z(seq(0, 1, length = sum(!is.na(new_event_group_color$event_id)))
                     )[.data$event_id]
-                ) %>%
+                ) |>
                 dplyr::pull(.data$event_color)
 
               new_event_group_color3 <- c(new_event_group_color2)
@@ -763,26 +763,26 @@ mod_color_selection_server <- function(
               cds_tmp <- color_data$selected[color_data$selected$megaplots_selected_event_group ==
                                                color_data$selected[js_column$number,
                                                                    c("megaplots_selected_event_group")],
-                                             c("megaplots_selected_event_group", "megaplots_selected_event")] %>%
-                dplyr::filter(!is.na(.data$megaplots_selected_event)) %>%
+                                             c("megaplots_selected_event_group", "megaplots_selected_event")] |>
+                dplyr::filter(!is.na(.data$megaplots_selected_event)) |>
                 dplyr::mutate(new_event_id = dplyr::row_number(.data$megaplots_selected_event_group))
 
               new_event_group_color <- color_data$all[
                 color_data$all$megaplots_selected_event_group ==
                   color_data$selected[
-                    js_column$number, c("megaplots_selected_event_group")], ] %>%
-                # dplyr::filter(.data$event_id >= 1)  %>%
-                dplyr::left_join(cds_tmp, by = c("megaplots_selected_event", "megaplots_selected_event_group")) %>%
+                    js_column$number, c("megaplots_selected_event_group")], ] |>
+                # dplyr::filter(.data$event_id >= 1)  |>
+                dplyr::left_join(cds_tmp, by = c("megaplots_selected_event", "megaplots_selected_event_group")) |>
                 dplyr::mutate(event_id = .data$new_event_id)
 
               new_group_id <- c(new_event_group_color$new_event_id)#, 0)
 
 
-              new_event_group_color2 <- new_event_group_color %>%
-                dplyr::select(-tidyselect::all_of(c("new_event_id"))) %>%
+              new_event_group_color2 <- new_event_group_color |>
+                dplyr::select(-tidyselect::all_of(c("new_event_id"))) |>
                 dplyr::mutate(
                   event_color =  selected_color_palette[.data$event_id]
-                ) %>%
+                ) |>
                 dplyr::pull(.data$event_color)
 
               new_event_group_color3 <- c(new_event_group_color2)#, "#404A4E")
@@ -959,7 +959,7 @@ mod_color_selection_server <- function(
       },
       content = function(file) {
         saveRDS(
-          color_data$all %>%
+          color_data$all |>
             dplyr::select(
               .data$megaplots_selected_event,
               .data$megaplots_selected_event_group,
@@ -984,16 +984,16 @@ mod_color_selection_server <- function(
       #add checks if uploaded data matches the existing color_data
       if (dim(uploaded_colors)[1] == dim(color_data$all)[1]) {
         if (all(sort(unique(uploaded_colors$megaplots_selected_event)) == sort(unique(color_data$all$megaplots_selected_event)))) {
-          uploaded_colors <- uploaded_colors  %>%
+          uploaded_colors <- uploaded_colors  |>
             dplyr::mutate(
               gradient_event_color_1 = dplyr::case_when(is.na(.data$megaplots_selected_event) ~ gradient_event_color_1, !is.na(.data$megaplots_selected_event) ~ NA),
               gradient_event_color_2 = dplyr::case_when(is.na(.data$megaplots_selected_event) ~ gradient_event_color_2, !is.na(.data$megaplots_selected_event) ~ NA),
               gradient_event_color_3 = dplyr::case_when(is.na(.data$megaplots_selected_event) ~ gradient_event_color_3, !is.na(.data$megaplots_selected_event) ~ NA)
             )
-          color_data_new <- color_data$all %>%
-            dplyr::select(.data$megaplots_selected_event, .data$megaplots_selected_event_group, .data$event_id, .data$event_group_id, .data$max_event_id, .data$event_n, .data$n_flag) %>%
+          color_data_new <- color_data$all |>
+            dplyr::select(.data$megaplots_selected_event, .data$megaplots_selected_event_group, .data$event_id, .data$event_group_id, .data$max_event_id, .data$event_n, .data$n_flag) |>
             dplyr::left_join(
-              uploaded_colors %>%
+              uploaded_colors |>
                 dplyr::select(.data$megaplots_selected_event, .data$megaplots_selected_event_group, .data$event_color, .data$gradient_event_color_1, .data$gradient_event_color_2, .data$gradient_event_color_3, .data$jittered),
               by = c("megaplots_selected_event", "megaplots_selected_event_group")
             )

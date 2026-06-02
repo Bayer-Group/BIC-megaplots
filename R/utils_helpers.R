@@ -53,8 +53,8 @@ get_trace_info <- function(plotly_object) {
   plotly_build_data <- plotly_build_p$x$data
   trace_number <- length(plotly_build_data)
   trace_info <- data.frame(name = character(trace_number))
-  trace_info <- plotly_build_data %>%
-    seq_along() %>%
+  trace_info <- plotly_build_data |>
+    seq_along() |>
     purrr::map_dfr(
       ~{
         if(is.null(plotly_build_data[[.x]]$name)){
@@ -75,10 +75,10 @@ get_trace_info <- function(plotly_object) {
 }
 
 apply_trace_info <- function(trace_info, plotly_object) {
-  split_trace_info <- trace_info %>%
+  split_trace_info <- trace_info |>
     split(trace_info$legendgroup)
 
-  c(list(plotly_object), split_trace_info) %>%
+  c(list(plotly_object), split_trace_info) |>
     purrr::reduce(
       ~{
         plotly::style(
@@ -111,7 +111,7 @@ create_palette <- function(n, name) {
     if (name == "Rainbow") {
       selected_color_palette <- grDevices::rainbow(n)
     } else {
-    selected_color_palette <- NA
+      selected_color_palette <- NA
     }
   }
   return(selected_color_palette)
@@ -131,3 +131,11 @@ vrect <- function(x = 0, x2, color = "#fe333f20") {
   )
 }
 
+hexsticker_logo <- function(src){
+  div(
+    img(
+      src = src, height = "175px",
+      style = "display: block; margin-left: auto; margin-right: auto;"
+    )
+  )
+}

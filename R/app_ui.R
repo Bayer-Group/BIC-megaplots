@@ -30,8 +30,8 @@ app_ui <- function(request) {
 
     # Add CSS styles (overwrite shinyTree hover/highlight appearance and search highlight color)
     ## shinyTree appearances
-    tags$style(type = 'text/css', ".jstree-default .jstree-hovered {background-color: #1d2224}"),
-    tags$style(type = 'text/css', ".jstree-default .jstree-search { color: yellow;}"),
+    # tags$style(type = 'text/css', ".jstree-default .jstree-hovered {background-color: #1d2224}"),
+    # tags$style(type = 'text/css', ".jstree-default .jstree-search { color: yellow;}"),
 
     # creates an reactive variable "input$dimension" with screen height as value
     # (used for maximum wellPanel height to maximize size depending on screen size)
@@ -64,26 +64,24 @@ app_ui <- function(request) {
       #### Sidebar ####
       # Use accordion_panels from bslib
       sidebar = bslib::sidebar(
-        width = 250,
+        width = 350,
         title = tagList(
           #depending on theme display hexsticker in theme colors
           shiny::conditionalPanel(condition = "input.theme_toggle == 'dark'",
-            div(
-              img(
-                src = "www/megaplot_hexsticker_n.png", height = "175px",
-                style = "display: block; margin-left: auto; margin-right: auto;"
-              )
-            )
+                                  hexsticker_logo(src = "www/megaplot_hexsticker_n.png")
           ),
           shiny::conditionalPanel(condition = "input.theme_toggle != 'dark'",
-            div(
-              img(
-                src = "www/megaplot_hexsticker_n2.png", height = "175px",
-                style = "display: block; margin-left: auto; margin-right: auto;"
-              )
-            )
-          )
-        ),
+                                  hexsticker_logo(src = "www/megaplot_hexsticker_n2.png")
+          ),
+        HTML("
+          <div style='display: flex; text-align: center;'>
+              <span style='display: flex; flex-direction: column; font-size: 1.2rem; line-height: 1.5; text-align: center; '>
+                <span style = 'text-decoration: underline;'> The Complete Picture </span>
+                <span style = 'font-size: 0.9rem;'> Connect events. Reveal patterns. Generate insight. </span>
+              </span>
+
+            </div>
+         ")),
         bslib::accordion(open = FALSE,
           # Sorting/Grouping (Sidebar)
           mod_sorting_grouping_ui("sorting_grouping"),
@@ -97,8 +95,7 @@ app_ui <- function(request) {
           ),
           # module call for sequencing
           sequencing_ui("sequencing_module")
-        )
-        ,
+        ),
         HTML(paste0("<p style = 'color: #dedede;'> Version: ", utils::packageVersion("Megaplots")))
       ),
       #### Main area ####
@@ -153,6 +150,11 @@ golem_add_external_resources <- function() {
     bundle_resources(
       path = app_sys("app/www"),
       app_title = "Megaplots"
+    ),
+    tags$link(
+      rel  = "stylesheet",
+      type = "text/css",
+      href = "www/megaplots.css"
     )
     # Add here other external resources
     # for example, you can add shinyalert::useShinyalert()

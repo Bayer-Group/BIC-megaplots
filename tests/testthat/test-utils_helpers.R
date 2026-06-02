@@ -96,13 +96,13 @@ test_that("Check if utils_helpers functions work", {
   line_width_subjects <- 3
   line_width <- 3
 
-  test_plotly_object <- test_megaplot_data_raw  %>%
+  test_plotly_object <- test_megaplot_data_raw  |>
     plotly::plot_ly(                            #create empty plot_ly object
       source = "plotSource",
       #color = ~I(event_color),
       type ="scatter",
       mode = "lines+markers"
-    ) %>%
+    ) |>
     plotly::add_segments(                       # create subject lines via add_segments
       y = ~subjectid_n,
       yend ~ subjectid_n_end,
@@ -112,7 +112,7 @@ test_that("Check if utils_helpers functions work", {
       xend = ~ megaplots_selected_end_time,
       line = list(color = ifelse(theme =="dark", "#2c3336","#dedede"), width = line_width_subjects),
       showlegend = FALSE
-    )%>%
+    ) |>
     plotly::add_segments(
       legendgroup = ~ megaplots_selected_event_group,
       name = ~ unique_event,
@@ -136,10 +136,10 @@ test_that("Check if utils_helpers functions work", {
   testthat::expect_equal(colnames(result), c("name","legendgroup","trace"))
   testthat::expect_equal(result$trace, 1:12)
   testthat::expect_equal(sort(result$name), sort(unique(test_megaplot_data_raw$unique_event)))
-  testthat::expect_equal(sort(result$legendgroup), test_megaplot_data_raw %>%
-    dplyr::select(unique_event, megaplots_selected_event_group) %>%
-    dplyr::distinct() %>%
-    dplyr::pull(megaplots_selected_event_group) %>%
+  testthat::expect_equal(sort(result$legendgroup), test_megaplot_data_raw |>
+    dplyr::select(unique_event, megaplots_selected_event_group) |>
+    dplyr::distinct() |>
+    dplyr::pull(megaplots_selected_event_group) |>
     sort()
   )
 

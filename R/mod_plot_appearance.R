@@ -22,10 +22,23 @@ mod_plot_appearance_ui <- function(id) {
       items = NULL,
       width = 300
     ),
+    # colourInput for subject line
+    colourpicker::colourInput(
+      inputId = ns("line_color_subjects_dark"),
+      label = HTML(paste0("Time line color  ",icon = bsicons::bs_icon("moon"))),
+      value = "#454545",
+      allowTransparent = TRUE
+    ),
+    colourpicker::colourInput(
+      inputId = ns("line_color_subjects_light"),
+      label = HTML(paste0("Time line color  ",icon = bsicons::bs_icon("sun"))),
+      value = "#bababa",
+      allowTransparent = TRUE
+    ),
     # sliderInput to adjust subject line width
     shiny::sliderInput(
       inputId = ns("line_width_subjects"),
-      label = "Subject line width",
+      label = "Time line width",
       min = 1,
       max = 10,
       value = 1,
@@ -115,6 +128,12 @@ mod_plot_appearance_server <- function(id) {
       }),
       event_summary_cutoff = shiny::reactive({
         input$event_summary_cutoff %||% 1L
+      }),
+      line_color_subjects_dark = shiny::reactive({
+        input$line_color_subjects_dark %||% "#454545"
+      }),
+      line_color_subjects_light = shiny::reactive({
+        input$line_color_subjects_light %||% "#bababa"
       })
     )
   })

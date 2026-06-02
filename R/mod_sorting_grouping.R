@@ -98,7 +98,7 @@ mod_sorting_grouping_server <- function(id, uploaded_data_renamed) {
 
     #### Sorting ####
     shiny::observeEvent(uploaded_data_renamed(), {
-      numeric_choices <- names(which(unlist(lapply(uploaded_data_renamed() %>%
+      numeric_choices <- names(which(unlist(lapply(uploaded_data_renamed() |>
                                              dplyr::relocate(tidyr::starts_with("megaplots_")), is.numeric))))
       shinyWidgets::updatePickerInput(
         session,

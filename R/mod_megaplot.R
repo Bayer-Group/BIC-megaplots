@@ -148,8 +148,10 @@ mod_megaplot_server <- function(id,
         reference_line_1_color = reference_lines$reference_line_1_color,
         reference_line_2_color = reference_lines$reference_line_2_color,
         reference_line_3_color = reference_lines$reference_line_3_color,
-        theme = theme()
-        # circular_vision = input$circular_vision
+        theme = theme(),
+        line_color_dark = app$line_color_subjects_dark,
+        line_color_light = app$line_color_subjects_light,
+        circular_vision = app$circular_vision
       )
       session_store$val <- tmp
       tmp

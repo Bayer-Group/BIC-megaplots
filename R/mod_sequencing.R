@@ -264,6 +264,13 @@ sequencing_ui <- function(id) {
       label = "On/Off Sequencing Sorting",
       value = FALSE,
       status = "primary"
+    ),
+    # Circular_vision Switch
+    shinyWidgets::prettySwitch(
+      inputId = ns("circular_vision"),
+      label = "On/Off Circular Vision",
+      value = FALSE,
+      status = "primary"
     )
   )
 }
@@ -275,8 +282,8 @@ sequencing_server <- function(input, output, session, megaplot_filtered_data) {
   shiny::observeEvent(megaplot_filtered_data(), {
     shiny::req(megaplot_filtered_data())
 
-    choices_data <- megaplot_filtered_data() %>%
-      dplyr::select(.data$megaplots_selected_event, .data$megaplots_selected_event_group) %>%
+    choices_data <- megaplot_filtered_data() |>
+      dplyr::select(.data$megaplots_selected_event, .data$megaplots_selected_event_group) |>
       dplyr::distinct()
 
     shiny::updateSelectInput(
@@ -342,15 +349,15 @@ sequencing_server <- function(input, output, session, megaplot_filtered_data) {
     selected_event_for_sequencing <- input$sequencing_events
 
     # Filter megaplot data for selected events
-    megaplot_data <- megaplot_filtered_data() %>%
+    megaplot_data <- megaplot_filtered_data() |>
       dplyr::filter(.data$event %in% selected_event_for_sequencing)
 
     n_matrix <- length(unique(megaplot_data$megaplots_selected_subjectid))
     m_matrix <- length(min(megaplot_data$megaplots_selected_event_time, na.rm = TRUE):max(megaplot_data$megaplots_selected_event_time_end, na.rm = TRUE))
     dist_list <- list()
 
-    index_n <- megaplot_data %>%
-      dplyr::filter(.data$event %in% selected_event_for_sequencing) %>%
+    index_n <- megaplot_data |>
+      dplyr::filter(.data$event %in% selected_event_for_sequencing) |>
       nrow()
 
     index <- 1 / index_n
@@ -362,7 +369,7 @@ sequencing_server <- function(input, output, session, megaplot_filtered_data) {
         rownames(dist_init) <- unique(megaplot_data$megaplots_selected_subjectid)
         colnames(dist_init) <- paste0(min(megaplot_data$megaplots_selected_event_time):max(megaplot_data$megaplots_selected_event_time_end))
 
-        megaplot_data_tmp <- megaplot_data %>%
+        megaplot_data_tmp <- megaplot_data |>
           dplyr::filter(.data$megaplots_selected_event %in% selected_event_for_sequencing[i])
 
         for (j in seq_len(nrow(megaplot_data_tmp))) {
@@ -425,7 +432,8 @@ sequencing_server <- function(input, output, session, megaplot_filtered_data) {
 
   return(list(
     sequencing_object = shiny::reactive({sequencing_object$val}),
-    sequencing_switch = shiny::reactive({input$sequencing_switch})
+    sequencing_switch = shiny::reactive({input$sequencing_switch}),
+    circular_vision = shiny::reactive({input$circular_vision})
   ))
 }
 
