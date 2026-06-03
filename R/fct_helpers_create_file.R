@@ -243,7 +243,7 @@ read_dataset <- function(path) {
     env <- new.env(parent = emptyenv())
     objs <- load(path, envir = env)
     if (length(objs) > 1L) {
-      warning(
+      message(
         "RData file contains multiple objects; returning the first: ",
         objs[[1]]
       )

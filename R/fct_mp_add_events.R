@@ -238,13 +238,13 @@ add_events <- function(
     )
   }
   if (length(eg_cols) > 2L) {
-    warning(
+    message(
       "More than 2 `event_group` columns were provided. It is recommended to restrict to a maximum of 2.",
       call. = FALSE
     )
   }
   if (length(ev_cols) > 2L) {
-    warning(
+    message(
       "More than 2 `event` columns were provided. It is recommended to restrict to a maximum of 2.",
       call. = FALSE
     )
