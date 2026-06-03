@@ -336,11 +336,8 @@ add_events <- function(
     )
 
   # Validate that event_start/event_end and ref_date are on the same scale (dates or numeric); mixed types are not supported.
-  is_cal <- function(x) {
-    inherits(x, "Date") || inherits(x, "POSIXct")
-  }
-  ev_is_date <- is_cal(data_tmp[[event_start]])
-  ref_is_date <- is_cal(data_tmp$ref_date)
+  ev_is_date <- is_calendar_date(data_tmp[[event_start]])
+  ref_is_date <- is_calendar_date(data_tmp$ref_date)
   if (ev_is_date != ref_is_date) {
     stop(
       "`event_start` / `event_end` and `ref_date` must be all dates or all numeric; mixed types are not supported.",

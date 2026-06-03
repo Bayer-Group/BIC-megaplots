@@ -275,3 +275,8 @@ resolve_first_match <- function(candidates, colnames_df) {
   }
   hit[[1]]
 }
+
+#' @noRd
+is_calendar_date <- function(x) {
+  inherits(x, "Date") || inherits(x, "POSIXct")
+}
