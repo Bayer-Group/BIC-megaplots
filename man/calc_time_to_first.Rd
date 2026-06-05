@@ -23,6 +23,6 @@ events and event groups.
 \description{
 This function calculates the time to the first occurrence of specific events
 and event groups for each subject in the provided dataset.
-Expects columns subjectid, event_group, event, event_start_time,
-event_end_time.
+Expects columns subjectid, event_group, event, event_time,
+event_time_end.
 }

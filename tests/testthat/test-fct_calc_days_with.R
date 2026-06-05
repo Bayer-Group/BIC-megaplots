@@ -3,8 +3,8 @@ test_data <- data.frame(
   subjectid = c(1, 1, 1, 2, 2, 3, 3),
   event_group = c("A", "A", "A", "B", "B", "C", "C"),
   event = c("Event1", "Event1", "Event2", "Event1", "Event2", "Event1", "Event2"),
-  event_start_time = as.numeric(c(1, 1, 5, 2, 4, 1, 6)),  # Start days
-  event_end_time = as.numeric(c(2, 3, 13, 53, 5, 4, 9))     # End days
+  event_time = as.numeric(c(1, 1, 5, 2, 4, 1, 6)),  # Start days
+  event_time_end = as.numeric(c(2, 3, 13, 53, 5, 4, 9))     # End days
 )
 
 # Tests
@@ -40,8 +40,8 @@ test_that("Function handles NA values correctly", {
     subjectid = c(4, 5, 5),
     event_group = c("A", NA, "A"),
     event = c("Event1", "Event1", NA),
-    event_start_time = c(NA, 3, 5),
-    event_end_time = c(NA, NA, 8)
+    event_time = c(NA, 3, 5),
+    event_time_end = c(NA, NA, 8)
   ))
 
   result <- calc_days_with(data=test_data_with_na, calc_event = TRUE, calc_event_group = TRUE)
@@ -61,8 +61,8 @@ test_that("Function handles overlapping events correctly", {
     subjectid = c(1, 1),
     event_group = c("A", "A"),
     event = c("Event1", "Event2"),
-    event_start_time = c(1, 2),
-    event_end_time = c(3, 4)
+    event_time = c(1, 2),
+    event_time_end = c(3, 4)
   )
 
   result <- calc_days_with(overlapping_data, calc_event = TRUE, calc_event_group = TRUE)

@@ -3,10 +3,10 @@ test_data <- data.frame(
   subjectid = c(1, 1, 2, 2, 3, 3),
   event_group = c("A", "A", "B", "B", "C", "C"),
   event = c("Event1", "Event2", "Event1", "Event2", "Event1", "Event2"),
-  event_start_time = as.POSIXct(c(2, 8,
+  event_time = as.POSIXct(c(2, 8,
                                   5, 3,
                                   1, 2)),
-  event_end_time = as.POSIXct(c(2, 98,
+  event_time_end = as.POSIXct(c(2, 98,
                                 12, 3,
                                 5, 4))
 )
@@ -47,8 +47,8 @@ test_that("Function handles NA values correctly", {
     subjectid = c(4, 5, 5),
     event_group = c("A", NA, "A"),
     event = c("Event1", "Event1", NA),
-    event_start_time = c(NA, 3, 5),
-    event_end_time = c(NA, NA, 8)
+    event_time = c(NA, 3, 5),
+    event_time_end = c(NA, NA, 8)
   ))
 
   result <- calc_time_to_first(test_data_with_na, calc_event = TRUE, calc_event_group = TRUE)

@@ -160,8 +160,8 @@ test_that("add_events uses numeric sl_ref_date with relative-day event columns",
     sl_ref_date = 1L
   )
 
-  expect_equal(mp$events$event_start_time, c(2L, 6L))
-  expect_equal(mp$events$event_end_time, c(3L, 7L))
+  expect_equal(mp$events$event_time, c(2L, 6L))
+  expect_equal(mp$events$event_time_end, c(3L, 7L))
 })
 
 test_that("add_events errors when mp$sl is NULL and sl_ref_date is missing", {
@@ -302,7 +302,7 @@ test_that("add_events skips all-NA earlier event_start candidate", {
     )
 
   expect_equal(nrow(mp$events), 2L)
-  expect_false(any(is.na(mp$events$event_start_time)))
+  expect_false(any(is.na(mp$events$event_time)))
 })
 
 test_that("add_events errors when event dates and ref_date scale are mixed", {

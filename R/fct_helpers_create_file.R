@@ -2,8 +2,8 @@
 #'
 #' This function calculates the time to the first occurrence of specific events
 #' and event groups for each subject in the provided dataset.
-#' Expects columns subjectid, event_group, event, event_start_time,
-#' event_end_time.
+#' Expects columns subjectid, event_group, event, event_time,
+#' event_time_end.
 #'
 #' @param data A data frame containing event data with columns for subject ID,
 #' event group, event, event start time, and event end time.
@@ -31,15 +31,15 @@ calc_time_to_first <- function(
         .data$subjectid,
         .data$event_group,
         .data$event,
-        .data$event_start_time
+        .data$event_time
       ) %>%
       dplyr::group_by(.data$subjectid, .data$event_group, .data$event) %>%
-      # Use ifelse to handle cases where all event_start_time values are NA for a group
+      # Use ifelse to handle cases where all event_time values are NA for a group
       dplyr::summarize(
         first = ifelse(
-          all(is.na(.data$event_start_time)),
+          all(is.na(.data$event_time)),
           NA,
-          min(.data$event_start_time, na.rm = TRUE)
+          min(.data$event_time, na.rm = TRUE)
         ),
         .groups = "drop"
       ) %>%
@@ -65,14 +65,14 @@ calc_time_to_first <- function(
       dplyr::arrange(
         .data$subjectid,
         .data$event_group,
-        .data$event_start_time
+        .data$event_time
       ) %>%
       dplyr::group_by(.data$subjectid, .data$event_group) %>%
       dplyr::summarize(
         first = ifelse(
-          all(is.na(.data$event_start_time)),
+          all(is.na(.data$event_time)),
           NA,
-          min(.data$event_start_time, na.rm = TRUE)
+          min(.data$event_time, na.rm = TRUE)
         ),
         .groups = "drop"
       ) %>%
@@ -102,8 +102,8 @@ calc_time_to_first <- function(
 #'
 #' This function calculates the number of days with specific events
 #' for each subject in the provided dataset.
-#' Expects columns subjectid, event_group, event, event_start_time,
-#' event_end_time.
+#' Expects columns subjectid, event_group, event, event_time,
+#' event_time_end.
 #'
 #' @param data A data frame containing event data with columns for subject ID,
 #' event group, event, event start time, and event end time.
@@ -120,8 +120,8 @@ calc_days_with <- function(
   # subjectid = subjectid,
   # event_group = event_group,
   # event = event,
-  # event_start_time = event_start_time,
-  # event_end_time = event_end_time
+  # event_time = event_time,
+  # event_time_end = event_time_end
 ) {
   if (!calc_event_group && !calc_event) {
     stop("Error: One of calc_event_group and calc_event must be TRUE.")
@@ -132,14 +132,14 @@ calc_days_with <- function(
         .data$subjectid,
         .data$event_group,
         .data$event,
-        .data$event_start_time,
-        .data$event_end_time
+        .data$event_time,
+        .data$event_time_end
       ) %>%
       dplyr::mutate(
         # Expand each interval to a day sequence to count unique covered days
         days = purrr::map2(
-          .data$event_start_time,
-          .data$event_end_time,
+          .data$event_time,
+          .data$event_time_end,
           ~ if (!is.na(.x) && is.finite(.x)) {
             if (!is.na(.y) && is.finite(.y)) {
               seq(from = .x, to = .y)
@@ -178,14 +178,14 @@ calc_days_with <- function(
       dplyr::arrange(
         .data$subjectid,
         .data$event_group,
-        .data$event_start_time,
-        .data$event_end_time
+        .data$event_time,
+        .data$event_time_end
       ) %>%
       dplyr::mutate(
         # Expand each interval to a day sequence to count unique covered days
         days = purrr::map2(
-          .data$event_start_time,
-          .data$event_end_time,
+          .data$event_time,
+          .data$event_time_end,
           ~ if (!is.na(.x) && is.finite(.x)) {
             if (!is.na(.y) && is.finite(.y)) {
               seq(from = .x, to = .y)

@@ -68,8 +68,8 @@ finalize_mp_object <- function(
       "subjectid",
       "start_time",
       "end_time",
-      "event_start_time",
-      "event_end_time",
+      "event_time",
+      "event_time_end",
       "event_group",
       "event"
     ),
@@ -78,6 +78,17 @@ finalize_mp_object <- function(
   if (length(arrange_cols)) {
     out <- out %>% dplyr::arrange(dplyr::across(dplyr::all_of(arrange_cols)))
   }
+
+  core_cols <- c(
+    "subjectid",
+    "start_time",
+    "end_time",
+    "event_time",
+    "event_time_end",
+    "event_group",
+    "event"
+  )
+  out <- out %>% dplyr::relocate(dplyr::any_of(core_cols), .before = 1)
 
   return(out)
 }

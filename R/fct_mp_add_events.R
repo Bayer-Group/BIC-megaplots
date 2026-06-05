@@ -349,12 +349,12 @@ add_events <- function(
   has_sl_start <- "start_time" %in% names(data_tmp)
 
   # Calculate event start and end times relative to ref_date,
-  # then apply left censoring to event_start_time if requested and start_time is available in mp_builder$sl.
+  # then apply left censoring to event_time if requested and start_time is available in mp_builder$sl.
   # Original event_start, event_end, and ref_date columns are dropped after calculations.
   data_tmp <- data_tmp %>%
     dplyr::group_by(.data$subjectid, .data$event_group, .data$event) %>%
     dplyr::mutate(
-      event_start_time = if (ev_is_date) {
+      event_time = if (ev_is_date) {
         as.integer(
           !!rlang::sym(event_start) - .data$ref_date + 1L
         )
@@ -363,7 +363,7 @@ add_events <- function(
           as.integer(.data$ref_date) +
           1L
       },
-      event_end_time = if (ev_is_date) {
+      event_time_end = if (ev_is_date) {
         dplyr::case_when(
           !is.na(!!rlang::sym(event_end)) ~ as.integer(
             !!rlang::sym(event_end) - .data$ref_date + 1L
@@ -390,17 +390,17 @@ add_events <- function(
     dplyr::ungroup() %>%
     # left censor data if provided and start_time is available in sl;
     dplyr::mutate(
-      event_start_time = if (is.null(left_censor)) {
-        .data$event_start_time
+      event_time = if (is.null(left_censor)) {
+        .data$event_time
       } else if (!has_sl_start) {
-        .data$event_start_time
+        .data$event_time
       } else {
         dplyr::case_when(
-          .data$event_start_time <
+          .data$event_time <
             .data$start_time + left_censor ~ .data$start_time +
             left_censor -
             1L,
-          TRUE ~ .data$event_start_time
+          TRUE ~ .data$event_time
         )
       }
     ) %>%
@@ -411,8 +411,8 @@ add_events <- function(
       .data$subjectid,
       .data$event_group,
       .data$event,
-      .data$event_start_time,
-      .data$event_end_time
+      .data$event_time,
+      .data$event_time_end
     ) %>% # Rearrange columns
     dplyr::distinct()
 

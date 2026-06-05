@@ -34,7 +34,7 @@ test_that("builder pipeline with add_sl_data stacks events and finalize returns 
   expect_s3_class(out, "data.frame")
   expect_equal(nrow(out), 3L)
   expect_true(all(
-    c("event_group", "event", "event_start_time", "start_time", "end_time") %in%
+    c("event_group", "event", "event_time", "start_time", "end_time") %in%
       names(out)
   ))
 })
@@ -94,7 +94,7 @@ test_that("builder pipeline without add_sl_data uses sl_ref_date and finalize re
   expect_equal(nrow(out), 3L)
   expect_false(any(c("start_time", "end_time") %in% names(out)))
   expect_true(all(
-    c("subjectid", "ref_date", "event_group", "event", "event_start_time") %in%
+    c("subjectid", "ref_date", "event_group", "event", "event_time") %in%
       names(out)
   ))
 })

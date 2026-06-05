@@ -4,8 +4,8 @@ empty_mp_events <- function() {
     subjectid = integer(),
     event_group = character(),
     event = character(),
-    event_start_time = integer(),
-    event_end_time = integer(),
+    event_time = integer(),
+    event_time_end = integer(),
     stringsAsFactors = FALSE
   )
 }
