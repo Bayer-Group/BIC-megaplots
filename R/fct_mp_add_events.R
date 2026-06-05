@@ -270,10 +270,10 @@ add_events <- function(
     dplyr::left_join(adsl, by = "subjectid") %>% # Join to add ref_date and potential start_time / end_time for left censoring
     dplyr::relocate(.data$subjectid, .data$ref_date)
 
-  event_start <- resolve_first_match(event_start, colnames(data))
+  event_start <- resolve_first_match(event_start, colnames(data), data = data)
   message("Event start date/time: ", event_start)
 
-  event_end <- resolve_first_match(event_end, colnames(data))
+  event_end <- resolve_first_match(event_end, colnames(data), data = data)
   message("Event end date/time: ", event_end)
 
   if (!is.null(keep_vars)) {

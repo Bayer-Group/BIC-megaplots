@@ -27,11 +27,11 @@ column names exactly.}
 \item{data_filter}{Optional; passed to [rlang::parse_exprs()] for [dplyr::filter()]. Example:
 `data_filter = "SAFFL == \"Y\""`.}
 
-\item{display_start_date}{Columns to be used as start dates (date of the first contact to the participant). If a vector with multiple column names is given, the first one present in the provided dataset is used. Per default, the following column names are checked: "REFSTDT","RFSTDT","RFSTDTC","RFICDT","RANDDT","TRTSTDT"}
+\item{display_start_date}{Columns to be used as start dates (date of the first contact to the participant). If a vector with multiple column names is given, the first one present in the provided dataset with at least one non-missing value is used. Per default, the following column names are checked: "REFSTDT","RFSTDT","RFSTDTC","RFICDT","RANDDT","TRTSTDT"}
 
-\item{display_end_date}{Columns to be used as end dates (date of the last contact to the participant. If a vector with multiple column names is given, the maximum of all present in the provided dataset is used. Per default, the following column names are checked: "REFENDT","RFENDTC","RFENDT", "LVDT", "WDICDT"}
+\item{display_end_date}{Columns to be used as end dates (date of the last contact to the participant. If a vector with multiple column names is given, the maximum of all present and non-missing columns in the provided dataset is used. Per default, the following column names are checked: "REFENDT","RFENDTC","RFENDT", "LVDT", "WDICDT"}
 
-\item{relative_day_1}{Columns to be used as the reference for relative day 1. If a vector with multiple column names is given, the first one present in the provided dataset is used. Per default, the following column names are checked: "TRTSTDT", "TRTSDT"}
+\item{relative_day_1}{Columns to be used as the reference for relative day 1. If a vector with multiple column names is given, the first one present in the provided dataset with at least one non-missing value is used. Per default, the following column names are checked: "TRTSTDT", "TRTSDT"}
 
 \item{trtstdt}{Columns to be used as treatment start dates.}
 

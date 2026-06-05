@@ -54,7 +54,7 @@ test_that("add_sl_data errors when no display_start_date column matches", {
 
   expect_error(
     add_sl_data(bad),
-    "None of the input parameters in display_start_date are present as column names in the data."
+    "None of these column names exist in the data for display_start_date"
   )
 })
 
@@ -75,8 +75,60 @@ test_that("add_sl_data errors when no display_end_date column matches", {
 test_that("add_sl_data errors when relative_day_1 does not match any column", {
   expect_error(
     add_sl_data(adsl_three, relative_day_1 = "NON_EXISTENT_COLUMN"),
-    "None of the input parameters in relative_day_1 are present as column names in the data."
+    "None of these column names exist in the data for relative_day_1"
   )
+})
+
+test_that("add_sl_data skips all-NA earlier display_start_date candidate", {
+  adsl <- data.frame(
+    USUBJID = c("001", "002"),
+    RFSTDT = c(NA, NA),
+    TRTSTDT = as.Date(c("2022-01-01", "2022-01-02")),
+    RFENDT = as.Date(c("2022-01-10", "2022-01-12")),
+    stringsAsFactors = FALSE
+  )
+
+  mp <- add_sl_data(
+    adsl,
+    display_start_date = c("RFSTDT", "TRTSTDT"),
+    relative_day_1 = "TRTSTDT"
+  )
+
+  expect_equal(mp$sl$start_time, c(1L, 1L))
+  expect_false(all(is.na(mp$sl$start_time)))
+})
+
+test_that("add_sl_data errors when display_start_date candidates are all useless", {
+  adsl <- data.frame(
+    USUBJID = "001",
+    RFSTDT = NA,
+    TRTSTDT = as.Date("2022-01-01"),
+    RFENDT = as.Date("2022-01-10"),
+    stringsAsFactors = FALSE
+  )
+
+  expect_error(
+    add_sl_data(adsl, display_start_date = "RFSTDT"),
+    "exist but contain no non-missing values"
+  )
+})
+
+test_that("add_sl_data pmax uses only useful display_end_date columns", {
+  adsl <- data.frame(
+    USUBJID = c("001", "002"),
+    REFSTDT = as.Date(c("2022-01-01", "2022-01-02")),
+    REFENDT = c(NA, NA),
+    RFENDT = as.Date(c("2022-01-10", "2022-01-15")),
+    TRTSTDT = as.Date(c("2022-01-01", "2022-01-02")),
+    stringsAsFactors = FALSE
+  )
+
+  mp <- add_sl_data(
+    adsl,
+    display_end_date = c("REFENDT", "RFENDT")
+  )
+
+  expect_equal(mp$sl$end_time, c(10L, 14L))
 })
 
 test_that("add_sl_data computes treatment_duration when trt columns are set", {

@@ -264,16 +264,112 @@ resolve_colname <- function(label, colnames_df) {
 }
 
 #' @noRd
-resolve_first_match <- function(candidates, colnames_df) {
-  hit <- candidates[toupper(candidates) %in% toupper(colnames_df)]
-  if (!length(hit) || is.na(hit[[1]])) {
+column_has_values <- function(x) {
+  if (is.character(x) || is.factor(x)) {
+    any(!is.na(x) & nzchar(trimws(as.character(x))))
+  } else {
+    any(!is.na(x))
+  }
+}
+
+#' @noRd
+resolve_first_match <- function(
+  candidates,
+  colnames_df,
+  data = NULL,
+  label = NULL
+) {
+  present <- candidates[toupper(candidates) %in% toupper(colnames_df)]
+  if (!length(present) || is.na(present[[1]])) {
+    if (!is.null(label)) {
+      stop(
+        "None of these column names exist in the data for ",
+        label,
+        ": ",
+        paste(candidates, collapse = ", ")
+      )
+    } else {
+      stop(
+        "None of these column names exist in the data: ",
+        paste(candidates, collapse = ", ")
+      )
+    }
+  }
+  if (is.null(data)) {
+    return(present[[1]])
+  }
+  useful <- present[vapply(
+    present,
+    function(candidate) {
+      column_has_values(data[[resolve_colname(candidate, colnames_df)]])
+    },
+    logical(1)
+  )]
+  if (!length(useful) || is.na(useful[[1]])) {
+    stop(
+      "Column(s) ",
+      paste(present, collapse = ", "),
+      " exist but contain no non-missing values. Checked: ",
+      paste(candidates, collapse = ", "),
+      call. = FALSE
+    )
+  }
+  resolve_colname(useful[[1]], colnames_df)
+}
+
+#' @noRd
+resolve_all_useful_matches <- function(
+  candidates,
+  colnames_df,
+  data = NULL,
+  label = NULL
+) {
+  present <- candidates[toupper(candidates) %in% toupper(colnames_df)]
+  if (!length(present)) {
+    if (!is.null(label)) {
+      stop(
+        "None of the input parameters in ",
+        label,
+        " are present as column names in the data.",
+        call. = FALSE
+      )
+    }
     stop(
       "None of these column names exist in the data: ",
       paste(candidates, collapse = ", "),
       call. = FALSE
     )
   }
-  hit[[1]]
+  if (is.null(data)) {
+    return(vapply(
+      present,
+      resolve_colname,
+      FUN.VALUE = character(1),
+      colnames_df = colnames_df
+    ))
+  }
+  useful <- present[vapply(
+    present,
+    function(candidate) {
+      column_has_values(data[[resolve_colname(candidate, colnames_df)]])
+    },
+    logical(1)
+  )]
+  if (!length(useful)) {
+    stop(
+      "Column(s) ",
+      paste(present, collapse = ", "),
+      " exist but contain no non-missing values. Checked: ",
+      paste(candidates, collapse = ", "),
+      call. = FALSE
+    )
+  }
+  vapply(
+    useful,
+    resolve_colname,
+    FUN.VALUE = character(1),
+    colnames_df = colnames_df
+  )
 }
 
 #' @noRd

@@ -32,7 +32,7 @@ mp_with_sl <- function() {
 
 test_that("add_events initializes builder when mp is omitted", {
   mp <- add_events(
-    events_data=adae_with_ref_col,
+    events_data = adae_with_ref_col,
     event_group = "AEBODSYS",
     event = "AEDECOD",
     sl_ref_date = "TRTSTDT"
@@ -44,7 +44,7 @@ test_that("add_events initializes builder when mp is omitted", {
 test_that("add_events appends rows and applies prefix_group / prefix_event", {
   mp <- mp_with_sl() %>%
     add_events(
-      events_data=adae_min,
+      events_data = adae_min,
       event_group = "AEBODSYS",
       event = "AEDECOD",
       prefix_group = "G:",
@@ -95,8 +95,8 @@ test_that("add_events messages and warns for multiple event_group/event columns"
 
   expect_message(
     expect_message(
-      expect_warning(
-        expect_warning(
+      expect_message(
+        expect_message(
           mp_with_sl() %>%
             add_events(
               adae,
@@ -280,6 +280,29 @@ test_that("add_events joins time-to-first columns when calc_time_to_first is TRU
 
   ttf_cols <- grep("^ttf_", names(mp$sl), value = TRUE)
   expect_true(length(ttf_cols) > 0L)
+})
+
+test_that("add_events skips all-NA earlier event_start candidate", {
+  adae <- data.frame(
+    USUBJID = c("01-001", "01-002"),
+    AEBODSYS = c("SOC", "SOC"),
+    AEDECOD = c("PTa", "PTb"),
+    ASTDT = c(NA, NA),
+    AESTDT = as.Date(c("2020-01-02", "2020-01-06")),
+    AENDT = as.Date(c("2020-01-03", "2020-01-07")),
+    stringsAsFactors = FALSE
+  )
+
+  mp <- mp_with_sl() %>%
+    add_events(
+      adae,
+      event_group = "AEBODSYS",
+      event = "AEDECOD",
+      event_start = c("ASTDT", "AESTDT")
+    )
+
+  expect_equal(nrow(mp$events), 2L)
+  expect_false(any(is.na(mp$events$event_start_time)))
 })
 
 test_that("add_events errors when event dates and ref_date scale are mixed", {

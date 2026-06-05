@@ -16,9 +16,9 @@
 #'   column names exactly.
 #' @param data_filter Optional; passed to [rlang::parse_exprs()] for [dplyr::filter()]. Example:
 #'   `data_filter = "SAFFL == \"Y\""`.
-#' @param display_start_date Columns to be used as start dates (date of the first contact to the participant). If a vector with multiple column names is given, the first one present in the provided dataset is used. Per default, the following column names are checked: "REFSTDT","RFSTDT","RFSTDTC","RFICDT","RANDDT","TRTSTDT"
-#' @param display_end_date Columns to be used as end dates (date of the last contact to the participant. If a vector with multiple column names is given, the maximum of all present in the provided dataset is used. Per default, the following column names are checked: "REFENDT","RFENDTC","RFENDT", "LVDT", "WDICDT"
-#' @param relative_day_1 Columns to be used as the reference for relative day 1. If a vector with multiple column names is given, the first one present in the provided dataset is used. Per default, the following column names are checked: "TRTSTDT", "TRTSDT"
+#' @param display_start_date Columns to be used as start dates (date of the first contact to the participant). If a vector with multiple column names is given, the first one present in the provided dataset with at least one non-missing value is used. Per default, the following column names are checked: "REFSTDT","RFSTDT","RFSTDTC","RFICDT","RANDDT","TRTSTDT"
+#' @param display_end_date Columns to be used as end dates (date of the last contact to the participant. If a vector with multiple column names is given, the maximum of all present and non-missing columns in the provided dataset is used. Per default, the following column names are checked: "REFENDT","RFENDTC","RFENDT", "LVDT", "WDICDT"
+#' @param relative_day_1 Columns to be used as the reference for relative day 1. If a vector with multiple column names is given, the first one present in the provided dataset with at least one non-missing value is used. Per default, the following column names are checked: "TRTSTDT", "TRTSDT"
 #' @param trtstdt Columns to be used as treatment start dates.
 #' @param trtendt Columns to be used as treatment end dates.
 #'
@@ -143,39 +143,33 @@ add_sl_data <- function(
     dplyr::relocate(.data$subjectid)
 
   # Determine the appropriate reference start date
-  display_start_date <- display_start_date[
-    toupper(display_start_date) %in% toupper(colnames(adsl))
-  ][1]
-  if (is.null(display_start_date) || is.na(display_start_date)) {
-    stop(
-      "None of the input parameters in display_start_date are present as column names in the data."
-    )
-  }
+  display_start_date <- resolve_first_match(
+    display_start_date,
+    colnames(adsl),
+    data = adsl,
+    label = "display_start_date"
+  )
   message(sprintf("Reference start date: %s", display_start_date)) # Message for reference start date
 
   # Determine the appropriate reference end dates
-  display_end_date <- display_end_date[
-    toupper(display_end_date) %in% toupper(colnames(adsl))
-  ]
-  if (!length(display_end_date)) {
-    stop(
-      "None of the input parameters in display_end_date are present as column names in the data."
-    )
-  }
+  display_end_date <- resolve_all_useful_matches(
+    display_end_date,
+    colnames(adsl),
+    data = adsl,
+    label = "display_end_date"
+  )
   message(sprintf(
     "Reference end date: Maximum of %s",
     paste(display_end_date, collapse = ", ")
   )) # Message for reference end date
 
   # Determine the appropriate relative day 1
-  relative_day_1 <- relative_day_1[
-    toupper(relative_day_1) %in% toupper(colnames(adsl))
-  ][1]
-  if (is.null(relative_day_1) || is.na(relative_day_1)) {
-    stop(
-      "None of the input parameters in relative_day_1 are present as column names in the data."
-    )
-  }
+  relative_day_1 <- resolve_first_match(
+    relative_day_1,
+    colnames(adsl),
+    data = adsl,
+    label = "relative_day_1"
+  )
   message(sprintf("Relative day 1: %s", relative_day_1)) # Message for relative day 1
 
   # If treatment dates are to be included
