@@ -19,8 +19,6 @@
 #' @param display_start_date Columns to be used as start dates (date of the first contact to the participant). If a vector with multiple column names is given, the first one present in the provided dataset with at least one non-missing value is used. Per default, the following column names are checked: "REFSTDT","RFSTDT","RFSTDTC","RFICDT","RANDDT","TRTSTDT"
 #' @param display_end_date Columns to be used as end dates (date of the last contact to the participant. If a vector with multiple column names is given, the maximum of all present and non-missing columns in the provided dataset is used. Per default, the following column names are checked: "REFENDT","RFENDTC","RFENDT", "LVDT", "WDICDT"
 #' @param relative_day_1 Columns to be used as the reference for relative day 1. If a vector with multiple column names is given, the first one present in the provided dataset with at least one non-missing value is used. Per default, the following column names are checked: "TRTSTDT", "TRTSDT"
-#' @param trtstdt Columns to be used as treatment start dates.
-#' @param trtendt Columns to be used as treatment end dates.
 #'
 #' @return A list containing the processed subject level dataset and NULL for events.
 #' @examples
@@ -75,9 +73,7 @@ add_sl_data <- function(
     "TRTSTDT"
   ),
   display_end_date = c("REFENDT", "RFENDTC", "RFENDT", "LVDT", "WDICDT"),
-  relative_day_1 = c("TRTSTDT", "TRTSDT"),
-  trtstdt = NULL,
-  trtendt = NULL
+  relative_day_1 = c("TRTSTDT", "TRTSDT")
 ) {
   if (
     is.null(sl_data) &&
@@ -172,21 +168,8 @@ add_sl_data <- function(
   )
   message(sprintf("Relative day 1: %s", relative_day_1)) # Message for relative day 1
 
-  # If treatment dates are to be included
-  if (is.null(trtstdt) || is.null(trtendt)) {
-    message(
-      "Treatment start date (trtstdt) and/or treatment end date (trtendt) are not provided.",
-      "Treatment duration is not calculated"
-    )
-  }
-
   # Collect all date columns to be processed
-  date_cols <- c(
-    display_start_date,
-    display_end_date,
-    relative_day_1,
-    if (!is.null(trtstdt) && !is.null(trtendt)) c(trtstdt, trtendt)
-  )
+  date_cols <- c(display_start_date, display_end_date, relative_day_1)
 
   # Mutate the dataset to create new date-related columns
   adsl <- adsl %>%
@@ -203,26 +186,8 @@ add_sl_data <- function(
       ) # Calculate end time
     )
 
-  # If treatment start and end dates are provided, calculate treatment duration
-  if (!is.null(trtstdt) && !is.null(trtendt)) {
-    adsl <- adsl %>%
-      dplyr::mutate(
-        treatment_duration = as.integer(
-          !!rlang::sym(trtendt) - !!rlang::sym(trtstdt) + 1L
-        )
-      ) %>%
-      dplyr::relocate(
-        .,
-        "subjectid",
-        "start_time",
-        "end_time",
-        "ref_date",
-        "treatment_duration"
-      ) # Rearrange columns if treatment is included
-  } else {
-    adsl <- adsl %>%
-      dplyr::relocate("subjectid", "start_time", "end_time", "ref_date") # Rearrange columns without treatment
-  }
+  adsl <- adsl %>%
+    dplyr::relocate("subjectid", "start_time", "end_time", "ref_date") # Rearrange columns without treatment
 
   mp_builder$sl <- adsl
   return(mp_builder)

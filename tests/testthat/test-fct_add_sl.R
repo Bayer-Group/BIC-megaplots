@@ -130,19 +130,3 @@ test_that("add_sl_data pmax uses only useful display_end_date columns", {
 
   expect_equal(mp$sl$end_time, c(10L, 14L))
 })
-
-test_that("add_sl_data computes treatment_duration when trt columns are set", {
-  trt <- data.frame(
-    USUBJID = c("001", "002", "003"),
-    REFSTDT = as.Date(c("2022-01-01", "2022-01-02", "2022-01-03")),
-    RFENDT = as.Date(c("2022-01-10", "2022-01-12", "2022-01-15")),
-    TRTSTDT = as.Date(c("2022-01-01", "2022-01-02", "2022-01-03")),
-    TRTENDT = as.Date(c("2022-01-05", "2022-01-07", "2022-01-10")),
-    stringsAsFactors = FALSE
-  )
-
-  mp <- add_sl_data(trt, trtstdt = "TRTSTDT", trtendt = "TRTENDT")
-
-  expect_true("treatment_duration" %in% names(mp$sl))
-  expect_equal(mp$sl$treatment_duration[[1]], 5L)
-})

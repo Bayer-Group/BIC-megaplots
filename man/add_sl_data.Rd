@@ -11,9 +11,7 @@ add_sl_data(
   data_filter = NULL,
   display_start_date = c("REFSTDT", "RFSTDT", "RFSTDTC", "RFICDT", "RANDDT", "TRTSTDT"),
   display_end_date = c("REFENDT", "RFENDTC", "RFENDT", "LVDT", "WDICDT"),
-  relative_day_1 = c("TRTSTDT", "TRTSDT"),
-  trtstdt = NULL,
-  trtendt = NULL
+  relative_day_1 = c("TRTSTDT", "TRTSDT")
 )
 }
 \arguments{
@@ -32,10 +30,6 @@ column names exactly.}
 \item{display_end_date}{Columns to be used as end dates (date of the last contact to the participant. If a vector with multiple column names is given, the maximum of all present and non-missing columns in the provided dataset is used. Per default, the following column names are checked: "REFENDT","RFENDTC","RFENDT", "LVDT", "WDICDT"}
 
 \item{relative_day_1}{Columns to be used as the reference for relative day 1. If a vector with multiple column names is given, the first one present in the provided dataset with at least one non-missing value is used. Per default, the following column names are checked: "TRTSTDT", "TRTSDT"}
-
-\item{trtstdt}{Columns to be used as treatment start dates.}
-
-\item{trtendt}{Columns to be used as treatment end dates.}
 }
 \value{
 A list containing the processed subject level dataset and NULL for events.
