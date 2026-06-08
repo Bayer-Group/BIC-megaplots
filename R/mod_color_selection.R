@@ -11,7 +11,6 @@
 #' @keywords internal
 mod_color_selection_ui <- function(id) {
   ns <- shiny::NS(id)
-
   bslib::nav_panel(
     tags$div(
       HTML(
@@ -97,11 +96,11 @@ mod_color_selection_ui <- function(id) {
              shiny::column(12,
                shiny::fluidRow(
                  shiny::column(6,
-                               colourpicker::colourInput(
-                                 inputId = ns("colour_picker_panel_event"),
-                                 label = NULL,
-                                 value = "white", allowTransparent = TRUE
-                               )
+                   colourpicker::colourInput(
+                     inputId = ns("colour_picker_panel_event"),
+                     label = NULL,
+                     value = "white", allowTransparent = TRUE
+                   )
                  ),
                  shiny::column(6,
                    shinyWidgets::actionBttn(
@@ -116,31 +115,32 @@ mod_color_selection_ui <- function(id) {
              ),
              shiny::column(12,
               shiny::column(4,
-                 colourpicker::colourInput(
-                   inputId = ns("colour_picker_panel_unique"),
-                   label = "",
-                   value = "white", allowTransparent = TRUE
-                 )
+                colourpicker::colourInput(
+                  inputId = ns("colour_picker_panel_unique"),
+                  label = "",
+                  value = "white",
+                  allowTransparent = TRUE
+                )
               )
-             ),
-             column(12,
+            ),
+            shiny::column(12,
               shiny::plotOutput(ns("colour_palette"), height = "40px")
-             )
-           ),
-           br(),
-           shinyWidgets::actionBttn(
-             inputId = ns("update_color_palette"),
-             label = "Update colors",
-             color = "success",
-             style = "simple",
-             icon = icon("refresh")
-           ),
-           br(),
-           shiny::checkboxInput(
-             inputId = ns("jitter_events"),
-             label = "Jitter events for event group",
-             value = TRUE
-           )
+            )
+          ),
+          br(),
+          shinyWidgets::actionBttn(
+            inputId = ns("update_color_palette"),
+            label = "Update colors",
+            color = "success",
+            style = "simple",
+            icon = icon("refresh")
+          ),
+          br(),
+          shiny::checkboxInput(
+            inputId = ns("jitter_events"),
+            label = "Jitter events for event group",
+            value = TRUE
+          )
         ),
         shiny::conditionalPanel(condition = paste0("output['", ns("color_changed"), "'] == true"),
           shinyWidgets::downloadBttn(
@@ -152,10 +152,10 @@ mod_color_selection_ui <- function(id) {
           )
         ),
         shiny::fileInput(
-        inputId = ns('upload_saved_color_file'),
-        label = "Upload saved color file",
-        multiple = FALSE,
-        accept = '.rds'
+          inputId = ns('upload_saved_color_file'),
+          label = "Upload saved color file",
+          multiple = FALSE,
+          accept = '.rds'
         )
       )
     ),
@@ -333,7 +333,6 @@ mod_color_selection_server <- function(
     shiny::observeEvent(c(input$update_color_palette, input$update_color_palette_2), {
       color_changed$val <- TRUE
     }, ignoreInit = TRUE)
-
 
     output$color_changed <- shiny::reactive({
       color_changed$val

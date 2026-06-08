@@ -139,3 +139,20 @@ hexsticker_logo <- function(src){
     )
   )
 }
+
+
+# Read and split the .md file into named sections
+parse_sections <- function(path) {
+  lines   <- readLines(path)
+  heading <- grepl("^## ", lines)   # detect H2 headings as chapter boundaries
+  groups  <- cumsum(heading)  # assign each line to a section number
+
+  tapply(lines, groups, function(x) paste(x, collapse = "\n")) |>
+    setNames(
+      lines[heading] |> sub("^## ", "", x = _)  # use heading text as section name
+    )
+}
+
+sections <- parse_sections(
+  system.file("tutorial/Tutorial.md", package = "Megaplots")
+)

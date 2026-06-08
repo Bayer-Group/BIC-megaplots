@@ -40,7 +40,9 @@ app_server <- function(input, output, session) {
 
   filtered_data_reactive <- shiny::reactiveValues(val = NULL)
   # Keep filtered_data_reactive in sync with the module output
-  shiny::observe({filtered_data_reactive$val <- filter_result$filtered_data()})
+  shiny::observe({
+    filtered_data_reactive$val <- filter_result$filtered_data()
+  })
 
   #### 4. Reference Lines Module ####
   ref <- mod_reference_lines_server("reference_lines")
@@ -58,19 +60,17 @@ app_server <- function(input, output, session) {
   megaplot_prepared_data <- shiny::eventReactive(
     c(uploaded_data_w_ids(),
       filter_result$filtered_data(),
-      # sorting_grouping$select_grouping(),
       sorting_grouping$arrange_groups(),
       sorting_grouping$select_sorting()), {
 
-        prepare_megaplot_data(
-          #megaplot_data_raw = uploaded_data$val,
-          megaplot_data_raw = shiny::req(filter_result$filtered_data()),
-          uploaded_data_w_ids = uploaded_data_w_ids(),
-          select_sorting = sorting_grouping$select_sorting(),
-          select_grouping = sorting_grouping$select_grouping(),
-          arrange_groups = sorting_grouping$arrange_groups()
-        )
-      })
+      prepare_megaplot_data(
+        megaplot_data_raw = shiny::req(filter_result$filtered_data()),
+        uploaded_data_w_ids = uploaded_data_w_ids(),
+        select_sorting = sorting_grouping$select_sorting(),
+        select_grouping = sorting_grouping$select_grouping(),
+        arrange_groups = sorting_grouping$arrange_groups()
+      )
+  })
 
 
   #### 8. reactive object megaplot_filtered_data ####
@@ -81,7 +81,7 @@ app_server <- function(input, output, session) {
       color_data = shiny::req(color_data$all)
     )
     if (!is.null(filtered_data)) {
-      #remove nas from required variables
+      #remove NAs from required variables
       filtered_data <- filtered_data |>
         dplyr::filter(!is.na(.data$megaplots_selected_subjectid)) |>
         dplyr::filter(!is.na(.data$megaplots_selected_event))

@@ -264,14 +264,14 @@ sequencing_ui <- function(id) {
       label = "On/Off Sequencing Sorting",
       value = FALSE,
       status = "primary"
-    ),
-    # Circular_vision Switch
-    shinyWidgets::prettySwitch(
-      inputId = ns("circular_vision"),
-      label = "On/Off Circular Vision",
-      value = FALSE,
-      status = "primary"
-    )
+    )#,
+    # # Circular_vision Switch
+    # shinyWidgets::prettySwitch(
+    #   inputId = ns("circular_vision"),
+    #   label = "On/Off Circular Vision",
+    #   value = FALSE,
+    #   status = "primary"
+    # )
   )
 }
 
@@ -433,7 +433,8 @@ sequencing_server <- function(input, output, session, megaplot_filtered_data) {
   return(list(
     sequencing_object = shiny::reactive({sequencing_object$val}),
     sequencing_switch = shiny::reactive({input$sequencing_switch}),
-    circular_vision = shiny::reactive({input$circular_vision})
+    #circular_vision = shiny::reactive({input$circular_vision})
+    circular_vision = shiny::reactive({FALSE}) #don't display circular version
   ))
 }
 

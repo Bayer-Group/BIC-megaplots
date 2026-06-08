@@ -5,6 +5,7 @@
 #' @import shiny
 #' @noRd
 
+
 app_ui <- function(request) {
   shiny::tagList(
     # Leave this function for adding external resources
@@ -72,16 +73,8 @@ app_ui <- function(request) {
           ),
           shiny::conditionalPanel(condition = "input.theme_toggle != 'dark'",
                                   hexsticker_logo(src = "www/megaplot_hexsticker_n2.png")
-          ),
-        HTML("
-          <div style='display: flex; text-align: center;'>
-              <span style='display: flex; flex-direction: column; font-size: 1.2rem; line-height: 1.5; text-align: center; '>
-                <span style = 'text-decoration: underline;'> The Complete Picture </span>
-                <span style = 'font-size: 0.9rem;'> Connect events. Reveal patterns. Generate insight. </span>
-              </span>
-
-            </div>
-         ")),
+          )
+        ),
         bslib::accordion(open = FALSE,
           # Sorting/Grouping (Sidebar)
           mod_sorting_grouping_ui("sorting_grouping"),
@@ -124,9 +117,28 @@ app_ui <- function(request) {
         title = "Megaplots",
         mod_megaplot_ui("megaplot")
       ),
+      bslib::nav_panel(
+          id = "Tutorial",
+           title = "Tutorial",
+        # do.call(
+        #   bslib::navset_pill_list,
+        #   lapply(names(sections), function(name) {
+        #     bslib::nav_panel(
+        #       title = name,
+        #       markdown(sections[[name]]) #renders md strings
+        #     )
+        #   })
+        # )
+        tags$iframe(
+          src    = "www/Tutorial.html",   # relative to www/ — Shiny resolves this automatically
+          width  = "100%",
+          height = "100%",
+          style  = "border: none;"   # removes the default iframe border
+        )
+      ),
       bslib::nav_spacer(),
       bslib::nav_item(
-      bslib::input_dark_mode(id = "theme_toggle", mode = "dark")
+        bslib::input_dark_mode(id = "theme_toggle", mode = "dark")
       )
     )
   )
