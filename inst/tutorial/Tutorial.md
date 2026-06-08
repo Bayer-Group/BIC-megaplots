@@ -9,7 +9,7 @@ output:
     theme: flatly
 ---
 
-## Description
+## Introduction
 
 A ‘megaplot’ is a ‘shiny’ application and as the name suggests, is a
 huge graphical display showing individual-level data over time
@@ -22,11 +22,28 @@ The concept of the megaplots app has been re-designed at the end of
 version v.1.1.10’.
 
 
-## Input Data
+## Megaplots Data
+To make use of the app, a dataset must be uploaded as the first step.
+Currently only .RData files are supported. Use the "Choose RData file" - Browse button
+on the "File & variable selection"-tab to upload your file.
+
+<img src="1_Megaplots.png" align="center" width="95%"/>
+
+Once uploaded successfully, the Variable Selection boxes will appear. 
+
+<img src="4_Megaplots.png" align="center" width="95%"/>
+
+Autodetection for column names is implemented. If all required variables are 
+selected, a "NEXT" button will appear.
+
+### Required variables
+The table below lists all recognised column names and their expected formats.
+Column names are flexible - the app will ask you to map your own column names to the
+required roles after upload.
 
 | Column | Class | Note |
 |:---|:---|:---|
-| subjectid \* | numeric/character |  |
+| subjectid \* | numeric/character | unique subject identifier |
 | start_time \*\* | integer (numeric) | numeric variables are rounded down to integer |
 | end_time\*\* | integer (numeric) | numeric variables are rounded down to integer |
 | event\* | character (numeric) | numeric variables are transformed to character |
@@ -38,28 +55,6 @@ version v.1.1.10’.
 
 \*\* one of the variable pairs start/end_time or event_time/\_end is
 mandatory (names can differ)
-
-Besides these variables any variables can be added for grouping and
-sorting. All numeric variables will be applicable for sorting and all
-character variables for grouping. For more information about “Sorting /
-Grouping” please refer to chapter “Sidebar options”.
-
-
-## File Upload & Variable Selection
-
-Once the ‘megaplots’ package is installed, simply call this application
-through the function run_app(). Next, upload the dataset through the
-‘File upload’-panel.
-
-Please click on the “Browse…” button and upload the desired data set.
-Currently, it is only possible to use ‘.RData’ as data format. If other
-formats are used, an error message appears.
-
-<img src="1_Megaplots.png" align="center" width="95%"/>
-
-After successful upload, options for the variable selection will appear.
-
-<img src="4_Megaplots.png" align="center" width="95%"/>
 
 The variable ‘Identifier’ can be a numeric or character variable and
 will be used to assign individual time sequences. The variables
@@ -75,13 +70,45 @@ courses, every event requires a start and end day. The corresponding
 variables can be selected via ‘Event Start Day’ and ‘Event End Day’. The
 same rounding procedure is applied as for the timelines.
 
-For more detailed information about the data structure see [Input
-Data](#Input%20Data). below.
-
 In every variable selection drop-down menu there is a ‘Clear’ button to
 delete the selected variable. When all variables are in the desired a
 format a next button appears in the lower half of the screen, which
 leads to the next panel the ‘Event & color selection’.
+
+### Time Variables
+
+The app accepts two alternative ways to specify the time axis:
+
+- start_time and end_time defines the overall observation window for each
+subject (e.g. study entry and study exit).
+- event_time and event_time_end could also define start and end of a subject.
+
+At least one of these pairs must be present in the dataset. If both are 
+provided, both will be used.
+
+### Additional Variables
+
+Any number of extra columns can be included alongside the required ones:
+
+- **Numeric variables** - available for **sorting** subjects along the 
+y-axis (e.g.sort by age or baseline value).
+- **Character variables** -  available for **grouping** subjects into 
+ separated blocks (e.g. group by treatment  arm or site).
+ 
+For more information about how to use these variables interactively, refer to 
+the **Sidebar Options**-chapter.
+
+### Data Format Example
+
+A minimal valid dataset would look like this:
+
+| subjectid | start_time | end_time | event | event_group | event_time | event_time_end |
+|:---|---:|---:|:---|:---|:---|:---|
+| 001 | 1 | 365 | Headache | Other Symptoms | 10| 25 |
+| 001 | 1 | 365 | Vomitting | Gastrointestinal Disorders | 30 | 34 |
+| 002 | 1 | 280 | Nausea | Gastrointestinal Disorders | 48 | 48 |
+| 003 | 14 | 119 | Death | Death| 119 | 119 |
+
 
 ## Event & Color Selection
 
@@ -238,8 +265,7 @@ the start or end of the line.
 In addition to hovering, you can also click on event lines. The complete
 clicked event are then highlighted in comparison to other events. It is
 possible to click on and highlight as many events as desired. To undo
-the effect, double-click on the plot window. Note: The zoom setting will
-also be reset by double-clicking.
+the effect, double-click on the plot window.
 
 <img src="27_Megaplots.png" align="center" width="95%"/>
 
@@ -260,23 +286,58 @@ Further options for this megaplots graph are described in the chapter
 
 ## Event Summary
 
-<!-- <img src="30_Megaplots.png" align="center" width="100%"/>  -->
+In addition to the long-proven megaplots graph, we have included 
+another plot in to most recent version, the so-called **Event Summary**.
+This prodcuces an interactive line chart that visualize how clinical
+trial events are distributed across study days. Each event type is 
+rendered as a separate line, making it straightforward to judge whether
+a particular event tends to cluster early or late in a study. 
+The chart is also built with plotly, so it supports interactive hover label
+that display exact event counts for any given day. There is also an
+interactive legend, to add or remove events in a snap.
+This makes it easy to track the number of events up to a specific day.
+ 
+In the picture below a Event Summary for all kinds of events are displayed. 
+Depending on how often the events take place, it may make sense to look at 
+specific event groups one by one, especially when mixing common daily events with 
+rare ones.
+<img src="30_Megaplots.png" align="center" width="100%"/> 
 
-<!-- <img src="31_Megaplots.png" align="center" width="100%"/>  -->
+The hover functionality now works as follows: You can select a data point along
+the x-axis, an a vertical dashed line will appear at that point. 
+For each event line, one small label appears, showing the corresponding event count
+for that day. In the plot appearance option, you can set the threshold for when
+events should be displayed to minimize the number of labels if there are too 
+many events.
 
-<!-- <img src="32_Megaplots.png" align="center" width="100%"/>  -->
+<img src="31_Megaplots.png" align="center" width="100%"/> 
 
-<!-- <img src="33_Megaplots.png" align="center" width="100%"/>  -->
+Another option is to generate one hover label with all events and event counts 
+listed in a same way the legend is created. This option is also available in 
+the sidebar at the Plot appearance options.
 
-<!-- <img src="34_Megaplots.png" align="center" width="100%"/>  -->
+### Summary display
+Above the chart is an Dropdown menu called 'Select summary display'.
+The user has the option to select out of three options:
 
-<!-- <img src="35_Megaplots.png" align="center" width="100%"/>  -->
 
-Explanatory text for this chapter will follow soon.
+- **Number of events per day** -	Shows the raw count of event occurrences on each individual study day.
+- **Number of events per day (cumulative total)** - Shows the running total of all event occurrences accumulated from the start of the study.
+- **Number of first events per day and subject (cumulative total)**-	Like (cumulative total), but recurring events for the same subject are deduplicated — only the first occurrence per subject per event type is counted.
+The default is **Number of events per day**, which is the most suitable starting point for spotting temporal clustering.
 
-### Displays
 
-Explanatory text for this chapter will follow soon.
+<img src="32_Megaplots.png" align="center" width="100%"/>  
+
+As for the Megaplot chart, there is also the option to group the **Event Summary** by
+one or multiple variables. This feature makes it easy to compare different
+groups. Unfortunately, hovering and zooming only works for one group at a time. 
+Also keep in mind, that y-axes may differ after zooming in one grouped graph.
+
+<!-- <img src="33_Megaplots.png" align="center" width="100%"/>  --> 
+
+<!--<img src="34_Megaplots.png" align="center" width="100%"/> -->
+
 
 ## Sidebar Options
 
@@ -288,11 +349,11 @@ these option panels is explained in a separate chapter below.
 
 When you click on ‘Sorting/Grouping’, a panel opens with the three
 inputs: ‘Sorting variable’, ‘Grouping variable’ and ‘Arrange Groups’. In
-the sorting variable input every numeric variable of the uploaded data
+the sorting variable input, every numeric variable of the uploaded data
 set is eligible. Therefore custom sorting variables can be created in
 the data preparation.
 
-All character variables in the upload data can be a grouping variable.
+All character variables in the upload data can be used as a grouping variable.
 If a grouping variable is selected, the time-courses are splitted by all
 variable values.
 
@@ -300,7 +361,7 @@ variable values.
 
 It is also possibly to select multiple grouping variables. Then the
 option ‘Arrange groups’ might be of interest, as it allows the groups to
-be reordered. This can be done simply by dragging and dropping the
+be reordered. This can be done simply by drag and drop the
 displayed group boxes.
 
 <img src="38_Megaplots.png" align="center" width="100%"/>
@@ -315,10 +376,51 @@ displayed group boxes.
 
 <!-- <img src="43_Megaplots.png" align="center" width="100%"/>  -->
 
-Explanatory text for this chapter will follow soon.
+
 
 ### Plot Appearance
 
+A wide variety of options related to appearance can be found here.
+Changing one of the option in the **Plot appearance** panel re-renders the graphs.
+For charts with a large number of events and high render times,and if you need 
+to change multiple options, it may be faster to first deselect all events.
+
+The first one is a drag and drop feature to re-arrange the order of which 
+the event lines are drawn. It is strongly recommended to sort rare or important
+events to the bottom of this list to ensure they remain visible.
+
+The next feature is an color option to change the color and/or its transparency
+of the subject line. Depending on which theme is selected at the top right corner,
+the user has to change the corresponding color.
+
+The width of the subject time line as well as the width of the events lines can 
+be changed via slider.
+
+The toggle switch for **Legend Grouping** determines, whether entire event groups
+are selected in the legend or only individual events. The appropriate option 
+depends on the specific situation. If events of groups events are only display 
+together and need to be deselected quickly, **Legend Grouping** is the better choice.
+If individual events are to be selected, this option can be turned off to compare
+individual events with one another.
+
+The two remaining options are for the **Event Summary** chart and are explained there.
+The first one changed the hover label appearance and the second one determines for
+which treshold, the labels should appear.
+
+### Reference Lines/Rectangles
+
+In the older megaplot version, there was an option to draw reference lines into 
+the megaplot chart.
+We have adopted this option and are expanding on it in the sense that it is now
+also possible to draw rectangles in the background. 
+The setup is simple.
+Simply check "Add reference rectangle", select a color (+transparancy), select
+an x-axis start value (x1) and an x-axis end value (x2). If the same number for
+x1 and x2 is entered, a vertical line at this specific day will be drawn. 
+If different values are entered, then a rectangle is drawn in the background. 
+So far, up to 3 different lines or background rectangles can be drawn. 
+This can therefore serve as a helpful visual reference for defining specific time periods
+or marking an important day for analysis.
 <!-- <img src="44_Megaplots.png" align="center" width="100%"/>  -->
 
 <!-- <img src="45_Megaplots.png" align="center" width="100%"/>  -->
@@ -329,33 +431,41 @@ Explanatory text for this chapter will follow soon.
 
 <!-- <img src="48_Megaplots.png" align="center" width="100%"/>  -->
 
-Explanatory text for this chapter will follow soon.
 
 ### Filter
 
+The filter panel uses the datamods package which provides custom modules and one of them
+is to produce the filters. This makes it easy to filter your data set fast and simple.
+
+With the selection box **Select filter variable(s)** all variables
+can be selected and for the selected variables further options will appear.
+Every selected numeric variable will create a slider and every character
+variable with create a selection box. If the variables includes missing values
+(NAs), there is also a little switch to include or exclude NAs for the variable.
+After all filter selection where made, the charts updating with the 
+reduced/filtered data set.
 <!-- <img src="49_Megaplots.png" align="center" width="100%"/>  -->
 
 <!-- <img src="50_Megaplots.png" align="center" width="100%"/>  -->
 
 <!-- <img src="51_Megaplots.png" align="center" width="100%"/>  -->
 
-<!-- <img src="52_Megaplots.png" align="center" width="100%"/>  -->
-
 <!-- <img src="53_Megaplots.png" align="center" width="100%"/>  -->
-
-Explanatory text for this chapter will follow soon.
 
 ### HTML Download
 
 <!-- <img src="54_Megaplots.png" align="center" width="100%"/>  -->
 
-Explanatory text for this chapter will follow soon.
-
-<!-- ## README  -->
+This panel currently contains exactly one button "Download Mega plot as HTML".
+So when you click it, the megaplot chart can be saved in HTML format.
+All plotly options are preserved in this file, but app options like sorting
+and grouping are of course not available. 
 
 <!-- <img src="55_Megaplots.png" align="center" width="100%"/>  -->
 
 <!-- Explanatory text for this chapter will follow soon. -->
+
+### Sequencing 
 
 ## Additional information
 
