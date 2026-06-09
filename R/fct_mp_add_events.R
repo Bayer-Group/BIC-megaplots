@@ -170,6 +170,7 @@ add_events <- function(
       mp_builder$sl <- sl_tmp %>%
         dplyr::select(.data$subjectid, dplyr::all_of(sl_col)) %>%
         dplyr::rename(ref_date = !!rlang::sym(sl_col))
+      mp_builder$sl$ref_date <- as_date_column(mp_builder$sl$ref_date, sl_col)
     } else if (is.numeric(sl_ref_date)) {
       if (anyNA(sl_ref_date)) {
         stop(
@@ -275,6 +276,9 @@ add_events <- function(
 
   event_end <- resolve_first_match(event_end, colnames(data), data = data)
   message("Event end date/time: ", event_end)
+
+  data[[event_start]] <- as_date_column(data[[event_start]], event_start)
+  data[[event_end]] <- as_date_column(data[[event_end]], event_end)
 
   if (!is.null(keep_vars)) {
     keep_vars <- keep_vars[toupper(keep_vars) %in% toupper(colnames(data))]
@@ -396,8 +400,7 @@ add_events <- function(
         .data$event_time
       } else {
         dplyr::case_when(
-          .data$event_time <
-            .data$start_time + left_censor ~ .data$start_time +
+          .data$event_time < .data$start_time + left_censor ~ .data$start_time +
             left_censor -
             1L,
           TRUE ~ .data$event_time

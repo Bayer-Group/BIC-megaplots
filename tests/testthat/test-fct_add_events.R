@@ -328,3 +328,48 @@ test_that("add_events errors when event dates and ref_date scale are mixed", {
     regexp = "mixed types"
   )
 })
+
+test_that("add_events errors on unconverted SAS-style character dates", {
+  adae_sas <- data.frame(
+    USUBJID = "01-001",
+    TRTSTDT = "01JAN2020",
+    AEBODSYS = "SOC",
+    AEDECOD = "PTa",
+    ASTDT = "02JAN2020",
+    AENDT = "03JAN2020",
+    stringsAsFactors = FALSE
+  )
+
+  expect_error(
+    add_events(
+      adae_sas,
+      event_group = "AEBODSYS",
+      event = "AEDECOD",
+      sl_ref_date = "TRTSTDT"
+    ),
+    regexp = "convert date columns to Date"
+  )
+})
+
+test_that("add_events accepts ISO character date columns when mp$sl is NULL", {
+  adae_iso <- data.frame(
+    USUBJID = c("01-001", "01-002"),
+    TRTSTDT = c("2020-01-01", "2020-01-05"),
+    AEBODSYS = c("SOC", "SOC"),
+    AEDECOD = c("PTa", "PTb"),
+    ASTDT = c("2020-01-02", "2020-01-06"),
+    AENDT = c("2020-01-03", "2020-01-07"),
+    stringsAsFactors = FALSE
+  )
+
+  mp <- add_events(
+    adae_iso,
+    event_group = "AEBODSYS",
+    event = "AEDECOD",
+    sl_ref_date = "TRTSTDT"
+  )
+
+  expect_true(inherits(mp$sl$ref_date, "Date"))
+  expect_equal(mp$events$event_time, c(2L, 2L))
+  expect_equal(mp$events$event_time_end, c(3L, 3L))
+})

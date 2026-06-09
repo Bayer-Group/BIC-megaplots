@@ -175,7 +175,7 @@ add_sl_data <- function(
   adsl <- adsl %>%
     dplyr::mutate(ref_date = !!rlang::sym(relative_day_1)) %>%
     dplyr::mutate(
-      dplyr::across(tidyselect::all_of(date_cols), ~ as.Date(.x)), # Convert specified date columns to Date type
+      dplyr::across(tidyselect::all_of(date_cols), ~ as_date_column(.x, dplyr::cur_column())), # Convert specified date columns to Date type
       start_time = as.integer(
         !!rlang::sym(display_start_date) - !!rlang::sym(relative_day_1) + 1L
       ), # Calculate start time relative to day 1

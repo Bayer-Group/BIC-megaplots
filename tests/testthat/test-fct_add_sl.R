@@ -130,3 +130,33 @@ test_that("add_sl_data pmax uses only useful display_end_date columns", {
 
   expect_equal(mp$sl$end_time, c(10L, 14L))
 })
+
+test_that("add_sl_data errors on unconverted SAS-style character dates", {
+  adsl_sas <- data.frame(
+    USUBJID = "001",
+    REFSTDT = "01JAN2022",
+    RFENDT = "10JAN2022",
+    TRTSTDT = "01JAN2022",
+    stringsAsFactors = FALSE
+  )
+
+  expect_error(
+    add_sl_data(adsl_sas),
+    regexp = "convert date columns to Date"
+  )
+})
+
+test_that("add_sl_data accepts ISO character date columns", {
+  adsl_iso <- data.frame(
+    USUBJID = "001",
+    REFSTDT = "2022-01-01",
+    RFENDT = "2022-01-10",
+    TRTSTDT = "2022-01-01",
+    stringsAsFactors = FALSE
+  )
+
+  mp <- add_sl_data(adsl_iso)
+
+  expect_equal(mp$sl$start_time[[1]], 1L)
+  expect_equal(mp$sl$end_time[[1]], 10L)
+})

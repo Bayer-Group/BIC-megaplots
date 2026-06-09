@@ -238,7 +238,7 @@ read_dataset <- function(path) {
   if (grepl("\\.sas7bdat$", path, ignore.case = TRUE)) {
     return(haven::read_sas(path)) # Read SAS file
   } else if (grepl("\\.csv$", path, ignore.case = TRUE)) {
-    return(readr::read_csv(path)) # Read CSV file
+    return(readr::read_csv(path, show_col_types = FALSE)) # Read CSV file
   } else if (grepl("\\.rdata$", path, ignore.case = TRUE)) {
     env <- new.env(parent = emptyenv())
     objs <- load(path, envir = env)
@@ -375,4 +375,34 @@ resolve_all_useful_matches <- function(
 #' @noRd
 is_calendar_date <- function(x) {
   inherits(x, "Date") || inherits(x, "POSIXct")
+}
+
+
+#' @noRd
+as_date_column <- function(x, col_name) {
+  if (inherits(x, "Date") || is.numeric(x)) {
+    return(x)
+  }
+
+  chr <- trimws(as.character(x))
+  chr[chr == ""] <- NA
+  n_nonmiss <- sum(!is.na(chr))
+  if (n_nonmiss == 0L) {
+    return(as.Date(rep(NA, length(x))))
+  }
+
+  parsed <- tryCatch(
+    as.Date(chr),
+    error = function(e) NULL
+  )
+
+  if (is.null(parsed) || sum(!is.na(parsed[!is.na(chr)])) == 0L) {
+    stop(
+      sprintf("Column '%s': could not convert values to Date. ", col_name),
+      "Please convert date columns to Date format before calling this function.",
+      call. = FALSE
+    )
+  }
+
+  parsed
 }
