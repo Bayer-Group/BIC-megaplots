@@ -20,6 +20,10 @@ README
   - [Filter](#filter)
   - [HTML Download](#html-download)
 - [Input Data](#input-data)
+- [Building Upload Data](#building-upload-data)
+  - [add_sl_data()](#addsl_data)
+  - [add_events()](#addevents)
+  - [finalize_mp_object()](#finalize_mp_object)
 - [Additional information](#additional-information)
 
 <img src="inst/app/www/megaplot_hexsticker.png" align="right" width="150px"/>
@@ -392,6 +396,70 @@ Besides these variables any variables can be added for grouping and
 sorting. All numeric variables will be applicable for sorting and all
 character variables for grouping. For more information about “Sorting /
 Grouping” please refer to chapter “Sidebar options”.
+
+## Building Upload Data
+
+The package provides a small pipe-style data builder that turns one or
+more datasets into a megaplots upload file without any manual reshaping.
+The pipeline starts with add_sl_data() or add_events() and ends with
+finalize_mp_object(), Use add_sl_data() when ADSL subject-level data is
+available; otherwise start with add_events() and supply sl_ref_date on
+that first call. Each step returns an
+‘mp_data_builder’ object that is passed on to the next step. The builder
+is designed to work with CDISC (Clinical Data Interchange Standards
+Consortium) conform ADaM (Analysis Data Model) datasets but can be used
+with any datasets that have the required variables.
+
+### add_sl_data()
+
+Reads a subject-level (ADaM standard domain: ADSL) dataset (a data frame
+or a path to a SAS, CSV or RData file) and attaches subject-level
+information to the builder. The function derives the megaplots
+‘subjectid’, ‘start_time’ and ‘end_time’ from the relevant date
+variables. The columns used for the display start, display end and
+relative day 1 can be selected explicitly or are picked from a default
+candidate list that is based on ADaM standards(e.g. ‘TRTSTDT’,
+‘RFSTDTC’, ‘RANDDT’ for the start). Optional treatment start and end
+columns add a ‘treatment_duration’ variable, and a ‘data_filter’
+argument allows for ADSL-level filtering (e.g. “SAFFL == ‘Y’”).
+
+If add_sl_data() is skipped, the first add_events() call will build a
+minimal subject-level table from the events dataset itself; in that case
+the argument ‘sl_ref_date’ (column name or numeric constant) must be
+supplied to the add_events() call to define the relative day 1
+reference.
+
+### add_events()
+
+Stacks event rows onto the builder from any ADaM domain (e.g. ADAE,
+ADLB, ADCM) or non-standardized raw events dataset. Each call processes
+one pair of ‘event_group’ and ‘event’ columns; the function can be
+called several times to combine multiple domains or raw datasets in the
+same megaplot. Both ‘event_group’ and ‘event’ accept a vector of column
+names, in which case the values are pasted together. It is recommended
+to restrict the number of pasted columns to two or three to keep the
+resulting labels concise. The arguments ‘prefix_group’ and
+‘prefix_event’ add a fixed prefix to the resulting labels (e.g. “SOC:”,
+“PT:”, “Lab:”) to keep events from different domains visually distinct.
+
+The event start and end day are derived in the same way as in
+add_sl_data(): either by selecting columns explicitly via ‘event_start’
+and ‘event_end’ or automatically from a default candidate list that is
+again based on ADaM standard (‘ASTDT’, ‘AESTDT’, ‘ADY’ etc.). Optional
+flags ‘calc_time_to_first’ and ‘calc_days_with’ add subject-level
+summary variables (‘ttf\_\*’ and ‘dw\_\*’) that become available for
+sorting in the megaplots app, and ‘left_censor’ shifts events that occur
+before the censor day onto the censor day. The argument ‘keep_vars’
+carries additional event-level variables along into the final dataset.
+
+### finalize_mp_object()
+
+Merges the subject- and event-level tables into a single data frame
+ready to be saved as ‘.RData’ and uploaded through the ‘File
+upload’-panel. The optional arguments ‘event_label_case’ and
+‘event_group_label_case’ can normalize the text of event and event group
+labels to lower, upper or title case so that displayed labels look
+consistent across domains.
 
 ## Additional information
 
