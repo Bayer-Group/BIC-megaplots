@@ -1,32 +1,37 @@
 #' create_jsTree_input
 #'
-#' @description A fct function
+#' @description A function to create a jsTree input structure from data.
 #'
-#' @return The return value, if any, from executing the function.
-#'
+#' @param data A data frame containing the necessary columns.
+#' @return A list representing the jsTree structure.
 #' @noRd
-create_jsTree_input <- function(data) {
+create_jsTree_input<- function(data) {
 
-    splitted_data <- split(data, data$megaplots_selected_event_group)
-    rownames(splitted_data) <- NULL
-    names(splitted_data) <- NULL
-    list_output <- lapply(
-      splitted_data,
-      function(x) {
-        list(
-          text = unique(x$megaplots_selected_event_group),
-          type = "root",
-          children = list(NULL)
-        )
-      }
-    )
-    for(i in 1:length(list_output)) {
-      filtered_splitted_data <- splitted_data[[i]]
-      rownames(filtered_splitted_data) <- NULL
-      list_output[[i]]$children <- apply(filtered_splitted_data, 1, function(y){
-        list(text = as.character(y["megaplots_selected_event"]), type = "child")
-      })
+  # Check if the input data frame is empty
+  if (nrow(data) == 0) {
+    return(list())  # Return an empty list if there's no data
+  }
+
+  splitted_data <- split(data, data$megaplots_selected_event_group)
+  rownames(splitted_data) <- NULL
+  names(splitted_data) <- NULL
+  list_output <- lapply(
+    splitted_data,
+    function(x) {
+      list(
+        text = unique(x$megaplots_selected_event_group),
+        type = "root",
+        children = list(NULL)
+      )
     }
+  )
+  for(i in 1:length(list_output)) {
+    filtered_splitted_data <- splitted_data[[i]]
+    rownames(filtered_splitted_data) <- NULL
+    list_output[[i]]$children <- apply(filtered_splitted_data, 1, function(y){
+      list(text = as.character(y["megaplots_selected_event"]), type = "child")
+    })
+  }
 
   return(list_output)
 }

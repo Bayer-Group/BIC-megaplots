@@ -8,8 +8,6 @@
 #' @description The purpose of this function is to create variables 'subject_index' & 'group_index' used for
 #' arranging subjects and add variables from data set uploaded_data_w_ids for color & jitter information
 #'
-#' @return data frame megaplot_data_raw with added variables
-#'
 #' @noRd
 
 prepare_megaplot_data <- function(
@@ -19,19 +17,36 @@ prepare_megaplot_data <- function(
     select_grouping,
     arrange_groups
   ) {
+
   # create arranged dataset 'megaplot_data_arranged'
   # to create a "subject_index" variable in next step
+  if (is.null(megaplot_data_raw))  {return(NULL)}
+  if (is.null(uploaded_data_w_ids))  {return(NULL)}
 
-  if(!is.null(arrange_groups)) {
+  if (!is.null(arrange_groups)) {
+
+    #create variables text_snippet_1 & text_snippet_2 & text_snippet_total
     megaplot_data_raw <- megaplot_data_raw %>%
       dplyr::mutate(
         text_snippet_1 = paste(select_grouping, collapse = " "),
-        text_snippet_2 = paste(!!!rlang::syms(select_grouping), sep = ", ")) %>%
+        text_snippet_2 = paste(!!!rlang::syms(select_grouping), sep = ", ")
+      ) %>%
       dplyr::rowwise() %>%
-      dplyr::mutate(text_snippet_total = paste(unlist(strsplit(.data$text_snippet_1," ")), gsub(" ", "", unlist(strsplit(.data$text_snippet_2, ", "))), sep = ": ", collapse = " & "))
+      dplyr::mutate(text_snippet_total =
+        paste(
+          unlist(strsplit(.data$text_snippet_1," ")),
+          gsub(" ", "", unlist(strsplit(.data$text_snippet_2, ", "))), sep = ": ",
+          collapse = " & "
+        )
+      )
 
-    megaplot_data_raw$text_snippet_total <- factor(megaplot_data_raw$text_snippet_total, levels = rev(arrange_groups))
+    #create factor by arrange_groups
+    megaplot_data_raw$text_snippet_total <- factor(
+      megaplot_data_raw$text_snippet_total,
+      levels = rev(arrange_groups)
+    )
 
+    #arrange by select_sorting
     megaplot_data_arranged <- dplyr::arrange(
       megaplot_data_raw,
       .data$text_snippet_total,
@@ -61,10 +76,10 @@ prepare_megaplot_data <- function(
     )
 
   # create column group_index
-  if(!is.null(arrange_groups)) {
-  megaplot_data_raw <- megaplot_data_raw %>%
-    dplyr::group_by(.data$text_snippet_total) %>%
-    dplyr::mutate(group_index = dplyr::cur_group_id()) #%>% dplyr::ungroup()
+  if (!is.null(arrange_groups)) {
+    megaplot_data_raw <- megaplot_data_raw %>%
+      dplyr::group_by(.data$text_snippet_total) %>%
+      dplyr::mutate(group_index = dplyr::cur_group_id()) #%>% dplyr::ungroup()
   } else {
     megaplot_data_raw <- megaplot_data_raw %>%
       dplyr::mutate(group_index = 1) #%>% dplyr::ungroup()
@@ -72,7 +87,10 @@ prepare_megaplot_data <- function(
 
   # add a custom space of 10 empty lines (empty subjectid_n) to distinguish groups in mega plots
   megaplot_data_raw  <- megaplot_data_raw %>%
-    dplyr::mutate(subjectid_n = .data$subject_index + (.data$group_index - 1) * 10)
+    dplyr::mutate(
+      subjectid_n = .data$subject_index + (.data$group_index - 1) * 10
+    ) %>%
+    dplyr::ungroup()
 
   # return value
   return(megaplot_data_raw)
