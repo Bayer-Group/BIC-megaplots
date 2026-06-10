@@ -9,9 +9,11 @@
 #' @noRd
 
 create_unique_event_identifier <- function(
-    megaplot_data_raw
+    megaplot_data_raw,
+    theme = "dark"
 ) {
 
+  if (is.null(megaplot_data_raw)) {return(NULL)}
   #create a data frame with unique combinations of event_group and event
   megaplot_data_raw <- megaplot_data_raw %>%
     dplyr::select(tidyselect::all_of(c("megaplots_selected_event_group", "megaplots_selected_event"))) %>%
@@ -19,6 +21,8 @@ create_unique_event_identifier <- function(
 
   #Split unique combinations by event group
   megaplot_data_splitted_by_event_group <- split(megaplot_data_raw, megaplot_data_raw$megaplots_selected_event_group)
+
+  if (length(megaplot_data_splitted_by_event_group) > 0) {
 
   # Create and save an identifier variable ("event_id" & "event_group_id") for every event and event group and the number of events within
   # a group ("max_event_id"). These variables will be used for the color function to create a unique color for every event
@@ -86,6 +90,20 @@ create_unique_event_identifier <- function(
     jittered = TRUE
   )
 
+
+  header_color <- ifelse(theme =="dark", "#1D1F21", "#fff")
+  megaplot_event_data_w_color <- megaplot_event_data_w_color %>%
+    dplyr::mutate(
+      event_color = dplyr::case_when(
+        is.na(megaplots_selected_event) ~ header_color,
+        !is.na(megaplots_selected_event) ~ event_color
+      )
+    )
+
   # add created color vector to reactive object color_data$all
   return(megaplot_event_data_w_color)
+
+  } else {
+    return(NULL)
+  }
 }

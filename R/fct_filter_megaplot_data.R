@@ -10,7 +10,6 @@ filter_megaplot_data <- function(
     megaplot_prepared_data,
     color_data
   ) {
-
   # selected_tree <- shinyTree::get_selected(tree, format = "names")
   #
   if (!is.null(tree)){

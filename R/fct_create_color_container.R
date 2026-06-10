@@ -7,7 +7,8 @@
 #' @noRd
 create_color_container <- function(
     tree,
-    color_vector
+    color_vector,
+    theme = "dark"
 ) {
   # # receive names of selected shinyTree input
   # selected_tree <- shinyTree::get_selected(tree, format = "names")
@@ -36,15 +37,6 @@ create_color_container <- function(
     # Every shinyTree list element gets an id which can be received via attributes(x)$id.
     # This id will be merged to the data and used for sorting
 
-
-    # sort_id <- as.numeric(unlist(lapply(shinyTree::get_selected(tree, format="classid"), function(x){attributes(x)$id})))
-    # selected_data <- cbind(selected_data, sort_id) %>%
-    #   dplyr::arrange(sort_id)
-    # selected_data <- rbind(
-    #   selected_data %>% dplyr::filter(event_group == "Select all event(s)"),
-    #   selected_data %>%dplyr::filter(event_group != "Select all event(s)")
-    # )
-
     # join color vector to the data and create variables "names_for_color_list" & "type_for_color" which will
     # be used to colorize the div container and make sure that also event_groups are displayed
     selected_data <- selected_data %>%
@@ -57,15 +49,6 @@ create_color_container <- function(
         names_for_color_list = ifelse(is.na(.data$megaplots_selected_event), .data$megaplots_selected_event_group, .data$megaplots_selected_event),
         type_for_color = ifelse(is.na(.data$megaplots_selected_event), "megaplots_selected_event_group", "megaplots_selected_event")
       )
-
-    # in case new event groups are created via jsTreeR, colorize these in grey
-    selected_data <- selected_data %>% dplyr::mutate(
-      event_color = dplyr::case_when(
-        is.na(event_color) ~ "#424242",
-        !is.na(event_color) ~ event_color
-
-      )
-    )
 
   }
   return(selected_data)

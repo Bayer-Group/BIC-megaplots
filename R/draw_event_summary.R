@@ -26,6 +26,7 @@
 #' @param reference_line_1_color character with hex color code for first reference line/rect
 #' @param reference_line_2_color character with hex color code for second reference line/rect
 #' @param reference_line_3_color character with hex color code for third reference line/rect
+#' @param theme character with app theme ["dark"/"light"]
 #'
 #' @export
 draw_event_summary <- function(
@@ -47,11 +48,14 @@ draw_event_summary <- function(
     reference_line_3_value2,
     reference_line_1_color,
     reference_line_2_color,
-    reference_line_3_color
+    reference_line_3_color,
+    theme
 ) {
 
+
   #get number of groups from variable group_index
-  number_group_levels <-  max(megaplot_filtered_data$group_index, na.rm = TRUE)
+  #number_group_levels <-  max(megaplot_filtered_data$group_index, na.rm = TRUE)
+  group_levels <- unique(megaplot_filtered_data$group_index)
   #initialize list for figures used in subplots (when multiple groups are selected)
   figure_list <- list()
   #create empty vector for maximum y_range (used for calculate maximum y-value over all subplots)
@@ -75,7 +79,7 @@ draw_event_summary <- function(
     }
 
     # create cumulative total counts (for every group)
-    for (k in 1:number_group_levels) {
+    for (k in group_levels) {
       if (event_summary_selection == "event_by_subject_cumulative") {
         #recurring events are not taken into account
         megaplot_filtered_data_by_group <- megaplot_filtered_data %>%
@@ -173,7 +177,7 @@ draw_event_summary <- function(
         )
       }
       #add lines to initial figure
-        if (switch_legend_grouping) {
+        # if (switch_legend_grouping) {
           fig2 <- fig  %>%
             plotly::add_lines(
               color = ~I(event_color),
@@ -183,45 +187,51 @@ draw_event_summary <- function(
               legendgroup = ~ megaplots_selected_event_group,
               legendgrouptitle = list(text = ~ megaplots_selected_event_group)
             )
-        } else {
-          fig2 <- fig  %>%
-            plotly::add_lines(
-              color = ~I(event_color),
-              line = list(shape = "hv", width = 3),
-              name = ~ unique_event,
-              showlegend = FALSE,
-              legendgroup = ~ unique_event
-            )
-        }
+          if (!switch_legend_grouping) {
+            fig2 <-  fig2 %>%
+              plotly::layout(legend = list(traceorder = "grouped", groupclick = "toggleitem"))
+          }
+        # } else {
+        #   fig2 <- fig  %>%
+        #     plotly::add_lines(
+        #       color = ~I(event_color),
+        #       line = list(shape = "hv", width = 3),
+        #       name = ~ unique_event,
+        #       showlegend = FALSE,
+        #       legendgroup = ~ unique_event
+        #     )
+        # }
 
       #update figure layout
       fig3 <- fig2 %>%
         plotly::layout(
-          plot_bgcolor = "#404A4E",
-          paper_bgcolor ='#404A4E',
+          plot_bgcolor = ifelse(theme =="dark","#1D1F21","#fff"),
+          paper_bgcolor =ifelse(theme =="dark","#1D1F21","#fff"),
           xaxis = list(
-            color='#FFFFFF',
+            color=ifelse(theme =="dark","#fff","#000"),
             title = "Study Day",
             zeroline = FALSE,
             spikemode = 'across+marker',
             spikethickness = 1,
             spikedash = "dash",
-            spikecolor = "#FFFFFF"
+            spikecolor = ifelse(theme =="dark","#fff","#000")
           ),
           yaxis = list(
-            color='#FFFFFF',
+            color=ifelse(theme =="dark","#fff","#000"),
             showgrid = TRUE,
             title = "Cumulative event count per day",
             zeroline = FALSE,
             autotick = TRUE
           ),
-          font = list(family = "Agency FB", color = "#FFFFFF")#,
+          font = list(
+            family = "Agency FB",
+            color = ifelse(theme =="dark","#fff","#000"))#,
           # barmode = "stack"
         )
       figure_list[[k]] <- fig3
     }
 
-    for (k in 1:number_group_levels) {
+    for (k in group_levels) {
       if (!is.null(select_grouping)) {
         megaplot_prepared_data_w_group_text_sorted <- megaplot_prepared_data_w_group_text %>%
           dplyr::arrange(.data$group_index)
@@ -247,7 +257,7 @@ draw_event_summary <- function(
       rev(figure_list),
       shareY = TRUE,
       shareX = TRUE,
-      nrows = number_group_levels
+      nrows = length(group_levels)
     )
 
     g <- g %>%
@@ -289,7 +299,7 @@ draw_event_summary <- function(
         tooltip_text = ifelse(.data$value < event_summary_cutoff, NA, paste0(.data$megaplots_selected_event,": ", .data$value))
       )
 
-    for(k in 1:number_group_levels) {
+    for(k in group_levels) {
 
       df_group <- df %>% dplyr::filter(.data$group_index == k)
 
@@ -324,7 +334,7 @@ draw_event_summary <- function(
 
       # add lines to plotly figur
       if (hovermode == "x") {
-        if (switch_legend_grouping) {
+        # if (switch_legend_grouping) {
           fig2 <- fig %>%
             plotly::add_lines(
               y = ~ value,
@@ -337,21 +347,25 @@ draw_event_summary <- function(
               legendgroup = ~ megaplots_selected_event_group,
               legendgrouptitle = list(text = ~ megaplots_selected_event_group)
             )
-        } else {
-          fig2 <- fig %>%
-            plotly::add_lines(
-              y = ~ value,
-              color = ~I(event_color),
-              line = list(shape = "hv", width = 3),
-              name = ~ unique_event,
-              showlegend = FALSE,
-              hoverinfo = ~ tooltip,
-              text = ~ tooltip_text,
-              legendgroup = ~ unique_event
-            )
-        }
+          if (!switch_legend_grouping) {
+            fig2 <-  fig2 %>%
+              plotly::layout(legend = list(traceorder = "grouped", groupclick = "toggleitem"))
+          }
+        # } else {
+        #   fig2 <- fig %>%
+        #     plotly::add_lines(
+        #       y = ~ value,
+        #       color = ~I(event_color),
+        #       line = list(shape = "hv", width = 3),
+        #       name = ~ unique_event,
+        #       showlegend = FALSE,
+        #       hoverinfo = ~ tooltip,
+        #       text = ~ tooltip_text,
+        #       legendgroup = ~ unique_event
+        #     )
+        # }
       } else {
-        if (switch_legend_grouping) {
+        # if (switch_legend_grouping) {
           fig2 <- fig %>%
             plotly::add_lines(
               y = ~ value,
@@ -362,51 +376,55 @@ draw_event_summary <- function(
               legendgroup = ~ megaplots_selected_event_group,
               legendgrouptitle = list(text = ~ megaplots_selected_event_group)
             )
-        } else {
-          fig2 <- fig %>%
-            plotly::add_lines(
-              y = ~ value,
-              color = ~I(event_color),
-              line = list(shape = "hv", width = 3),
-              name = ~ unique_event,
-              showlegend = FALSE,
-              legendgroup = ~ unique_event
-            )
-        }
+          if (!switch_legend_grouping) {
+            fig2 <-  fig2 %>%
+              plotly::layout(legend = list(traceorder = "grouped", groupclick = "toggleitem"))
+          }
+        # } else {
+        #   fig2 <- fig %>%
+        #     plotly::add_lines(
+        #       y = ~ value,
+        #       color = ~I(event_color),
+        #       line = list(shape = "hv", width = 3),
+        #       name = ~ unique_event,
+        #       showlegend = FALSE,
+        #       legendgroup = ~ unique_event
+        #     )
+        # }
       }
 
       fig3 <- fig2 %>%
         plotly::layout(
-          plot_bgcolor = "#404A4E",
-          paper_bgcolor ='#404A4E',
+          plot_bgcolor = ifelse(theme =="dark","#1D1F21","#fff"),
+          paper_bgcolor =ifelse(theme =="dark","#1D1F21","#fff"),
           xaxis = list(
-            color='#FFFFFF',
+            color=ifelse(theme =="dark","#fff","#000"),
             title = "Study Day",
             zeroline = FALSE,
             spikemode = 'across+marker',
             spikethickness = 1,
             spikedash = "dash",
-            spikecolor = "#FFFFFF"
+            spikecolor = ifelse(theme =="dark","#fff","#000")
           ),
           yaxis = list(
-            color='#FFFFFF',
+            color=ifelse(theme =="dark","#fff","#000"),
             showgrid = TRUE,
             title ="Event count per day",
             zeroline = FALSE,
             autotick = TRUE
           ),
-          font = list(family = "Agency FB", color = "#FFFFFF")
+          font = list(family = "Agency FB", color = ifelse(theme =="dark","#fff","#000"))
         )
 
       figure_list[[k]] <- fig3
     }
 
-    for (k in 1:number_group_levels) {
+    for (k in group_levels) {
       if (!is.null(select_grouping)) {
         megaplot_prepared_data_w_group_text_sorted <- megaplot_prepared_data_w_group_text %>%
           dplyr::arrange(.data$group_index)
         figure_list[[k]] <- figure_list[[k]] %>%
-          plotly::layout(annotations =list(list(x = mean(c(x_min, x_max)), y = max_y_range, showarrow = FALSE, xacnhor = 'center', yanchor = "top", text = megaplot_prepared_data_w_group_text_sorted$text_snippet_total[[k]])))
+          plotly::layout(annotations =list(list(x = mean(c(x_min, x_max)), y = max_y_range, showarrow = FALSE, xacnhor = 'center', yanchor = "top", text = megaplot_prepared_data_w_group_text_sorted %>% dplyr::filter(group_index == k) %>% dplyr::pull(text_snippet_total))))
       }
 
       figure_list[[k]] <- figure_list[[k]] %>%
@@ -420,13 +438,18 @@ draw_event_summary <- function(
         )
     }
 
+    #remove empty list entries to avoid errors
     figure_list[[1]] <- plotly::style(figure_list[[1]], showlegend = TRUE)
+
+    figure_list <- figure_list[!sapply(figure_list, is.null)]
+
+
 
     g <- plotly::subplot(
       rev(figure_list),
       shareY = TRUE,
       shareX =TRUE,
-      nrows = number_group_levels
+      nrows = length(group_levels)
     )
 
     g <- g %>%

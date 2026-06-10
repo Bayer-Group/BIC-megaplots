@@ -31,34 +31,8 @@ app_ui <- function(request) {
       functions = c("init")
     ),
 
-    # custom css style of custom "helptext_status" used in fct_help_text_dropdown_button.R
-    shiny::tags$style(
-      ".btn-helptext_status {background-color: #404A4E; color: #0091DF; border: 0.2px solid; border-color:#6d787d;}"
-    ),
-    # Add CSS styles (overwrite color appearance of fileInput button)
-    tags$style(
-      type = "text/css",
-      ".btn-outline-default,
-      .btn-default:not(
-      .btn-primary,
-      .btn-secondary,
-      .btn-info,.btn-success,
-      .btn-danger,
-      .btn-warning,
-      .btn-light,
-      .btn-dark,
-      .btn-link,[class*='btn-outline-']
-      ) {
-        --bs-btn-color: white;
-        --bs-btn-border-color: white;
-        --bs-btn-hover-border-color: white;
-        --bs-btn-hover-color: white;
-      }"
-    ),
-
     # Add CSS styles (overwrite shinyTree hover/highlight appearance and search highlight color)
     ## shinyTree appearances
-    tags$style(type = 'text/css', ".jstree-default .jstree-clicked {background-color: #404A4E}"),
     tags$style(type = 'text/css', ".jstree-default .jstree-hovered {background-color: #1d2224}"),
     tags$style(type = 'text/css', ".jstree-default .jstree-search { color: yellow;}"),
 
@@ -81,25 +55,29 @@ app_ui <- function(request) {
 
     # Use page_navbar from bslib package
     bslib::page_navbar(
-      title = "MEGAPLOTS",
+      title = HTML(paste0("<b> MEGAPLOTS </b>")),
       id = "MEGAPLOTS",
-      #create color theme for user interface
+      #create  theme for user interface
       theme = bslib::bs_theme(
         version = 5,
-        primary = "#0091DF",                     #primary color used for inputs
-        "navbar-bg" = "#0091DF",                 #navbar background color
-        bg = "#404A4E",                          #app background-color
-        fg = "white",                            #font-color
         heading_font = "Agency FB",              #font
         base_font = "Agency FB",                 #font
-        font_scale = 1.6,                        #font size
-        "input-border-color" = "#d2d2d2"
+        font_scale = 1.4,                    #font size
+        primary = "#007CBF"
       ),
       #### Sidebar ####
       # Use accordion_panels from bslib
       sidebar = bslib::sidebar(
-        width = 300,
-        title = div(img(src = "www/megaplot_hexsticker.png", height = "175px")),
+        width = 250,
+        title = tagList(
+          #depending on theme display hexsticker in theme colors
+          shiny::conditionalPanel(condition = "input.theme_toggle == 'dark'",
+            div(img(src = "www/megaplot_hexsticker_n.png", height = "175px",style = "display: block; margin-left: auto; margin-right: auto;"))
+          ),
+          shiny::conditionalPanel(condition = "input.theme_toggle != 'dark'",
+            div(img(src = "www/megaplot_hexsticker_n2.png", height = "175px",style = "display: block; margin-left: auto; margin-right: auto;"))
+          )
+        ),
         bslib::accordion(open = FALSE,
           # Sorting/Grouping (Sidebar)
           bslib::accordion_panel(
@@ -114,7 +92,8 @@ app_ui <- function(request) {
               options = list(
                 `live-search` = TRUE
               ),
-              choicesOpt = list(style =  rep_len("font-size: 60%; line-height: 1.6;", 3)
+              choicesOpt = list(
+                style =  rep_len("font-size: 60%; line-height: 1.6;", 3)
               )
             ),
             shiny::selectizeInput(
@@ -127,7 +106,7 @@ app_ui <- function(request) {
             ),
             # orderInput widget from shinyjqui package to drag and drop the
             # order of groups (if applicable)
-            shiny::uiOutput("arrange_groups"),
+            shiny::uiOutput("arrange_groups")
           ),
           # Plot appearance (Sidebar)
           bslib::accordion_panel(
@@ -258,7 +237,6 @@ app_ui <- function(request) {
                 value = 0
               ),
             ),
-            #####
             shiny::numericInput(
               inputId = "event_summary_cutoff",
               label = "Display hover for counts greater than or equal to:",
@@ -296,306 +274,26 @@ app_ui <- function(request) {
             icon = bsicons::bs_icon("download"),
             shiny::downloadButton("download_plotly_widget", "Download Mega plot as HTML")
           ),
-          bslib::accordion_panel(
-            "Sequencing",
-            icon = bsicons::bs_icon("shuffle"),
-            shinyWidgets::pickerInput(
-              inputId = 'sequencing_seriation_method',
-              label = 'Seriation method',
-              choices = sort(
-                c(
-                  'GW_average',
-                  'GW_complete',
-                  'GW_single',
-                  'GW_ward',
-                  'HC_single',
-                  'HC_average',
-                  'HC_complete',
-                  'HC_ward',
-                  'OLO_average',
-                  'OLO_complete',
-                  'OLO_single',
-                  'OLO_ward',
-                  'VAT',
-                  'TSP',
-                  'ARSA'
-                )
-              ),
-              selected = 'GW_average',
-              multiple = FALSE,
-              options = list(
-                `live-search` = TRUE,
-                `header` = 'Select item'
-              )
-            ),
-            shiny::selectInput(
-              inputId = "sequencing_events",
-              label = "Select Events for Sequencing",
-              choices = NULL,
-              selected = NULL,
-              multiple = TRUE
-            ),
-            shinyWidgets::pickerInput(
-              inputId = "sequencing_distmeasure_name",
-              label = paste0('Distance Measure '),
-              choices = c(
-                "OM",
-                "OMloc",
-                "OMslen",
-                "OMspell",
-                "OMstran",
-                "CHI2",
-                "EUCLID",
-                "LCS",
-                "LCP",
-                "RLCP"#,
-                #"HAM",
-                #"DHD"
-              ),
-              selected = 'OM',
-              multiple = FALSE,
-              options = list(`live-search` = TRUE,
-                             `header` = 'Select item'),
-            ),
-            bslib::accordion_panel(
-              "Parameters",
-              icon = bsicons::bs_icon("plus-circle"),
-              shiny::conditionalPanel(
-                condition = "input.sequencing_distmeasure_name == 'OM' ||
-                             input.sequencing_distmeasure_name == 'OMloc' ||
-                             input.sequencing_distmeasure_name == 'OMslen' ||
-                             input.sequencing_distmeasure_name == 'OMspell' ||
-                             input.sequencing_distmeasure_name == 'OMstran' ||
-                             input.sequencing_distmeasure_name == 'DHD' ||
-                             input.sequencing_distmeasure_name == 'HAM'
-                ",
-                shinyWidgets::pickerInput(
-                  inputId = "sequencing_substitution_cost",
-                  label = "Substitution Cost",
-                  choices = sort(c(
-                    "CONSTANT", "INDELS", "INDELSLOG", "TRATE", "ORDINAL"
-                  )),
-                  selected = 'CONSTANT',
-                  multiple = FALSE,
-                  options = list(`live-search` = TRUE,
-                                 `header` = 'Select item'),
-                )
-              ),
-              shiny::conditionalPanel(
-                condition = "input.sequencing_distmeasure_name == 'OM' ||
-                             input.sequencing_distmeasure_name == 'OMslen' ||
-                             input.sequencing_distmeasure_name == 'OMspell' ||
-                             input.sequencing_distmeasure_name == 'OMstran'
-                ",
-                shinyWidgets::pickerInput(
-                  inputId = "sequencing_insertion_deletion_cost",
-                  label = "Insertion/Deletion Cost",
-                  choices = sort(c("auto", "numeric value")),
-                  selected = "auto",
-                  multiple = FALSE,
-                  options = list(`live-search` = TRUE,
-                                 `header` = 'Select item')
-                ),
-                shiny::conditionalPanel(condition = "input.sequencing_insertion_deletion_cost == 'numeric value'",
-                  shiny::numericInput(
-                    inputId =  "sequencing_insertion_deletion_cost_numeric",
-                    label = "Insertion/Deletion Cost (double)",
-                    value = 1,
-                    min = 0,
-                  )
-                )
-              ),
-              shiny::conditionalPanel(
-                condition = "input.sequencing_distmeasure_name != 'HAM'
-                ",
-              shinyWidgets::pickerInput(
-                inputId =  "sequencing_normalization",
-                label = "Normalization",
-                choices = sort(
-                  c("auto", "none", "maxlength", "gmean",
-                    "maxdist", "YujianBo")
-                ),
-                selected = 'auto',
-                multiple = FALSE,
-                options = list(`live-search` = TRUE,
-                               `header` = 'Select item')
-              )
-              ),
-              shiny::conditionalPanel(
-                condition = "input.sequencing_distmeasure_name == 'OMloc' ||
-                             input.sequencing_distmeasure_name == 'OMspell'
-                ",
-                shiny::numericInput(
-                  inputId =  "sequencing_cost_spell_length_transformation",
-                  label = "Cost of spell length transformation",
-                  value = 0.5,
-                  min = 0,
-                  step = 0.1
-                )
-                ),
-              shiny::conditionalPanel(
-                condition = "input.sequencing_distmeasure_name == 'OMloc'
-                ",
-                shiny::numericInput(
-                  inputId =  "sequencing_local_insertion_cost",
-                  label = "Local Insertion Cost",
-                  value = 0,
-                  min = 0
-                )
-              ),
-              shiny::conditionalPanel(condition = "input.sequencing_distmeasure_name == 'OMslen'
-                ",
-                shinyWidgets::pickerInput(
-                  inputId =  "sequencing_substitution_costs_function",
-                  label = "Substituion Costs Function",
-                  choices = sort(c("mean", "gmean")),
-                  selected = 'mean',
-                  multiple = FALSE,
-                  options = list(`live-search` = TRUE,
-                                 `header` = 'Select item')
-                )
-              ),
-              shiny::conditionalPanel(condition = "input.sequencing_distmeasure_name == 'OMslen' ||
-                             input.sequencing_distmeasure_name == 'OMspell'
-                ",
-                shiny::numericInput(
-                  inputId =  "sequencing_exponential_weight_spell_length",
-                  label = "Exponential weight of spell length",
-                  value = 0.5,
-                  min = 0
-                )
-              ),
-              shiny::conditionalPanel(condition = "input.sequencing_distmeasure_name == 'OMstran'",
-                shinyWidgets::pickerInput(
-                  inputId =  "sequencing_transition_indel_cost_method",
-                  label = "Transition Indel Cost Method",
-                  choices = sort(c("constant", "subcost", "prob")),
-                  selected = 'constant',
-                  multiple = FALSE,
-                  options = list(`live-search` = TRUE,
-                                 `header` = 'Select item')
-                ),
-                shinyWidgets::pickerInput(
-                  inputId =  "sequencing_account_transition_previous_state",
-                  label = "Account for the transition from the previous state",
-                  choices = sort(c("TRUE", "FALSE")),
-                  selected = 'FALSE',
-                  multiple = FALSE,
-                  options = list(`live-search` = TRUE,
-                                 `header` = 'Select item')
-
-                ),
-                shinyWidgets::pickerInput(
-                  inputId =  "sequencing_duplicate_last_column",
-                  label = "Duplicate the last column",
-                  choices = sort(c("TRUE", "FALSE")),
-                  selected = 'TRUE',
-                  multiple = FALSE,
-                  options = list(`live-search` = TRUE,
-                                 `header` = 'Select item')
-                ),
-                shiny::numericInput(
-                  inputId =  "sequencing_origin_transition_trade_off_weight",
-                  label = "Origin-Transition Trade-Off Weight",
-                  value = 0.5,
-                  min = 0,
-                  step = 0.1,
-                  max = 1
-                )
-              ),
-              shiny::conditionalPanel(
-                condition = "input.sequencing_distmeasure_name == 'CHI2' ||
-                             input.sequencing_distmeasure_name == 'EUCLID'
-                ",
-                shinyWidgets::pickerInput(
-                  inputId = "sequencing_intervals_overlapping",
-                  label = "Intervals overlapping",
-                  choices = sort(c("TRUE", "FALSE")),
-                  selected = 'FALSE',
-                  multiple = FALSE,
-                  width = 150,
-                  options = list(`live-search` = TRUE,
-                                 `header` = 'Select item'),
-                ),
-                shiny::numericInput(
-                  inputId =  "sequencing_interval_length",
-                  label = "Interval Length",
-                  value = 1,
-                  min = 1,
-                  step = 1
-                )
-              ),
-              shiny::conditionalPanel(
-                condition = "input.sequencing_distmeasure_name == 'CHI2'
-                ",
-                shinyWidgets::pickerInput(
-                  inputId =  "sequencing_distribution_states_weights",
-                  label = "Distribution of states as weights",
-                  choices = sort(c("TRUE", "FALSE")),
-                  selected = 'TRUE',
-                  multiple = FALSE,
-                  options = list(`live-search` = TRUE,
-                                 `header` = 'Select item')
-                )
-              ),
-              shinyWidgets::pickerInput(
-                inputId =  "sequencing_missing_method",
-                label = 'Missing method',
-                choices = c("new state", "last observed state"),
-                selected = "new state",
-                multiple = FALSE,
-                options = list(`live-search` = TRUE,
-                               `header` = 'Select item')
-              )
-            ),
-            conditionalPanel(
-              condition = "input.sequencing_distmeasure_name == 'HAM' ||
-                             input.sequencing_distmeasure_name == 'DHD'
-                ",
-              shiny::span(shiny::HTML(
-                gsub(
-                  '\n',
-                  '<br/>',
-                  stringr::str_wrap(
-                    'This distance measure only works for sequences of the same length!',
-                    width = 30
-                  )
-                )
-              ), style = 'color:#e6250b'),
-              shiny::br()
-            ),
-            shiny::actionButton(
-              inputId ="sequencing_button",
-              label  = "Apply"
-            ),
-            shinyWidgets::prettySwitch(
-              inputId = "sequencing_switch",
-              label = "On/Off Sequencing Sorting",
-              value = FALSE,
-              status = "primary"
-            )#,
-            # shinyWidgets::prettySwitch(
-            #   inputId = "circular_vision",
-            #   label = "Circular Vision",
-            #   value = FALSE,
-            #   status = "primary"
-            # )
-          )
+          # module call for sequencing
+          sequencing_ui("sequencing_module")
         )
+        ,
+        HTML(paste0("<p style = 'color: #dedede;'> Version: ", utils::packageVersion("Megaplots")))
       ),
       #### Main area ####
       bslib::nav_panel(
         id = "Data Upload",
         title = "Data Upload",
         #initialize waiter functions
-        waiter::useGarcon(),
+        # waiter::useGarcon(),
         waiter::useWaiter(),
         waiter::waiterShowOnLoad(
           tags$img(
-            src = "www/megaplot_hexsticker.png",
+            src = "www/megaplot_hexsticker_n.png",
             height = "175px",
             id = "megaplot_hexsticker"
-          )
+          ),
+          color = "#1D1F21"
         ),
         bslib::navset_card_underline(
           id = "Upload",
@@ -606,54 +304,39 @@ app_ui <- function(request) {
                 paste0(
                   "File & variable selection", "&emsp;","&emsp;"
                 )
-              )#,
-            #   #custom dropdownbutton with help text
-            #   help_text_dropdown_button(
-            #     id = "file_variable_selection_helptext",
-            #     text = shiny::wellPanel(style = "width: 1000px;",
-            #       HTML(
-            #       paste0(
-            #         "
-            #         <p> File selection </p>
-            #         <p>
-            #         Please click on the “Browse…” button and upload the desired data set.
-            #         Currently, it is only possible to use ‘.RData’ as data format. If other
-            #         formats are used, an error message appears.
-            #         </p>
-            #           <img src='www/Screenshots/1_Megaplots.png' align='center' width='90%'/>
-            #         <p>
-            #           After successful upload, options for the variable selection will appear.
-            #         </p>
-            #           <img src='www/Screenshots/4_Megaplots.png' align='center' width='90%'/>
-            #          <p> Event selection </p>
-            #         <p>
-            #           The variable ‘Identifier’ can be a numeric or character variable and
-            #           will be used to assign individual time sequences. The variables
-            #           ‘Timeline Start Day’ and ‘Timeline End Day’ define the start and end
-            #           time of every individual time course. Both variables should be integers,
-            #           otherwise they will be rounded. ‘Event’ and ‘Event Group’ should contain
-            #           the names of the events that are displayed. Multiple events can belong
-            #           to a specific event group. If no event group is selected, event is
-            #           automatically set as event group. The event names do not necessarily
-            #           have to be unique. For display purposes, they are renamed if non-unique,
-            #           by writing the event group in brackets after them. Like the time
-            #           courses, every event requires a start and end day. The corresponding
-            #           variables can be selected via ‘Event Start Day’ and ‘Event End Day’. The
-            #           same rounding procedure is applied as for the timelines.
-            #         </p>
-            #         "
-            #       )
-            #     )
-            #   ),
-            #   right = FALSE
-            # )
+              )
           ),
           # create a different named value "File & variable selection 2"
           # used in app_server.R for
           # bslib::nav_select() to switch panels after pressing
           # "NEXT-"/"BACK"-buttons
           value = "File & variable selection 2",
-          shiny::fluidRow(
+            shiny::wellPanel(
+              HTML(
+                paste0(
+                  "<p>
+                  WELCOME!
+                </p>"
+                )
+              ),
+            HTML(
+              paste0(
+                "<p>
+                  MEGAPLOTS is a huge graphical display showing individual-level data over time.
+                  MEGAPLOTS seek to represent longitudinal data while focusing on event visualization!
+                </p>"
+              )
+            ),
+            HTML(
+              paste0(
+                "<p>
+                  To get started, please upload your data below, select the desired
+                  variables, and click the 'NEXT' button.
+                </p>"
+              )
+            )
+          ),
+          shiny::wellPanel(
             shiny::column(3,
               shiny::fileInput(
                 inputId = 'file',
@@ -662,8 +345,7 @@ app_ui <- function(request) {
                 accept = '.RData'
               )
             ),
-            span(textOutput("file_upload_message"),style = "color:#cc0a21;")
-          ),
+            span(textOutput("file_upload_message"),style = "color:#cc0a21;"),
           tags$style(
             HTML(
               "select[data-max-options=\"1\"] ~ .dropdown-menu .bs-actionsbox .bs-select-all {display: none;}"
@@ -679,7 +361,7 @@ app_ui <- function(request) {
               shiny::column(2,
                 shinyWidgets::pickerInput(
                   inputId = "select_subjectid",
-                  label = "Identifier",
+                  label = HTML("<p> Identifier <em style = 'color: #f9b8c7;'> *required </em></p>"),
                   choices = NULL,
                   selected = NULL,
                   multiple = TRUE,
@@ -726,7 +408,7 @@ app_ui <- function(request) {
              shiny::column(2,
                shinyWidgets::pickerInput(
                  inputId = "select_event",
-                 label = "Event",
+                 label = HTML("<p> Event <em style = 'color: #f9b8c7;'> *required </em></p>"),
                  choices = NULL,
                  selected = NULL,
                  multiple = TRUE,
@@ -741,7 +423,7 @@ app_ui <- function(request) {
              shiny::column(2,
                shinyWidgets::pickerInput(
                  inputId = "select_event_group",
-                 label = "Event Group",
+                 label = HTML("<p> Event Group <em style = 'color: #f9b8c7;'> *required </em></p>"),
                  choices = NULL,
                  selected = NULL,
                  multiple = TRUE,
@@ -756,7 +438,7 @@ app_ui <- function(request) {
               shiny::column(2,
                 shinyWidgets::pickerInput(
                   inputId = "select_event_time",
-                  label = "Event Start Day",
+                  label = HTML("<p> Event Start Day <em style = 'color: #f9b8c7;'> *required </em></p>"),
                   choices = NULL,
                   selected = NULL,
                   multiple = TRUE,
@@ -771,7 +453,7 @@ app_ui <- function(request) {
               shiny::column(2,
                 shinyWidgets::pickerInput(
                   inputId = "select_event_time_end",
-                  label = "Event End Day",
+                  label = HTML("<p> Event End Day <em style = 'color: #f9b8c7;'> *required </em></p>"),
                   choices = NULL,
                   selected = NULL,
                   multiple = TRUE,
@@ -794,7 +476,7 @@ app_ui <- function(request) {
                   icon = shiny::icon("angle-right")
                 )
               )
-            ),theme = bslib::bs_theme(version = 5)
+            )),theme = bslib::bs_theme(version = 5)
           ),
           bslib::nav_panel(
             tags$div(
@@ -802,162 +484,7 @@ app_ui <- function(request) {
                 paste0(
                   "Event & color selection",  "&emsp;","&emsp;"
                 )
-              )#,
-              # help_text_dropdown_button(
-              #   id = "event_color_selection_helptext",
-              #   text = wellPanel(style ="width: 1000px;",
-              #    HTML(
-              #      paste0(
-              #        "
-              #       <p> Event & Color Selection</p>
-              #       <p>
-              #       In this panel, the events that should be displayed can be selected.
-              #       Events can also be sorted and all event colors can be defined. All
-              #       settings can be saved so that they can be quickly reloaded in future
-              #       sessions. First, the events are selected on the left side.
-              #       </p>
-              #       <p>  Event / Event Group Tree </p>
-              #       <p>
-              #       On the left side appears a list with checkboxes for all event groups.
-              #       Clicking on a box selects all events of the event group. The small
-              #       arrows next to the box can be used to expand the list. Then also every
-              #       event appears in the list.
-              #       </p>
-              #       <img src='www/Screenshots/7_Megaplots.png' align='center' width='95%'/>
-              #       <p>
-              #       This can be used to select only individual events of a event group. To
-              #       find individual events or event groups in a long list, the search box
-              #       above the list can be used. For every selected event a colored box
-              #       appears right to the event selection list. These can be used to set the
-              #       colors (see next chapter).
-              #       </p>
-              #       <p>
-              #       Another feature is the ‘drag and drop’ of the events within the list.
-              #       This can be used to sort events within a event group. This can be
-              #       particularly helpful for ordinal scaled events. Sorting affects the
-              #       legend displayed next to the graph but can also be used to create a
-              #       color palette explained in the next chapter. After sorting, any box of
-              #       the event selection list must be clicked again to update the color
-              #       selection. Further known issues with the drag & drop feature are that no
-              #       events may be selected in order to move variables and events can be
-              #       dragged out of the event group, which leads to errors.
-              #       </p>
-              #       <p>
-              #       After completing the event selection, it is possible to go directly to
-              #       the megaplot graphic by clicking the next button, or make various color
-              #       settings, which are explained in the next section.
-              #       </p>
-              #       <p> Event / Event Group Color List </p>
-              #       <p>
-              #       In the middle of the ‘Event & color selection’-panel, a colored list
-              #       with all selected event groups and events appears. It is now possible to
-              #       mark an event group or a single event by clicking on the corresponding
-              #       event/event group name. The selected event or event group gets a
-              #       highlighted border.
-              #       </p>
-              #       <img src='www/Screenshots/10_Megaplots.png' align='center' width='95%'/>
-              #       <p>
-              #       By clicking one of these events a color selection panel on the right
-              #       side appears. Depending on whether a single event or a event group is
-              #       clicked, the options in the color selection panel differ.
-              #       </p>
-              #       <p>
-              #       Note: If you change the event selection on the left side after making a
-              #       selection for the colors in the middle, it may happen that a event/event
-              #       group selection does not respond. By clicking any other event in the
-              #       color list updates the selection and resolve the issue.
-              #       </p>
-              #
-              #       <p> Color Selection Panel </p>
-              #       <p>
-              #       After selecting an event or event group in the color list, options to
-              #       change the colors appear on the right side. There is also an jitter
-              #       option to adjust the event position of the event group, which will be
-              #       explained in the chapter after next.
-              #       </p>
-              #       <p> Color Methods </p>
-              #       <p>
-              #       Selecting suitable colors is particularly difficult when many different
-              #       events are to be represented. The user is responsible for selecting
-              #       suitable colors and take color blindness into account. For the correct
-              #       color selection, please refer to the various best practice guides. The
-              #       methods here are only intended as an aid to their implementation.
-              #       </p>
-              #       <p>
-              #       When an event group is selected, there are three different methods to
-              #       colorize the events: ‘Color gradient (3 colors)’, ‘Unique color for all
-              #       events withing group’ and ‘Distinct color by selected palette’.
-              #       </p>
-              #       <img src='www/Screenshots/11_Megaplots.png' align='center' width='95%'/>
-              #       <p>
-              #       When using color gradient, three color inputs appear which will define a
-              #       color palette displayed below. In this example, the colors yellow, gray
-              #       and turquoise are used. Depending on how many events are there within an
-              #       event group, there are that many colors, created by these three colors.
-              #       By clicking one of these color inputs a color palette appears which can
-              #       be used to change the colors and their saturation. However, it is also
-              #       possible to directly access a color hexcode into the color box. Once a
-              #       satisfactory color palette has been found, click the ‘Update colors’
-              #       button to apply the changes.
-              #       </p>
-              #       <p>
-              #       The second option ‘Unique color for all events within group’ obviously
-              #       colors all events of an event group in the same color. So there will be
-              #       exactly one color input. Here too, the color can be selected using the
-              #       palette or by entering the hexcode.
-              #       </p>
-              #       <p>
-              #       The third option ‘Distinct color by selected palette’ brings up another
-              #       drop-down menu ‘Select color palette’ where predefined color palettes
-              #       can be selected. By selecting one of these palettes a good visulization
-              #       is not guaranteed and must be ensured by the user.
-              #       </p>
-              #       <p>
-              #       If an single event is selected in the color list the color selection on
-              #       the right will be the same for ‘Unique color for all events within
-              #       group’ explained above. So it is possible to first create a color
-              #       palette for the complete event group and after that change individual
-              #       colors by selection the event.
-              #       </p>
-              #       <img src='www/Screenshots/14_Megaplots.png' align='center' width='95%'/>
-              #
-              #       <p> Offset Events</p>
-              #
-              #       <p>
-              #       In order to better distinguish events in addition to color, they are
-              #       also slightly offset in height by default. To prevent this, the check
-              #       mark can be removed for option 'Offset events for event group'.
-              #       </p>
-              #       <img src='www/Screenshots/18_Megaplots.png' align='center' width='50%'/>
-              #
-              #       <p>
-              #       The offset position will be the same for each time course. An offset
-              #       position for events within an event group only makes sense if different
-              #       events at a given day can appear. For unique events within a event
-              #       group, it is recommended to disable this option.
-              #       </p>
-              #       <p> Save & Upload Color Files </p>
-              #
-              #       <p>
-              #       Once all color settings have been made, they can be saved via the ‘save
-              #       color file’-button.
-              #       </p>
-              #       <img src='www/Screenshots/19_Megaplots.png' align='center' width='20%'/>
-              #       <p>
-              #       This saves a data frame as ‘.rds’-file including the selected event and
-              #       event group, the selected color and if available all three selected
-              #       gradient color and also the logical value if variables should be offset.
-              #       </p>
-              #       <p>
-              #       To upload the saved color settings in a new session use the ‘Upload
-              #       saved color file’-file input like the data upload.
-              #       </p>
-              #       "
-              #       )
-              #     )
-              #   ),
-              #   right = FALSE
-              # )
+              )
             ),
             # create a different named value "File & variable selection 2"
             # used in app_server.R for
@@ -1004,7 +531,7 @@ app_ui <- function(request) {
                       shiny::selectInput(
                         inputId = "select_color_palette",
                         label = "Select color palette",
-                        choices = c("Set1","Set2","Set3","Pastel1","Pastel2","Paired","Dark2","Accent","Spectral","Rainbow")
+                        choices = c("Set1", "Set2", "Set3", "Pastel1", "Pastel2", "Paired", "Dark2", "Accent", "Spectral", "Rainbow")
                       )
                     ),
                     shiny::column(12,
@@ -1128,93 +655,21 @@ app_ui <- function(request) {
           full_screen = TRUE,
           bslib::nav_panel(
              tags$div(
-              HTML(paste0("Megaplots","&emsp;","&emsp;"))#,
-              #   help_text_dropdown_button(
-              #     id = "megaplot_helptext",
-              #     text = wellPanel(style ="width: 1000px;",
-              #     HTML(
-              #       paste0(
-              #         "
-              #         <p> Megaplot </p>
-              #         <p>
-              #         In this chapter the main graphical display will be explained.
-              #         The megaplot  is a huge graphical display used to show individual-level data over time.
-              #         The megaplots uses horizontal lines to represent individual trajectories and events of any identifier over days (in clinical trial context: study units).
-              #         </p>
-              #         <img src='www/Screenshots/23_Megaplots.png' align='center' width='95%'/>
-              #         <p>
-              #         The legend on the right side can be used to select and deselect event groups to provide an better
-              #         overview. Selecting a high number of events can lead to overlaying event lines. In this case
-              #         it is recommended to focus on a few number of event/event groups or zoom-in on the graphic
-              #         accordingly.
-              #         </p>
-              #         <p>
-              #         For every single event displayed a hover panel is available with information about the
-              #         identifier, the event name as well as the start and end time. It is also possible to use the mouse hover
-              #         for the individual timelines, however these are only visible when hovering near the start or end of
-              #         the line.
-              #         </p>
-              #         <img src='www/Screenshots/25_Megaplots.png' align='center' width='95%'/>
-              #         <p>
-              #         In addition to hovering, you can also click on event lines. The complete clicked event are then highlighted in comparison to other events. It is possible to click on and highlight as many events as desired.
-              #         To undo the effect, double-click on the plot window.
-              #         Note: The zoom setting will also be reset by double-clicking.
-              #         </p>
-              #
-              #         <img src='www/Screenshots/27_Megaplots.png' align='center' width='95%'/>
-              #         <p>
-              #         There are several ways to zoom-in to the graphic. First, it is possible to use
-              #         mouse-scrolling to zoom-in.
-              #         To re-scale only one axis, click and drag near the edge of one of the axes.
-              #         If the drag mode is set to 'pan' (see chapter Plot options) it is possible to click
-              #         and drag on the plot.
-              #         Another zoom possibility is to click and drag on the plot when option 'Zoom' is selected.
-              #         <p>
-              #
-              #         <img src='www/Screenshots/28_Megaplots.png' align='center' width='95%'/>
-              #         <p>
-              #         Third way to zoom is to use the 'plus' or 'minus' button on the modebar to zoom-in or zoom-out.
-              #         </p>
-              #         <p>
-              #         Further options for this megaplots graph are described in the chapter 'Sidebar Options', such
-              #         as sorting, grouping or line thickness.
-              #         </p>
-              #         "
-              #       )
-              #     )
-              #   ),
-              #   right = FALSE
-              # ),
+              HTML(paste0("Megaplots","&emsp;","&emsp;"))
             ),
             id = "Megaplots",
             bslib::as_fill_carrier(
               shinycssloaders::withSpinner(
                  plotly::plotlyOutput("mega_plots"),
                  color = "white",
-                 image = "www/megaplot_hexsticker.png",
+                 image = "www/megaplot_hexsticker_n.png",
                  image.height = "175px",
                  caption = "Loading..."
               )
             )
           ),
           bslib::nav_panel(
-            title = tags$div(HTML(paste0("Event summary","&emsp;","&emsp;"))#,
-              # help_text_dropdown_button(
-              #  id = "event_summary_helptext",
-              #  text = wellPanel(style ="width: 1000px;",
-              #     HTML(
-              #       paste0(
-              #         "
-              #       <p> Event Summary</p>
-              #       <p>
-              #           TBD
-              #       </p>
-              #       "
-              #       )
-              #     )
-              #   ),
-              #   right = FALSE
-              # )
+            title = tags$div(HTML(paste0("Event summary","&emsp;","&emsp;"))
             ),
             tags$head(
               tags$style(
@@ -1235,58 +690,17 @@ app_ui <- function(request) {
               shinycssloaders::withSpinner(
                 ui_element = plotly::plotlyOutput("event_summary"),
                 color = "white",
-                image = "www/megaplot_hexsticker.png",
+                image = "www/megaplot_hexsticker_n.png",
                 image.height = "175px",
                 caption = "Loading..."
               )
             )
-          ),
-          # bslib::nav_panel(
-          #   title = tags$div(HTML(paste0("Subgroup description","&emsp;","&emsp;"))
-          #   ),
-          #   tags$head(
-          #     tags$style(
-          #       type = "text/css",
-          #       ".inline label{ display: table-cell; text-align: center; vertical-align: middle; }
-          #        .inline .form-group { display: table-row;}"
-          #     )
-          #   ),
-          #   tags$div(class = "inline",
-          #            shinyWidgets::pickerInput(
-          #              inputId = "subgroup_selection",
-          #              label = "Select subgroup to display :  ",
-          #              choices = NULL,
-          #              selected = NULL,
-          #              multiple = TRUE,
-          #              options = list(
-          #                `live-search` = TRUE
-          #              )
-          #            )
-          #   ),
-          #   bslib::as_fill_carrier(
-          #     shinycssloaders::withSpinner(
-          #       ui_element = plotly::plotlyOutput("subgroup_summary"),
-          #       color = "white",
-          #       image = "www/megaplot_hexsticker.png",
-          #       image.height = "175px",
-          #       caption = "Loading..."
-          #     )
-          #   )
-          # )
-          # bslib::nav_panel("Kaplan Meier",
-          #    shiny::fluidRow(
-          #      shinyWidgets::pickerInput(
-          #        inputId = 'select_event_kaplan_meier',
-          #        label = "Select event(s)",
-          #        choices = NULL,
-          #        selected = NULL,
-          #        multiple = FALSE,
-          #        options = list('actions-box' = TRUE)
-          #      )
-          #    ),
-          #    plotly::plotlyOutput("kaplan_meier")
-          # )
+          )
         )
+      ),
+      bslib::nav_spacer(),
+      bslib::nav_item(
+      bslib::input_dark_mode(id = "theme_toggle", mode = "dark")
       )
     )
   )
