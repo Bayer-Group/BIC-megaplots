@@ -51,7 +51,7 @@ rename_require_variables <- function(
 
     # Create/Add variables: megaplots_selected_start_time, megaplots_selected_end_time
     if (!is.null(selected_start_time) & !is.null(selected_end_time)) {
-      if (is.numeric(megaplot_data[[selected_start_time]]) & is.numeric(megaplot_data[[selected_start_time]])) {
+      if (is.numeric(megaplot_data[[selected_start_time]]) & is.numeric(megaplot_data[[selected_end_time]])) {
         megaplot_data <- megaplot_data |>
           dplyr::mutate(
             megaplots_selected_start_time = floor(!!rlang::sym(selected_start_time)),

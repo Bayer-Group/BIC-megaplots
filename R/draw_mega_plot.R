@@ -367,7 +367,7 @@ draw_mega_plot <- function(
       plot_bgcolor = ifelse(theme =="dark","#1D1F21","#fff"),
       paper_bgcolor = ifelse(theme =="dark","#1D1F21","#fff"),
       xaxis = list(
-        color=ifelse(theme =="dark","#fff","#000"),
+        color= ifelse(theme =="dark","#fff","#000"),
         title = "Day",
         zeroline = FALSE
       ),
@@ -375,7 +375,7 @@ draw_mega_plot <- function(
         orientation = 'v'
       ),
       yaxis = list(
-        color='#FFFFFF',
+        color= ifelse(theme =="dark","#fff","#000"),
         showgrid = FALSE,
         title ="Identifier",
         categoryarray = ~ megaplots_selected_subjectid,

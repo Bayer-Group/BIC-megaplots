@@ -423,26 +423,6 @@ mod_color_selection_server <- function(
         copy        = FALSE
       )
 
-      single_node_drag_restriction <- "
-      function(el, x) {
-        var $el = $(el);
-
-        $(document).on('before_dnd_start.vakata', function(e, data) {
-          var tree    = $el.jstree(true);
-          var selected = tree.get_selected();
-
-          if (selected.length > 1) {
-            e.stopImmediatePropagation(); // cancel drag before it begins
-          }
-        });
-
-        $el.on('move_node.jstree', function(e, data) {
-          var tree = data.instance;
-          tree.deselect_all(); // clear selection after move to reset state
-        });
-      }
-    "
-
       #icons
       types <- list(
         root = list(icon = "fa-regular fa-arrow_pointer"),
