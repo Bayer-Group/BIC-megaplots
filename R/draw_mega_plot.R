@@ -131,7 +131,7 @@ draw_mega_plot <- function(
       )
 
     #re-arrangement for plotly legend
-    megaplot_filtered_data$event_group <- factor(megaplot_filtered_data$event_group, levels = sort_event_groups)
+    megaplot_filtered_data$event_group <- factor(megaplot_filtered_data$megaplots_selected_event_group, levels = sort_event_groups)
 
     megaplot_filtered_data <- megaplot_filtered_data %>%
       dplyr::arrange(.data$event_group, .data$event_id)
