@@ -63,15 +63,13 @@ of the following:
 remotes::install_github("Bayer-Group/BIC-megaplots")
 ```
 
-``` r
-# install.packages("pak")
-pak::pak("Bayer-Group/BIC-megaplots")
-```
-
 ## Usage
 
 ``` r
 library(Megaplots)
+
+# Launch the interactive Shiny application
+run_app()
 ```
 
 The app opens in your default browser.
