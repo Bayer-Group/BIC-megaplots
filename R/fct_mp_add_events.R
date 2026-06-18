@@ -137,7 +137,8 @@ add_events <- function(
   }
 
   # Build subject-level dataset (mp$sl) if not already set ----
-  if (is.null(mp_builder$sl)) {
+  had_sl_before <- !is.null(mp_builder$sl)
+  if (!had_sl_before) {
     if (is.null(sl_ref_date)) {
       stop(
         "When subject-level data has not been added (`mp_builder$sl` is NULL), supply `sl_ref_date` ",
@@ -266,7 +267,35 @@ add_events <- function(
         "",
         as.character(!!rlang::sym(id))
       ))
-    ) %>%
+    )
+  
+    if (had_sl_before) {
+    event_ids <- unique(data$subjectid)
+    sl_ids <- unique(adsl$subjectid)
+    event_ids <- event_ids[!is.na(event_ids)]
+    sl_ids <- sl_ids[!is.na(sl_ids)]
+    overlap <- event_ids[event_ids %in% sl_ids]
+
+    if (!length(overlap)) {
+      stop(
+        "No subjects match subject-level data after transforming `id` to numeric `subjectid`. ",
+        "Check that both datasets use compatible id variables.",
+        call. = FALSE
+      )
+    }
+
+    n_event_subjects <- length(event_ids)
+    n_matched <- length(overlap)
+    if (n_matched < n_event_subjects) {
+      message(sprintf(
+        "Subject ID match: %d of %d subjects found in subject-level data; events for the rest are dropped.",
+        n_matched,
+        n_event_subjects
+      ))
+    }
+  }
+
+  data <- data %>%  
     dplyr::filter(.data$subjectid %in% adsl$subjectid) %>%
     dplyr::left_join(adsl, by = "subjectid") %>% # Join to add ref_date and potential start_time / end_time for left censoring
     dplyr::relocate(.data$subjectid, .data$ref_date)
