@@ -94,6 +94,7 @@ mod_megaplot_server <- function(id,
                                 megaplot_prepared_data,
                                 megaplot_filtered_data,
                                 reference_lines,
+                                select_grouping,
                                 appearance,
                                 theme) {
   shiny::moduleServer(id, function(input, output, session) {
@@ -129,7 +130,7 @@ mod_megaplot_server <- function(id,
       tmp <- draw_mega_plot(
         megaplot_prepared_data = megaplot_prepared_data(),
         megaplot_filtered_data = megaplot_filtered_data(),
-        select_grouping = shiny::isolate(app$select_grouping),
+        select_grouping = shiny::isolate(select_grouping()),
         line_width = app$line_width,
         line_width_subjects = app$line_width_subjects,
         switch_legend_grouping = app$switch_legend_grouping,
@@ -159,20 +160,19 @@ mod_megaplot_server <- function(id,
 
 
     #### START EVENT SUMMARY PART ####
+
     output$event_summary <- plotly::renderPlotly({
       shiny::req(megaplot_prepared_data())
       shiny::req(megaplot_filtered_data())
 
-      app <- appearance()
-
       draw_event_summary(
         megaplot_prepared_data = megaplot_prepared_data(),
         megaplot_filtered_data = megaplot_filtered_data(),
-        select_grouping = app$select_grouping,
-        event_summary_cutoff =app$event_summary_cutoff,
+        select_grouping = shiny::isolate(select_grouping()),
+        event_summary_cutoff =appearance()$event_summary_cutoff,
         event_summary_selection = input$event_summary_selection,
-        switch_legend_grouping = app$switch_legend_grouping,
-        hovermode = app$event_summary_hovermode,
+        switch_legend_grouping = appearance()$switch_legend_grouping,
+        hovermode = appearance()$event_summary_hovermode,
         reference_line_1 = reference_lines$reference_line_1,
         reference_line_2 = reference_lines$reference_line_2,
         reference_line_3 = reference_lines$reference_line_3,

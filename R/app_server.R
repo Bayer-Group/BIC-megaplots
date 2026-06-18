@@ -107,13 +107,14 @@ app_server <- function(input, output, session) {
     megaplot_filtered_data = megaplot_filtered_data,
     reference_lines = ref$reference_lines,
     theme = shiny::reactive(input$theme_toggle),
+    select_grouping = sorting_grouping$select_grouping,
     appearance = shiny::reactive(
       list(
         line_width = plot_appearance$line_width(),
         line_width_subjects = plot_appearance$line_width_subjects(),
         switch_legend_grouping = plot_appearance$switch_legend_grouping(),
         sort_event_groups = plot_appearance$sort_event_groups(),
-        select_grouping = sorting_grouping$select_grouping(),
+
         event_summary_cutoff = plot_appearance$event_summary_cutoff(),
         event_summary_hovermode = plot_appearance$event_summary_hovermode(),
         sequencing_object = sequencing_object$sequencing_object(),

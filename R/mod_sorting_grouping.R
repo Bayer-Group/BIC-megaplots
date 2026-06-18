@@ -41,12 +41,13 @@ mod_sorting_grouping_ui <- function(id) {
     div(
       id = ns("arrange_groups_container"),
       #style = "display: none",
-      shinyjqui::orderInput(
-        inputId = ns("arrange_groups"),
-        label = "Arrange Groups",
-        items = NULL,
-        width = 300
-      )
+      # shinyjqui::orderInput(
+      #   inputId = ns("arrange_groups"),
+      #   label = "Arrange Groups",
+      #   items = NULL,
+      #   width = 300
+      # )
+      shiny::uiOutput(ns("arrange_groups"))
     )
   )
 }
@@ -121,22 +122,39 @@ mod_sorting_grouping_server <- function(id, uploaded_data_renamed) {
       )
     })
 
+    output$arrange_groups <- shiny::renderUI({
+      shinyjqui::orderInput(
+        inputId = ns("arrange_groups"),
+        label = "Arrange Groups",
+        items = NULL,
+        width = 300
+      )
+    })
+
     shiny::observeEvent(
       c(uploaded_data_renamed(), input$select_grouping),
       {
         if (is.null(input$select_grouping)) {
           # Hide the orderInput and clear its items when no grouping selected
           shinyjs::hideElement(id = ns("arrange_groups_container"))
-          shinyjqui::updateOrderInput(
-            session,
-            inputId = "arrange_groups",
-            items   = NULL
-          )
+          # shinyjqui::updateOrderInput(
+          #   session,
+          #   inputId = "arrange_groups",
+          #   items   = NULL
+          # )
+          output$arrange_groups <- shiny::renderUI({
+            shinyjqui::orderInput(
+              inputId = ns("arrange_groups"),
+              label = "Arrange Groups",
+              items = NULL,
+              width = 300
+            )
+          })
           return()
-        }
+        } else {
 
-        # Build a human-readable label for each unique combination of
-        # grouping variable values, e.g. "SEX: M & RACE: WHITE"
+        # Build a label for each unique combination of
+        # grouping variable values
         grouping_label_data <- uploaded_data_renamed() |>
           dplyr::select(!!!rlang::syms(input$select_grouping)) |>
           dplyr::distinct() |>
@@ -162,6 +180,7 @@ mod_sorting_grouping_server <- function(id, uploaded_data_renamed) {
           items   = grouping_label_data$text_snippet_total
         )
         shinyjs::showElement(id = ns("arrange_groups_container"))
+        }
       }
     )
 
