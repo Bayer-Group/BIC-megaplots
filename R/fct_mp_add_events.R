@@ -268,8 +268,8 @@ add_events <- function(
         as.character(!!rlang::sym(id))
       ))
     )
-  
-    if (had_sl_before) {
+
+  if (had_sl_before) {
     event_ids <- unique(data$subjectid)
     sl_ids <- unique(adsl$subjectid)
     event_ids <- event_ids[!is.na(event_ids)]
@@ -295,7 +295,7 @@ add_events <- function(
     }
   }
 
-  data <- data %>%  
+  data <- data %>%
     dplyr::filter(.data$subjectid %in% adsl$subjectid) %>%
     dplyr::left_join(adsl, by = "subjectid") %>% # Join to add ref_date and potential start_time / end_time for left censoring
     dplyr::relocate(.data$subjectid, .data$ref_date)
