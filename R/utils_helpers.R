@@ -9,7 +9,7 @@
 font_color <- function (hex_code) {
   if (is.null(hex_code)){return(NULL)}
   ifelse(
-    ((grDevices::col2rgb(hex_code)[1] * 0.299) + (grDevices::col2rgb(hex_code)[2] * 0.587) + (grDevices::col2rgb(hex_code)[3] * 0.114) > 186),
+    (((grDevices::col2rgb(hex_code)[1] * 0.299) + (grDevices::col2rgb(hex_code)[2] * 0.587) + (grDevices::col2rgb(hex_code)[3] * 0.114)) / 255 > 0.5),
     "#000000",
     "#ffffff"
   )
