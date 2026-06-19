@@ -19,12 +19,14 @@ app_server <- function(input, output, session) {
   uploaded_data_w_ids   <- upload_data$uploaded_data_w_ids
 
   #### 2. Color selection module ####
+
   color_selection <- mod_color_selection_server(
     id = "color_selection",
     uploaded_data_renamed = uploaded_data_renamed,
     uploaded_data_w_ids = uploaded_data_w_ids,
     theme = shiny::reactive(input$theme_toggle),
     js_col_num = shiny::reactive(input$jsColNum),
+    window_height = shiny::reactive({input$dimension}),
     parent_session = session
   )
 

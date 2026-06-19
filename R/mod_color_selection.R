@@ -216,6 +216,7 @@ mod_color_selection_ui <- function(id) {
 #' @keywords internal
 mod_color_selection_server <- function(
   id,
+  window_height,
   uploaded_data_renamed,
   uploaded_data_w_ids,
   theme,
@@ -365,14 +366,14 @@ mod_color_selection_server <- function(
         sprintf(
           paste0(
             "document.getElementById('",ns("selected_events_panel"),"').style.maxHeight =
-          '", input$dimension - 300, "px';"
+          '", window_height() - 300, "px';"
           )
         )
       )
       shinyjs::runjs(
         sprintf(
           paste0("document.getElementById('selected-cols-row').style.maxHeight =
-               '", input$dimension - 300, "px';"
+               '", window_height() - 300, "px';"
           )
         )
       )
