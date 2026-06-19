@@ -10,9 +10,7 @@ create_color_container <- function(
     color_vector,
     theme = "dark"
 ) {
-  # # receive names of selected shinyTree input
-  # selected_tree <- shinyTree::get_selected(tree, format = "names")
-  #
+
   if (nrow(tree) > 0) {
     selected_data <- tree
 
@@ -39,6 +37,7 @@ create_color_container <- function(
 
     # join color vector to the data and create variables "names_for_color_list" & "type_for_color" which will
     # be used to colorize the div container and make sure that also event_groups are displayed
+
     selected_data <- selected_data |>
       dplyr::left_join(
         color_vector |>
@@ -47,7 +46,8 @@ create_color_container <- function(
       ) |>
       dplyr::mutate(
         names_for_color_list = ifelse(is.na(.data$megaplots_selected_event), .data$megaplots_selected_event_group, .data$megaplots_selected_event),
-        type_for_color = ifelse(is.na(.data$megaplots_selected_event), "megaplots_selected_event_group", "megaplots_selected_event")
+        type_for_color = ifelse(is.na(.data$megaplots_selected_event), "megaplots_selected_event_group", "megaplots_selected_event"),
+        event_color = ifelse(is.na(.data$megaplots_selected_event), ifelse(theme =="dark","#1D1F21","#fff"), event_color)
       )
 
   }

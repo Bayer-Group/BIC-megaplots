@@ -790,7 +790,8 @@ mod_color_selection_server <- function(
 
           selected_data <- create_color_container(
             tree = checked_data$val,
-            color_vector = color_data$all
+            color_vector = color_data$all,
+            theme = theme()
           )
 
           color_data$selected <- selected_data
