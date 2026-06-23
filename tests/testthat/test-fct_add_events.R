@@ -373,3 +373,38 @@ test_that("add_events accepts ISO character date columns when mp$sl is NULL", {
   expect_equal(mp$events$event_time, c(2L, 2L))
   expect_equal(mp$events$event_time_end, c(3L, 3L))
 })
+
+test_that("add_events errors when no subjects match subject-level data", {
+  events_mismatch <- data.frame(
+    USUBJID = "99-999",
+    AEBODSYS = "SOC",
+    AEDECOD = "PT",
+    ASTDT = as.Date("2020-01-02"),
+    AENDT = as.Date("2020-01-03"),
+    stringsAsFactors = FALSE
+  )
+
+  expect_error(
+    mp_with_sl() %>%
+      add_events(events_mismatch, event_group = "AEBODSYS", event = "AEDECOD"),
+    regexp = "No subjects match"
+  )
+})
+
+test_that("add_events messages when only some subjects match subject-level data", {
+  events_partial <- data.frame(
+    USUBJID = c("01-001", "99-999"),
+    AEBODSYS = c("SOC", "SOC"),
+    AEDECOD = c("PTa", "PTb"),
+    ASTDT = as.Date(c("2020-01-02", "2020-01-06")),
+    AENDT = as.Date(c("2020-01-03", "2020-01-07")),
+    stringsAsFactors = FALSE
+  )
+
+  expect_message(
+    mp <- mp_with_sl() %>%
+      add_events(events_partial, event_group = "AEBODSYS", event = "AEDECOD"),
+    regexp = "1 of 2 subjects"
+  )
+  expect_equal(nrow(mp$events), 1L)
+})

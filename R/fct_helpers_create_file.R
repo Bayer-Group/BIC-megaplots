@@ -154,7 +154,7 @@ calc_days_with <- function(
       dplyr::group_by(.data$subjectid, .data$event_group, .data$event) %>%
       dplyr::summarize(
         # Count unique days across all events for each subject
-        days_with = n_distinct(unlist(.data$days)),
+        days_with = dplyr::n_distinct(unlist(.data$days)),
         .groups = "drop"
       ) %>%
       dplyr::distinct() %>%
@@ -200,7 +200,7 @@ calc_days_with <- function(
       dplyr::group_by(.data$subjectid, .data$event_group) %>%
       dplyr::summarize(
         # Count unique days across all events in the group for each subject
-        days_with = n_distinct(unlist(.data$days)),
+        days_with = dplyr::n_distinct(unlist(.data$days)),
         .groups = "drop"
       ) %>%
       dplyr::distinct() %>%
