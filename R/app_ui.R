@@ -84,7 +84,7 @@ app_ui <- function(request) {
           bslib::accordion_panel(
             "Download",
             icon = bsicons::bs_icon("download"),
-            shiny::downloadButton("download_plotly_widget", "Download Mega plot as HTML")
+            shiny::downloadButton("download_plotly_widget", "Save Megaplot Chart as HTML file")
           ),
           # module call for sequencing
           sequencing_ui("sequencing_module")
@@ -117,25 +117,16 @@ app_ui <- function(request) {
         title = "Megaplots",
         mod_megaplot_ui("megaplot")
       ),
-      bslib::nav_panel(
-          id = "Tutorial",
-           title = "Tutorial",
-        # do.call(
-        #   bslib::navset_pill_list,
-        #   lapply(names(sections), function(name) {
-        #     bslib::nav_panel(
-        #       title = name,
-        #       markdown(sections[[name]]) #renders md strings
-        #     )
-        #   })
-        # )
-        tags$iframe(
-          src    = "www/Tutorial.html",   # relative to www/ — Shiny resolves this automatically
-          width  = "100%",
-          height = "100%",
-          style  = "border: none;"   # removes the default iframe border
-        )
-      ),
+      # bslib::nav_panel(
+      #     id = "Tutorial",
+      #      title = "Tutorial",
+      #   tags$iframe(
+      #     src    = "www/Tutorial.html",   # relative to www/ — Shiny resolves this automatically
+      #     width  = "100%",
+      #     height = "100%",
+      #     style  = "border: none;"   # removes the default iframe border
+      #   )
+      # ),
       bslib::nav_spacer(),
       bslib::nav_item(
         bslib::input_dark_mode(id = "theme_toggle", mode = "dark")

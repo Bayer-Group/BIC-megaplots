@@ -52,7 +52,6 @@ draw_event_summary <- function(
     theme
 ) {
 
-
   #get number of groups from variable group_index
   #number_group_levels <-  max(megaplot_filtered_data$group_index, na.rm = TRUE)
   group_levels <- unique(megaplot_filtered_data$group_index)
@@ -187,10 +186,11 @@ draw_event_summary <- function(
               legendgroup = ~ megaplots_selected_event_group,
               legendgrouptitle = list(text = ~ megaplots_selected_event_group)
             )
-          if (!switch_legend_grouping) {
+          if (!switch_legend_grouping & is.null(select_grouping)) {
             fig2 <-  fig2 |>
               plotly::layout(legend = list(traceorder = "grouped", groupclick = "toggleitem"))
           }
+          #
         # } else {
         #   fig2 <- fig  |>
         #     plotly::add_lines(
@@ -301,7 +301,8 @@ draw_event_summary <- function(
 
     for(k in group_levels) {
 
-      df_group <- df |> dplyr::filter(.data$group_index == k)
+      df_group <- df |>
+        dplyr::filter(.data$group_index == k)
 
       #update max count used for y axis range
       max_y_range <- max(max_y_range, max(df_group$value, na.rm = TRUE))
@@ -347,7 +348,7 @@ draw_event_summary <- function(
               legendgroup = ~ megaplots_selected_event_group,
               legendgrouptitle = list(text = ~ megaplots_selected_event_group)
             )
-          if (!switch_legend_grouping) {
+          if (!switch_legend_grouping & is.null(select_grouping)) {
             fig2 <-  fig2 |>
               plotly::layout(legend = list(traceorder = "grouped", groupclick = "toggleitem"))
           }
@@ -376,7 +377,7 @@ draw_event_summary <- function(
               legendgroup = ~ megaplots_selected_event_group,
               legendgrouptitle = list(text = ~ megaplots_selected_event_group)
             )
-          if (!switch_legend_grouping) {
+          if (!switch_legend_grouping & is.null(select_grouping)) {
             fig2 <-  fig2 |>
               plotly::layout(legend = list(traceorder = "grouped", groupclick = "toggleitem"))
           }
@@ -417,6 +418,7 @@ draw_event_summary <- function(
         )
 
       figure_list[[k]] <- fig3
+
     }
 
     for (k in group_levels) {

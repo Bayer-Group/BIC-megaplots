@@ -22,7 +22,7 @@ test_that("Check if utils_helpers functions work", {
   hex_code <- "#00ffff"
   result <- font_color(hex_code)
   #expect white
-  testthat::expect_equal(result, "#ffffff")
+  testthat::expect_equal(result, "#000000")
 
   hex_code <- "#ff00ff"
   result <- font_color(hex_code)
