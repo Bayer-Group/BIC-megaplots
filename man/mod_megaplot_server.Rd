@@ -9,6 +9,7 @@ mod_megaplot_server(
   megaplot_prepared_data,
   megaplot_filtered_data,
   reference_lines,
+  select_grouping,
   appearance,
   theme
 )

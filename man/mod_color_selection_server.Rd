@@ -6,6 +6,7 @@
 \usage{
 mod_color_selection_server(
   id,
+  window_height,
   uploaded_data_renamed,
   uploaded_data_w_ids,
   theme,
