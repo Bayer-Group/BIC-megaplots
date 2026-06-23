@@ -148,7 +148,7 @@ parse_sections <- function(path) {
   groups  <- cumsum(heading)  # assign each line to a section number
 
   tapply(lines, groups, function(x) paste(x, collapse = "\n")) |>
-    setNames(
+    stats::setNames(
       lines[heading] |> sub("^## ", "", x = _)  # use heading text as section name
     )
 }

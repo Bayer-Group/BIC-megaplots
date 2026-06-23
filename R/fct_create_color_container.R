@@ -47,7 +47,7 @@ create_color_container <- function(
       dplyr::mutate(
         names_for_color_list = ifelse(is.na(.data$megaplots_selected_event), .data$megaplots_selected_event_group, .data$megaplots_selected_event),
         type_for_color = ifelse(is.na(.data$megaplots_selected_event), "megaplots_selected_event_group", "megaplots_selected_event"),
-        event_color = ifelse(is.na(.data$megaplots_selected_event), ifelse(theme =="dark","#1D1F21","#fff"), event_color)
+        event_color = ifelse(is.na(.data$megaplots_selected_event), ifelse(theme =="dark","#1D1F21","#fff"), .data$event_color)
       )
 
   }
