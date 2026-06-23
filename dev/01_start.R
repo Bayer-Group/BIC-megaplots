@@ -38,16 +38,16 @@ golem::fill_desc(
       given = "Tammo", # Your First Name
       family = "Reinders", # Your Last Name
       email = "tammo.reinders.ext@bayer.com", # Your email
-      role = c("aut", "cre")
+      role = c("aut")
     ),
     person(
       given = "Veronika", # Your First Name
       family = "Schmidt", # Your Last Name
       email = "veronika.schmidt.ext@bayer.com", # Your email
-      role = c("aut", "cre")
+      role = c("aut")
     )
   ),
-  repo_url = "github.com/Bayer-Group/BIC-megaplots", # The URL of the GitHub repo (optional),
+  repo_url = "https://github.com/Bayer-Group/BIC-megaplots", # The URL of the GitHub repo (optional),
   pkg_version = "2.0.1", # The version of the package containing the app
   set_options = TRUE # Set the global golem options
 )
