@@ -39,13 +39,38 @@ mod_megaplot_ui <- function(id) {
                  .inline .form-group { display: table-row;}"
         )
       ),
-      tags$div(class = "inline",
-               shinyWidgets::pickerInput(
-                 inputId = ns("event_summary_selection"),
-                 label = "Select summary display :  ",
-                 choices = c(list("Number of events per day" = "event_per_day"), list("Number of events per day (cumulative total)" ="cumulative_event"), list("Number of first events per day and subject (cumulative total)" = "event_by_subject_cumulative")),
-                 selected = "event_per_day"
-               )
+      # tags$div(class = "inline",
+      shiny::fluidRow(
+        shiny::column(4,
+          shinyWidgets::pickerInput(
+            inputId = ns("event_summary_selection"),
+            label = "Select summary display :  ",
+            choices = c(list("Number of events per day" = "event_per_day"), list("Number of events per day (cumulative total)" ="cumulative_event"), list("Number of first events per day and subject (cumulative total)" = "event_by_subject_cumulative")),
+            selected = "event_per_day"
+          )
+        ),
+        # radioButton change hover window style
+        shiny::column(4,
+          shiny::radioButtons(
+            inputId = ns("event_summary_hovermode"),
+            label = "Hover mode (Event Summary)",
+            choices = c("One label for each event" = "x", "One label for all events" = "x unified"),
+            inline = TRUE,
+            selected = "x"
+          )
+        ),
+        shiny::conditionalPanel(condition = paste0("input['", ns("event_summary_hovermode"), "'] == 'x'"),
+          shiny::column(4,
+            shiny::numericInput(
+               inputId = ns("event_summary_cutoff"),
+               label = "Display hover for counts greater than or equal to:",
+               value = 1,
+               min = 1,
+               max = NA,
+               step = 1
+            )
+          )
+        )
       ),
       bslib::as_fill_carrier(
         shinycssloaders::withSpinner(
@@ -78,7 +103,6 @@ mod_megaplot_ui <- function(id) {
 #' @param appearance A reactive returning a named list of plot appearance
 #'   inputs. Expected names: `line_width`, `line_width_subjects`,
 #'   `switch_legend_grouping`, `sort_event_groups`, `select_grouping`,
-#'   `event_summary_cutoff`, `event_summary_hovermode`,
 #'   `sequencing_object`, `sequencing_switch`.
 #' @param theme A reactive string returning the current theme toggle value
 #'   (e.g. `"dark"`). Passed from the parent because `input$theme_toggle`
@@ -169,10 +193,10 @@ mod_megaplot_server <- function(id,
         megaplot_prepared_data = megaplot_prepared_data(),
         megaplot_filtered_data = megaplot_filtered_data(),
         select_grouping = shiny::isolate(select_grouping()),
-        event_summary_cutoff =appearance()$event_summary_cutoff,
+        event_summary_cutoff =input$event_summary_cutoff,
         event_summary_selection = input$event_summary_selection,
         switch_legend_grouping = appearance()$switch_legend_grouping,
-        hovermode = appearance()$event_summary_hovermode,
+        hovermode = input$event_summary_hovermode,
         reference_line_1 = reference_lines$reference_line_1,
         reference_line_2 = reference_lines$reference_line_2,
         reference_line_3 = reference_lines$reference_line_3,

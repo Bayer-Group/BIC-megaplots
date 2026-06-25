@@ -13,7 +13,7 @@ mod_filter_ui <- function(id) {
 
   bslib::accordion_panel(
     "Filter",
-    icon = bsicons::bs_icon("filter"),
+    icon = bsicons::bs_icon("funnel"),
     shinyWidgets::pickerInput(
       inputId =ns("select_filter_variables"),
       label = "Select filter variable(s)",

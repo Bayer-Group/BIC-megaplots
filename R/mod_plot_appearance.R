@@ -10,15 +10,15 @@
 #' @keywords internal
 mod_plot_appearance_ui <- function(id) {
   ns <- shiny::NS(id)
-
+  shiny::tagList(
   bslib::accordion_panel(
-    "Plot appearance",
+    "Line appearance",
     icon = bsicons::bs_icon("border-width"),
     #orderInput to change event group order (influences which event group
     # is plotted first and thus may overlap others events)
     shinyjqui::orderInput(
       inputId = ns("sort_event_groups"),
-      label = "Change Event Group Order",
+      label = "Line Plotting Order",
       items = NULL,
       width = 300
     ),
@@ -52,29 +52,34 @@ mod_plot_appearance_ui <- function(id) {
       max = 5,
       value = 3,
       step = 0.5
+    )#,
+    # # radioButton change hover window style
+    # shiny::radioButtons(
+    #   inputId = ns("event_summary_hovermode"),
+    #   label = "Hover mode (Event Summary)",
+    #   choices = c("One label for each event" = "x", "One label for all events" = "x unified"),
+    #   inline = TRUE,
+    #   selected = "x"
+    # ),
+    # shiny::numericInput(
+    #   inputId = ns("event_summary_cutoff"),
+    #   label = "Display hover for counts greater than or equal to:",
+    #   value = 1,
+    #   min = 1,
+    #   max = NA,
+    #   step = 1
+    # )
     ),
+    bslib::accordion_panel(
+      "Legend appearance",
+      icon = bsicons::bs_icon("card-list"),
     # prettySwitch to turn on/off legend grouping option
-    shinyWidgets::prettySwitch(
-      inputId = ns("switch_legend_grouping"),
-      label = "On/Off Legend Grouping",
-      value = TRUE,
-      status = "primary"
-    ),
-    # radioButton change hover window style
-    shiny::radioButtons(
-      inputId = ns("event_summary_hovermode"),
-      label = "Hover mode (Event Summary)",
-      choices = c("One label for each event" = "x", "One label for all events" = "x unified"),
-      inline = TRUE,
-      selected = "x"
-    ),
-    shiny::numericInput(
-      inputId = ns("event_summary_cutoff"),
-      label = "Display hover for counts greater than or equal to:",
-      value = 1,
-      min = 1,
-      max = NA,
-      step = 1
+      shinyWidgets::prettySwitch(
+        inputId = ns("switch_legend_grouping"),
+        label = "On/Off Legend Grouping",
+        value = TRUE,
+        status = "primary"
+      )
     )
   )
 }
@@ -123,12 +128,12 @@ mod_plot_appearance_server <- function(id) {
       sort_event_groups = shiny::reactive({
         input$sort_event_groups %||% character(0)
       }),
-      event_summary_hovermode = shiny::reactive({
-        input$event_summary_hovermode %||% "x"
-      }),
-      event_summary_cutoff = shiny::reactive({
-        input$event_summary_cutoff %||% 1L
-      }),
+      # event_summary_hovermode = shiny::reactive({
+      #   input$event_summary_hovermode %||% "x"
+      # }),
+      # event_summary_cutoff = shiny::reactive({
+      #   input$event_summary_cutoff %||% 1L
+      # }),
       line_color_subjects_dark = shiny::reactive({
         input$line_color_subjects_dark %||% "#454545"
       }),
