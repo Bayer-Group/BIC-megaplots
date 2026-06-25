@@ -56,13 +56,13 @@ sequencing_ui <- function(id) {
 
       # Substitution Cost Input
       shiny::conditionalPanel(
-        condition = "input.sequencing_distmeasure_name == 'OM' ||
-                     input.sequencing_distmeasure_name == 'OMloc' ||
-                     input.sequencing_distmeasure_name == 'OMslen' ||
-                     input.sequencing_distmeasure_name == 'OMspell' ||
-                     input.sequencing_distmeasure_name == 'OMstran' ||
-                     input.sequencing_distmeasure_name == 'DHD' ||
-                     input.sequencing_distmeasure_name == 'HAM'",
+        condition = paste0("input['", ns("sequencing_distmeasure_name"), "']== 'OM' ||
+                     input['", ns("sequencing_distmeasure_name"), "'] == 'OMloc' ||
+                     input['", ns("sequencing_distmeasure_name"), "'] == 'OMslen' ||
+                     input['", ns("sequencing_distmeasure_name"), "'] == 'OMspell' ||
+                     input['", ns("sequencing_distmeasure_name"), "'] == 'OMstran' ||
+                     input['", ns("sequencing_distmeasure_name"), "'] == 'DHD' ||
+                     input['", ns("sequencing_distmeasure_name"), "'] == 'HAM'"),
         shinyWidgets::pickerInput(
           inputId = ns("sequencing_substitution_cost"),
           label = "Substitution Cost",
@@ -75,10 +75,10 @@ sequencing_ui <- function(id) {
 
       # Insertion/Deletion Cost Input
       shiny::conditionalPanel(
-        condition = "input.sequencing_distmeasure_name == 'OM' ||
-                     input.sequencing_distmeasure_name == 'OMslen' ||
-                     input.sequencing_distmeasure_name == 'OMspell' ||
-                     input.sequencing_distmeasure_name == 'OMstran'",
+        condition = paste0("input['", ns("sequencing_distmeasure_name"), "']== 'OM' ||
+                     input['", ns("sequencing_distmeasure_name"), "'] == 'OMslen' ||
+                     input['", ns("sequencing_distmeasure_name"), "'] == 'OMspell' ||
+                     input['", ns("sequencing_distmeasure_name"), "'] == 'OMstran'"),
         shinyWidgets::pickerInput(
           inputId = ns("sequencing_insertion_deletion_cost"),
           label = "Insertion/Deletion Cost",
@@ -87,7 +87,7 @@ sequencing_ui <- function(id) {
           multiple = FALSE,
           options = list(`live-search` = TRUE, `header` = 'Select item')
         ),
-        shiny::conditionalPanel(condition = "input.sequencing_insertion_deletion_cost == 'numeric value'",
+        shiny::conditionalPanel(condition = paste0("input['", ns("sequencing_distmeasure_name"), "']==  'numeric value'"),
                                 shiny::numericInput(
                                   inputId = ns("sequencing_insertion_deletion_cost_numeric"),
                                   label = "Insertion/Deletion Cost (double)",
@@ -99,7 +99,7 @@ sequencing_ui <- function(id) {
 
       # Normalization Input
       shiny::conditionalPanel(
-        condition = "input.sequencing_distmeasure_name != 'HAM'",
+        condition = paste0("input['", ns("sequencing_distmeasure_name"), "'] !=  'HAM'"),
         shinyWidgets::pickerInput(
           inputId = ns("sequencing_normalization"),
           label = "Normalization",
@@ -112,7 +112,7 @@ sequencing_ui <- function(id) {
 
       # Additional Parameter Inputs
       shiny::conditionalPanel(
-        condition = "input.sequencing_distmeasure_name == 'OMloc' || input.sequencing_distmeasure_name == 'OMspell'",
+        condition = paste0("input['", ns("sequencing_distmeasure_name"), "']==  'OMloc' || input['", ns("sequencing_distmeasure_name"), "'] == 'OMspell'"),
         shiny::numericInput(
           inputId = ns("sequencing_cost_spell_length_transformation"),
           label = "Cost of spell length transformation",
@@ -123,7 +123,7 @@ sequencing_ui <- function(id) {
       ),
 
       shiny::conditionalPanel(
-        condition = "input.sequencing_distmeasure_name == 'OMloc'",
+        condition = paste0("input['", ns("sequencing_distmeasure_name"), "'] == 'OMloc'"),
         shiny::numericInput(
           inputId = ns("sequencing_local_insertion_cost"),
           label = "Local Insertion Cost",
@@ -133,7 +133,7 @@ sequencing_ui <- function(id) {
       ),
 
       shiny::conditionalPanel(
-        condition = "input.sequencing_distmeasure_name == 'OMslen'",
+        condition = paste0("input['", ns("sequencing_distmeasure_name"), "'] == 'OMslen'"),
         shinyWidgets::pickerInput(
           inputId = ns("sequencing_substitution_costs_function"),
           label = "Substitution Costs Function",
@@ -145,7 +145,7 @@ sequencing_ui <- function(id) {
       ),
 
       shiny::conditionalPanel(
-        condition = "input.sequencing_distmeasure_name == 'OMslen' || input.sequencing_distmeasure_name == 'OMspell'",
+        condition = paste0("input['", ns("sequencing_distmeasure_name"), "'] == 'OMslen' || input['", ns("sequencing_distmeasure_name"), "'] == 'OMspell'"),
         shiny::numericInput(
           inputId = ns("sequencing_exponential_weight_spell_length"),
           label = "Exponential weight of spell length",
@@ -156,7 +156,7 @@ sequencing_ui <- function(id) {
 
       # Additional Parameters for OMstran
       shiny::conditionalPanel(
-        condition = "input.sequencing_distmeasure_name == 'OMstran'",
+        condition = paste0("input['", ns("sequencing_distmeasure_name"), "'] == 'OMstran'"),
         shinyWidgets::pickerInput(
           inputId = ns("sequencing_transition_indel_cost_method"),
           label = "Transition Indel Cost Method",
@@ -193,7 +193,7 @@ sequencing_ui <- function(id) {
 
       # Parameters for CHI2 and EUCLID
       shiny::conditionalPanel(
-        condition = "input.sequencing_distmeasure_name == 'CHI2' || input.sequencing_distmeasure_name == 'EUCLID'",
+        condition = paste0("input['", ns("sequencing_distmeasure_name"), "'] == 'CHI2' || input['", ns("sequencing_distmeasure_name"), "'] == 'EUCLID'"),
         shinyWidgets::pickerInput(
           inputId = ns("sequencing_intervals_overlapping"),
           label = "Intervals overlapping",
@@ -214,7 +214,7 @@ sequencing_ui <- function(id) {
 
       # Additional parameters for CHI2
       shiny::conditionalPanel(
-        condition = "input.sequencing_distmeasure_name == 'CHI2'",
+        condition = paste0("input['", ns("sequencing_distmeasure_name"), "'] =='CHI2'"),
         shinyWidgets::pickerInput(
           inputId = ns("sequencing_distribution_states_weights"),
           label = "Distribution of states as weights",
@@ -238,7 +238,7 @@ sequencing_ui <- function(id) {
 
     # Warning for specific distance measures
     shiny::conditionalPanel(
-      condition = "input.sequencing_distmeasure_name == 'HAM' || input.sequencing_distmeasure_name == 'DHD'",
+      condition = paste0("input['", ns("sequencing_distmeasure_name"), "'] == 'HAM' || input['", ns("sequencing_distmeasure_name"), "'] == 'DHD'"),
       shiny::span(shiny::HTML(
         gsub(
           '\n',
@@ -264,7 +264,14 @@ sequencing_ui <- function(id) {
       label = "On/Off Sequencing Sorting",
       value = FALSE,
       status = "primary"
-    )
+    )#,
+    # # Circular_vision Switch
+    # shinyWidgets::prettySwitch(
+    #   inputId = ns("circular_vision"),
+    #   label = "On/Off Circular Vision",
+    #   value = FALSE,
+    #   status = "primary"
+    # )
   )
 }
 
@@ -275,8 +282,8 @@ sequencing_server <- function(input, output, session, megaplot_filtered_data) {
   shiny::observeEvent(megaplot_filtered_data(), {
     shiny::req(megaplot_filtered_data())
 
-    choices_data <- megaplot_filtered_data() %>%
-      dplyr::select(.data$megaplots_selected_event, .data$megaplots_selected_event_group) %>%
+    choices_data <- megaplot_filtered_data() |>
+      dplyr::select(.data$megaplots_selected_event, .data$megaplots_selected_event_group) |>
       dplyr::distinct()
 
     shiny::updateSelectInput(
@@ -342,15 +349,15 @@ sequencing_server <- function(input, output, session, megaplot_filtered_data) {
     selected_event_for_sequencing <- input$sequencing_events
 
     # Filter megaplot data for selected events
-    megaplot_data <- megaplot_filtered_data() %>%
+    megaplot_data <- megaplot_filtered_data() |>
       dplyr::filter(.data$event %in% selected_event_for_sequencing)
 
     n_matrix <- length(unique(megaplot_data$megaplots_selected_subjectid))
     m_matrix <- length(min(megaplot_data$megaplots_selected_event_time, na.rm = TRUE):max(megaplot_data$megaplots_selected_event_time_end, na.rm = TRUE))
     dist_list <- list()
 
-    index_n <- megaplot_data %>%
-      dplyr::filter(.data$event %in% selected_event_for_sequencing) %>%
+    index_n <- megaplot_data |>
+      dplyr::filter(.data$event %in% selected_event_for_sequencing) |>
       nrow()
 
     index <- 1 / index_n
@@ -362,7 +369,7 @@ sequencing_server <- function(input, output, session, megaplot_filtered_data) {
         rownames(dist_init) <- unique(megaplot_data$megaplots_selected_subjectid)
         colnames(dist_init) <- paste0(min(megaplot_data$megaplots_selected_event_time):max(megaplot_data$megaplots_selected_event_time_end))
 
-        megaplot_data_tmp <- megaplot_data %>%
+        megaplot_data_tmp <- megaplot_data |>
           dplyr::filter(.data$megaplots_selected_event %in% selected_event_for_sequencing[i])
 
         for (j in seq_len(nrow(megaplot_data_tmp))) {
@@ -425,7 +432,9 @@ sequencing_server <- function(input, output, session, megaplot_filtered_data) {
 
   return(list(
     sequencing_object = shiny::reactive({sequencing_object$val}),
-    sequencing_switch = shiny::reactive({input$sequencing_switch})
+    sequencing_switch = shiny::reactive({input$sequencing_switch}),
+    #circular_vision = shiny::reactive({input$circular_vision})
+    circular_vision = shiny::reactive({FALSE}) #don't display circular version
   ))
 }
 

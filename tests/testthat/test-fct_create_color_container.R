@@ -20,7 +20,9 @@ test_that("Check if function 'create_color_container' works", {
 
 
   result <- create_color_container(
-    test_upload_data_w_ids%>%dplyr::select(megaplots_selected_event, megaplots_selected_event_group) %>% dplyr::distinct(),
+    test_upload_data_w_ids |>
+      dplyr::select(megaplots_selected_event, megaplots_selected_event_group) |>
+      dplyr::distinct(),
     test_upload_data_w_ids,
     theme = "dark"
   )

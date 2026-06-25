@@ -17,12 +17,19 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Steffen Jeske \email{steffen.jeske.ext@bayer.com}
+\strong{Maintainer}: Anna Fritsch \email{anna.fritsch@bayer.com}
 
 Authors:
 \itemize{
-  \item Tammo Reinders \email{tammo.reinders.ext@bayer.com}
-  \item Veronika Schmidt \email{veronika.schmidt.ext@bayer.com}
+  \item Steffen Jeske
+  \item Tammo Reinders
+  \item Veronika Schmidt
+  \item Madhurima Majumder
+  \item Susanne Lippert
+  \item Bastian Becker
+  \item Svenja Jedhoff
+  \item Silke Janitza
+  \item Hermann Kulmann
 }
 
 }

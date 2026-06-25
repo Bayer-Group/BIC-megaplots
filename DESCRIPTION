@@ -1,10 +1,17 @@
 Package: Megaplots
 Title: A 'shiny' Application for Pattern Detection
-Version: 2.1.2
+Version: 2.2.0
 Authors@R: c(
-    person("Steffen", "Jeske", , "steffen.jeske.ext@bayer.com", role = c("aut", "cre")),
-    person("Tammo", "Reinders", , "tammo.reinders.ext@bayer.com", role = c("aut")),
-    person("Veronika", "Schmidt", , "veronika.schmidt.ext@bayer.com", role = c("aut"))
+    person("Anna", "Fritsch", email = "anna.fritsch@bayer.com", role = c("aut","cre")),
+    person("Steffen", "Jeske", role = c("aut")),
+    person("Tammo", "Reinders", role = c("aut")),
+    person("Veronika", "Schmidt", role = c("aut")),
+    person("Madhurima", "Majumder", role = c("aut")),
+    person("Susanne", "Lippert", role = c("aut")),
+    person("Bastian", "Becker", role = c("aut")),
+    person("Svenja", "Jedhoff", role = c("aut")),
+    person("Silke", "Janitza", role = c("aut")),
+    person("Hermann", "Kulmann", role = c("aut"))
   )
 Description: Depicts individual study courses per day.  Pre-specified
     events on certain days, for example drug intake, efficacy, or safety

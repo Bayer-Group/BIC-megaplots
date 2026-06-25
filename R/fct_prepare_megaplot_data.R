@@ -26,12 +26,12 @@ prepare_megaplot_data <- function(
   if (!is.null(arrange_groups)) {
 
     #create variables text_snippet_1 & text_snippet_2 & text_snippet_total
-    megaplot_data_raw <- megaplot_data_raw %>%
+    megaplot_data_raw <- megaplot_data_raw |>
       dplyr::mutate(
         text_snippet_1 = paste(select_grouping, collapse = " "),
         text_snippet_2 = paste(!!!rlang::syms(select_grouping), sep = ", ")
-      ) %>%
-      dplyr::rowwise() %>%
+      ) |>
+      dplyr::rowwise() |>
       dplyr::mutate(text_snippet_total =
         paste(
           unlist(strsplit(.data$text_snippet_1," ")),
@@ -59,7 +59,7 @@ prepare_megaplot_data <- function(
     )
   }
   # create and merge variable subject_index to dataset megaplot_data_raw
-  megaplot_data_raw <- megaplot_data_raw %>%
+  megaplot_data_raw <- megaplot_data_raw |>
     dplyr::left_join(
       data.frame(
         megaplots_selected_subjectid = unique(megaplot_data_arranged$megaplots_selected_subjectid),
@@ -69,7 +69,7 @@ prepare_megaplot_data <- function(
     )
 
   # merge raw data set and prepared dataset
-  megaplot_data_raw <- megaplot_data_raw %>%
+  megaplot_data_raw <- megaplot_data_raw |>
     dplyr::left_join(
       uploaded_data_w_ids,
       by = c("megaplots_selected_event_group","megaplots_selected_event")
@@ -77,19 +77,19 @@ prepare_megaplot_data <- function(
 
   # create column group_index
   if (!is.null(arrange_groups)) {
-    megaplot_data_raw <- megaplot_data_raw %>%
-      dplyr::group_by(.data$text_snippet_total) %>%
-      dplyr::mutate(group_index = dplyr::cur_group_id()) #%>% dplyr::ungroup()
+    megaplot_data_raw <- megaplot_data_raw |>
+      dplyr::group_by(.data$text_snippet_total) |>
+      dplyr::mutate(group_index = dplyr::cur_group_id()) #|> dplyr::ungroup()
   } else {
-    megaplot_data_raw <- megaplot_data_raw %>%
-      dplyr::mutate(group_index = 1) #%>% dplyr::ungroup()
+    megaplot_data_raw <- megaplot_data_raw |>
+      dplyr::mutate(group_index = 1) #|> dplyr::ungroup()
   }
 
   # add a custom space of 10 empty lines (empty subjectid_n) to distinguish groups in mega plots
-  megaplot_data_raw  <- megaplot_data_raw %>%
+  megaplot_data_raw  <- megaplot_data_raw |>
     dplyr::mutate(
       subjectid_n = .data$subject_index + (.data$group_index - 1) * 10
-    ) %>%
+    ) |>
     dplyr::ungroup()
 
   # return value

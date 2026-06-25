@@ -9,12 +9,13 @@
 font_color <- function (hex_code) {
   if (is.null(hex_code)){return(NULL)}
   ifelse(
-    ((grDevices::col2rgb(hex_code)[1] * 0.299) + (grDevices::col2rgb(hex_code)[2] * 0.587) + (grDevices::col2rgb(hex_code)[3] * 0.114) > 186),
+    (((grDevices::col2rgb(hex_code)[1] * 0.299) + (grDevices::col2rgb(hex_code)[2] * 0.587) + (grDevices::col2rgb(hex_code)[3] * 0.114)) / 255 > 0.5),
     "#000000",
     "#ffffff"
   )
 }
 
+`%||%` <- rlang::`%||%`
 
 color_func <- function(x, y, z, number_event_groups) {
   megaplot_color <- grDevices::rainbow(number_event_groups)
@@ -52,8 +53,8 @@ get_trace_info <- function(plotly_object) {
   plotly_build_data <- plotly_build_p$x$data
   trace_number <- length(plotly_build_data)
   trace_info <- data.frame(name = character(trace_number))
-  trace_info <- plotly_build_data %>%
-    seq_along() %>%
+  trace_info <- plotly_build_data |>
+    seq_along() |>
     purrr::map_dfr(
       ~{
         if(is.null(plotly_build_data[[.x]]$name)){
@@ -74,10 +75,10 @@ get_trace_info <- function(plotly_object) {
 }
 
 apply_trace_info <- function(trace_info, plotly_object) {
-  split_trace_info <- trace_info %>%
+  split_trace_info <- trace_info |>
     split(trace_info$legendgroup)
 
-  c(list(plotly_object), split_trace_info) %>%
+  c(list(plotly_object), split_trace_info) |>
     purrr::reduce(
       ~{
         plotly::style(
@@ -110,7 +111,7 @@ create_palette <- function(n, name) {
     if (name == "Rainbow") {
       selected_color_palette <- grDevices::rainbow(n)
     } else {
-    selected_color_palette <- NA
+      selected_color_palette <- NA
     }
   }
   return(selected_color_palette)
@@ -130,3 +131,28 @@ vrect <- function(x = 0, x2, color = "#fe333f20") {
   )
 }
 
+hexsticker_logo <- function(src){
+  div(
+    img(
+      src = src, height = "175px",
+      style = "display: block; margin-left: auto; margin-right: auto;"
+    )
+  )
+}
+
+
+# Read and split the .md file into named sections
+parse_sections <- function(path) {
+  lines   <- readLines(path)
+  heading <- grepl("^## ", lines)   # detect H2 headings as chapter boundaries
+  groups  <- cumsum(heading)  # assign each line to a section number
+
+  tapply(lines, groups, function(x) paste(x, collapse = "\n")) |>
+    stats::setNames(
+      lines[heading] |> sub("^## ", "", x = _)  # use heading text as section name
+    )
+}
+
+sections <- parse_sections(
+  system.file("tutorial/Tutorial.md", package = "Megaplots")
+)
