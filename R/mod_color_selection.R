@@ -354,6 +354,7 @@ mod_color_selection_server <- function(
 
     shiny::observeEvent(checked_data$val, {
       if (is.null(checked_data$val) || nrow(checked_data$val) == 0) {
+        shinyjs::hideElement(id = "colour_picker_panel")
         shinyjs::hideElement(id = "selected_events_color_container_panel")
       } else {
         shinyjs::showElement(id = "selected_events_color_container_panel")
