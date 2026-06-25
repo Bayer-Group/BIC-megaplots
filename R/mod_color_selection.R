@@ -446,9 +446,9 @@ mod_color_selection_server <- function(
       )
     })
 
-    shiny::observe({
-      color_data$all
-    })
+    # shiny::observe({
+    #   color_data$all
+    # })
     #### END jsTreeR PART ####
 
     shiny::observeEvent(c(

@@ -120,15 +120,6 @@ mod_filter_server <- function(id, uploaded_data_renamed, parent_session) {
       }
     })
 
-    shiny::observeEvent(filtered_data_reactive$val,{
-      shinyWidgets::updateProgressBar(
-        session = session,
-        id = "pbar",
-        value = length(unique(filtered_data_reactive$val$megaplots_selected_subjectid)),
-        total = length(unique(uploaded_data_renamed()$megaplots_selected_subjectid))
-      )
-    })
-
     list(
       filtered_data = shiny::reactive({ filtered_data_reactive$val })
     )

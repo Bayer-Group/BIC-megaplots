@@ -100,7 +100,7 @@ app_server <- function(input, output, session) {
     megaplot_filtered_data = shiny::reactive({megaplot_filtered_data()})
   )
 
-  shiny::observe({sequencing_object$sequencing_object()})
+  # shiny::observe({sequencing_object$sequencing_object()})
 
   #### 10. Megaplot Module ####
   megaplot_result <- mod_megaplot_server(
