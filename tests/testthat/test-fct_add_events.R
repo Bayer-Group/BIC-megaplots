@@ -42,7 +42,7 @@ test_that("add_events initializes builder when mp is omitted", {
 })
 
 test_that("add_events appends rows and applies prefix_group / prefix_event", {
-  mp <- mp_with_sl() %>%
+  mp <- mp_with_sl() |>
     add_events(
       events_data = adae_min,
       event_group = "AEBODSYS",
@@ -60,7 +60,7 @@ test_that("add_events resolves event column names case-insensitively", {
   adae <- adae_min
   names(adae) <- c("USUBJID", "aebodsys", "aedecod", "ASTDT", "AENDT")
 
-  mp <- mp_with_sl() %>%
+  mp <- mp_with_sl() |>
     add_events(
       adae,
       event_group = "AEBODSYS",
@@ -75,7 +75,7 @@ test_that("add_events pastes multiple columns for event_group and event", {
   adae$GRP2 <- c("X", "Y")
   adae$EV2 <- c("aa", "bb")
 
-  mp <- mp_with_sl() %>%
+  mp <- mp_with_sl() |>
     add_events(
       adae,
       event_group = c("AEBODSYS", "GRP2"),
@@ -97,7 +97,7 @@ test_that("add_events messages and warns for multiple event_group/event columns"
     expect_message(
       expect_message(
         expect_message(
-          mp_with_sl() %>%
+          mp_with_sl() |>
             add_events(
               adae,
               event_group = c("AEBODSYS", "GRP2", "GRP3"),
@@ -114,8 +114,8 @@ test_that("add_events messages and warns for multiple event_group/event columns"
 })
 
 test_that("add_events stacks multiple calls on mp$events", {
-  mp <- mp_with_sl() %>%
-    add_events(adae_min, event_group = "AEBODSYS", event = "AEDECOD") %>%
+  mp <- mp_with_sl() |>
+    add_events(adae_min, event_group = "AEBODSYS", event = "AEDECOD") |>
     add_events(adae_min, event_group = "AEBODSYS", event = "AEDECOD")
 
   expect_equal(nrow(mp$events), 4L)
@@ -189,7 +189,7 @@ test_that("add_events does not require sl_ref_date once mp$sl exists", {
     event_group = "AEBODSYS",
     event = "AEDECOD",
     sl_ref_date = "TRTSTDT"
-  ) %>%
+  ) |>
     add_events(adae_min, event_group = "AEBODSYS", event = "AEDECOD")
 
   expect_equal(nrow(mp$events), 4L)
@@ -201,7 +201,7 @@ test_that("add_events errors when id column is absent", {
   names(bad)[1] <- "SUBJ"
 
   expect_error(
-    mp_with_sl() %>%
+    mp_with_sl() |>
       add_events(bad, event_group = "AEBODSYS", event = "AEDECOD"),
     "The specified id 'USUBJID' is not a column in the dataset."
   )
@@ -212,7 +212,7 @@ test_that("add_events errors when event_group column is absent", {
   names(bad)[2] <- "WRONG"
 
   expect_error(
-    mp_with_sl() %>%
+    mp_with_sl() |>
       add_events(bad, event_group = "AEBODSYS", event = "AEDECOD"),
     "Column 'AEBODSYS' not found in dataset."
   )
@@ -222,7 +222,7 @@ test_that("add_events keeps keep_vars when present", {
   adae <- adae_min
   adae$EXTRA <- c("x", "y")
 
-  mp <- mp_with_sl() %>%
+  mp <- mp_with_sl() |>
     add_events(
       adae,
       event_group = "AEBODSYS",
@@ -243,19 +243,19 @@ test_that("add_events retains keep_vars across multiple calls and datasets", {
   adae_other$AEDECOD <- c("Headache", "Palpitation")
   adae_other$EXTRA_C <- c("c1", "c2")
 
-  mp <- mp_with_sl() %>%
+  mp <- mp_with_sl() |>
     add_events(
       adae_same,
       event_group = "AEBODSYS",
       event = "AEDECOD",
       keep_vars = "EXTRA_A"
-    ) %>%
+    ) |>
     add_events(
       adae_same,
       event_group = "AEBODSYS",
       event = "AEDECOD",
       keep_vars = "EXTRA_B"
-    ) %>%
+    ) |>
     add_events(
       adae_other,
       event_group = "AEBODSYS",
@@ -270,7 +270,7 @@ test_that("add_events retains keep_vars across multiple calls and datasets", {
 })
 
 test_that("add_events joins time-to-first columns when calc_time_to_first is TRUE", {
-  mp <- mp_with_sl() %>%
+  mp <- mp_with_sl() |>
     add_events(
       adae_min,
       event_group = "AEBODSYS",
@@ -293,7 +293,7 @@ test_that("add_events skips all-NA earlier event_start candidate", {
     stringsAsFactors = FALSE
   )
 
-  mp <- mp_with_sl() %>%
+  mp <- mp_with_sl() |>
     add_events(
       adae,
       event_group = "AEBODSYS",
@@ -385,7 +385,7 @@ test_that("add_events errors when no subjects match subject-level data", {
   )
 
   expect_error(
-    mp_with_sl() %>%
+    mp_with_sl() |>
       add_events(events_mismatch, event_group = "AEBODSYS", event = "AEDECOD"),
     regexp = "No subjects match"
   )
@@ -402,7 +402,7 @@ test_that("add_events messages when only some subjects match subject-level data"
   )
 
   expect_message(
-    mp <- mp_with_sl() %>%
+    mp <- mp_with_sl() |>
       add_events(events_partial, event_group = "AEBODSYS", event = "AEDECOD"),
     regexp = "1 of 2 subjects"
   )

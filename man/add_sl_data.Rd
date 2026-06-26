@@ -53,7 +53,7 @@ library(safetyData)
 
 data(adam_adsl, adam_adae, adam_adlbc, package = "safetyData")
 
-mp_data <- add_sl_data(adam_adsl) \%>\%
+mp_data <- add_sl_data(adam_adsl) |>
   add_events(
     adam_adae,
     event_group = "AEBODSYS",
@@ -62,13 +62,13 @@ mp_data <- add_sl_data(adam_adsl) \%>\%
     prefix_event = "PT: ",
     calc_time_to_first = TRUE,
     calc_days_with = TRUE
-  ) \%>\%
+  ) |>
   add_events(
     adam_adae,
     event_group = "CQ01NAM",
     event = "AETERM",
     prefix_group = "CQ: "
-  ) \%>\%
+  ) |>
   add_events(
     adam_adlbc,
     event_group = "PARAM",
@@ -76,7 +76,7 @@ mp_data <- add_sl_data(adam_adsl) \%>\%
     event_start = "ADT",
     event_end = "ADT",
     prefix_group = "Lab: "
-  ) \%>\%
+  ) |>
   finalize_mp_object(
     event_group_label_case = "title",
     event_label_case = "title"

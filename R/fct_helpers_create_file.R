@@ -26,14 +26,14 @@ calc_time_to_first <- function(
 
   # Calculate time to first event if requested
   if (calc_event) {
-    data_time_to_first <- data %>%
+    data_time_to_first <- data |>
       dplyr::arrange(
         .data$subjectid,
         .data$event_group,
         .data$event,
         .data$event_time
-      ) %>%
-      dplyr::group_by(.data$subjectid, .data$event_group, .data$event) %>%
+      ) |>
+      dplyr::group_by(.data$subjectid, .data$event_group, .data$event) |>
       # Use ifelse to handle cases where all event_time values are NA for a group
       dplyr::summarize(
         first = ifelse(
@@ -42,13 +42,13 @@ calc_time_to_first <- function(
           min(.data$event_time, na.rm = TRUE)
         ),
         .groups = "drop"
-      ) %>%
-      dplyr::distinct() %>%
+      ) |>
+      dplyr::distinct() |>
       dplyr::mutate(
         # Replace punctuation and spaces with underscores for valid column names
         event_group = gsub("[[:punct:][:space:]]+", "_", .data$event_group),
         event = gsub("[[:punct:][:space:]]+", "_", .data$event)
-      ) %>%
+      ) |>
       tidyr::pivot_wider(
         id_cols = "subjectid",
         names_from = c("event_group", "event"),
@@ -60,14 +60,14 @@ calc_time_to_first <- function(
 
   # Calculate time to first event group if requested
   if (calc_event_group) {
-    data_time_to_first_group <- data %>%
-      dplyr::select(-"event") %>%
+    data_time_to_first_group <- data |>
+      dplyr::select(-"event") |>
       dplyr::arrange(
         .data$subjectid,
         .data$event_group,
         .data$event_time
-      ) %>%
-      dplyr::group_by(.data$subjectid, .data$event_group) %>%
+      ) |>
+      dplyr::group_by(.data$subjectid, .data$event_group) |>
       dplyr::summarize(
         first = ifelse(
           all(is.na(.data$event_time)),
@@ -75,12 +75,12 @@ calc_time_to_first <- function(
           min(.data$event_time, na.rm = TRUE)
         ),
         .groups = "drop"
-      ) %>%
-      dplyr::distinct() %>%
+      ) |>
+      dplyr::distinct() |>
       dplyr::mutate(
         # Replace punctuation and spaces with underscores for valid column names
         event_group = gsub("[[:punct:][:space:]]+", "_", .data$event_group)
-      ) %>%
+      ) |>
       tidyr::pivot_wider(
         id_cols = "subjectid",
         names_from = "event_group",
@@ -89,7 +89,7 @@ calc_time_to_first <- function(
         values_from = "first"
       )
     if (calc_event) {
-      data_time_to_first <- data_time_to_first %>%
+      data_time_to_first <- data_time_to_first |>
         dplyr::left_join(data_time_to_first_group, by = "subjectid")
     } else {
       data_time_to_first <- data_time_to_first_group
@@ -127,14 +127,14 @@ calc_days_with <- function(
     stop("Error: One of calc_event_group and calc_event must be TRUE.")
   }
   if (calc_event) {
-    data_days_with <- data %>%
+    data_days_with <- data |>
       dplyr::arrange(
         .data$subjectid,
         .data$event_group,
         .data$event,
         .data$event_time,
         .data$event_time_end
-      ) %>%
+      ) |>
       dplyr::mutate(
         # Expand each interval to a day sequence to count unique covered days
         days = purrr::map2(
@@ -150,19 +150,19 @@ calc_days_with <- function(
             NULL
           }
         )
-      ) %>%
-      dplyr::group_by(.data$subjectid, .data$event_group, .data$event) %>%
+      ) |>
+      dplyr::group_by(.data$subjectid, .data$event_group, .data$event) |>
       dplyr::summarize(
         # Count unique days across all events for each subject
         days_with = dplyr::n_distinct(unlist(.data$days)),
         .groups = "drop"
-      ) %>%
-      dplyr::distinct() %>%
+      ) |>
+      dplyr::distinct() |>
       dplyr::mutate(
         # Replace punctuation and spaces with underscores for valid column names
         event_group = gsub("[[:punct:][:space:]]+", "_", .data$event_group),
         event = gsub("[[:punct:][:space:]]+", "_", .data$event)
-      ) %>%
+      ) |>
       tidyr::pivot_wider(
         id_cols = "subjectid",
         names_from = c("event_group", "event"),
@@ -173,14 +173,14 @@ calc_days_with <- function(
       )
   }
   if (calc_event_group) {
-    data_days_with_group <- data %>%
-      dplyr::select(-.data$event) %>%
+    data_days_with_group <- data |>
+      dplyr::select(-.data$event) |>
       dplyr::arrange(
         .data$subjectid,
         .data$event_group,
         .data$event_time,
         .data$event_time_end
-      ) %>%
+      ) |>
       dplyr::mutate(
         # Expand each interval to a day sequence to count unique covered days
         days = purrr::map2(
@@ -196,18 +196,18 @@ calc_days_with <- function(
             NULL
           }
         )
-      ) %>%
-      dplyr::group_by(.data$subjectid, .data$event_group) %>%
+      ) |>
+      dplyr::group_by(.data$subjectid, .data$event_group) |>
       dplyr::summarize(
         # Count unique days across all events in the group for each subject
         days_with = dplyr::n_distinct(unlist(.data$days)),
         .groups = "drop"
-      ) %>%
-      dplyr::distinct() %>%
+      ) |>
+      dplyr::distinct() |>
       dplyr::mutate(
         # Replace punctuation and spaces with underscores for valid column names
         event_group = gsub("[[:punct:][:space:]]+", "_", .data$event_group)
-      ) %>%
+      ) |>
       tidyr::pivot_wider(
         id_cols = "subjectid",
         names_from = c("event_group"),
@@ -217,7 +217,7 @@ calc_days_with <- function(
         values_fill = 0
       )
     if (calc_event) {
-      data_days_with <- data_days_with %>%
+      data_days_with <- data_days_with |>
         dplyr::left_join(data_days_with_group, by = "subjectid")
     } else {
       data_days_with <- data_days_with_group

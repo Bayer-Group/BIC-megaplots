@@ -31,7 +31,7 @@ finalize_mp_object <- function(
     )
   }
 
-  out <- mp_builder$sl %>%
+  out <- mp_builder$sl |>
     dplyr::left_join(
       mp_builder$events,
       # Join by all common columns (e.g., subjectid) to combine subject-level and event data
@@ -76,7 +76,7 @@ finalize_mp_object <- function(
     names(out)
   )
   if (length(arrange_cols)) {
-    out <- out %>% dplyr::arrange(dplyr::across(dplyr::all_of(arrange_cols)))
+    out <- out |> dplyr::arrange(dplyr::across(dplyr::all_of(arrange_cols)))
   }
 
   core_cols <- c(
@@ -88,7 +88,7 @@ finalize_mp_object <- function(
     "event_group",
     "event"
   )
-  out <- out %>% dplyr::relocate(dplyr::any_of(core_cols), .before = 1)
+  out <- out |> dplyr::relocate(dplyr::any_of(core_cols), .before = 1)
 
   return(out)
 }

@@ -66,7 +66,7 @@
 #'   sl_ref_date = "TRTSDT",
 #'   prefix_group = "SOC: ",
 #'   prefix_event = "PT: "
-#' ) %>%
+#' ) |>
 #'   finalize_mp_object()
 #' }
 #' @export
@@ -149,7 +149,7 @@ add_events <- function(
     if (length(sl_ref_date) != 1L) {
       stop("`sl_ref_date` must have length 1.", call. = FALSE)
     }
-    sl_tmp <- data %>%
+    sl_tmp <- data |>
       dplyr::mutate(
         # Create a numeric subject ID by removing non-numeric characters from the specified ID column
         subjectid = as.numeric(base::gsub(
@@ -157,9 +157,9 @@ add_events <- function(
           "",
           as.character(!!rlang::sym(id))
         ))
-      ) %>%
+      ) |>
       # Keep one baseline row per subject when creating minimal mp_builder$sl on the fly
-      dplyr::distinct(.data$subjectid, .keep_all = TRUE) %>%
+      dplyr::distinct(.data$subjectid, .keep_all = TRUE) |>
       dplyr::relocate(.data$subjectid)
 
     # Build mp_builder$sl with subjectid and ref_date from sl_ref_date column or constant
@@ -168,8 +168,8 @@ add_events <- function(
         stop("`sl_ref_date` must not be NA.", call. = FALSE)
       }
       sl_col <- resolve_colname(sl_ref_date, colnames(sl_tmp))
-      mp_builder$sl <- sl_tmp %>%
-        dplyr::select(.data$subjectid, dplyr::all_of(sl_col)) %>%
+      mp_builder$sl <- sl_tmp |>
+        dplyr::select(.data$subjectid, dplyr::all_of(sl_col)) |>
         dplyr::rename(ref_date = !!rlang::sym(sl_col))
       mp_builder$sl$ref_date <- as_date_column(mp_builder$sl$ref_date, sl_col)
     } else if (is.numeric(sl_ref_date)) {
@@ -179,8 +179,8 @@ add_events <- function(
           call. = FALSE
         )
       }
-      mp_builder$sl <- sl_tmp %>%
-        dplyr::select(.data$subjectid) %>%
+      mp_builder$sl <- sl_tmp |>
+        dplyr::select(.data$subjectid) |>
         dplyr::mutate(ref_date = as.numeric(sl_ref_date))
     } else {
       stop(
@@ -198,7 +198,7 @@ add_events <- function(
   if ("end_time" %in% names(mp_builder$sl)) {
     sl_join_cols <- c(sl_join_cols, "end_time")
   }
-  adsl <- mp_builder$sl %>% dplyr::select(tidyselect::all_of(sl_join_cols))
+  adsl <- mp_builder$sl |> dplyr::select(tidyselect::all_of(sl_join_cols))
 
   # Validate event_group and event column specifications ----
   if (
@@ -259,7 +259,7 @@ add_events <- function(
     paste(ev_cols, collapse = ", ")
   )
 
-  data <- data %>%
+  data <- data |>
     #rename and relocate id-variable.
     dplyr::mutate(
       subjectid = as.numeric(gsub(
@@ -295,9 +295,9 @@ add_events <- function(
     }
   }
 
-  data <- data %>%
-    dplyr::filter(.data$subjectid %in% adsl$subjectid) %>%
-    dplyr::left_join(adsl, by = "subjectid") %>% # Join to add ref_date and potential start_time / end_time for left censoring
+  data <- data |>
+    dplyr::filter(.data$subjectid %in% adsl$subjectid) |>
+    dplyr::left_join(adsl, by = "subjectid") |> # Join to add ref_date and potential start_time / end_time for left censoring
     dplyr::relocate(.data$subjectid, .data$ref_date)
 
   event_start <- resolve_first_match(event_start, colnames(data), data = data)
@@ -324,15 +324,15 @@ add_events <- function(
   }
 
   # Filter to rows with non-missing and non-empty values in all event_group and event columns, then create event_group and event by pasting together specified columns with optional prefixes.
-  data_tmp <- data %>%
+  data_tmp <- data |>
     dplyr::filter(dplyr::if_all(
       dplyr::all_of(eg_cols),
       ~ !is.na(.) & . != ""
-    )) %>%
+    )) |>
     dplyr::filter(dplyr::if_all(
       dplyr::all_of(ev_cols),
       ~ !is.na(.) & . != ""
-    )) %>%
+    )) |>
     dplyr::mutate(
       event_group = paste0(
         prefix_group,
@@ -348,7 +348,7 @@ add_events <- function(
           c(dplyr::across(dplyr::all_of(ev_cols)), sep = "; ")
         )
       )
-    ) %>%
+    ) |>
     dplyr::select(
       .data$subjectid,
       .data$event_group,
@@ -358,8 +358,8 @@ add_events <- function(
       .data$ref_date,
       tidyselect::any_of(c("start_time", "end_time")),
       tidyselect::any_of(keep_vars)
-    ) %>%
-    dplyr::filter(!is.na(!!rlang::sym(event_start))) %>%
+    ) |>
+    dplyr::filter(!is.na(!!rlang::sym(event_start))) |>
     dplyr::arrange(
       .data$subjectid,
       .data$event_group,
@@ -384,8 +384,8 @@ add_events <- function(
   # Calculate event start and end times relative to ref_date,
   # then apply left censoring to event_time if requested and start_time is available in mp_builder$sl.
   # Original event_start, event_end, and ref_date columns are dropped after calculations.
-  data_tmp <- data_tmp %>%
-    dplyr::group_by(.data$subjectid, .data$event_group, .data$event) %>%
+  data_tmp <- data_tmp |>
+    dplyr::group_by(.data$subjectid, .data$event_group, .data$event) |>
     dplyr::mutate(
       event_time = if (ev_is_date) {
         as.integer(
@@ -419,8 +419,8 @@ add_events <- function(
             1L
         )
       }
-    ) %>%
-    dplyr::ungroup() %>%
+    ) |>
+    dplyr::ungroup() |>
     # left censor data if provided and start_time is available in sl;
     dplyr::mutate(
       event_time = if (is.null(left_censor)) {
@@ -435,17 +435,17 @@ add_events <- function(
           TRUE ~ .data$event_time
         )
       }
-    ) %>%
+    ) |>
     dplyr::select(
       -c(!!rlang::sym(event_start), !!rlang::sym(event_end), .data$ref_date)
-    ) %>% # Drop original date columns
+    ) |> # Drop original date columns
     dplyr::relocate(
       .data$subjectid,
       .data$event_group,
       .data$event,
       .data$event_time,
       .data$event_time_end
-    ) %>% # Rearrange columns
+    ) |> # Rearrange columns
     dplyr::distinct()
 
   time_to_first <- NULL
@@ -453,7 +453,7 @@ add_events <- function(
     message("calculating time to first event")
     time_to_first <- calc_time_to_first(data = data_tmp)
 
-    mp_builder$sl <- mp_builder$sl %>%
+    mp_builder$sl <- mp_builder$sl |>
       dplyr::left_join(time_to_first, by = "subjectid")
   }
 
@@ -462,7 +462,7 @@ add_events <- function(
     message("calculating days with event")
     days_with <- calc_days_with(data = data_tmp)
 
-    mp_builder$sl <- mp_builder$sl %>%
+    mp_builder$sl <- mp_builder$sl |>
       dplyr::left_join(days_with, by = "subjectid")
   }
 
