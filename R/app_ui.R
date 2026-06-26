@@ -61,7 +61,13 @@ app_ui <- function(request) {
         base_font = "Agency FB",                 #font
         font_scale = 1.4,                    #font size
         primary = "#007CBF"
-      ),
+      )|>
+      bslib::bs_add_rules("
+        /* Change accordion panel background color in the sidebar */
+        .accordion-body {
+          background-color: var(--bs-secondary-bg);
+        }
+      "),
       #### Sidebar ####
       # Use accordion_panels from bslib
       sidebar = bslib::sidebar(
