@@ -79,6 +79,14 @@ mod_plot_appearance_ui <- function(id) {
         label = "On/Off Legend Grouping",
         value = TRUE,
         status = "primary"
+      ),
+      #add note
+      shiny::div(
+        class = "callout-info",
+        shiny::icon("info-circle"),
+        shiny::strong("Note: "),
+          "Legend Grouping off has no effect when a Grouping
+          variables is selected in 'Event Summary'."
       )
     )
   )
