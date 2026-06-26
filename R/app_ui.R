@@ -61,7 +61,13 @@ app_ui <- function(request) {
         base_font = "Agency FB",                 #font
         font_scale = 1.4,                    #font size
         primary = "#007CBF"
-      ),
+      )|>
+      bslib::bs_add_rules("
+        /* Change accordion panel background color in the sidebar */
+        .accordion-body {
+          background-color: var(--bs-secondary-bg);
+        }
+      "),
       #### Sidebar ####
       # Use accordion_panels from bslib
       sidebar = bslib::sidebar(
@@ -76,18 +82,28 @@ app_ui <- function(request) {
           )
         ),
         bslib::accordion(open = FALSE,
-          # Sorting/Grouping (Sidebar)
-          mod_sorting_grouping_ui("sorting_grouping"),
-          mod_plot_appearance_ui("plot_appearance"),
-          mod_reference_lines_ui("reference_lines"),
+           bslib::accordion_panel(
+             "Timeline Arrangement",
+            icon = bsicons::bs_icon("body-text"),
+            # Sorting/Grouping (Sidebar)
+            mod_sorting_grouping_ui("sorting_grouping"),
+            sequencing_ui("sequencing_module")
+          ),
+          bslib::accordion_panel(
+            "Plot Appearance",
+            icon = bsicons::bs_icon("layout-text-sidebar"),
+            mod_plot_appearance_ui("plot_appearance"),
+            mod_reference_lines_ui("reference_lines")
+          ),
+
           mod_filter_ui("filter"),
           bslib::accordion_panel(
             "Download",
             icon = bsicons::bs_icon("download"),
             shiny::downloadButton("download_plotly_widget", "Save Megaplot Chart as HTML file")
-          ),
+          )
           # module call for sequencing
-          sequencing_ui("sequencing_module")
+
         ),
         HTML(paste0("<p style = 'color: #dedede;'> Version: ", utils::packageVersion("Megaplots")))
       ),

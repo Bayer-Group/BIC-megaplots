@@ -13,7 +13,7 @@ mod_filter_ui <- function(id) {
 
   bslib::accordion_panel(
     "Filter",
-    icon = bsicons::bs_icon("filter"),
+    icon = bsicons::bs_icon("funnel"),
     shinyWidgets::pickerInput(
       inputId =ns("select_filter_variables"),
       label = "Select filter variable(s)",
@@ -118,15 +118,6 @@ mod_filter_server <- function(id, uploaded_data_renamed, parent_session) {
           filtered_data_reactive$val <- res_filter$filtered()
         }
       }
-    })
-
-    shiny::observeEvent(filtered_data_reactive$val,{
-      shinyWidgets::updateProgressBar(
-        session = session,
-        id = "pbar",
-        value = length(unique(filtered_data_reactive$val$megaplots_selected_subjectid)),
-        total = length(unique(uploaded_data_renamed()$megaplots_selected_subjectid))
-      )
     })
 
     list(

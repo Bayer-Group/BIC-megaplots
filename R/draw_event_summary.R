@@ -150,6 +150,20 @@ draw_event_summary <- function(
         dplyr::arrange(.data$event_group_id, .data$event_id)
       megaplot_data_with_cumulative_sums$unique_event <- factor(megaplot_data_with_cumulative_sums$unique_event , levels = unique(megaplot_data_with_cumulative_sums$unique_event))
 
+
+      if (hovermode == "x") {
+      megaplot_data_with_cumulative_sums <- megaplot_data_with_cumulative_sums |>
+        dplyr::mutate(
+          tooltip = "x+text",
+          tooltip_text = ifelse(.data$cumulative_sum < event_summary_cutoff, NA, paste0(.data$unique_event,": ", .data$cumulative_sum))
+        )
+      } else {
+        megaplot_data_with_cumulative_sums <- megaplot_data_with_cumulative_sums |>
+          dplyr::mutate(
+            tooltip = "x+text",
+            tooltip_text = paste0(.data$unique_event,": ", .data$cumulative_sum)
+          )
+      }
       #initial scatter plot
       fig <- plotly::plot_ly(
         data = megaplot_data_with_cumulative_sums,
@@ -169,12 +183,14 @@ draw_event_summary <- function(
         }
 
         fig<- fig |> plotly::layout(
-          shapes = list(vrect(reference_line_1_value, reference_line_1_value2, reference_line_1_color),
-                        vrect(reference_line_2_value, reference_line_2_value2, reference_line_2_color),
-                        vrect(reference_line_3_value, reference_line_3_value2, reference_line_3_color)
+          shapes = list(
+            vrect(reference_line_1_value, reference_line_1_value2, reference_line_1_color),
+            vrect(reference_line_2_value, reference_line_2_value2, reference_line_2_color),
+            vrect(reference_line_3_value, reference_line_3_value2, reference_line_3_color)
           )
         )
       }
+
       #add lines to initial figure
         # if (switch_legend_grouping) {
           fig2 <- fig  |>
@@ -182,6 +198,8 @@ draw_event_summary <- function(
               color = ~I(event_color),
               line = list(shape = "hv", width = 3),
               name = ~ unique_event,
+              text = ~ tooltip_text,
+              hoverinfo = ~ tooltip,
               showlegend = FALSE,
               legendgroup = ~ megaplots_selected_event_group,
               legendgrouptitle = list(text = ~ megaplots_selected_event_group)

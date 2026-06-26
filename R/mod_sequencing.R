@@ -4,7 +4,7 @@ sequencing_ui <- function(id) {
 
   bslib::accordion_panel(
     title = "Sequencing",
-    icon = bsicons::bs_icon("shuffle"),
+    icon = bsicons::bs_icon("bar-chart-steps"),
 
     # Seriation Method Input
     shinyWidgets::pickerInput(

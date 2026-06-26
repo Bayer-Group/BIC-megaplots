@@ -100,7 +100,7 @@ app_server <- function(input, output, session) {
     megaplot_filtered_data = shiny::reactive({megaplot_filtered_data()})
   )
 
-  shiny::observe({sequencing_object$sequencing_object()})
+  # shiny::observe({sequencing_object$sequencing_object()})
 
   #### 10. Megaplot Module ####
   megaplot_result <- mod_megaplot_server(
@@ -117,8 +117,8 @@ app_server <- function(input, output, session) {
         switch_legend_grouping = plot_appearance$switch_legend_grouping(),
         sort_event_groups = plot_appearance$sort_event_groups(),
 
-        event_summary_cutoff = plot_appearance$event_summary_cutoff(),
-        event_summary_hovermode = plot_appearance$event_summary_hovermode(),
+        # event_summary_cutoff = plot_appearance$event_summary_cutoff(),
+        # event_summary_hovermode = plot_appearance$event_summary_hovermode(),
         sequencing_object = sequencing_object$sequencing_object(),
         sequencing_switch = sequencing_object$sequencing_switch(),
         line_color_subjects_dark = plot_appearance$line_color_subjects_dark(),
