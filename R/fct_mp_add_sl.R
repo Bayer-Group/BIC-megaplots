@@ -169,7 +169,7 @@ add_sl_data <- function(
   )
   message(sprintf("Relative day 1: %s", relative_day_1)) # Message for relative day 1
 
-  # Stage source date columns to internal names to avoid naming conflicts 
+  # Stage source date columns to internal names to avoid naming conflicts
   # when input already uses Megaplots output column names.
   staged_result <- stage_mp_source_cols(
     adsl,
@@ -204,6 +204,10 @@ add_sl_data <- function(
 
   adsl <- adsl |>
     dplyr::relocate("subjectid", "start_time", "end_time", "ref_date") # Rearrange columns without treatment
+
+  if (length(staged_map)) {
+    adsl <- dplyr::select(adsl, -dplyr::all_of(unname(staged_map)))
+  }
 
   mp_builder$sl <- adsl
   return(mp_builder)

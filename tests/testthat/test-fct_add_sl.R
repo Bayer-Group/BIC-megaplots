@@ -178,6 +178,7 @@ test_that("add_sl_data accepts display_start_date column named start_time", {
 
   expect_equal(mp$sl$start_time, c(1L, 1L))
   expect_equal(mp$sl$end_time, c(10L, 11L))
+  expect_false(any(grepl("^\\.mp_src_", names(mp$sl))))
 })
 
 test_that("add_sl_data accepts relative_day_1 column named ref_date", {
@@ -196,4 +197,5 @@ test_that("add_sl_data accepts relative_day_1 column named ref_date", {
 
   expect_equal(mp$sl$start_time, c(1L, 1L))
   expect_equal(mp$sl$ref_date, as.Date(c("2022-01-01", "2022-01-02")))
+  expect_false(any(grepl("^\\.mp_src_", names(mp$sl))))
 })

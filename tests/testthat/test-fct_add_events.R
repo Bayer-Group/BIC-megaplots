@@ -443,7 +443,7 @@ test_that("add_events accepts pre-formatted event_time columns after add_sl_data
     stringsAsFactors = FALSE
   )
 
-  mp <- mp_with_sl() %>%
+  mp <- mp_with_sl() |>
     add_events(
       adae_pre,
       event_group = "AEBODSYS",
@@ -467,7 +467,7 @@ test_that("add_events accepts pre-formatted event_group and event columns as sou
     stringsAsFactors = FALSE
   )
 
-  mp <- mp_with_sl() %>%
+  mp <- mp_with_sl() |>
     add_events(
       adae_pre,
       event_group = "event_group",
@@ -490,7 +490,7 @@ test_that("add_events joins when events data already has ref_date column", {
     stringsAsFactors = FALSE
   )
 
-  mp <- mp_with_sl() %>%
+  mp <- mp_with_sl() |>
     add_events(
       adae_with_ref,
       event_group = "AEBODSYS",
