@@ -1,6 +1,6 @@
 Package: Megaplots
 Title: A 'shiny' Application for Pattern Detection
-Version: 2.2.1
+Version: 2.2.2
 Authors@R: c(
     person("Anna", "Fritsch", email = "anna.fritsch@bayer.com", role = c("aut","cre")),
     person("Steffen", "Jeske", role = c("aut")),

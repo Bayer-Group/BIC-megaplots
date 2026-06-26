@@ -72,6 +72,14 @@ mod_color_selection_ui <- function(id) {
                  ns("colorization_selection")
                )
              ),
+             tags$style(
+               HTML("
+                 .colourpicker-panel {
+                   right: 0 !important;
+                   left: auto !important;
+                 }
+               ")
+             ),
              shiny::column(4,
                colourpicker::colourInput(
                  inputId = ns("colour_picker_panel_1"),
