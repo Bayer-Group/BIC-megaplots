@@ -169,8 +169,20 @@ add_sl_data <- function(
   )
   message(sprintf("Relative day 1: %s", relative_day_1)) # Message for relative day 1
 
+  # Stage source date columns to internal names to avoid naming conflicts 
+  # when input already uses Megaplots output column names.
+  staged_result <- stage_mp_source_cols(
+    adsl,
+    unique(c(display_start_date, display_end_date, relative_day_1))
+  )
+  adsl <- staged_result$data
+  staged_map <- staged_result$staged
+  display_start_date <- map_mp_staged_names(display_start_date, staged_map)
+  display_end_date <- map_mp_staged_names(display_end_date, staged_map)
+  relative_day_1 <- map_mp_staged_names(relative_day_1, staged_map)
+
   # Collect all date columns to be processed
-  date_cols <- c(display_start_date, display_end_date, relative_day_1)
+  date_cols <- unique(c(display_start_date, display_end_date, relative_day_1))
 
   # Mutate the dataset to create new date-related columns
   adsl <- adsl |>

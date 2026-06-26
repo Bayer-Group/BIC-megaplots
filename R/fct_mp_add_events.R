@@ -296,6 +296,13 @@ add_events <- function(
   }
 
   data <- data |>
+    # Remove unnecessary columns before joining with subject-level data
+    dplyr::select(
+      -dplyr::any_of(setdiff(
+        c("ref_date", "start_time", "end_time"),
+        unique(c(eg_cols, ev_cols))
+      ))
+    ) |>
     dplyr::filter(.data$subjectid %in% adsl$subjectid) |>
     dplyr::left_join(adsl, by = "subjectid") |> # Join to add ref_date and potential start_time / end_time for left censoring
     dplyr::relocate(.data$subjectid, .data$ref_date)
@@ -323,14 +330,27 @@ add_events <- function(
     keep_vars <- character(0)
   }
 
+  # Stage source date columns to internal names to avoid naming conflicts 
+  # when input already uses Megaplots output column names.
+  staged_result <- stage_mp_source_cols(
+    data,
+    unique(c(eg_cols, ev_cols, event_start, event_end))
+  )
+  data <- staged_result$data
+  staged_map <- staged_result$staged
+  eg_cols_use <- map_mp_staged_names(eg_cols, staged_map)
+  ev_cols_use <- map_mp_staged_names(ev_cols, staged_map)
+  src_event_start <- map_mp_staged_names(event_start, staged_map)
+  src_event_end <- map_mp_staged_names(event_end, staged_map)
+
   # Filter to rows with non-missing and non-empty values in all event_group and event columns, then create event_group and event by pasting together specified columns with optional prefixes.
   data_tmp <- data |>
     dplyr::filter(dplyr::if_all(
-      dplyr::all_of(eg_cols),
+      dplyr::all_of(eg_cols_use),
       ~ !is.na(.) & . != ""
     )) |>
     dplyr::filter(dplyr::if_all(
-      dplyr::all_of(ev_cols),
+      dplyr::all_of(ev_cols_use),
       ~ !is.na(.) & . != ""
     )) |>
     dplyr::mutate(
@@ -338,14 +358,14 @@ add_events <- function(
         prefix_group,
         do.call(
           base::paste,
-          c(dplyr::across(dplyr::all_of(eg_cols)), sep = "; ")
+          c(dplyr::across(dplyr::all_of(eg_cols_use)), sep = "; ")
         )
       ),
       event = paste0(
         prefix_event,
         do.call(
           base::paste,
-          c(dplyr::across(dplyr::all_of(ev_cols)), sep = "; ")
+          c(dplyr::across(dplyr::all_of(ev_cols_use)), sep = "; ")
         )
       )
     ) |>
@@ -353,23 +373,23 @@ add_events <- function(
       .data$subjectid,
       .data$event_group,
       .data$event,
-      !!rlang::sym(event_start),
-      !!rlang::sym(event_end),
+      !!rlang::sym(src_event_start),
+      !!rlang::sym(src_event_end),
       .data$ref_date,
       tidyselect::any_of(c("start_time", "end_time")),
       tidyselect::any_of(keep_vars)
     ) |>
-    dplyr::filter(!is.na(!!rlang::sym(event_start))) |>
+    dplyr::filter(!is.na(!!rlang::sym(src_event_start))) |>
     dplyr::arrange(
       .data$subjectid,
       .data$event_group,
       .data$event,
-      !!rlang::sym(event_start),
-      !!rlang::sym(event_end)
+      !!rlang::sym(src_event_start),
+      !!rlang::sym(src_event_end)
     )
 
   # Validate that event_start/event_end and ref_date are on the same scale (dates or numeric); mixed types are not supported.
-  ev_is_date <- is_calendar_date(data_tmp[[event_start]])
+  ev_is_date <- is_calendar_date(data_tmp[[src_event_start]])
   ref_is_date <- is_calendar_date(data_tmp$ref_date)
   if (ev_is_date != ref_is_date) {
     stop(
@@ -389,32 +409,32 @@ add_events <- function(
     dplyr::mutate(
       event_time = if (ev_is_date) {
         as.integer(
-          !!rlang::sym(event_start) - .data$ref_date + 1L
+          !!rlang::sym(src_event_start) - .data$ref_date + 1L
         )
       } else {
-        as.integer(!!rlang::sym(event_start)) -
+        as.integer(!!rlang::sym(src_event_start)) -
           as.integer(.data$ref_date) +
           1L
       },
       event_time_end = if (ev_is_date) {
         dplyr::case_when(
-          !is.na(!!rlang::sym(event_end)) ~ as.integer(
-            !!rlang::sym(event_end) - .data$ref_date + 1L
+          !is.na(!!rlang::sym(src_event_end)) ~ as.integer(
+            !!rlang::sym(src_event_end) - .data$ref_date + 1L
           ),
           # Open events are treated as one-day events at start date
           TRUE ~ as.integer(
-            !!rlang::sym(event_start) - .data$ref_date + 1L
+            !!rlang::sym(src_event_start) - .data$ref_date + 1L
           )
         )
       } else {
         dplyr::case_when(
-          !is.na(!!rlang::sym(event_end)) ~ as.integer(
-            !!rlang::sym(event_end)
+          !is.na(!!rlang::sym(src_event_end)) ~ as.integer(
+            !!rlang::sym(src_event_end)
           ) -
             as.integer(.data$ref_date) +
             1L,
           # Open events are treated as one-day events at start date
-          TRUE ~ as.integer(!!rlang::sym(event_start)) -
+          TRUE ~ as.integer(!!rlang::sym(src_event_start)) -
             as.integer(.data$ref_date) +
             1L
         )
@@ -437,8 +457,8 @@ add_events <- function(
       }
     ) |>
     dplyr::select(
-      -c(!!rlang::sym(event_start), !!rlang::sym(event_end), .data$ref_date)
-    ) |> # Drop original date columns
+      -dplyr::any_of(unique(c(src_event_start, src_event_end))), 
+      -.data$ref_date) |> # Drop original date columns
     dplyr::relocate(
       .data$subjectid,
       .data$event_group,

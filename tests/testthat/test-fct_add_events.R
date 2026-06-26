@@ -408,3 +408,95 @@ test_that("add_events messages when only some subjects match subject-level data"
   )
   expect_equal(nrow(mp$events), 1L)
 })
+
+test_that("add_events accepts pre-formatted event_time and event_time_end columns", {
+  adae_pre <- data.frame(
+    USUBJID = c("01-001", "01-002"),
+    AEBODSYS = c("SOC", "SOC"),
+    AEDECOD = c("PTa", "PTb"),
+    event_time = c(2L, 6L),
+    event_time_end = c(3L, 7L),
+    stringsAsFactors = FALSE
+  )
+
+  mp <- add_events(
+    adae_pre,
+    event_group = "AEBODSYS",
+    event = "AEDECOD",
+    event_start = "event_time",
+    event_end = "event_time_end",
+    sl_ref_date = 1L
+  )
+
+  expect_equal(nrow(mp$events), 2L)
+  expect_equal(mp$events$event_time, c(2L, 6L))
+  expect_equal(mp$events$event_time_end, c(3L, 7L))
+})
+
+test_that("add_events accepts pre-formatted event_time columns after add_sl_data", {
+  adae_pre <- data.frame(
+    USUBJID = c("01-001", "01-002"),
+    AEBODSYS = c("SOC", "SOC"),
+    AEDECOD = c("PTa", "PTb"),
+    event_time = as.Date(c("2020-01-02", "2020-01-06")),
+    event_time_end = as.Date(c("2020-01-03", "2020-01-07")),
+    stringsAsFactors = FALSE
+  )
+
+  mp <- mp_with_sl() %>%
+    add_events(
+      adae_pre,
+      event_group = "AEBODSYS",
+      event = "AEDECOD",
+      event_start = "event_time",
+      event_end = "event_time_end"
+    )
+
+  expect_equal(nrow(mp$events), 2L)
+  expect_equal(mp$events$event_time, c(2L, 2L))
+  expect_equal(mp$events$event_time_end, c(3L, 3L))
+})
+
+test_that("add_events accepts pre-formatted event_group and event columns as sources", {
+  adae_pre <- data.frame(
+    USUBJID = c("01-001", "01-002"),
+    event_group = c("G1", "G2"),
+    event = c("E1", "E2"),
+    ASTDT = as.Date(c("2020-01-02", "2020-01-06")),
+    AENDT = as.Date(c("2020-01-03", "2020-01-07")),
+    stringsAsFactors = FALSE
+  )
+
+  mp <- mp_with_sl() %>%
+    add_events(
+      adae_pre,
+      event_group = "event_group",
+      event = "event"
+    )
+
+  expect_equal(nrow(mp$events), 2L)
+  expect_equal(mp$events$event_group, c("G1", "G2"))
+  expect_equal(mp$events$event, c("E1", "E2"))
+})
+
+test_that("add_events joins when events data already has ref_date column", {
+  adae_with_ref <- data.frame(
+    USUBJID = c("01-001", "01-002"),
+    ref_date = as.Date(c("2020-01-01", "2020-01-05")),
+    AEBODSYS = c("SOC", "SOC"),
+    AEDECOD = c("PTa", "PTb"),
+    ASTDT = as.Date(c("2020-01-02", "2020-01-06")),
+    AENDT = as.Date(c("2020-01-03", "2020-01-07")),
+    stringsAsFactors = FALSE
+  )
+
+  mp <- mp_with_sl() %>%
+    add_events(
+      adae_with_ref,
+      event_group = "AEBODSYS",
+      event = "AEDECOD"
+    )
+
+  expect_equal(nrow(mp$events), 2L)
+  expect_equal(mp$events$event_time, c(2L, 2L))
+})

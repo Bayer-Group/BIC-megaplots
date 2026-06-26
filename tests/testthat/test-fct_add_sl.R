@@ -160,3 +160,40 @@ test_that("add_sl_data accepts ISO character date columns", {
   expect_equal(mp$sl$start_time[[1]], 1L)
   expect_equal(mp$sl$end_time[[1]], 10L)
 })
+
+test_that("add_sl_data accepts display_start_date column named start_time", {
+  adsl <- data.frame(
+    USUBJID = c("001", "002"),
+    start_time = as.Date(c("2022-01-01", "2022-01-02")),
+    RFENDT = as.Date(c("2022-01-10", "2022-01-12")),
+    TRTSTDT = as.Date(c("2022-01-01", "2022-01-02")),
+    stringsAsFactors = FALSE
+  )
+
+  mp <- add_sl_data(
+    adsl,
+    display_start_date = "start_time",
+    relative_day_1 = "TRTSTDT"
+  )
+
+  expect_equal(mp$sl$start_time, c(1L, 1L))
+  expect_equal(mp$sl$end_time, c(10L, 11L))
+})
+
+test_that("add_sl_data accepts relative_day_1 column named ref_date", {
+  adsl <- data.frame(
+    USUBJID = c("001", "002"),
+    REFSTDT = as.Date(c("2022-01-01", "2022-01-02")),
+    RFENDT = as.Date(c("2022-01-10", "2022-01-12")),
+    ref_date = as.Date(c("2022-01-01", "2022-01-02")),
+    stringsAsFactors = FALSE
+  )
+
+  mp <- add_sl_data(
+    adsl,
+    relative_day_1 = "ref_date"
+  )
+
+  expect_equal(mp$sl$start_time, c(1L, 1L))
+  expect_equal(mp$sl$ref_date, as.Date(c("2022-01-01", "2022-01-02")))
+})

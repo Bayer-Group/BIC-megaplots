@@ -254,6 +254,41 @@ read_dataset <- function(path) {
   }
 }
 
+
+#' @noRd
+stage_mp_source_cols <- function(data, col_names, prefix = ".mp_src_") {
+  col_names <- unique(col_names)
+  staged <- character(0)
+  for (col in col_names) {
+    if (!col %in% names(data)) {
+      next
+    }
+    new_name <- paste0(prefix, col)
+    data <- dplyr::rename(
+      data,
+      !!rlang::sym(new_name) := !!rlang::sym(col)
+    )
+    staged[col] <- new_name
+  }
+  list(data = data, staged = staged)
+}
+
+#' @noRd
+map_mp_staged_names <- function(names, staged_map) {
+  vapply(
+    names,
+    function(n) {
+      if (n %in% names(staged_map)) {
+        staged_map[[n]]
+      } else {
+        n
+      }
+    },
+    FUN.VALUE = character(1),
+    USE.NAMES = FALSE
+  )
+}
+
 #' @noRd
 resolve_colname <- function(label, colnames_df) {
   idx <- which(toupper(colnames_df) == toupper(label))
