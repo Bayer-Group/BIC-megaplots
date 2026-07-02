@@ -1,5 +1,5 @@
 # Setup packages
-usethis::use_package("R", type = "Depends",  min_version = "4.2.0")
+usethis::use_package("R", type = "Depends", min_version = "4.2.0")
 usethis::use_package("devtools", type = "Suggests")
 usethis::use_package("rsconnect", type = "Suggests")
 usethis::use_package("pak", type = "Suggests")
