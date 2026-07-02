@@ -24,7 +24,7 @@ create_jsTree_input <- function(data) {
       )
     }
   )
-  for (i in 1:length(list_output)) {
+  for (i in seq_along(list_output)) {
     filtered_splitted_data <- splitted_data[[i]]
     rownames(filtered_splitted_data) <- NULL
     list_output[[i]]$children <- apply(filtered_splitted_data, 1, function(y) {

@@ -302,7 +302,7 @@ test_that("add_events skips all-NA earlier event_start candidate", {
     )
 
   expect_equal(nrow(mp$events), 2L)
-  expect_false(any(is.na(mp$events$event_time)))
+  expect_false(anyNA(mp$events$event_time))
 })
 
 test_that("add_events errors when event dates and ref_date scale are mixed", {

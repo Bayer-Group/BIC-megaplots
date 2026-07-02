@@ -86,7 +86,7 @@ get_trace_info <- function(plotly_object) {
         trace_info_data
       }
     )
-  trace_info$trace <- 1:length(plotly_build_data)
+  trace_info$trace <- seq_along(plotly_build_data)
   trace_info
 }
 

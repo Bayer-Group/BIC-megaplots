@@ -32,7 +32,7 @@ create_unique_event_identifier <- function(
   if (length(megaplot_data_splitted_by_event_group) > 0) {
     # Create and save an identifier variable ("event_id" & "event_group_id") for every event and event group and the number of events within
     # a group ("max_event_id"). These variables will be used for the color function to create a unique color for every event
-    for (i in 1:length(megaplot_data_splitted_by_event_group)) {
+    for (i in seq_along(megaplot_data_splitted_by_event_group)) {
       # create "event_id" & "event_group_id"
       megaplot_data_splitted_by_event_group[[
         i

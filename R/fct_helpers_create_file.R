@@ -303,7 +303,7 @@ column_has_values <- function(x) {
   if (is.character(x) || is.factor(x)) {
     any(!is.na(x) & nzchar(trimws(as.character(x))))
   } else {
-    any(!is.na(x))
+    !all(is.na(x))
   }
 }
 
