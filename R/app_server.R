@@ -6,7 +6,6 @@
 #' @noRd
 
 app_server <- function(input, output, session) {
-
   waiter::waiter_hide()
 
   #### 1. Data Upload Module ####
@@ -16,7 +15,7 @@ app_server <- function(input, output, session) {
     theme = shiny::reactive(input$theme_toggle)
   )
   uploaded_data_renamed <- upload_data$uploaded_data_renamed
-  uploaded_data_w_ids   <- upload_data$uploaded_data_w_ids
+  uploaded_data_w_ids <- upload_data$uploaded_data_w_ids
 
   #### 2. Color selection module ####
 
@@ -26,11 +25,13 @@ app_server <- function(input, output, session) {
     uploaded_data_w_ids = uploaded_data_w_ids,
     theme = shiny::reactive(input$theme_toggle),
     js_col_num = shiny::reactive(input$jsColNum),
-    window_height = shiny::reactive({input$dimension}),
+    window_height = shiny::reactive({
+      input$dimension
+    }),
     parent_session = session
   )
 
-  color_data   <- color_selection$color_data
+  color_data <- color_selection$color_data
   checked_data <- color_selection$checked_data
 
   #### 3. Filter Module ####
@@ -60,11 +61,13 @@ app_server <- function(input, output, session) {
 
   #### 7. reactive object megaplot_prepared_data ####
   megaplot_prepared_data <- shiny::eventReactive(
-    c(uploaded_data_w_ids(),
+    c(
+      uploaded_data_w_ids(),
       filter_result$filtered_data(),
       sorting_grouping$arrange_groups(),
-      sorting_grouping$select_sorting()), {
-
+      sorting_grouping$select_sorting()
+    ),
+    {
       prepare_megaplot_data(
         megaplot_data_raw = shiny::req(filter_result$filtered_data()),
         uploaded_data_w_ids = uploaded_data_w_ids(),
@@ -72,8 +75,8 @@ app_server <- function(input, output, session) {
         select_grouping = sorting_grouping$select_grouping(),
         arrange_groups = sorting_grouping$arrange_groups()
       )
-  })
-
+    }
+  )
 
   #### 8. reactive object megaplot_filtered_data ####
   megaplot_filtered_data <- shiny::reactive({
@@ -92,12 +95,13 @@ app_server <- function(input, output, session) {
     filtered_data
   })
 
-
   #### 9. Sequencing Module####
   sequencing_object <- callModule(
     sequencing_server,
     "sequencing_module",
-    megaplot_filtered_data = shiny::reactive({megaplot_filtered_data()})
+    megaplot_filtered_data = shiny::reactive({
+      megaplot_filtered_data()
+    })
   )
 
   # shiny::observe({sequencing_object$sequencing_object()})
@@ -134,7 +138,11 @@ app_server <- function(input, output, session) {
       paste("data-", Sys.Date(), ".html", sep = "")
     },
     content = function(file) {
-      htmlwidgets::saveWidget(plotly::as_widget(megaplot_result$plot_object()), file, selfcontained = TRUE)
+      htmlwidgets::saveWidget(
+        plotly::as_widget(megaplot_result$plot_object()),
+        file,
+        selfcontained = TRUE
+      )
     }
   )
 }

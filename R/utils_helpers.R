@@ -6,10 +6,16 @@
 #'
 #' @noRd
 
-font_color <- function (hex_code) {
-  if (is.null(hex_code)){return(NULL)}
+font_color <- function(hex_code) {
+  if (is.null(hex_code)) {
+    return(NULL)
+  }
   ifelse(
-    (((grDevices::col2rgb(hex_code)[1] * 0.299) + (grDevices::col2rgb(hex_code)[2] * 0.587) + (grDevices::col2rgb(hex_code)[3] * 0.114)) / 255 > 0.5),
+    (((grDevices::col2rgb(hex_code)[1] * 0.299) +
+      (grDevices::col2rgb(hex_code)[2] * 0.587) +
+      (grDevices::col2rgb(hex_code)[3] * 0.114)) /
+      255 >
+      0.5),
     "#000000",
     "#ffffff"
   )
@@ -21,13 +27,21 @@ color_func <- function(x, y, z, number_event_groups) {
   megaplot_color <- grDevices::rainbow(number_event_groups)
   if (x != 0 & z != 1) {
     return_colors <- grDevices::colorRampPalette(
-      c(grDevices::colorRampPalette(c("white",megaplot_color[y]), alpha = TRUE)(100)[50],
+      c(
+        grDevices::colorRampPalette(
+          c("white", megaplot_color[y]),
+          alpha = TRUE
+        )(100)[50],
         megaplot_color[y],
-        grDevices::colorRampPalette(c(megaplot_color[y],"black"), alpha = TRUE)(100)[50]
-      ), alpha = TRUE
-    ) (z)[x]
+        grDevices::colorRampPalette(
+          c(megaplot_color[y], "black"),
+          alpha = TRUE
+        )(100)[50]
+      ),
+      alpha = TRUE
+    )(z)[x]
   }
-  if(x == 0 | z == 1) {
+  if (x == 0 | z == 1) {
     return_colors <- megaplot_color[y]
   }
   return(return_colors)
@@ -56,17 +70,19 @@ get_trace_info <- function(plotly_object) {
   trace_info <- plotly_build_data |>
     seq_along() |>
     purrr::map_dfr(
-      ~{
-        if(is.null(plotly_build_data[[.x]]$name)){
-          .name=NA
+      ~ {
+        if (is.null(plotly_build_data[[.x]]$name)) {
+          .name <- NA
         } else {
-          .name=plotly_build_data[[.x]]$name
+          .name <- plotly_build_data[[.x]]$name
         }
         trace_info_data <- data.frame(
-          name=.name,
-          legendgroup=c(NA)
+          name = .name,
+          legendgroup = c(NA)
         )
-        if(!is.null(plotly_build_data[[.x]]$legendgroup)) trace_info_data$legendgroup=plotly_build_data[[.x]]$legendgroup
+        if (!is.null(plotly_build_data[[.x]]$legendgroup)) {
+          trace_info_data$legendgroup <- plotly_build_data[[.x]]$legendgroup
+        }
         trace_info_data
       }
     )
@@ -80,14 +96,15 @@ apply_trace_info <- function(trace_info, plotly_object) {
 
   c(list(plotly_object), split_trace_info) |>
     purrr::reduce(
-      ~{
+      ~ {
         plotly::style(
           .x,
-          legendgrouptitle=list(
-            text=.y$legendgroup
+          legendgrouptitle = list(
+            text = .y$legendgroup
           ),
-          traces=.y$trace
-        )}
+          traces = .y$trace
+        )
+      }
     )
 }
 
@@ -95,7 +112,7 @@ apply_trace_info <- function(trace_info, plotly_object) {
 create_palette <- function(n, name) {
   if (name %in% c("Set2", "Pastel2", "Dark2", "Accent")) {
     max_n <- 8
-  } else if (name %in% c("Pastel1","Set1")) {
+  } else if (name %in% c("Pastel1", "Set1")) {
     max_n <- 9
   } else if (name %in% c("Spectral")) {
     max_n <- 11
@@ -106,7 +123,10 @@ create_palette <- function(n, name) {
   }
 
   if (!is.na(max_n)) {
-    selected_color_palette <- grDevices::colorRampPalette(RColorBrewer::brewer.pal(max_n, name), alpha = TRUE)(n)
+    selected_color_palette <- grDevices::colorRampPalette(
+      RColorBrewer::brewer.pal(max_n, name),
+      alpha = TRUE
+    )(n)
   } else {
     if (name == "Rainbow") {
       selected_color_palette <- grDevices::rainbow(n)
@@ -131,10 +151,11 @@ vrect <- function(x = 0, x2, color = "#fe333f20") {
   )
 }
 
-hexsticker_logo <- function(src){
+hexsticker_logo <- function(src) {
   div(
     img(
-      src = src, height = "175px",
+      src = src,
+      height = "175px",
       style = "display: block; margin-left: auto; margin-right: auto;"
     )
   )
@@ -143,13 +164,13 @@ hexsticker_logo <- function(src){
 
 # Read and split the .md file into named sections
 parse_sections <- function(path) {
-  lines   <- readLines(path)
-  heading <- grepl("^## ", lines)   # detect H2 headings as chapter boundaries
-  groups  <- cumsum(heading)  # assign each line to a section number
+  lines <- readLines(path)
+  heading <- grepl("^## ", lines) # detect H2 headings as chapter boundaries
+  groups <- cumsum(heading) # assign each line to a section number
 
   tapply(lines, groups, function(x) paste(x, collapse = "\n")) |>
     stats::setNames(
-      lines[heading] |> sub("^## ", "", x = _)  # use heading text as section name
+      lines[heading] |> sub("^## ", "", x = _) # use heading text as section name
     )
 }
 

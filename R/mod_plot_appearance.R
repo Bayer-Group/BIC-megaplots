@@ -11,69 +11,75 @@
 mod_plot_appearance_ui <- function(id) {
   ns <- shiny::NS(id)
   shiny::tagList(
-  bslib::accordion_panel(
-    "Line appearance",
-    icon = bsicons::bs_icon("border-width"),
-    #orderInput to change event group order (influences which event group
-    # is plotted first and thus may overlap others events)
-    shinyjqui::orderInput(
-      inputId = ns("sort_event_groups"),
-      label = "Line Plotting Order",
-      items = NULL,
-      width = 300
-    ),
-    # colourInput for subject line
-    colourpicker::colourInput(
-      inputId = ns("line_color_subjects_dark"),
-      label = HTML(paste0("Time line color  ",icon = bsicons::bs_icon("moon"))),
-      value = "#454545",
-      allowTransparent = TRUE
-    ),
-    colourpicker::colourInput(
-      inputId = ns("line_color_subjects_light"),
-      label = HTML(paste0("Time line color  ",icon = bsicons::bs_icon("sun"))),
-      value = "#bababa",
-      allowTransparent = TRUE
-    ),
-    # sliderInput to adjust subject line width
-    shiny::sliderInput(
-      inputId = ns("line_width_subjects"),
-      label = "Time line width",
-      min = 1,
-      max = 10,
-      value = 1,
-      step = 0.5
-    ),
-    # sliderInput to adjust event line width
-    shiny::sliderInput(
-      inputId = ns("line_width"),
-      label = "Event line width",
-      min = 1,
-      max = 5,
-      value = 3,
-      step = 0.5
-    )#,
-    # # radioButton change hover window style
-    # shiny::radioButtons(
-    #   inputId = ns("event_summary_hovermode"),
-    #   label = "Hover mode (Event Summary)",
-    #   choices = c("One label for each event" = "x", "One label for all events" = "x unified"),
-    #   inline = TRUE,
-    #   selected = "x"
-    # ),
-    # shiny::numericInput(
-    #   inputId = ns("event_summary_cutoff"),
-    #   label = "Display hover for counts greater than or equal to:",
-    #   value = 1,
-    #   min = 1,
-    #   max = NA,
-    #   step = 1
-    # )
+    bslib::accordion_panel(
+      "Line appearance",
+      icon = bsicons::bs_icon("border-width"),
+      #orderInput to change event group order (influences which event group
+      # is plotted first and thus may overlap others events)
+      shinyjqui::orderInput(
+        inputId = ns("sort_event_groups"),
+        label = "Line Plotting Order",
+        items = NULL,
+        width = 300
+      ),
+      # colourInput for subject line
+      colourpicker::colourInput(
+        inputId = ns("line_color_subjects_dark"),
+        label = HTML(paste0(
+          "Time line color  ",
+          icon = bsicons::bs_icon("moon")
+        )),
+        value = "#454545",
+        allowTransparent = TRUE
+      ),
+      colourpicker::colourInput(
+        inputId = ns("line_color_subjects_light"),
+        label = HTML(paste0(
+          "Time line color  ",
+          icon = bsicons::bs_icon("sun")
+        )),
+        value = "#bababa",
+        allowTransparent = TRUE
+      ),
+      # sliderInput to adjust subject line width
+      shiny::sliderInput(
+        inputId = ns("line_width_subjects"),
+        label = "Time line width",
+        min = 1,
+        max = 10,
+        value = 1,
+        step = 0.5
+      ),
+      # sliderInput to adjust event line width
+      shiny::sliderInput(
+        inputId = ns("line_width"),
+        label = "Event line width",
+        min = 1,
+        max = 5,
+        value = 3,
+        step = 0.5
+      ) #,
+      # # radioButton change hover window style
+      # shiny::radioButtons(
+      #   inputId = ns("event_summary_hovermode"),
+      #   label = "Hover mode (Event Summary)",
+      #   choices = c("One label for each event" = "x", "One label for all events" = "x unified"),
+      #   inline = TRUE,
+      #   selected = "x"
+      # ),
+      # shiny::numericInput(
+      #   inputId = ns("event_summary_cutoff"),
+      #   label = "Display hover for counts greater than or equal to:",
+      #   value = 1,
+      #   min = 1,
+      #   max = NA,
+      #   step = 1
+      # )
     ),
     bslib::accordion_panel(
       "Legend appearance",
       icon = bsicons::bs_icon("card-list"),
-    # prettySwitch to turn on/off legend grouping option
+      # prettySwitch to turn on/off legend grouping option
       shinyWidgets::prettySwitch(
         inputId = ns("switch_legend_grouping"),
         label = "On/Off Legend Grouping",
@@ -85,7 +91,7 @@ mod_plot_appearance_ui <- function(id) {
         class = "callout-info",
         shiny::icon("info-circle"),
         shiny::strong("Note: "),
-          "Legend Grouping off has no effect when a Grouping
+        "Legend Grouping off has no effect when a Grouping
           variables is selected in 'Event Summary'."
       )
     )
@@ -120,8 +126,6 @@ mod_plot_appearance_ui <- function(id) {
 #' @keywords internal
 mod_plot_appearance_server <- function(id) {
   shiny::moduleServer(id, function(input, output, session) {
-
-
     list(
       line_width = shiny::reactive({
         input$line_width %||% 3

@@ -18,18 +18,22 @@ mod_sorting_grouping_ui <- function(id) {
     shinyWidgets::pickerInput(
       inputId = ns('select_sorting'),
       label = "Sorting variable",
-      choices = c("megaplots_selected_subjectid","megaplots_selected_start_time","megaplots_selected_end_time"),
+      choices = c(
+        "megaplots_selected_subjectid",
+        "megaplots_selected_start_time",
+        "megaplots_selected_end_time"
+      ),
       selected = NULL,
       multiple = FALSE,
       options = list(
         `live-search` = TRUE
       ),
       choicesOpt = list(
-        style =  rep_len("font-size: 60%; line-height: 1.6;", 3)
+        style = rep_len("font-size: 60%; line-height: 1.6;", 3)
       )
     ),
     shiny::selectizeInput(
-      inputId =ns("select_grouping"),
+      inputId = ns("select_grouping"),
       label = "Grouping variable",
       choices = NULL,
       selected = NULL,
@@ -51,7 +55,6 @@ mod_sorting_grouping_ui <- function(id) {
     )
   )
 }
-
 
 
 #' Server logic for the sorting and grouping module
@@ -79,7 +82,6 @@ mod_sorting_grouping_ui <- function(id) {
 #' @keywords internal
 mod_sorting_grouping_server <- function(id, uploaded_data_renamed) {
   shiny::moduleServer(id, function(input, output, session) {
-
     stopifnot(
       "mod_sorting_grouping_server expects `uploaded_data_renamed` to be a reactive." = {
         shiny::is.reactive(uploaded_data_renamed)
@@ -99,25 +101,34 @@ mod_sorting_grouping_server <- function(id, uploaded_data_renamed) {
 
     #### Sorting ####
     shiny::observeEvent(uploaded_data_renamed(), {
-      numeric_choices <- names(which(unlist(lapply(uploaded_data_renamed() |>
-                                             dplyr::relocate(tidyr::starts_with("megaplots_")), is.numeric))))
+      numeric_choices <- names(which(unlist(lapply(
+        uploaded_data_renamed() |>
+          dplyr::relocate(tidyr::starts_with("megaplots_")),
+        is.numeric
+      ))))
       shinyWidgets::updatePickerInput(
         session,
         inputId = "select_sorting",
         choices = numeric_choices,
-        selected = ifelse("megaplots_selected_end_time" %in% numeric_choices,"megaplots_selected_end_time" ,"megaplots_selected_subjectid"),
-        choicesOpt = list(style =  rep_len(
-          "font-size: 60%; line-height: 1.6;", length(numeric_choices)
-        )
+        selected = ifelse(
+          "megaplots_selected_end_time" %in% numeric_choices,
+          "megaplots_selected_end_time",
+          "megaplots_selected_subjectid"
+        ),
+        choicesOpt = list(
+          style = rep_len(
+            "font-size: 60%; line-height: 1.6;",
+            length(numeric_choices)
+          )
         )
       )
-
 
       shiny::updateSelectizeInput(
         session,
         inputId = "select_grouping",
         choices = colnames(uploaded_data_renamed())[
-          sapply(uploaded_data_renamed(), class) %in% c("factor", "character")],
+          sapply(uploaded_data_renamed(), class) %in% c("factor", "character")
+        ],
         selected = NULL
       )
     })
@@ -152,43 +163,49 @@ mod_sorting_grouping_server <- function(id, uploaded_data_renamed) {
           })
           return()
         } else {
+          # Build a label for each unique combination of
+          # grouping variable values
+          grouping_label_data <- uploaded_data_renamed() |>
+            dplyr::select(!!!rlang::syms(input$select_grouping)) |>
+            dplyr::distinct() |>
+            dplyr::mutate(
+              text_snippet_1 = paste(input$select_grouping, collapse = " "),
+              text_snippet_2 = paste(
+                !!!rlang::syms(input$select_grouping),
+                sep = ", "
+              )
+            ) |>
+            dplyr::rowwise() |>
+            dplyr::mutate(
+              text_snippet_total = paste(
+                unlist(strsplit(.data$text_snippet_1, " ")),
+                gsub(" ", "", unlist(strsplit(.data$text_snippet_2, ", "))),
+                sep = ": ",
+                collapse = " & "
+              )
+            )
 
-        # Build a label for each unique combination of
-        # grouping variable values
-        grouping_label_data <- uploaded_data_renamed() |>
-          dplyr::select(!!!rlang::syms(input$select_grouping)) |>
-          dplyr::distinct() |>
-          dplyr::mutate(
-            text_snippet_1 = paste(input$select_grouping, collapse = " "),
-            text_snippet_2 = paste(
-              !!!rlang::syms(input$select_grouping), sep = ", "
-            )
-          ) |>
-          dplyr::rowwise() |>
-          dplyr::mutate(
-            text_snippet_total = paste(
-              unlist(strsplit(.data$text_snippet_1, " ")),
-              gsub(" ", "", unlist(strsplit(.data$text_snippet_2, ", "))),
-              sep      = ": ",
-              collapse = " & "
-            )
+          shinyjqui::updateOrderInput(
+            session,
+            inputId = "arrange_groups",
+            items = grouping_label_data$text_snippet_total
           )
-
-        shinyjqui::updateOrderInput(
-          session,
-          inputId = "arrange_groups",
-          items   = grouping_label_data$text_snippet_total
-        )
-        shinyjs::showElement(id = ns("arrange_groups_container"))
+          shinyjs::showElement(id = ns("arrange_groups_container"))
         }
       }
     )
 
     #return
     list(
-      select_sorting  = shiny::reactive({input$select_sorting}),
-      select_grouping = shiny::reactive({input$select_grouping}),
-      arrange_groups  = shiny::reactive({input$arrange_groups})
+      select_sorting = shiny::reactive({
+        input$select_sorting
+      }),
+      select_grouping = shiny::reactive({
+        input$select_grouping
+      }),
+      arrange_groups = shiny::reactive({
+        input$arrange_groups
+      })
     )
   })
 }

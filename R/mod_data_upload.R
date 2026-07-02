@@ -18,7 +18,6 @@
 #' @keywords internal
 mod_data_upload_server <- function(id, parent_session, theme) {
   shiny::moduleServer(id, function(input, output, session) {
-
     ns <- session$ns
     #### Data upload & data set preparation ####
 
@@ -41,11 +40,13 @@ mod_data_upload_server <- function(id, parent_session, theme) {
       shiny::req(input$file) #requires input$file
 
       # load data
-      file_extension <- strsplit(input$file$datapath,"/.")[[1]][length(strsplit(input$file$datapath,"/.")[[1]])]
+      file_extension <- strsplit(input$file$datapath, "/.")[[
+        1
+      ]][length(strsplit(input$file$datapath, "/.")[[1]])]
       # add function load_fileinput
       # megaplot_data <- load_fileinput(input$file)
       # currently only .RData files are allowed
-      if (file_extension %in% c(".RData", ".rdata",".Rdata")) {
+      if (file_extension %in% c(".RData", ".rdata", ".Rdata")) {
         megaplot_data <- base::get(
           load(
             file = input$file$datapath
@@ -56,8 +57,7 @@ mod_data_upload_server <- function(id, parent_session, theme) {
         megaplot_data <- NULL
         file_upload_message$val <- "Note: Only .RData files are allowed!"
       }
-      uploaded_data$val <- megaplot_data  #update reactive value 'uploaded_data'
-
+      uploaded_data$val <- megaplot_data #update reactive value 'uploaded_data'
     })
 
     shiny::observeEvent(uploaded_data$val, {
@@ -86,8 +86,14 @@ mod_data_upload_server <- function(id, parent_session, theme) {
 
         if ("subjectid" %in% colnames_uploaded) {
           init_subjectid <- "subjectid"
-        } else if (any(startsWith(colnames_uploaded,"subj")) | any(startsWith(colnames_uploaded,"SUBJ"))) {
-          init_subjectid <- colnames_uploaded[startsWith(colnames_uploaded,"subj") | startsWith(colnames_uploaded,"SUBJ")][1]
+        } else if (
+          any(startsWith(colnames_uploaded, "subj")) |
+            any(startsWith(colnames_uploaded, "SUBJ"))
+        ) {
+          init_subjectid <- colnames_uploaded[
+            startsWith(colnames_uploaded, "subj") |
+              startsWith(colnames_uploaded, "SUBJ")
+          ][1]
         } else {
           init_subjectid <- NULL
         }
@@ -98,11 +104,16 @@ mod_data_upload_server <- function(id, parent_session, theme) {
           selected = init_subjectid
         )
 
-
         if ("start_time" %in% colnames_uploaded) {
           init_start_time <- "start_time"
-        } else if (any(startsWith(colnames_uploaded,"start")) | any(startsWith(colnames_uploaded,"START"))) {
-          init_start_time <- colnames_uploaded[startsWith(colnames_uploaded,"start") | startsWith(colnames_uploaded,"START")][1]
+        } else if (
+          any(startsWith(colnames_uploaded, "start")) |
+            any(startsWith(colnames_uploaded, "START"))
+        ) {
+          init_start_time <- colnames_uploaded[
+            startsWith(colnames_uploaded, "start") |
+              startsWith(colnames_uploaded, "START")
+          ][1]
         } else {
           init_start_time <- NULL
         }
@@ -115,8 +126,14 @@ mod_data_upload_server <- function(id, parent_session, theme) {
 
         if ("end_time" %in% colnames_uploaded) {
           init_end_time <- "end_time"
-        } else if (any(startsWith(colnames_uploaded,"end")) | any(startsWith(colnames_uploaded,"END"))) {
-          init_end_time <- colnames_uploaded[startsWith(colnames_uploaded,"end") | startsWith(colnames_uploaded,"END")][1]
+        } else if (
+          any(startsWith(colnames_uploaded, "end")) |
+            any(startsWith(colnames_uploaded, "END"))
+        ) {
+          init_end_time <- colnames_uploaded[
+            startsWith(colnames_uploaded, "end") |
+              startsWith(colnames_uploaded, "END")
+          ][1]
         } else {
           init_end_time <- NULL
         }
@@ -129,8 +146,14 @@ mod_data_upload_server <- function(id, parent_session, theme) {
 
         if ("event_time" %in% colnames_uploaded) {
           init_event_time <- "event_time"
-        } else if (any(startsWith(colnames_uploaded,"event_time")) | any(startsWith(colnames_uploaded,"EVENT_TIME"))) {
-          init_event_time <- colnames_uploaded[startsWith(colnames_uploaded,"event_time") | startsWith(colnames_uploaded,"EVENT_TIME")][1]
+        } else if (
+          any(startsWith(colnames_uploaded, "event_time")) |
+            any(startsWith(colnames_uploaded, "EVENT_TIME"))
+        ) {
+          init_event_time <- colnames_uploaded[
+            startsWith(colnames_uploaded, "event_time") |
+              startsWith(colnames_uploaded, "EVENT_TIME")
+          ][1]
         } else {
           init_event_time <- NULL
         }
@@ -141,11 +164,16 @@ mod_data_upload_server <- function(id, parent_session, theme) {
           selected = init_event_time
         )
 
-
         if ("event_time_end" %in% colnames_uploaded) {
           init_event_time_end <- "event_time_end"
-        } else if (any(startsWith(colnames_uploaded,"event_time")) | any(startsWith(colnames_uploaded,"EVENT_TIME"))) {
-          init_event_time_end <- colnames_uploaded[startsWith(colnames_uploaded,"event_time") | startsWith(colnames_uploaded,"EVENT_TIME")][1]
+        } else if (
+          any(startsWith(colnames_uploaded, "event_time")) |
+            any(startsWith(colnames_uploaded, "EVENT_TIME"))
+        ) {
+          init_event_time_end <- colnames_uploaded[
+            startsWith(colnames_uploaded, "event_time") |
+              startsWith(colnames_uploaded, "EVENT_TIME")
+          ][1]
         } else {
           init_event_time_end <- NULL
         }
@@ -158,8 +186,14 @@ mod_data_upload_server <- function(id, parent_session, theme) {
 
         if ("event" %in% colnames_uploaded) {
           init_event <- "event"
-        } else if (any(startsWith(colnames_uploaded,"ev")) | any(startsWith(colnames_uploaded,"EV"))) {
-          init_event <- colnames_uploaded[startsWith(colnames_uploaded,"ev") | startsWith(colnames_uploaded,"EV")][1]
+        } else if (
+          any(startsWith(colnames_uploaded, "ev")) |
+            any(startsWith(colnames_uploaded, "EV"))
+        ) {
+          init_event <- colnames_uploaded[
+            startsWith(colnames_uploaded, "ev") |
+              startsWith(colnames_uploaded, "EV")
+          ][1]
         } else {
           init_event <- NULL
         }
@@ -173,8 +207,14 @@ mod_data_upload_server <- function(id, parent_session, theme) {
 
         if ("event_group" %in% colnames_uploaded) {
           init_event_group <- "event_group"
-        } else if (any(startsWith(colnames_uploaded,"event_g")) | any(startsWith(colnames_uploaded,"EVENT_G"))) {
-          init_event_group <- colnames_uploaded[startsWith(colnames_uploaded,"event_g") | startsWith(colnames_uploaded,"EVENT_G")][1]
+        } else if (
+          any(startsWith(colnames_uploaded, "event_g")) |
+            any(startsWith(colnames_uploaded, "EVENT_G"))
+        ) {
+          init_event_group <- colnames_uploaded[
+            startsWith(colnames_uploaded, "event_g") |
+              startsWith(colnames_uploaded, "EVENT_G")
+          ][1]
         } else {
           init_event_group <- NULL
         }
@@ -189,33 +229,40 @@ mod_data_upload_server <- function(id, parent_session, theme) {
 
     #### Variable check after data upload ####
     shiny::observeEvent(
-      c(uploaded_data$val, input$select_subjectid,
-        input$select_start_time, input$select_end_time,
-        input$select_event, input$select_event_group,
-        input$select_event_time, input$select_event_time_end), {
-
-          variable_check <- check_megaplot_data_variables(
-            check_megaplot_data = uploaded_data$val,
-            check_subjectid = input$select_subjectid,
-            check_start_time = input$select_start_time,
-            check_end_time = input$select_end_time,
-            check_event = input$select_event,
-            check_event_group = input$select_event_group,
-            check_event_time = input$select_event_time,
-            check_event_time_end = input$select_event_time_end
-          )
-          # variable_check$val <- variable_check
-          # when check is successful display next button
-          if(!is.null(variable_check))  {
-            if (variable_check) {
-              shinyjs::showElement(id = "upload_1_next_button")
-              # variable_check$val <- variable_check
-            } else {
-              shinyjs::hideElement(id = "upload_1_next_button")
-              # variable_check$val <- variable_check
-            }
+      c(
+        uploaded_data$val,
+        input$select_subjectid,
+        input$select_start_time,
+        input$select_end_time,
+        input$select_event,
+        input$select_event_group,
+        input$select_event_time,
+        input$select_event_time_end
+      ),
+      {
+        variable_check <- check_megaplot_data_variables(
+          check_megaplot_data = uploaded_data$val,
+          check_subjectid = input$select_subjectid,
+          check_start_time = input$select_start_time,
+          check_end_time = input$select_end_time,
+          check_event = input$select_event,
+          check_event_group = input$select_event_group,
+          check_event_time = input$select_event_time,
+          check_event_time_end = input$select_event_time_end
+        )
+        # variable_check$val <- variable_check
+        # when check is successful display next button
+        if (!is.null(variable_check)) {
+          if (variable_check) {
+            shinyjs::showElement(id = "upload_1_next_button")
+            # variable_check$val <- variable_check
+          } else {
+            shinyjs::hideElement(id = "upload_1_next_button")
+            # variable_check$val <- variable_check
           }
-        })
+        }
+      }
+    )
 
     shiny::observeEvent(uploaded_data$val, {
       if (is.null(uploaded_data$val)) {
@@ -236,7 +283,11 @@ mod_data_upload_server <- function(id, parent_session, theme) {
     # Switch tab (with nav_select) if next button was clicked
     shiny::observeEvent(input$upload_1_next_button, {
       # bslib::nav_select("Upload", "Filtering")
-      bslib::nav_select("Upload", "Event & color selection 2", session = parent_session)
+      bslib::nav_select(
+        "Upload",
+        "Event & color selection 2",
+        session = parent_session
+      )
     })
 
     # rename variables due to variable selection
@@ -293,7 +344,9 @@ mod_data_upload_ui <- function(id) {
     tags$div(
       HTML(
         paste0(
-          "File & variable selection", "&emsp;","&emsp;"
+          "File & variable selection",
+          "&emsp;",
+          "&emsp;"
         )
       )
     ),
@@ -328,15 +381,16 @@ mod_data_upload_ui <- function(id) {
       )
     ),
     shiny::wellPanel(
-      shiny::column(3,
-                    shiny::fileInput(
-                      inputId = ns('file'),
-                      label = "Choose RData file",
-                      multiple = FALSE,
-                      accept = '.RData'
-                    )
+      shiny::column(
+        3,
+        shiny::fileInput(
+          inputId = ns('file'),
+          label = "Choose RData file",
+          multiple = FALSE,
+          accept = '.RData'
+        )
       ),
-      span(textOutput(ns("file_upload_message")),style = "color:#cc0a21;"),
+      span(textOutput(ns("file_upload_message")), style = "color:#cc0a21;"),
       tags$style(
         HTML(
           "select[data-max-options=\"1\"] ~ .dropdown-menu .bs-actionsbox .bs-select-all {display: none;}"
@@ -349,124 +403,143 @@ mod_data_upload_ui <- function(id) {
              "
       ))),
       shiny::fluidRow(
-        shiny::column(2,
-                      shinyWidgets::pickerInput(
-                        inputId = ns("select_subjectid"),
-                        label = HTML("<p> Identifier <em style = 'color: #f9b8c7;'> *required </em></p>"),
-                        choices = NULL,
-                        selected = NULL,
-                        multiple = TRUE,
-                        options =  shinyWidgets::pickerOptions(
-                          maxOptions = 1,
-                          actionsBox = TRUE,
-                          deselectAllText = "Clear",
-                          dropupAuto = FALSE
-                        )
-                      )
+        shiny::column(
+          2,
+          shinyWidgets::pickerInput(
+            inputId = ns("select_subjectid"),
+            label = HTML(
+              "<p> Identifier <em style = 'color: #f9b8c7;'> *required </em></p>"
+            ),
+            choices = NULL,
+            selected = NULL,
+            multiple = TRUE,
+            options = shinyWidgets::pickerOptions(
+              maxOptions = 1,
+              actionsBox = TRUE,
+              deselectAllText = "Clear",
+              dropupAuto = FALSE
+            )
+          )
         ),
-        shiny::column(2,
-                      shinyWidgets::pickerInput(
-                        inputId = ns("select_start_time"),
-                        label = "Timeline Start Day",
-                        choices = NULL,
-                        selected = NULL,
-                        multiple = TRUE,
-                        options =  shinyWidgets::pickerOptions(
-                          maxOptions = 1,
-                          actionsBox = TRUE,
-                          deselectAllText = "Clear",
-                          dropupAuto = FALSE
-                        )
-                      )
+        shiny::column(
+          2,
+          shinyWidgets::pickerInput(
+            inputId = ns("select_start_time"),
+            label = "Timeline Start Day",
+            choices = NULL,
+            selected = NULL,
+            multiple = TRUE,
+            options = shinyWidgets::pickerOptions(
+              maxOptions = 1,
+              actionsBox = TRUE,
+              deselectAllText = "Clear",
+              dropupAuto = FALSE
+            )
+          )
         ),
-        shiny::column(2,
-                      shinyWidgets::pickerInput(
-                        inputId = ns("select_end_time"),
-                        label = "Timeline End Day",
-                        choices = NULL,
-                        selected = NULL,
-                        multiple = TRUE,
-                        options =  shinyWidgets::pickerOptions(
-                          maxOptions = 1,
-                          actionsBox = TRUE,
-                          deselectAllText = "Clear",
-                          dropupAuto = FALSE
-                        )
-                      )
+        shiny::column(
+          2,
+          shinyWidgets::pickerInput(
+            inputId = ns("select_end_time"),
+            label = "Timeline End Day",
+            choices = NULL,
+            selected = NULL,
+            multiple = TRUE,
+            options = shinyWidgets::pickerOptions(
+              maxOptions = 1,
+              actionsBox = TRUE,
+              deselectAllText = "Clear",
+              dropupAuto = FALSE
+            )
+          )
         )
       ),
       shiny::fluidRow(
-        shiny::column(2,
-                      shinyWidgets::pickerInput(
-                        inputId = ns("select_event"),
-                        label = HTML("<p> Event <em style = 'color: #f9b8c7;'> *required </em></p>"),
-                        choices = NULL,
-                        selected = NULL,
-                        multiple = TRUE,
-                        options =  shinyWidgets::pickerOptions(
-                          maxOptions = 1,
-                          actionsBox = TRUE,
-                          deselectAllText = "Clear",
-                          dropupAuto = FALSE
-                        )
-                      )
+        shiny::column(
+          2,
+          shinyWidgets::pickerInput(
+            inputId = ns("select_event"),
+            label = HTML(
+              "<p> Event <em style = 'color: #f9b8c7;'> *required </em></p>"
+            ),
+            choices = NULL,
+            selected = NULL,
+            multiple = TRUE,
+            options = shinyWidgets::pickerOptions(
+              maxOptions = 1,
+              actionsBox = TRUE,
+              deselectAllText = "Clear",
+              dropupAuto = FALSE
+            )
+          )
         ),
-        shiny::column(2,
-                      shinyWidgets::pickerInput(
-                        inputId = ns("select_event_group"),
-                        label = HTML("<p> Event Group <em style = 'color: #f9b8c7;'> *required </em></p>"),
-                        choices = NULL,
-                        selected = NULL,
-                        multiple = TRUE,
-                        options =  shinyWidgets::pickerOptions(
-                          maxOptions = 1,
-                          actionsBox = TRUE,
-                          deselectAllText = "Clear",
-                          dropupAuto = FALSE
-                        )
-                      )
+        shiny::column(
+          2,
+          shinyWidgets::pickerInput(
+            inputId = ns("select_event_group"),
+            label = HTML(
+              "<p> Event Group <em style = 'color: #f9b8c7;'> *required </em></p>"
+            ),
+            choices = NULL,
+            selected = NULL,
+            multiple = TRUE,
+            options = shinyWidgets::pickerOptions(
+              maxOptions = 1,
+              actionsBox = TRUE,
+              deselectAllText = "Clear",
+              dropupAuto = FALSE
+            )
+          )
         ),
-        shiny::column(2,
-                      shinyWidgets::pickerInput(
-                        inputId = ns("select_event_time"),
-                        label = HTML("<p> Event Start Day <em style = 'color: #f9b8c7;'> *required </em></p>"),
-                        choices = NULL,
-                        selected = NULL,
-                        multiple = TRUE,
-                        options =  shinyWidgets::pickerOptions(
-                          maxOptions = 1,
-                          actionsBox = TRUE,
-                          deselectAllText = "Clear",
-                          dropupAuto = FALSE
-                        )
-                      )
+        shiny::column(
+          2,
+          shinyWidgets::pickerInput(
+            inputId = ns("select_event_time"),
+            label = HTML(
+              "<p> Event Start Day <em style = 'color: #f9b8c7;'> *required </em></p>"
+            ),
+            choices = NULL,
+            selected = NULL,
+            multiple = TRUE,
+            options = shinyWidgets::pickerOptions(
+              maxOptions = 1,
+              actionsBox = TRUE,
+              deselectAllText = "Clear",
+              dropupAuto = FALSE
+            )
+          )
         ),
-        shiny::column(2,
-                      shinyWidgets::pickerInput(
-                        inputId = ns("select_event_time_end"),
-                        label = HTML("<p> Event End Day <em style = 'color: #f9b8c7;'> *required </em></p>"),
-                        choices = NULL,
-                        selected = NULL,
-                        multiple = TRUE,
-                        options =  shinyWidgets::pickerOptions(
-                          maxOptions = 1,
-                          actionsBox = TRUE,
-                          deselectAllText = "Clear",
-                          dropupAuto = FALSE
-                        )
-                      )
+        shiny::column(
+          2,
+          shinyWidgets::pickerInput(
+            inputId = ns("select_event_time_end"),
+            label = HTML(
+              "<p> Event End Day <em style = 'color: #f9b8c7;'> *required </em></p>"
+            ),
+            choices = NULL,
+            selected = NULL,
+            multiple = TRUE,
+            options = shinyWidgets::pickerOptions(
+              maxOptions = 1,
+              actionsBox = TRUE,
+              deselectAllText = "Clear",
+              dropupAuto = FALSE
+            )
+          )
         )
       ),
       shiny::fluidRow(
-        shiny::column(2,
-                      shinyWidgets::actionBttn(
-                        inputId = ns("upload_1_next_button"),
-                        label = "Next",
-                        style = "material-flat",
-                        color = "primary",
-                        icon = shiny::icon("angle-right")
-                      )
+        shiny::column(
+          2,
+          shinyWidgets::actionBttn(
+            inputId = ns("upload_1_next_button"),
+            label = "Next",
+            style = "material-flat",
+            color = "primary",
+            icon = shiny::icon("angle-right")
+          )
         )
-      ))#,theme = bslib::bs_theme(version = 5)
+      )
+    ) #,theme = bslib::bs_theme(version = 5)
   )
 }

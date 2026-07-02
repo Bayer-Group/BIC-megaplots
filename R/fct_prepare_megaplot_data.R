@@ -11,20 +11,22 @@
 #' @noRd
 
 prepare_megaplot_data <- function(
-    megaplot_data_raw,
-    uploaded_data_w_ids,
-    select_sorting,
-    select_grouping,
-    arrange_groups
-  ) {
-
+  megaplot_data_raw,
+  uploaded_data_w_ids,
+  select_sorting,
+  select_grouping,
+  arrange_groups
+) {
   # create arranged dataset 'megaplot_data_arranged'
   # to create a "subject_index" variable in next step
-  if (is.null(megaplot_data_raw))  {return(NULL)}
-  if (is.null(uploaded_data_w_ids))  {return(NULL)}
+  if (is.null(megaplot_data_raw)) {
+    return(NULL)
+  }
+  if (is.null(uploaded_data_w_ids)) {
+    return(NULL)
+  }
 
   if (!is.null(arrange_groups)) {
-
     #create variables text_snippet_1 & text_snippet_2 & text_snippet_total
     megaplot_data_raw <- megaplot_data_raw |>
       dplyr::mutate(
@@ -32,10 +34,11 @@ prepare_megaplot_data <- function(
         text_snippet_2 = paste(!!!rlang::syms(select_grouping), sep = ", ")
       ) |>
       dplyr::rowwise() |>
-      dplyr::mutate(text_snippet_total =
-        paste(
-          unlist(strsplit(.data$text_snippet_1," ")),
-          gsub(" ", "", unlist(strsplit(.data$text_snippet_2, ", "))), sep = ": ",
+      dplyr::mutate(
+        text_snippet_total = paste(
+          unlist(strsplit(.data$text_snippet_1, " ")),
+          gsub(" ", "", unlist(strsplit(.data$text_snippet_2, ", "))),
+          sep = ": ",
           collapse = " & "
         )
       )
@@ -62,8 +65,12 @@ prepare_megaplot_data <- function(
   megaplot_data_raw <- megaplot_data_raw |>
     dplyr::left_join(
       data.frame(
-        megaplots_selected_subjectid = unique(megaplot_data_arranged$megaplots_selected_subjectid),
-        subject_index = seq_along(unique(megaplot_data_arranged$megaplots_selected_subjectid))
+        megaplots_selected_subjectid = unique(
+          megaplot_data_arranged$megaplots_selected_subjectid
+        ),
+        subject_index = seq_along(unique(
+          megaplot_data_arranged$megaplots_selected_subjectid
+        ))
       ),
       by = "megaplots_selected_subjectid"
     )
@@ -72,7 +79,7 @@ prepare_megaplot_data <- function(
   megaplot_data_raw <- megaplot_data_raw |>
     dplyr::left_join(
       uploaded_data_w_ids,
-      by = c("megaplots_selected_event_group","megaplots_selected_event")
+      by = c("megaplots_selected_event_group", "megaplots_selected_event")
     )
 
   # create column group_index
@@ -86,7 +93,7 @@ prepare_megaplot_data <- function(
   }
 
   # add a custom space of 10 empty lines (empty subjectid_n) to distinguish groups in mega plots
-  megaplot_data_raw  <- megaplot_data_raw |>
+  megaplot_data_raw <- megaplot_data_raw |>
     dplyr::mutate(
       subjectid_n = .data$subject_index + (.data$group_index - 1) * 10
     ) |>
