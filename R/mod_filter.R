@@ -15,7 +15,7 @@ mod_filter_ui <- function(id) {
     "Filter",
     icon = bsicons::bs_icon("funnel"),
     shinyWidgets::pickerInput(
-      inputId =ns("select_filter_variables"),
+      inputId = ns("select_filter_variables"),
       label = "Select filter variable(s)",
       choices = NULL,
       selected = NULL,
@@ -30,15 +30,12 @@ mod_filter_ui <- function(id) {
         `none-selected-text` = 'All dropped!'
       )
     ),
-    shiny::conditionalPanel(condition = paste0("output['", ns("filter_enabled"), "'] == true"),
+    shiny::conditionalPanel(
+      condition = paste0("output['", ns("filter_enabled"), "'] == true"),
       datamods::filter_data_ui(ns("filtering"), max_height = "500px")
     )
   )
-
-
 }
-
-
 
 
 #' Server logic for the filter module
@@ -62,7 +59,6 @@ mod_filter_ui <- function(id) {
 #' @keywords internal
 mod_filter_server <- function(id, uploaded_data_renamed, parent_session) {
   shiny::moduleServer(id, function(input, output, session) {
-
     stopifnot(
       "mod_filter_server expects `uploaded_data_renamed` to be a reactive." = {
         shiny::is.reactive(uploaded_data_renamed)
@@ -71,7 +67,7 @@ mod_filter_server <- function(id, uploaded_data_renamed, parent_session) {
 
     shiny::observeEvent(uploaded_data_renamed(), {
       shinyWidgets::updatePickerInput(
-        inputId ="select_filter_variables",
+        inputId = "select_filter_variables",
         choices = colnames(uploaded_data_renamed()),
         selected = NULL
       )
@@ -85,9 +81,13 @@ mod_filter_server <- function(id, uploaded_data_renamed, parent_session) {
 
     savedFilterValues <- reactiveVal()
 
-    shiny::observeEvent(input$select_filter_variables, {
-      savedFilterValues <<- res_filter$values()
-    },ignoreInit = TRUE)
+    shiny::observeEvent(
+      input$select_filter_variables,
+      {
+        savedFilterValues <<- res_filter$values()
+      },
+      ignoreInit = TRUE
+    )
 
     defaults <- shiny::reactive({
       #input$load_filter_values
@@ -95,8 +95,9 @@ mod_filter_server <- function(id, uploaded_data_renamed, parent_session) {
       savedFilterValues
     })
 
-
-    variables_for_filter <- shiny::reactive({input$select_filter_variables})
+    variables_for_filter <- shiny::reactive({
+      input$select_filter_variables
+    })
 
     res_filter <- datamods::filter_data_server(
       id = "filtering",
@@ -121,7 +122,9 @@ mod_filter_server <- function(id, uploaded_data_renamed, parent_session) {
     })
 
     list(
-      filtered_data = shiny::reactive({ filtered_data_reactive$val })
+      filtered_data = shiny::reactive({
+        filtered_data_reactive$val
+      })
     )
   })
 }

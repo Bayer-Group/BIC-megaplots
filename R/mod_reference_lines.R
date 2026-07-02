@@ -56,8 +56,12 @@ mod_reference_lines_ui <- function(id) {
     ),
     shiny::conditionalPanel(
       condition = paste0(
-        "input['", ns("reference_line_1"), "'] == true && ",
-        "input['", ns("reference_line_2"), "'] == true"
+        "input['",
+        ns("reference_line_1"),
+        "'] == true && ",
+        "input['",
+        ns("reference_line_2"),
+        "'] == true"
       ),
       #colourInput to adjust color of first reference line/rectangle
       colourpicker::colourInput(
@@ -84,9 +88,15 @@ mod_reference_lines_ui <- function(id) {
     ),
     shiny::conditionalPanel(
       condition = paste0(
-        "input['", ns("reference_line_1"), "'] == true && ",
-        "input['", ns("reference_line_2"), "'] == true && ",
-        "input['", ns("reference_line_3"), "'] == true"
+        "input['",
+        ns("reference_line_1"),
+        "'] == true && ",
+        "input['",
+        ns("reference_line_2"),
+        "'] == true && ",
+        "input['",
+        ns("reference_line_3"),
+        "'] == true"
       ),
       colourpicker::colourInput(
         #colourInput to adjust color of first reference line/rectangle
@@ -107,12 +117,10 @@ mod_reference_lines_ui <- function(id) {
       ),
     )
   )
-
 }
 
 mod_reference_lines_server <- function(id) {
   shiny::moduleServer(id, function(input, output, session) {
-
     reference_lines_reactive <- shiny::reactiveValues(
       reference_line_1 = FALSE,
       reference_line_2 = FALSE,
@@ -135,18 +143,42 @@ mod_reference_lines_server <- function(id) {
     })
 
     shiny::observeEvent(input$update_reference_lines, {
-      reference_lines_reactive$reference_line_1 <- shiny::isolate(input$reference_line_1)
-      reference_lines_reactive$reference_line_2 <- shiny::isolate(input$reference_line_2)
-      reference_lines_reactive$reference_line_3 <- shiny::isolate(input$reference_line_3)
-      reference_lines_reactive$reference_line_1_value <- shiny::isolate(input$reference_line_1_value)
-      reference_lines_reactive$reference_line_2_value <- shiny::isolate(input$reference_line_2_value)
-      reference_lines_reactive$reference_line_3_value <- shiny::isolate(input$reference_line_3_value)
-      reference_lines_reactive$reference_line_1_value2 <- shiny::isolate(input$reference_line_1_value2)
-      reference_lines_reactive$reference_line_2_value2 <- shiny::isolate(input$reference_line_2_value2)
-      reference_lines_reactive$reference_line_3_value2 <- shiny::isolate(input$reference_line_3_value2)
-      reference_lines_reactive$reference_line_1_color <- shiny::isolate(input$reference_line_1_color)
-      reference_lines_reactive$reference_line_2_color <- shiny::isolate(input$reference_line_2_color)
-      reference_lines_reactive$reference_line_3_color <- shiny::isolate(input$reference_line_3_color)
+      reference_lines_reactive$reference_line_1 <- shiny::isolate(
+        input$reference_line_1
+      )
+      reference_lines_reactive$reference_line_2 <- shiny::isolate(
+        input$reference_line_2
+      )
+      reference_lines_reactive$reference_line_3 <- shiny::isolate(
+        input$reference_line_3
+      )
+      reference_lines_reactive$reference_line_1_value <- shiny::isolate(
+        input$reference_line_1_value
+      )
+      reference_lines_reactive$reference_line_2_value <- shiny::isolate(
+        input$reference_line_2_value
+      )
+      reference_lines_reactive$reference_line_3_value <- shiny::isolate(
+        input$reference_line_3_value
+      )
+      reference_lines_reactive$reference_line_1_value2 <- shiny::isolate(
+        input$reference_line_1_value2
+      )
+      reference_lines_reactive$reference_line_2_value2 <- shiny::isolate(
+        input$reference_line_2_value2
+      )
+      reference_lines_reactive$reference_line_3_value2 <- shiny::isolate(
+        input$reference_line_3_value2
+      )
+      reference_lines_reactive$reference_line_1_color <- shiny::isolate(
+        input$reference_line_1_color
+      )
+      reference_lines_reactive$reference_line_2_color <- shiny::isolate(
+        input$reference_line_2_color
+      )
+      reference_lines_reactive$reference_line_3_color <- shiny::isolate(
+        input$reference_line_3_color
+      )
     })
 
     #return

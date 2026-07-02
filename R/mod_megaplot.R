@@ -16,7 +16,7 @@ mod_megaplot_ui <- function(id) {
     full_screen = TRUE,
     bslib::nav_panel(
       tags$div(
-        HTML(paste0("Megaplots","&emsp;","&emsp;"))
+        HTML(paste0("Megaplots", "&emsp;", "&emsp;"))
       ),
       id = "Megaplots",
       bslib::as_fill_carrier(
@@ -30,8 +30,7 @@ mod_megaplot_ui <- function(id) {
       )
     ),
     bslib::nav_panel(
-      title = tags$div(HTML(paste0("Event summary","&emsp;","&emsp;"))
-      ),
+      title = tags$div(HTML(paste0("Event summary", "&emsp;", "&emsp;"))),
       tags$head(
         tags$style(
           type = "text/css",
@@ -41,33 +40,52 @@ mod_megaplot_ui <- function(id) {
       ),
       # tags$div(class = "inline",
       shiny::fluidRow(
-        shiny::column(4,
+        shiny::column(
+          4,
           shinyWidgets::pickerInput(
             inputId = ns("event_summary_selection"),
             label = "Select summary display :  ",
-            choices = c(list("Number of events per day" = "event_per_day"), list("Number of events per day (cumulative total)" ="cumulative_event"), list("Number of first events per day and subject (cumulative total)" = "event_by_subject_cumulative")),
+            choices = c(
+              list("Number of events per day" = "event_per_day"),
+              list(
+                "Number of events per day (cumulative total)" = "cumulative_event"
+              ),
+              list(
+                "Number of first events per day and subject (cumulative total)" = "event_by_subject_cumulative"
+              )
+            ),
             selected = "event_per_day"
           )
         ),
         # radioButton change hover window style
-        shiny::column(4,
+        shiny::column(
+          4,
           shiny::radioButtons(
             inputId = ns("event_summary_hovermode"),
             label = "Hover mode (Event Summary)",
-            choices = c("One label for each event" = "x", "One label for all events" = "x unified"),
+            choices = c(
+              "One label for each event" = "x",
+              "One label for all events" = "x unified"
+            ),
             inline = TRUE,
             selected = "x"
           )
         ),
-        shiny::conditionalPanel(condition = paste0("input['", ns("event_summary_hovermode"), "'] == 'x'"),
-          shiny::column(4,
+        shiny::conditionalPanel(
+          condition = paste0(
+            "input['",
+            ns("event_summary_hovermode"),
+            "'] == 'x'"
+          ),
+          shiny::column(
+            4,
             shiny::numericInput(
-               inputId = ns("event_summary_cutoff"),
-               label = "Display hover for counts greater than or equal to:",
-               value = 1,
-               min = 1,
-               max = NA,
-               step = 1
+              inputId = ns("event_summary_cutoff"),
+              label = "Display hover for counts greater than or equal to:",
+              value = 1,
+              min = 1,
+              max = NA,
+              step = 1
             )
           )
         )
@@ -114,15 +132,16 @@ mod_megaplot_ui <- function(id) {
 #'       for use by the sidebar download handler in the parent server.}
 #'   }
 #' @keywords internal
-mod_megaplot_server <- function(id,
-                                megaplot_prepared_data,
-                                megaplot_filtered_data,
-                                reference_lines,
-                                select_grouping,
-                                appearance,
-                                theme) {
+mod_megaplot_server <- function(
+  id,
+  megaplot_prepared_data,
+  megaplot_filtered_data,
+  reference_lines,
+  select_grouping,
+  appearance,
+  theme
+) {
   shiny::moduleServer(id, function(input, output, session) {
-
     stopifnot(
       "mod_megaplot_server expects `megaplot_prepared_data` to be a reactive." = {
         shiny::is.reactive(megaplot_prepared_data)
@@ -141,12 +160,10 @@ mod_megaplot_server <- function(id,
       }
     )
 
-
     session_store <- shiny::reactiveValues(val = NULL)
 
     #### START MEGA PLOTS PART ####
     output$mega_plots <- plotly::renderPlotly({
-
       shiny::req(megaplot_prepared_data())
 
       app <- appearance()
@@ -182,7 +199,6 @@ mod_megaplot_server <- function(id,
       tmp
     })
 
-
     #### START EVENT SUMMARY PART ####
 
     output$event_summary <- plotly::renderPlotly({
@@ -193,7 +209,7 @@ mod_megaplot_server <- function(id,
         megaplot_prepared_data = megaplot_prepared_data(),
         megaplot_filtered_data = megaplot_filtered_data(),
         select_grouping = shiny::isolate(select_grouping()),
-        event_summary_cutoff =input$event_summary_cutoff,
+        event_summary_cutoff = input$event_summary_cutoff,
         event_summary_selection = input$event_summary_selection,
         switch_legend_grouping = appearance()$switch_legend_grouping,
         hovermode = input$event_summary_hovermode,
@@ -210,12 +226,13 @@ mod_megaplot_server <- function(id,
         reference_line_2_color = reference_lines$reference_line_2_color,
         reference_line_3_color = reference_lines$reference_line_3_color,
         theme = theme()
-
       )
     })
 
     list(
-      plot_object = shiny::reactive({session_store$val})
+      plot_object = shiny::reactive({
+        session_store$val
+      })
     )
   })
 }

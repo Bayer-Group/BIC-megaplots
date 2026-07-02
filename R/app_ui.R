@@ -5,7 +5,6 @@
 #' @import shiny
 #' @noRd
 
-
 app_ui <- function(request) {
   shiny::tagList(
     # Leave this function for adding external resources
@@ -37,7 +36,8 @@ app_ui <- function(request) {
     # creates an reactive variable "input$dimension" with screen height as value
     # (used for maximum wellPanel height to maximize size depending on screen size)
     tags$head(
-      tags$script('
+      tags$script(
+        '
         var dimension = [0];
         $(document).on("shiny:connected", function(e) {
         dimension[0] = window.innerHeight;
@@ -57,33 +57,38 @@ app_ui <- function(request) {
       #create  theme for user interface
       theme = bslib::bs_theme(
         version = 5,
-        heading_font = "Agency FB",              #font
-        base_font = "Agency FB",                 #font
-        font_scale = 1.4,                    #font size
+        heading_font = "Agency FB", #font
+        base_font = "Agency FB", #font
+        font_scale = 1.4, #font size
         primary = "#007CBF"
-      )|>
-      bslib::bs_add_rules("
+      ) |>
+        bslib::bs_add_rules(
+          "
         /* Change accordion panel background color in the sidebar */
         .accordion-body {
           background-color: var(--bs-secondary-bg);
         }
-      "),
+      "
+        ),
       #### Sidebar ####
       # Use accordion_panels from bslib
       sidebar = bslib::sidebar(
         width = 350,
         title = tagList(
           #depending on theme display hexsticker in theme colors
-          shiny::conditionalPanel(condition = "input.theme_toggle == 'dark'",
-                                  hexsticker_logo(src = "www/megaplot_hexsticker_n.png")
+          shiny::conditionalPanel(
+            condition = "input.theme_toggle == 'dark'",
+            hexsticker_logo(src = "www/megaplot_hexsticker_n.png")
           ),
-          shiny::conditionalPanel(condition = "input.theme_toggle != 'dark'",
-                                  hexsticker_logo(src = "www/megaplot_hexsticker_n2.png")
+          shiny::conditionalPanel(
+            condition = "input.theme_toggle != 'dark'",
+            hexsticker_logo(src = "www/megaplot_hexsticker_n2.png")
           )
         ),
-        bslib::accordion(open = FALSE,
-           bslib::accordion_panel(
-             "Timeline Arrangement",
+        bslib::accordion(
+          open = FALSE,
+          bslib::accordion_panel(
+            "Timeline Arrangement",
             icon = bsicons::bs_icon("body-text"),
             # Sorting/Grouping (Sidebar)
             mod_sorting_grouping_ui("sorting_grouping"),
@@ -100,12 +105,17 @@ app_ui <- function(request) {
           bslib::accordion_panel(
             "Download",
             icon = bsicons::bs_icon("download"),
-            shiny::downloadButton("download_plotly_widget", "Save Megaplot Chart as HTML file")
+            shiny::downloadButton(
+              "download_plotly_widget",
+              "Save Megaplot Chart as HTML file"
+            )
           )
           # module call for sequencing
-
         ),
-        HTML(paste0("<p style = 'color: #dedede;'> Version: ", utils::packageVersion("Megaplots")))
+        HTML(paste0(
+          "<p style = 'color: #dedede;'> Version: ",
+          utils::packageVersion("Megaplots")
+        ))
       ),
       #### Main area ####
       bslib::nav_panel(
@@ -171,7 +181,7 @@ golem_add_external_resources <- function() {
       app_title = "Megaplots"
     ),
     tags$link(
-      rel  = "stylesheet",
+      rel = "stylesheet",
       type = "text/css",
       href = "www/megaplots.css"
     )

@@ -330,7 +330,7 @@ add_events <- function(
     keep_vars <- character(0)
   }
 
-  # Stage source date columns to internal names to avoid naming conflicts 
+  # Stage source date columns to internal names to avoid naming conflicts
   # when input already uses Megaplots output column names.
   staged_result <- stage_mp_source_cols(
     data,
@@ -457,8 +457,9 @@ add_events <- function(
       }
     ) |>
     dplyr::select(
-      -dplyr::any_of(unique(c(src_event_start, src_event_end))), 
-      -.data$ref_date) |> # Drop original date columns
+      -dplyr::any_of(unique(c(src_event_start, src_event_end))),
+      -.data$ref_date
+    ) |> # Drop original date columns
     dplyr::relocate(
       .data$subjectid,
       .data$event_group,
