@@ -29,7 +29,7 @@
 #'
 #' data(adam_adsl, adam_adae, adam_adlbc, package = "safetyData")
 #'
-#' mp_data <- add_sl_data(adam_adsl) %>%
+#' mp_data <- add_sl_data(adam_adsl) |>
 #'   add_events(
 #'     adam_adae,
 #'     event_group = "AEBODSYS",
@@ -38,13 +38,13 @@
 #'     prefix_event = "PT: ",
 #'     calc_time_to_first = TRUE,
 #'     calc_days_with = TRUE
-#'   ) %>%
+#'   ) |>
 #'   add_events(
 #'     adam_adae,
 #'     event_group = "CQ01NAM",
 #'     event = "AETERM",
 #'     prefix_group = "CQ: "
-#'   ) %>%
+#'   ) |>
 #'   add_events(
 #'     adam_adlbc,
 #'     event_group = "PARAM",
@@ -52,13 +52,14 @@
 #'     event_start = "ADT",
 #'     event_end = "ADT",
 #'     prefix_group = "Lab: "
-#'   ) %>%
+#'   ) |>
 #'   finalize_mp_object(
 #'     event_group_label_case = "title",
 #'     event_label_case = "title"
 #'   )
 #' }
 #' @export
+#' @importFrom dplyr "%>%"
 add_sl_data <- function(
   mp_builder = NULL,
   sl_data = NULL,
@@ -127,7 +128,7 @@ add_sl_data <- function(
       } else {
         .
       }
-    } %>%
+    } |>
     # Create a numeric subject ID and relocate it to the front
     dplyr::mutate(
       subjectid = as.numeric(base::gsub(
@@ -135,7 +136,7 @@ add_sl_data <- function(
         "",
         as.character(!!rlang::sym(id))
       ))
-    ) %>%
+    ) |>
     dplyr::relocate(.data$subjectid)
 
   # Determine the appropriate reference start date
@@ -168,14 +169,29 @@ add_sl_data <- function(
   )
   message(sprintf("Relative day 1: %s", relative_day_1)) # Message for relative day 1
 
+  # Stage source date columns to internal names to avoid naming conflicts
+  # when input already uses Megaplots output column names.
+  staged_result <- stage_mp_source_cols(
+    adsl,
+    unique(c(display_start_date, display_end_date, relative_day_1))
+  )
+  adsl <- staged_result$data
+  staged_map <- staged_result$staged
+  display_start_date <- map_mp_staged_names(display_start_date, staged_map)
+  display_end_date <- map_mp_staged_names(display_end_date, staged_map)
+  relative_day_1 <- map_mp_staged_names(relative_day_1, staged_map)
+
   # Collect all date columns to be processed
-  date_cols <- c(display_start_date, display_end_date, relative_day_1)
+  date_cols <- unique(c(display_start_date, display_end_date, relative_day_1))
 
   # Mutate the dataset to create new date-related columns
-  adsl <- adsl %>%
-    dplyr::mutate(ref_date = !!rlang::sym(relative_day_1)) %>%
+  adsl <- adsl |>
+    dplyr::mutate(ref_date = !!rlang::sym(relative_day_1)) |>
     dplyr::mutate(
-      dplyr::across(tidyselect::all_of(date_cols), ~ as_date_column(.x, dplyr::cur_column())), # Convert specified date columns to Date type
+      dplyr::across(
+        tidyselect::all_of(date_cols),
+        ~ as_date_column(.x, dplyr::cur_column())
+      ), # Convert specified date columns to Date type
       start_time = as.integer(
         !!rlang::sym(display_start_date) - !!rlang::sym(relative_day_1) + 1L
       ), # Calculate start time relative to day 1
@@ -186,8 +202,12 @@ add_sl_data <- function(
       ) # Calculate end time
     )
 
-  adsl <- adsl %>%
+  adsl <- adsl |>
     dplyr::relocate("subjectid", "start_time", "end_time", "ref_date") # Rearrange columns without treatment
+
+  if (length(staged_map)) {
+    adsl <- dplyr::select(adsl, -dplyr::all_of(unname(staged_map)))
+  }
 
   mp_builder$sl <- adsl
   return(mp_builder)

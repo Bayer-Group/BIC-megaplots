@@ -106,7 +106,7 @@ mp_data <- add_events(
   sl_ref_date = "TRTSDT",
   prefix_group = "SOC: ",
   prefix_event = "PT: "
-) \%>\%
+) |>
   finalize_mp_object()
 }
 }
