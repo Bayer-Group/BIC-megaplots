@@ -19,7 +19,7 @@ test_that("Check if creating unique events via function 'create_unique_event_ide
     ),
     megaplots_selected_start_time_chr = c("1", "1", "2", "2", "3"),
     megaplots_selected_start_time = c(1, 1, 2, 2, 3),
-    megaplots_selected_start_time = c(10, 10, 20, 20, 30),
+    # megaplots_selected_start_time = c(10, 10, 20, 20, 30),
     megaplots_selected_event_time = c(1, 6, 2, 7, 10),
     megaplots_selected_event_time_end = c(1, 4, 18, 19, 12)
   )
@@ -37,7 +37,7 @@ test_that("Check if creating unique events via function 'create_unique_event_ide
     megaplots_selected_event_group = rep(NA, 5),
     megaplots_selected_start_time_chr = c("1", "1", "2", "2", "3"),
     megaplots_selected_start_time = c(1, 1, 2, 2, 3),
-    megaplots_selected_start_time = c(10, 10, 20, 20, 30),
+    # megaplots_selected_start_time = c(10, 10, 20, 20, 30),
     megaplots_selected_event_time = c(1, 6, 2, 7, 10),
     megaplots_selected_event_time_end = c(1, 4, 18, 19, 12)
   )
@@ -54,7 +54,7 @@ test_that("Check if creating unique events via function 'create_unique_event_ide
     megaplots_selected_event_group = rep(NA, 5),
     megaplots_selected_start_time_chr = c("1", "1", "2", "2", "3"),
     megaplots_selected_start_time = c(1, 1, 2, 2, 3),
-    megaplots_selected_start_time = c(10, 10, 20, 20, 30),
+    # megaplots_selected_start_time = c(10, 10, 20, 20, 30),
     megaplots_selected_event_time = c(1, 6, 2, 7, 10),
     megaplots_selected_event_time_end = c(1, 4, 18, 19, 12)
   )
@@ -84,7 +84,7 @@ test_that("Check if creating unique events via function 'create_unique_event_ide
     ),
     megaplots_selected_start_time_chr = c("1", "1", "2", "2", "3"),
     megaplots_selected_start_time = c(1, 1, 2, 2, 3),
-    megaplots_selected_start_time = c(10, 10, 20, 20, 30),
+    # megaplots_selected_start_time = c(10, 10, 20, 20, 30),
     megaplots_selected_event_time = c(1, 6, 2, 7, 10),
     megaplots_selected_event_time_end = c(1, 4, 18, 19, 12)
   )
@@ -152,7 +152,7 @@ test_that("Check if creating unique events via function 'create_unique_event_ide
     ),
     megaplots_selected_start_time_chr = c("1", "1", "2", "2", "3"),
     megaplots_selected_start_time = c(1, 1, 2, 2, 3),
-    megaplots_selected_start_time = c(10, 10, 20, 20, 30),
+    # megaplots_selected_start_time = c(10, 10, 20, 20, 30),
     megaplots_selected_event_time = c(1, 6, 2, 7, 10),
     megaplots_selected_event_time_end = c(1, 4, 18, 19, 12)
   )
@@ -204,7 +204,7 @@ test_that("Check if creating unique events via function 'create_unique_event_ide
     ),
     megaplots_selected_start_time_chr = c("1", "1", "2", "2", "3"),
     megaplots_selected_start_time = c(1, 1, 2, 2, 3),
-    megaplots_selected_start_time = c(10, 10, 20, 20, 30),
+    # megaplots_selected_start_time = c(10, 10, 20, 20, 30),
     megaplots_selected_event_time = c(1, 6, 2, 7, 10),
     megaplots_selected_event_time_end = c(1, 4, 18, 19, 12)
   )

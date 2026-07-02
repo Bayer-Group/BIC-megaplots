@@ -70,7 +70,7 @@ draw_event_summary <- function(
 
   #  one of the two cumulative displays are selected within app
   if (
-    event_summary_selection == "event_by_subject_cumulative" |
+    event_summary_selection == "event_by_subject_cumulative" ||
       event_summary_selection == "cumulative_event"
   ) {
     #create title for every group in variable "text_snippet_total"
@@ -290,7 +290,7 @@ draw_event_summary <- function(
           legendgroup = ~megaplots_selected_event_group,
           legendgrouptitle = list(text = ~megaplots_selected_event_group)
         )
-      if (!switch_legend_grouping & is.null(select_grouping)) {
+      if (!switch_legend_grouping && is.null(select_grouping)) {
         fig2 <- fig2 |>
           plotly::layout(
             legend = list(traceorder = "grouped", groupclick = "toggleitem")
@@ -520,7 +520,7 @@ draw_event_summary <- function(
             legendgroup = ~megaplots_selected_event_group,
             legendgrouptitle = list(text = ~megaplots_selected_event_group)
           )
-        if (!switch_legend_grouping & is.null(select_grouping)) {
+        if (!switch_legend_grouping && is.null(select_grouping)) {
           fig2 <- fig2 |>
             plotly::layout(
               legend = list(traceorder = "grouped", groupclick = "toggleitem")
@@ -551,7 +551,7 @@ draw_event_summary <- function(
             legendgroup = ~megaplots_selected_event_group,
             legendgrouptitle = list(text = ~megaplots_selected_event_group)
           )
-        if (!switch_legend_grouping & is.null(select_grouping)) {
+        if (!switch_legend_grouping && is.null(select_grouping)) {
           fig2 <- fig2 |>
             plotly::layout(
               legend = list(traceorder = "grouped", groupclick = "toggleitem")

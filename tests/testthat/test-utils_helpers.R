@@ -62,7 +62,6 @@ test_that("Check if utils_helpers functions work", {
 
   test_megaplot_data_raw <- data.frame(
     megaplots_selected_subjectid = rep(1:4, each = 4),
-    megaplots_selected_subjectid = rep(1:4, each = 4),
     megaplots_selected_start_time = rep(1:4, each = 4),
     subjectid_n = rep(1:4, each = 4),
     megaplots_selected_end_time = rep(c(40, 50, 60, 70), each = 4),

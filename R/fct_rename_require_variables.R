@@ -34,9 +34,9 @@ rename_require_variables <- function(
 
   #check if variable names are available in data and variable names are not empty
   if (
-    !is.null(selected_subjectid) &
-      !is.null(selected_event) &
-      selected_event %in% colnames(megaplot_data) &
+    !is.null(selected_subjectid) &&
+      !is.null(selected_event) &&
+      selected_event %in% colnames(megaplot_data) &&
       (
         !is.null(selected_start_time) &
           !is.null(selected_end_time) | #&
@@ -53,9 +53,9 @@ rename_require_variables <- function(
       )
 
     # Create/Add variables: megaplots_selected_start_time, megaplots_selected_end_time
-    if (!is.null(selected_start_time) & !is.null(selected_end_time)) {
+    if (!is.null(selected_start_time) && !is.null(selected_end_time)) {
       if (
-        is.numeric(megaplot_data[[selected_start_time]]) &
+        is.numeric(megaplot_data[[selected_start_time]]) &&
           is.numeric(megaplot_data[[selected_end_time]])
       ) {
         megaplot_data <- megaplot_data |>
@@ -81,9 +81,9 @@ rename_require_variables <- function(
     }
 
     # Create/Add variables: megaplots_selected_event_time, megaplots_selected_event_time_end
-    if (!is.null(selected_event_time) & !is.null(selected_event_time_end)) {
+    if (!is.null(selected_event_time) && !is.null(selected_event_time_end)) {
       if (
-        is.numeric(megaplot_data[[selected_event_time]]) &
+        is.numeric(megaplot_data[[selected_event_time]]) &&
           is.numeric(megaplot_data[[selected_event_time_end]])
       ) {
         megaplot_data <- megaplot_data |>
