@@ -38,7 +38,6 @@ renv::snapshot(type = "explicit", dev = TRUE)
 #     rebuild = TRUE
 #   )
 
-
 # Update wordlist
 spelling::update_wordlist()
 

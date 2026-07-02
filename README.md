@@ -3,6 +3,11 @@
 
 # Megaplots <br> <u style= 'font-size: 20px;'>The Complete Picture</u> <br> <em style= 'font-size: 18px;'> Connect events. Reveal patterns. Generate Insights.</em><img src="inst/app/www/megaplot_hexsticker_n2.png" align="right" height="189" alt="Megaplots logo" />
 
+<!-- badges: start -->
+
+[![R-CMD-check](https://github.com/Bayer-Group/BIC-megaplots/actions/workflows/R-CMD-check.yaml/badge.svghttps://github.com/Bayer-Group/BIC-megaplots/actions/workflows/R-CMD-check.yaml/badge.svghttps://github.com/Bayer-Group/BIC-megaplots/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/Bayer-Group/BIC-megaplots/actions/workflows/R-CMD-check.yaml)
+<!-- badges: end -->
+
 ## Overview
 
 **Megaplots** is an R package that provides an interactive
@@ -59,8 +64,8 @@ from [GitHub](https://github.com/Bayer-Group/BIC-megaplots) with either
 of the following:
 
 ``` r
-# install.packages("remotes")
-remotes::install_github("Bayer-Group/BIC-megaplots")
+# install.packages("pak")
+pak::pak("Bayer-Group/BIC-megaplots")
 ```
 
 ## Usage
