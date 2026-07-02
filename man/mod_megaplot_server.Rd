@@ -30,7 +30,6 @@ twelve reference rectangle parameters, as returned by
 \item{appearance}{A reactive returning a named list of plot appearance
 inputs. Expected names: `line_width`, `line_width_subjects`,
 `switch_legend_grouping`, `sort_event_groups`, `select_grouping`,
-`event_summary_cutoff`, `event_summary_hovermode`,
 `sequencing_object`, `sequencing_switch`.}
 
 \item{theme}{A reactive string returning the current theme toggle value

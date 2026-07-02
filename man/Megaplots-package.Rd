@@ -21,6 +21,7 @@ Useful links:
 
 Authors:
 \itemize{
+  \item Anna Fritsch \email{anna.fritsch@bayer.com}
   \item Steffen Jeske
   \item Tammo Reinders
   \item Veronika Schmidt
