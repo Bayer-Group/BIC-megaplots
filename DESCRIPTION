@@ -21,7 +21,7 @@ Description: Depicts individual study courses per day.  Pre-specified
     and changing the complexity of the graphical display.
 License: GPL (>= 3)
 Depends:
-    R (>= 3.6.0)
+    R (>= 4.2.0)
 Imports: 
     bsicons,
     bslib,

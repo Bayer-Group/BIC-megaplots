@@ -11,7 +11,7 @@
   },
   "environment": {
     "r": {
-      "requires": ">= 3.6.0"
+      "requires": ">= 4.2.0"
     }
   },
   "packages": {
@@ -6146,7 +6146,7 @@
       "checksum": "d41c85dae6f3b227ad2ddbaeb74c25e1"
     },
     ".Rprofile": {
-      "checksum": "794724a4f6eb3f3ef954cbef5b3c101c"
+      "checksum": "25805bc2809888b2f292b3461ad10993"
     },
     ".vscode/extensions.json": {
       "checksum": "90d7891f1569632ae447aaa2d080d5c7"
@@ -6170,7 +6170,7 @@
       "checksum": "6dd28fc638e89b74889254c9b60d0deb"
     },
     "DESCRIPTION": {
-      "checksum": "7f015f2e18636001b9e44e2a273091f7"
+      "checksum": "2e7759c97f3d64e021302b9eefb54d54"
     },
     "dev/01_start.R": {
       "checksum": "57fceda832f3eb58bf38bbf6f725a3e1"
@@ -6188,7 +6188,7 @@
       "checksum": "e21d8f5db5d57cd4d0f2db6d012a6109"
     },
     "dev/setup.R": {
-      "checksum": "89a5ec5c3fa9e2798f304cc518d7adbc"
+      "checksum": "835046ae1e41ca2a3548e372437c191a"
     },
     "Dockerfile": {
       "checksum": "25e3939a9b2cb2c1a4f567e7950b3946"
@@ -6533,7 +6533,7 @@
       "checksum": "456ceeaa22241dab6b029f2ae193c249"
     },
     "R/draw_event_summary.R": {
-      "checksum": "263b7efc2d16998af37d8bbe1abad400"
+      "checksum": "ccd2a5b01f05a8c6ac32b33a626b49fc"
     },
     "R/draw_mega_plot.R": {
       "checksum": "7d5248ce7540dea1486b4f22b36a673f"
@@ -6545,16 +6545,16 @@
       "checksum": "8d2cc787e113c04190da01f205f11453"
     },
     "R/fct_create_jsTree_input.R": {
-      "checksum": "0ecf82c43540fd3cc44c54938446657c"
+      "checksum": "e2f989abe3486fd06387a9c6983a1bce"
     },
     "R/fct_create_unique_event_identifier.R": {
-      "checksum": "25739b96e9168692d7a02ef493d1b2ea"
+      "checksum": "2108e2a3ef249bce6501c35e227eac79"
     },
     "R/fct_filter_megaplot_data.R": {
-      "checksum": "c63a893ebf84ca07b02f998661ba371d"
+      "checksum": "7678abd95a3074027d00a4183bea5805"
     },
     "R/fct_helpers_create_file.R": {
-      "checksum": "5444fa05bb7278377b412a5e3defed67"
+      "checksum": "f6a52431bf1df3f23e548deac60b3221"
     },
     "R/fct_megaplots_seriation.R": {
       "checksum": "4a91fc55235ff00b6ef92d57a670b707"
@@ -6575,16 +6575,16 @@
       "checksum": "9950785003d080d87ee42d5bf468fd19"
     },
     "R/fct_rename_require_variables.R": {
-      "checksum": "217aa71688a0d7d7046ec1d9990f91f2"
+      "checksum": "da50070023e21f611ae11d6107d4ef98"
     },
     "R/Megaplots-package.R": {
       "checksum": "30d9fb0f338d6bd58a04e12fcc8ce74d"
     },
     "R/mod_color_selection.R": {
-      "checksum": "2806537ea919ee1a771ef780776cea1e"
+      "checksum": "7cae6f4322a6296e89ffe9ff1e0ec29d"
     },
     "R/mod_data_upload.R": {
-      "checksum": "3e1a7d50282031a3581b66f7f7f284bc"
+      "checksum": "4ce324c980470cf9ff48e43d935d13ac"
     },
     "R/mod_filter.R": {
       "checksum": "e6b59f33b35d44ca0e7780cb015139fd"
@@ -6608,7 +6608,7 @@
       "checksum": "476011bbc4ffefa824e5bfb8386d849b"
     },
     "R/utils_helpers.R": {
-      "checksum": "68ed01ccc79536e4b921904c6d2d0340"
+      "checksum": "3a4d340b3ae6f36c73223a89dc67f106"
     },
     "README.md": {
       "checksum": "df962edf200fe6a80d025b8ad095ee94"
@@ -6629,7 +6629,7 @@
       "checksum": "2fc7e3b8b8e470111cc8aac1309c8288"
     },
     "tests/testthat/test-fct_add_events.R": {
-      "checksum": "35ee2a356bdcb29b5ad3a0edf1a1c892"
+      "checksum": "35c8516a55183243efd2cfa920f590ae"
     },
     "tests/testthat/test-fct_add_sl.R": {
       "checksum": "bbfce2072850ba1cc11bd60f028adf49"
@@ -6650,7 +6650,7 @@
       "checksum": "372eb755c17b16e44a265f212eecca8c"
     },
     "tests/testthat/test-fct_create_unique_event_identifier.R": {
-      "checksum": "e5e143bc2c736a9671f2daef343f1380"
+      "checksum": "01ec516929750fb0eb27b7ea0327bcb9"
     },
     "tests/testthat/test-fct_filter_megaplot_data.R": {
       "checksum": "44face90a0c087879f8f0a167860fe66"
@@ -6671,7 +6671,7 @@
       "checksum": "099fc9bf5422153edb9c8d223a111f3e"
     },
     "tests/testthat/test-utils_helpers.R": {
-      "checksum": "2439257ba0fc82b96bc6edd8055b4be1"
+      "checksum": "e7321bbfa77ae34ef5c27e598102d946"
     },
     "tests/testthat/unsupported_test_file.txt": {
       "checksum": "d41d8cd98f00b204e9800998ecf8427e"

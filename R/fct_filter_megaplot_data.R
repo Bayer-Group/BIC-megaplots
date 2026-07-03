@@ -69,7 +69,7 @@ filter_megaplot_data <- function(
               ] +
                 1
             } else if (
-              !filtered_data_w_jitter$jittered[i] &
+              !filtered_data_w_jitter$jittered[i] &&
                 (filtered_data_w_jitter$event_group_id[i] ==
                   filtered_data_w_jitter$event_group_id[i - 1])
             ) {
@@ -77,7 +77,7 @@ filter_megaplot_data <- function(
                 i - 1
               ]
             } else if (
-              !filtered_data_w_jitter$jittered[i] &
+              !filtered_data_w_jitter$jittered[i] &&
                 (filtered_data_w_jitter$event_group_id[i] !=
                   filtered_data_w_jitter$event_group_id[i - 1])
             ) {

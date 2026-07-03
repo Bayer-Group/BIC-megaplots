@@ -1036,7 +1036,7 @@ mod_color_selection_server <- function(
 
     #### START COLOUR PALETTE PART ####
     output$colour_palette <- shiny::renderPlot({
-      if (!is.null(color_data$selected) & !is.null(js_column$number)) {
+      if (!is.null(color_data$selected) && !is.null(js_column$number)) {
         if (input$color_method == "gradient") {
           number_events <- nrow(
             color_data$selected[

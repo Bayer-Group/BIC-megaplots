@@ -25,7 +25,7 @@ font_color <- function(hex_code) {
 
 color_func <- function(x, y, z, number_event_groups) {
   megaplot_color <- grDevices::rainbow(number_event_groups)
-  if (x != 0 & z != 1) {
+  if (x != 0 && z != 1) {
     return_colors <- grDevices::colorRampPalette(
       c(
         grDevices::colorRampPalette(
@@ -41,7 +41,7 @@ color_func <- function(x, y, z, number_event_groups) {
       alpha = TRUE
     )(z)[x]
   }
-  if (x == 0 | z == 1) {
+  if (x == 0 || z == 1) {
     return_colors <- megaplot_color[y]
   }
   return(return_colors)
@@ -86,7 +86,7 @@ get_trace_info <- function(plotly_object) {
         trace_info_data
       }
     )
-  trace_info$trace <- 1:length(plotly_build_data)
+  trace_info$trace <- seq_along(plotly_build_data)
   trace_info
 }
 

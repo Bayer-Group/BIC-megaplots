@@ -87,7 +87,7 @@ mod_data_upload_server <- function(id, parent_session, theme) {
         if ("subjectid" %in% colnames_uploaded) {
           init_subjectid <- "subjectid"
         } else if (
-          any(startsWith(colnames_uploaded, "subj")) |
+          any(startsWith(colnames_uploaded, "subj")) ||
             any(startsWith(colnames_uploaded, "SUBJ"))
         ) {
           init_subjectid <- colnames_uploaded[
@@ -107,7 +107,7 @@ mod_data_upload_server <- function(id, parent_session, theme) {
         if ("start_time" %in% colnames_uploaded) {
           init_start_time <- "start_time"
         } else if (
-          any(startsWith(colnames_uploaded, "start")) |
+          any(startsWith(colnames_uploaded, "start")) ||
             any(startsWith(colnames_uploaded, "START"))
         ) {
           init_start_time <- colnames_uploaded[
@@ -127,7 +127,7 @@ mod_data_upload_server <- function(id, parent_session, theme) {
         if ("end_time" %in% colnames_uploaded) {
           init_end_time <- "end_time"
         } else if (
-          any(startsWith(colnames_uploaded, "end")) |
+          any(startsWith(colnames_uploaded, "end")) ||
             any(startsWith(colnames_uploaded, "END"))
         ) {
           init_end_time <- colnames_uploaded[
@@ -147,7 +147,7 @@ mod_data_upload_server <- function(id, parent_session, theme) {
         if ("event_time" %in% colnames_uploaded) {
           init_event_time <- "event_time"
         } else if (
-          any(startsWith(colnames_uploaded, "event_time")) |
+          any(startsWith(colnames_uploaded, "event_time")) ||
             any(startsWith(colnames_uploaded, "EVENT_TIME"))
         ) {
           init_event_time <- colnames_uploaded[
@@ -167,7 +167,7 @@ mod_data_upload_server <- function(id, parent_session, theme) {
         if ("event_time_end" %in% colnames_uploaded) {
           init_event_time_end <- "event_time_end"
         } else if (
-          any(startsWith(colnames_uploaded, "event_time")) |
+          any(startsWith(colnames_uploaded, "event_time")) ||
             any(startsWith(colnames_uploaded, "EVENT_TIME"))
         ) {
           init_event_time_end <- colnames_uploaded[
@@ -187,7 +187,7 @@ mod_data_upload_server <- function(id, parent_session, theme) {
         if ("event" %in% colnames_uploaded) {
           init_event <- "event"
         } else if (
-          any(startsWith(colnames_uploaded, "ev")) |
+          any(startsWith(colnames_uploaded, "ev")) ||
             any(startsWith(colnames_uploaded, "EV"))
         ) {
           init_event <- colnames_uploaded[
@@ -208,7 +208,7 @@ mod_data_upload_server <- function(id, parent_session, theme) {
         if ("event_group" %in% colnames_uploaded) {
           init_event_group <- "event_group"
         } else if (
-          any(startsWith(colnames_uploaded, "event_g")) |
+          any(startsWith(colnames_uploaded, "event_g")) ||
             any(startsWith(colnames_uploaded, "EVENT_G"))
         ) {
           init_event_group <- colnames_uploaded[
