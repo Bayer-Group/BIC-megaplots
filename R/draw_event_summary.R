@@ -30,29 +30,27 @@
 #'
 #' @export
 draw_event_summary <- function(
-    megaplot_prepared_data = megaplot_prepared_data(),
-    megaplot_filtered_data = megaplot_filtered_data(),
-    select_grouping = NULL,
-    event_summary_cutoff = 1,
-    event_summary_selection,
-    switch_legend_grouping = TRUE,
-    hovermode = "x",
-    reference_line_1,
-    reference_line_2,
-    reference_line_3,
-    reference_line_1_value,
-    reference_line_2_value,
-    reference_line_3_value,
-    reference_line_1_value2,
-    reference_line_2_value2,
-    reference_line_3_value2,
-    reference_line_1_color,
-    reference_line_2_color,
-    reference_line_3_color,
-    theme
+  megaplot_prepared_data = megaplot_prepared_data(),
+  megaplot_filtered_data = megaplot_filtered_data(),
+  select_grouping = NULL,
+  event_summary_cutoff = 1,
+  event_summary_selection,
+  switch_legend_grouping = TRUE,
+  hovermode = "x",
+  reference_line_1,
+  reference_line_2,
+  reference_line_3,
+  reference_line_1_value,
+  reference_line_2_value,
+  reference_line_3_value,
+  reference_line_1_value2,
+  reference_line_2_value2,
+  reference_line_3_value2,
+  reference_line_1_color,
+  reference_line_2_color,
+  reference_line_3_color,
+  theme
 ) {
-
-
   #get number of groups from variable group_index
   #number_group_levels <-  max(megaplot_filtered_data$group_index, na.rm = TRUE)
   group_levels <- unique(megaplot_filtered_data$group_index)
@@ -61,81 +59,139 @@ draw_event_summary <- function(
   #create empty vector for maximum y_range (used for calculate maximum y-value over all subplots)
   max_y_range <- c()
   # calculate range for x-axis (min/max of all start/end times and event start/end times)
-  x_min <- min(min(megaplot_prepared_data$megaplots_selected_start_time, na.rm = TRUE), min(megaplot_prepared_data$megaplots_selected_event_time, na.rm = TRUE))
-  x_max <- max(max(megaplot_prepared_data$megaplots_selected_end_time, na.rm = TRUE), max(megaplot_prepared_data$megaplots_selected_event_time_end, na.rm = TRUE))
+  x_min <- min(
+    min(megaplot_prepared_data$megaplots_selected_start_time, na.rm = TRUE),
+    min(megaplot_prepared_data$megaplots_selected_event_time, na.rm = TRUE)
+  )
+  x_max <- max(
+    max(megaplot_prepared_data$megaplots_selected_end_time, na.rm = TRUE),
+    max(megaplot_prepared_data$megaplots_selected_event_time_end, na.rm = TRUE)
+  )
 
   #  one of the two cumulative displays are selected within app
-  if (event_summary_selection == "event_by_subject_cumulative" | event_summary_selection == "cumulative_event") {
-
+  if (
+    event_summary_selection == "event_by_subject_cumulative" ||
+      event_summary_selection == "cumulative_event"
+  ) {
     #create title for every group in variable "text_snippet_total"
     if (!is.null(select_grouping)) {
-      megaplot_prepared_data_w_group_text <- megaplot_filtered_data %>%
-        dplyr::select(!!!rlang::syms(select_grouping), .data$group_index) %>%
-        dplyr::distinct() %>%
-        dplyr::mutate(text_snippet_1 = paste(select_grouping, collapse = " ")) %>%
-        dplyr::mutate(text_snippet_2 = paste(!!!rlang::syms(select_grouping), sep = ", "))  %>%
-        dplyr::rowwise() %>%
-        dplyr::mutate(text_snippet_total = paste(unlist(strsplit(.data$text_snippet_1," ")), gsub(" ", "", unlist(strsplit(.data$text_snippet_2, ", "))), sep = ": ", collapse = " & "))
+      megaplot_prepared_data_w_group_text <- megaplot_filtered_data |>
+        dplyr::select(!!!rlang::syms(select_grouping), .data$group_index) |>
+        dplyr::distinct() |>
+        dplyr::mutate(
+          text_snippet_1 = paste(select_grouping, collapse = " ")
+        ) |>
+        dplyr::mutate(
+          text_snippet_2 = paste(!!!rlang::syms(select_grouping), sep = ", ")
+        ) |>
+        dplyr::rowwise() |>
+        dplyr::mutate(
+          text_snippet_total = paste(
+            unlist(strsplit(.data$text_snippet_1, " ")),
+            gsub(" ", "", unlist(strsplit(.data$text_snippet_2, ", "))),
+            sep = ": ",
+            collapse = " & "
+          )
+        )
     }
 
     # create cumulative total counts (for every group)
     for (k in group_levels) {
       if (event_summary_selection == "event_by_subject_cumulative") {
         #recurring events are not taken into account
-        megaplot_filtered_data_by_group <- megaplot_filtered_data %>%
-          dplyr::filter(.data$group_index == k) %>%
-          dplyr::group_by(.data$megaplots_selected_subjectid, .data$unique_event) %>%
-          dplyr::arrange(.data$megaplots_selected_subjectid, .data$unique_event, .data$megaplots_selected_event_time) %>%
-          dplyr::filter(dplyr::row_number() == 1)  %>%
+        megaplot_filtered_data_by_group <- megaplot_filtered_data |>
+          dplyr::filter(.data$group_index == k) |>
+          dplyr::group_by(
+            .data$megaplots_selected_subjectid,
+            .data$unique_event
+          ) |>
+          dplyr::arrange(
+            .data$megaplots_selected_subjectid,
+            .data$unique_event,
+            .data$megaplots_selected_event_time
+          ) |>
+          dplyr::filter(dplyr::row_number() == 1) |>
           dplyr::ungroup()
       } else {
-        megaplot_filtered_data_by_group <- megaplot_filtered_data %>%
+        megaplot_filtered_data_by_group <- megaplot_filtered_data |>
           dplyr::filter(.data$group_index == k)
       }
 
       #calculate cumulative sum via function cumsum()
-      megaplot_data_with_cumulative_sum <- megaplot_filtered_data_by_group %>%
-        dplyr::group_by(.data$unique_event) %>%
-        dplyr::arrange(.data$unique_event,.data$megaplots_selected_event_time) %>%
-        dplyr::mutate(event_count = 1) %>%
+      megaplot_data_with_cumulative_sum <- megaplot_filtered_data_by_group |>
+        dplyr::group_by(.data$unique_event) |>
+        dplyr::arrange(
+          .data$unique_event,
+          .data$megaplots_selected_event_time
+        ) |>
+        dplyr::mutate(event_count = 1) |>
         dplyr::mutate(cumulative_sum = cumsum(.data$event_count))
 
       # create grid for every event and time point of study to receive hover information on every study day
       expand_grid <- expand.grid(
-        unique_event = megaplot_filtered_data %>%
-          dplyr::select(.data$unique_event) %>%
-          dplyr::distinct() %>%
+        unique_event = megaplot_filtered_data |>
+          dplyr::select(.data$unique_event) |>
+          dplyr::distinct() |>
           dplyr::pull(.data$unique_event),
         megaplots_selected_event_time = x_min:x_max
-      )  %>% dplyr::right_join(
-        megaplot_filtered_data %>%
-          dplyr::select(.data$unique_event, .data$megaplots_selected_event_group, .data$event_group_id, .data$event_id) %>%
-          dplyr::distinct(),
-        by = "unique_event"
-      )
+      ) |>
+        dplyr::right_join(
+          megaplot_filtered_data |>
+            dplyr::select(
+              .data$unique_event,
+              .data$megaplots_selected_event_group,
+              .data$event_group_id,
+              .data$event_id
+            ) |>
+            dplyr::distinct(),
+          by = "unique_event"
+        )
 
       #merge expand_grid and megaplot_data_with_cumulative_sum
-      megaplot_data_with_cumulative_sum_for_every_day <- expand_grid %>%
+      megaplot_data_with_cumulative_sum_for_every_day <- expand_grid |>
         dplyr::left_join(
           megaplot_data_with_cumulative_sum,
-          by = c("unique_event","megaplots_selected_event_time","megaplots_selected_event_group", "event_group_id","event_id")
-        ) %>%
-        dplyr::arrange(.data$unique_event, .data$megaplots_selected_event_time) %>%
-        dplyr::group_by(.data$unique_event) %>%
-        tidyr::fill(.data$cumulative_sum, .data$event_color) %>%
-        dplyr::select(.data$cumulative_sum, .data$megaplots_selected_event_time, .data$event_color, .data$unique_event, .data$megaplots_selected_event_group, .data$event_group_id, .data$event_id) %>%
+          by = c(
+            "unique_event",
+            "megaplots_selected_event_time",
+            "megaplots_selected_event_group",
+            "event_group_id",
+            "event_id"
+          )
+        ) |>
+        dplyr::arrange(
+          .data$unique_event,
+          .data$megaplots_selected_event_time
+        ) |>
+        dplyr::group_by(.data$unique_event) |>
+        tidyr::fill(.data$cumulative_sum, .data$event_color) |>
+        dplyr::select(
+          .data$cumulative_sum,
+          .data$megaplots_selected_event_time,
+          .data$event_color,
+          .data$unique_event,
+          .data$megaplots_selected_event_group,
+          .data$event_group_id,
+          .data$event_id
+        ) |>
         dplyr::filter(!is.na(.data$cumulative_sum))
 
       # add cumulative sum 0 for every event at minimum day "x_min"
       # -> this will preserve the correct legend and also ensures that a line between zero and one is drawn
-      megaplot_data_with_initial_cumulative_sum_for_every_day <- megaplot_filtered_data %>%
-        dplyr::select(.data$event_color, .data$unique_event, .data$megaplots_selected_event_group, .data$event_group_id, .data$event_id) %>%
-        dplyr::filter(!is.na(.data$megaplots_selected_event_group)) %>%
-        dplyr::distinct() %>%
+      megaplot_data_with_initial_cumulative_sum_for_every_day <- megaplot_filtered_data |>
+        dplyr::select(
+          .data$event_color,
+          .data$unique_event,
+          .data$megaplots_selected_event_group,
+          .data$event_group_id,
+          .data$event_id
+        ) |>
+        dplyr::filter(!is.na(.data$megaplots_selected_event_group)) |>
+        dplyr::distinct() |>
         dplyr::mutate(
           cumulative_sum = 0,
           megaplots_selected_event_time = x_min
-        ) %>%
+        ) |>
         dplyr::arrange(.data$megaplots_selected_event_group)
 
       megaplot_data_with_cumulative_sums <- rbind(
@@ -144,18 +200,48 @@ draw_event_summary <- function(
       )
 
       #update maximum of y range to ensure same y-axis over all groups
-      max_y_range <- max(max_y_range, max(megaplot_data_with_cumulative_sum_for_every_day$cumulative_sum, na.rm = TRUE))
+      max_y_range <- max(
+        max_y_range,
+        max(
+          megaplot_data_with_cumulative_sum_for_every_day$cumulative_sum,
+          na.rm = TRUE
+        )
+      )
 
       #re-arrangement for plotly legend (factorize variable unique_event)
-      megaplot_data_with_cumulative_sums <- megaplot_data_with_cumulative_sums %>%
+      megaplot_data_with_cumulative_sums <- megaplot_data_with_cumulative_sums |>
         dplyr::arrange(.data$event_group_id, .data$event_id)
-      megaplot_data_with_cumulative_sums$unique_event <- factor(megaplot_data_with_cumulative_sums$unique_event , levels = unique(megaplot_data_with_cumulative_sums$unique_event))
+      megaplot_data_with_cumulative_sums$unique_event <- factor(
+        megaplot_data_with_cumulative_sums$unique_event,
+        levels = unique(megaplot_data_with_cumulative_sums$unique_event)
+      )
 
+      if (hovermode == "x") {
+        megaplot_data_with_cumulative_sums <- megaplot_data_with_cumulative_sums |>
+          dplyr::mutate(
+            tooltip = "x+text",
+            tooltip_text = ifelse(
+              .data$cumulative_sum < event_summary_cutoff,
+              NA,
+              paste0(.data$unique_event, ": ", .data$cumulative_sum)
+            )
+          )
+      } else {
+        megaplot_data_with_cumulative_sums <- megaplot_data_with_cumulative_sums |>
+          dplyr::mutate(
+            tooltip = "x+text",
+            tooltip_text = paste0(
+              .data$unique_event,
+              ": ",
+              .data$cumulative_sum
+            )
+          )
+      }
       #initial scatter plot
       fig <- plotly::plot_ly(
         data = megaplot_data_with_cumulative_sums,
-        y = ~ cumulative_sum,
-        x = ~ megaplots_selected_event_time
+        y = ~cumulative_sum,
+        x = ~megaplots_selected_event_time
       )
 
       #reference lines/rectangle part
@@ -169,55 +255,75 @@ draw_event_summary <- function(
           reference_line_3_value2 <- "NA"
         }
 
-        fig<- fig %>% plotly::layout(
-          shapes = list(vrect(reference_line_1_value, reference_line_1_value2, reference_line_1_color),
-                        vrect(reference_line_2_value, reference_line_2_value2, reference_line_2_color),
-                        vrect(reference_line_3_value, reference_line_3_value2, reference_line_3_color)
-          )
-        )
-      }
-      #add lines to initial figure
-        # if (switch_legend_grouping) {
-          fig2 <- fig  %>%
-            plotly::add_lines(
-              color = ~I(event_color),
-              line = list(shape = "hv", width = 3),
-              name = ~ unique_event,
-              showlegend = FALSE,
-              legendgroup = ~ megaplots_selected_event_group,
-              legendgrouptitle = list(text = ~ megaplots_selected_event_group)
+        fig <- fig |>
+          plotly::layout(
+            shapes = list(
+              vrect(
+                reference_line_1_value,
+                reference_line_1_value2,
+                reference_line_1_color
+              ),
+              vrect(
+                reference_line_2_value,
+                reference_line_2_value2,
+                reference_line_2_color
+              ),
+              vrect(
+                reference_line_3_value,
+                reference_line_3_value2,
+                reference_line_3_color
+              )
             )
-          if (!switch_legend_grouping) {
-            fig2 <-  fig2 %>%
-              plotly::layout(legend = list(traceorder = "grouped", groupclick = "toggleitem"))
-          }
-        # } else {
-        #   fig2 <- fig  %>%
-        #     plotly::add_lines(
-        #       color = ~I(event_color),
-        #       line = list(shape = "hv", width = 3),
-        #       name = ~ unique_event,
-        #       showlegend = FALSE,
-        #       legendgroup = ~ unique_event
-        #     )
-        # }
+          )
+      }
+
+      #add lines to initial figure
+      # if (switch_legend_grouping) {
+      fig2 <- fig |>
+        plotly::add_lines(
+          color = ~ I(event_color),
+          line = list(shape = "hv", width = 3),
+          name = ~unique_event,
+          text = ~tooltip_text,
+          hoverinfo = ~tooltip,
+          showlegend = FALSE,
+          legendgroup = ~megaplots_selected_event_group,
+          legendgrouptitle = list(text = ~megaplots_selected_event_group)
+        )
+      if (!switch_legend_grouping && is.null(select_grouping)) {
+        fig2 <- fig2 |>
+          plotly::layout(
+            legend = list(traceorder = "grouped", groupclick = "toggleitem")
+          )
+      }
+      #
+      # } else {
+      #   fig2 <- fig  |>
+      #     plotly::add_lines(
+      #       color = ~I(event_color),
+      #       line = list(shape = "hv", width = 3),
+      #       name = ~ unique_event,
+      #       showlegend = FALSE,
+      #       legendgroup = ~ unique_event
+      #     )
+      # }
 
       #update figure layout
-      fig3 <- fig2 %>%
+      fig3 <- fig2 |>
         plotly::layout(
-          plot_bgcolor = ifelse(theme =="dark","#1D1F21","#fff"),
-          paper_bgcolor =ifelse(theme =="dark","#1D1F21","#fff"),
+          plot_bgcolor = ifelse(theme == "dark", "#1D1F21", "#fff"),
+          paper_bgcolor = ifelse(theme == "dark", "#1D1F21", "#fff"),
           xaxis = list(
-            color=ifelse(theme =="dark","#fff","#000"),
+            color = ifelse(theme == "dark", "#fff", "#000"),
             title = "Study Day",
             zeroline = FALSE,
             spikemode = 'across+marker',
             spikethickness = 1,
             spikedash = "dash",
-            spikecolor = ifelse(theme =="dark","#fff","#000")
+            spikecolor = ifelse(theme == "dark", "#fff", "#000")
           ),
           yaxis = list(
-            color=ifelse(theme =="dark","#fff","#000"),
+            color = ifelse(theme == "dark", "#fff", "#000"),
             showgrid = TRUE,
             title = "Cumulative event count per day",
             zeroline = FALSE,
@@ -225,7 +331,8 @@ draw_event_summary <- function(
           ),
           font = list(
             family = "Agency FB",
-            color = ifelse(theme =="dark","#fff","#000"))#,
+            color = ifelse(theme == "dark", "#fff", "#000")
+          ) #,
           # barmode = "stack"
         )
       figure_list[[k]] <- fig3
@@ -233,12 +340,23 @@ draw_event_summary <- function(
 
     for (k in group_levels) {
       if (!is.null(select_grouping)) {
-        megaplot_prepared_data_w_group_text_sorted <- megaplot_prepared_data_w_group_text %>%
+        megaplot_prepared_data_w_group_text_sorted <- megaplot_prepared_data_w_group_text |>
           dplyr::arrange(.data$group_index)
-        figure_list[[k]] <- figure_list[[k]] %>%
-          plotly::layout(annotations =list(list(x = mean(c(x_min, x_max)), y = max_y_range, showarrow = FALSE, xacnhor = 'center', yanchor = "top", text = megaplot_prepared_data_w_group_text_sorted$text_snippet_total[[k]])))
+        figure_list[[k]] <- figure_list[[k]] |>
+          plotly::layout(
+            annotations = list(list(
+              x = mean(c(x_min, x_max)),
+              y = max_y_range,
+              showarrow = FALSE,
+              xacnhor = 'center',
+              yanchor = "top",
+              text = megaplot_prepared_data_w_group_text_sorted$text_snippet_total[[
+                k
+              ]]
+            ))
+          )
       }
-      figure_list[[k]] <- figure_list[[k]] %>%
+      figure_list[[k]] <- figure_list[[k]] |>
         plotly::layout(
           yaxis = list(
             range = c(0, max_y_range)
@@ -260,58 +378,99 @@ draw_event_summary <- function(
       nrows = length(group_levels)
     )
 
-    g <- g %>%
+    g <- g |>
       plotly::layout(
         hovermode = hovermode,
         hoverdistance = 1
       )
-
   } else {
-
     if (!is.null(select_grouping)) {
-      megaplot_prepared_data_w_group_text <- megaplot_filtered_data %>%
-        dplyr::select(!!!rlang::syms(select_grouping), .data$group_index) %>%
-        dplyr::distinct() %>%
-        dplyr::mutate(text_snippet_1 = paste(select_grouping, collapse = " ")) %>%
-        dplyr::mutate(text_snippet_2 = paste(!!!rlang::syms(select_grouping), sep = ", "))  %>%
-        dplyr::rowwise() %>%
-        dplyr::mutate(text_snippet_total = paste(unlist(strsplit(.data$text_snippet_1," ")), gsub(" ", "", unlist(strsplit(.data$text_snippet_2, ", "))), sep = ": ", collapse = " & "))
+      megaplot_prepared_data_w_group_text <- megaplot_filtered_data |>
+        dplyr::select(!!!rlang::syms(select_grouping), .data$group_index) |>
+        dplyr::distinct() |>
+        dplyr::mutate(
+          text_snippet_1 = paste(select_grouping, collapse = " ")
+        ) |>
+        dplyr::mutate(
+          text_snippet_2 = paste(!!!rlang::syms(select_grouping), sep = ", ")
+        ) |>
+        dplyr::rowwise() |>
+        dplyr::mutate(
+          text_snippet_total = paste(
+            unlist(strsplit(.data$text_snippet_1, " ")),
+            gsub(" ", "", unlist(strsplit(.data$text_snippet_2, ", "))),
+            sep = ": ",
+            collapse = " & "
+          )
+        )
     }
 
-    df <- megaplot_filtered_data %>%
-      dplyr::arrange(.data$megaplots_selected_event_group, .data$unique_event) %>%
-      dplyr::filter(!is.na(.data$megaplots_selected_event)) %>%
-      dplyr::rowwise() %>%
+    df <- megaplot_filtered_data |>
+      dplyr::arrange(
+        .data$megaplots_selected_event_group,
+        .data$unique_event
+      ) |>
+      dplyr::filter(!is.na(.data$megaplots_selected_event)) |>
+      dplyr::rowwise() |>
       dplyr::mutate(
-        day = list(seq(.data$megaplots_selected_event_time, .data$megaplots_selected_event_time_end, by = 1))
-      ) %>%
-      tidyr::unnest_longer(col = .data$day) %>%
-      dplyr::group_by(dplyr::across(tidyselect::all_of(c(select_grouping,"group_index","event_group_id","event_id","megaplots_selected_event_group","megaplots_selected_event","unique_event","event_color","day")))) %>%
-      dplyr::summarise(value = dplyr::n()) %>%
+        day = list(seq(
+          .data$megaplots_selected_event_time,
+          .data$megaplots_selected_event_time_end,
+          by = 1
+        ))
+      ) |>
+      tidyr::unnest_longer(col = .data$day) |>
+      dplyr::group_by(dplyr::across(tidyselect::all_of(c(
+        select_grouping,
+        "group_index",
+        "event_group_id",
+        "event_id",
+        "megaplots_selected_event_group",
+        "megaplots_selected_event",
+        "unique_event",
+        "event_color",
+        "day"
+      )))) |>
+      dplyr::summarise(value = dplyr::n()) |>
       tidyr::complete(
-        day = seq(x_min,x_max, 1),
+        day = seq(x_min, x_max, 1),
         fill = list(value = 0)
-      ) %>%
-      dplyr::arrange(dplyr::across(dplyr::all_of(c(select_grouping,"group_index","megaplots_selected_event_group","megaplots_selected_event","unique_event","event_color","day")))) %>%
-      dplyr::ungroup() %>%
+      ) |>
+      dplyr::arrange(dplyr::across(dplyr::all_of(c(
+        select_grouping,
+        "group_index",
+        "megaplots_selected_event_group",
+        "megaplots_selected_event",
+        "unique_event",
+        "event_color",
+        "day"
+      )))) |>
+      dplyr::ungroup() |>
       dplyr::mutate(
         tooltip = "x+text",
-        tooltip_text = ifelse(.data$value < event_summary_cutoff, NA, paste0(.data$megaplots_selected_event,": ", .data$value))
+        tooltip_text = ifelse(
+          .data$value < event_summary_cutoff,
+          NA,
+          paste0(.data$megaplots_selected_event, ": ", .data$value)
+        )
       )
 
-    for(k in group_levels) {
-
-      df_group <- df %>% dplyr::filter(.data$group_index == k)
+    for (k in group_levels) {
+      df_group <- df |>
+        dplyr::filter(.data$group_index == k)
 
       #update max count used for y axis range
       max_y_range <- max(max_y_range, max(df_group$value, na.rm = TRUE))
 
-      df_group <- df_group %>%
+      df_group <- df_group |>
         dplyr::arrange(.data$event_group_id, .data$event_id)
-      df_group$unique_event <- factor(df_group$unique_event , levels = unique(df_group$unique_event))
+      df_group$unique_event <- factor(
+        df_group$unique_event,
+        levels = unique(df_group$unique_event)
+      )
 
       #initial plotly figure
-      fig <- plotly::plot_ly(data = df_group, x = ~ day)
+      fig <- plotly::plot_ly(data = df_group, x = ~day)
 
       #reference lines/rectangle part
       if (reference_line_1) {
@@ -324,35 +483,51 @@ draw_event_summary <- function(
           reference_line_3_value2 <- "NA"
         }
 
-        fig<- fig %>% plotly::layout(
-          shapes = list(vrect(reference_line_1_value, reference_line_1_value2, reference_line_1_color),
-                        vrect(reference_line_2_value, reference_line_2_value2, reference_line_2_color),
-                        vrect(reference_line_3_value, reference_line_3_value2, reference_line_3_color)
+        fig <- fig |>
+          plotly::layout(
+            shapes = list(
+              vrect(
+                reference_line_1_value,
+                reference_line_1_value2,
+                reference_line_1_color
+              ),
+              vrect(
+                reference_line_2_value,
+                reference_line_2_value2,
+                reference_line_2_color
+              ),
+              vrect(
+                reference_line_3_value,
+                reference_line_3_value2,
+                reference_line_3_color
+              )
+            )
           )
-        )
       }
 
       # add lines to plotly figur
       if (hovermode == "x") {
         # if (switch_legend_grouping) {
-          fig2 <- fig %>%
-            plotly::add_lines(
-              y = ~ value,
-              color = ~I(event_color),
-              line = list(shape = "hv", width = 3),
-              name = ~ unique_event,
-              text = ~ tooltip_text,
-              showlegend = FALSE,
-              hoverinfo = ~ tooltip,
-              legendgroup = ~ megaplots_selected_event_group,
-              legendgrouptitle = list(text = ~ megaplots_selected_event_group)
+        fig2 <- fig |>
+          plotly::add_lines(
+            y = ~value,
+            color = ~ I(event_color),
+            line = list(shape = "hv", width = 3),
+            name = ~unique_event,
+            text = ~tooltip_text,
+            showlegend = FALSE,
+            hoverinfo = ~tooltip,
+            legendgroup = ~megaplots_selected_event_group,
+            legendgrouptitle = list(text = ~megaplots_selected_event_group)
+          )
+        if (!switch_legend_grouping && is.null(select_grouping)) {
+          fig2 <- fig2 |>
+            plotly::layout(
+              legend = list(traceorder = "grouped", groupclick = "toggleitem")
             )
-          if (!switch_legend_grouping) {
-            fig2 <-  fig2 %>%
-              plotly::layout(legend = list(traceorder = "grouped", groupclick = "toggleitem"))
-          }
+        }
         # } else {
-        #   fig2 <- fig %>%
+        #   fig2 <- fig |>
         #     plotly::add_lines(
         #       y = ~ value,
         #       color = ~I(event_color),
@@ -366,22 +541,24 @@ draw_event_summary <- function(
         # }
       } else {
         # if (switch_legend_grouping) {
-          fig2 <- fig %>%
-            plotly::add_lines(
-              y = ~ value,
-              color = ~I(event_color),
-              line = list(shape = "hv", width = 3),
-              name = ~ unique_event,
-              showlegend = FALSE,
-              legendgroup = ~ megaplots_selected_event_group,
-              legendgrouptitle = list(text = ~ megaplots_selected_event_group)
+        fig2 <- fig |>
+          plotly::add_lines(
+            y = ~value,
+            color = ~ I(event_color),
+            line = list(shape = "hv", width = 3),
+            name = ~unique_event,
+            showlegend = FALSE,
+            legendgroup = ~megaplots_selected_event_group,
+            legendgrouptitle = list(text = ~megaplots_selected_event_group)
+          )
+        if (!switch_legend_grouping && is.null(select_grouping)) {
+          fig2 <- fig2 |>
+            plotly::layout(
+              legend = list(traceorder = "grouped", groupclick = "toggleitem")
             )
-          if (!switch_legend_grouping) {
-            fig2 <-  fig2 %>%
-              plotly::layout(legend = list(traceorder = "grouped", groupclick = "toggleitem"))
-          }
+        }
         # } else {
-        #   fig2 <- fig %>%
+        #   fig2 <- fig |>
         #     plotly::add_lines(
         #       y = ~ value,
         #       color = ~I(event_color),
@@ -393,27 +570,30 @@ draw_event_summary <- function(
         # }
       }
 
-      fig3 <- fig2 %>%
+      fig3 <- fig2 |>
         plotly::layout(
-          plot_bgcolor = ifelse(theme =="dark","#1D1F21","#fff"),
-          paper_bgcolor =ifelse(theme =="dark","#1D1F21","#fff"),
+          plot_bgcolor = ifelse(theme == "dark", "#1D1F21", "#fff"),
+          paper_bgcolor = ifelse(theme == "dark", "#1D1F21", "#fff"),
           xaxis = list(
-            color=ifelse(theme =="dark","#fff","#000"),
+            color = ifelse(theme == "dark", "#fff", "#000"),
             title = "Study Day",
             zeroline = FALSE,
             spikemode = 'across+marker',
             spikethickness = 1,
             spikedash = "dash",
-            spikecolor = ifelse(theme =="dark","#fff","#000")
+            spikecolor = ifelse(theme == "dark", "#fff", "#000")
           ),
           yaxis = list(
-            color=ifelse(theme =="dark","#fff","#000"),
+            color = ifelse(theme == "dark", "#fff", "#000"),
             showgrid = TRUE,
-            title ="Event count per day",
+            title = "Event count per day",
             zeroline = FALSE,
             autotick = TRUE
           ),
-          font = list(family = "Agency FB", color = ifelse(theme =="dark","#fff","#000"))
+          font = list(
+            family = "Agency FB",
+            color = ifelse(theme == "dark", "#fff", "#000")
+          )
         )
 
       figure_list[[k]] <- fig3
@@ -421,16 +601,28 @@ draw_event_summary <- function(
 
     for (k in group_levels) {
       if (!is.null(select_grouping)) {
-        megaplot_prepared_data_w_group_text_sorted <- megaplot_prepared_data_w_group_text %>%
+        megaplot_prepared_data_w_group_text_sorted <- megaplot_prepared_data_w_group_text |>
           dplyr::arrange(.data$group_index)
-        figure_list[[k]] <- figure_list[[k]] %>%
-          plotly::layout(annotations =list(list(x = mean(c(x_min, x_max)), y = max_y_range, showarrow = FALSE, xacnhor = 'center', yanchor = "top", text = megaplot_prepared_data_w_group_text_sorted %>% dplyr::filter(group_index == k) %>% dplyr::pull(text_snippet_total))))
+        figure_list[[k]] <- figure_list[[k]] |>
+          plotly::layout(
+            annotations = list(list(
+              x = mean(c(x_min, x_max)),
+              y = max_y_range,
+              showarrow = FALSE,
+              xacnhor = 'center',
+              yanchor = "top",
+              text = megaplot_prepared_data_w_group_text_sorted |>
+                dplyr::filter(.data$group_index == k) |>
+                dplyr::pull(.data$text_snippet_total)
+            ))
+          )
       }
 
-      figure_list[[k]] <- figure_list[[k]] %>%
+      figure_list[[k]] <- figure_list[[k]] |>
         plotly::layout(
           yaxis = list(
-            range = c(0, max_y_range), matches = TRUE
+            range = c(0, max_y_range),
+            matches = TRUE
           ),
           xaxis = list(
             range = c(x_min, x_max)
@@ -443,16 +635,14 @@ draw_event_summary <- function(
 
     figure_list <- figure_list[!sapply(figure_list, is.null)]
 
-
-
     g <- plotly::subplot(
       rev(figure_list),
       shareY = TRUE,
-      shareX =TRUE,
+      shareX = TRUE,
       nrows = length(group_levels)
     )
 
-    g <- g %>%
+    g <- g |>
       plotly::layout(
         hovermode = hovermode,
         hoverdistance = 1

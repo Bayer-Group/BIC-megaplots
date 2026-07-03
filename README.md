@@ -1,476 +1,104 @@
-README
-================
 
-- [Description](#description)
-- [Getting Started](#getting-started)
-- [File Upload & Variable Selection](#file-upload--variable-selection)
-- [Event & Color Selection](#event--color-selection)
-  - [Event / Event Group Tree](#event--event-group-tree)
-  - [Event / Event Group Color List](#event--event-group-color-list)
-  - [Color Selection Panel](#color-selection-panel)
-  - [Color Methods](#color-methods)
-  - [Offset Events](#offset-events)
-  - [Save & Upload Color Files](#save--upload-color-files)
-- [Megaplots](#megaplots)
-- [Event Summary](#event-summary)
-  - [Displays](#displays)
-- [Sidebar Options](#sidebar-options)
-  - [Sorting / Grouping](#sorting--grouping)
-  - [Plot Appearance](#plot-appearance)
-  - [Filter](#filter)
-  - [HTML Download](#html-download)
-- [Input Data](#input-data)
-- [Building Upload Data](#building-upload-data)
-  - [add_sl_data()](#addsl_data)
-  - [add_events()](#addevents)
-  - [finalize_mp_object()](#finalize_mp_object)
-- [Additional information](#additional-information)
+<!-- README.md is generated from README.Rmd. Please edit that file. -->
 
-<img src="inst/app/www/megaplot_hexsticker.png" align="right" width="150px"/>
+# Megaplots <br> <u style= 'font-size: 20px;'>The Complete Picture</u> <br> <em style= 'font-size: 18px;'> Connect events. Reveal patterns. Generate Insights.</em><img src="inst/app/www/megaplot_hexsticker_n2.png" align="right" height="189" alt="Megaplots logo" />
 
 <!-- badges: start -->
 
-[![status](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
+[![R-CMD-check](https://github.com/Bayer-Group/BIC-megaplots/actions/workflows/R-CMD-check.yaml/badge.svghttps://github.com/Bayer-Group/BIC-megaplots/actions/workflows/R-CMD-check.yaml/badge.svghttps://github.com/Bayer-Group/BIC-megaplots/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/Bayer-Group/BIC-megaplots/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-## Description
+## Overview
 
-A ‘megaplot’ is a ‘shiny’ application and as the name suggests, is a
-huge graphical display showing individual-level data over time
-interactively. In the context of clinical trials, megaplots seek to
-represent longitudinal data while focusing on event visualization for
-each subject throughout the entire course of the trial.
+**Megaplots** is an R package that provides an interactive
+[Shiny](https://shiny.posit.co/) application for visualizing
+individual-level longitudinal data in clinical trials.
 
-The concept of the megaplots app has been re-designed at the end of
-2025. If you want to use the previous version, please use ‘Release
-version v.1.1.10’.
+A *megaplot* provides a large-scale graphical display in which every
+subject’s event history is rendered on a single canvas, making it
+straightforward to identify patterns, outliers, and safety signals
+across the full course of a study.
 
-## Getting Started
+The package is aimed at data scientists and statisticians to explore
+subject-level events and measurements across the full duration of a
+trial. It is designed to support exploratory data analysis and safety
+review in early and late-phase studies.
 
-The package megaplots is available on ‘github’ and may be installed
-using
+## Key Features
 
-install_github(“Bayer-Group/BIC-Megaplots”)
+- **Subject-level timelines** — one row per subject, spanning the entire
+  observation period, with events rendered as colour-coded bars.
+- **Interactive controls** — filter by treatment arm, study visit, event
+  type, or any variable in the dataset via a reactive sidebar.
+- **Multi-domain overlays** — overlay adverse events, lab abnormalities,
+  and concomitant medications on the same timeline for each subject.
+- **Sorting and grouping** — Cohort-level organisation controls.
+- **Event-driven seriation** — sequence subjects along the y-axis by the
+  timing of a user-selected anchor event, revealing temporal patterns
+  and relationships that fixed ordering would obscure.
+- **Themeable** — customise colour palettes and lane ordering to match
+  your organisation’s style guide.
 
-respectively.
+## Demo
 
-After installation megaplots can be started using
+The main panel displays a **subject-level timeline plot** in which each
+row corresponds to a single trial participant. Events are rendered as
+colour-coded markers along a continuous time axis — typically study day
+allowing the reviewer to scan the full cohort at a glance and
+immediately spot clusters of adverse events, early discontinuations, or
+dose modifications.
 
-library(“megaplots”)
+The **sidebar** on the left provides reactive sorting functionalities,
+grouping and filter controls: select one or more treatment arms,
+restrict the view to a specific study visit window, or drill down to
+individual subjects by identifier. Several options making it
+straightforward to compare subgroups or isolate a subject of interest
+during a safety review meeting. With the numerous options, its easier
+than ever to customize the plot appearance.
+<img src="inst/app/www/Screenshots/Megaplot_2_2_0_Overview_Screenshot.png" height="500" alt="Megaplots logo" />
 
+## Installation
+
+Megaplots is not yet on CRAN. You can install the development version
+from [GitHub](https://github.com/Bayer-Group/BIC-megaplots) with either
+of the following:
+
+``` r
+# install.packages("pak")
+pak::pak("Bayer-Group/BIC-megaplots")
+```
+
+## Usage
+
+``` r
+library(Megaplots)
+
+# Launch the interactive Shiny application
 run_app()
+```
 
-The application will start showing the data upload page. For detailed
-information on how to upload data see next section.
+The app opens in your default browser.
 
-## File Upload & Variable Selection
+## Main Functions
 
-Once the ‘megaplots’ package is installed, simply call this application
-through the function run_app(). Next, upload the dataset through the
-‘File upload’-panel.
+| Function    | Description                              |
+|-------------|------------------------------------------|
+| `run_app()` | Launches the Megaplots Shiny application |
 
-Please click on the “Browse…” button and upload the desired data set.
-Currently, it is only possible to use ‘.RData’ as data format. If other
-formats are used, an error message appears.
+## Documentation
 
-<img src="inst/app/www/Screenshots/1_Megaplots.png" align="center" width="95%"/>
+Detailed documentation can be found in the Tutorial document in this
+repository and included within the app.
 
-After successful upload, options for the variable selection will appear.
+## Contributing
 
-<img src="inst/app/www/Screenshots/4_Megaplots.png" align="center" width="95%"/>
+Contributions of all kinds are welcome — bug reports, feature requests,
+and pull requests. Please read CONTRIBUTING before getting started, and
+note that this project is released with a Contributor Code of Conduct.
+By participating you agree to abide by its terms.
 
-The variable ‘Identifier’ can be a numeric or character variable and
-will be used to assign individual time sequences. The variables
-‘Timeline Start Day’ and ‘Timeline End Day’ define the start and end
-time of every individual time course. Both variables should be integers,
-otherwise they will be rounded. ‘Event’ and ‘Event Group’ should contain
-the names of the events that are displayed. Multiple events can belong
-to a specific event group. If no event group is selected, event is
-automatically set as event group. The event names do not necessarily
-have to be unique. For display purposes, they are renamed if non-unique,
-by writing the event group in brackets after them. Like the time
-courses, every event requires a start and end day. The corresponding
-variables can be selected via ‘Event Start Day’ and ‘Event End Day’. The
-same rounding procedure is applied as for the timelines.
+To report a bug or request a feature, please open an issue.
 
-For more detailed information about the data structure see [Input
-Data](#Input%20Data). below.
+## License
 
-In every variable selection drop-down menu there is a ‘Clear’ button to
-delete the selected variable. When all variables are in the desired a
-format a next button appears in the lower half of the screen, which
-leads to the next panel the ‘Event & color selection’.
-
-## Event & Color Selection
-
-In this panel, the events that should be displayed can be selected.
-Events can also be sorted and all event colors can be defined. All
-settings can be saved so that they can be quickly reloaded in future
-sessions. First, the events are selected on the left side.
-
-### Event / Event Group Tree
-
-On the left side appears a list with checkboxes for all event groups.
-Clicking on a box selects all events of the event group. The small
-arrows next to the box can be used to expand the list. Then also every
-event appears in the list.
-
-<img src="inst/app/www/Screenshots/7_Megaplots.png" align="center" width="95%"/>
-
-This can be used to select only individual events of a event group. To
-find individual events or event groups in a long list, the search box
-above the list can be used. For every selected event a colored box
-appears right to the event selection list. These can be used to set the
-colors (see next chapter).
-
-Another feature is the ‘drag and drop’ of the events within the list.
-This can be used to sort events within a event group. This can be
-particularly helpful for ordinal scaled events. Sorting affects the
-legend displayed next to the graph but can also be used to create a
-color palette explained in the next chapter. After sorting, any box of
-the event selection list must be clicked again to update the color
-selection. Further known issues with the drag & drop feature are that no
-events may be selected in order to move variables and events can be
-dragged out of the event group, which leads to errors.
-
-After completing the event selection, it is possible to go directly to
-the megaplot graphic by clicking the next button, or make various color
-settings, which are explained in the next section.
-
-### Event / Event Group Color List
-
-In the middle of the ‘Event & color selection’-panel, a colored list
-with all selected event groups and events appears. It is now possible to
-mark an event group or a single event by clicking on the corresponding
-event/event group name. The selected event or event group gets a
-highlighted border.
-
-<img src="inst/app/www/Screenshots/10_Megaplots.png" align="center" width="95%"/>
-
-By clicking one of these events a color selection panel on the right
-side appears. Depending on whether a single event or a event group is
-clicked, the options in the color selection panel differ.
-
-Note: If you change the event selection on the left side after making a
-selection for the colors in the middle, it may happen that a event/event
-group selection does not respond. By clicking any other event in the
-color list updates the selection and resolve the issue.
-
-### Color Selection Panel
-
-After selecting an event or event group in the color list, options to
-change the colors appear on the right side. There is also an jitter
-option to adjust the event position of the event group, which will be
-explained in the chapter after next.
-
-### Color Methods
-
-Selecting suitable colors is particularly difficult when many different
-events are to be represented. The user is responsible for selecting
-suitable colors and take color blindness into account. For the correct
-color selection, please refer to the various best practice guides. The
-methods here are only intended as an aid to their implementation.
-
-When an event group is selected, there are three different methods to
-colorize the events: ‘Color gradient (3 colors)’, ‘Unique color for all
-events withing group’ and ‘Distinct color by selected palette’.
-
-<img src="inst/app/www/Screenshots/11_Megaplots.png" align="center" width="95%"/>
-
-When using color gradient, three color inputs appear which will define a
-color palette displayed below. In this example, the colors yellow, gray
-and turquoise are used. Depending on how many events are there within an
-event group, there are that many colors, created by these three colors.
-By clicking one of these color inputs a color palette appears which can
-be used to change the colors and their saturation. However, it is also
-possible to directly access a color hexcode into the color box. Once a
-satisfactory color palette has been found, click the ‘Update colors’
-button to apply the changes.
-
-The second option ‘Unique color for all events within group’ obviously
-colors all events of an event group in the same color. So there will be
-exactly one color input. Here too, the color can be selected using the
-palette or by entering the hexcode.
-
-The third option ‘Distinct color by selected palette’ brings up another
-drop-down menu ‘Select color palette’ where predefined color palettes
-can be selected. By selecting one of these palettes a good visulization
-is not guaranteed and must be ensured by the user.
-
-If an single event is selected in the color list the color selection on
-the right will be the same for ‘Unique color for all events within
-group’ explained above. So it is possible to first create a color
-palette for the complete event group and after that change individual
-colors by selection the event.
-<img src="inst/app/www/Screenshots/14_Megaplots.png" align="center" width="95%"/>
-
-### Offset Events
-
-In order to better distinguish events in addition to color, they are
-also slightly offset in height by default. To prevent this, the check
-mark can be removed for option “Offset events for event group”.
-
-<img src="inst/app/www/Screenshots/18_Megaplots.png" align="center" width="50%"/>
-
-The offset position will be the same for each time course. An offset
-position for events within an event group only makes sense if different
-events at a given day can appear. For unique events within a event
-group, it is recommended to disable this option.
-
-### Save & Upload Color Files
-
-Once all color settings have been made, they can be saved via the ‘save
-color file’-button.
-<img src="inst/app/www/Screenshots/19_Megaplots.png" align="center" width="20%"/>
-This saves a data frame as ‘.rds’-file including the selected event and
-event group, the selected color and if available all three selected
-gradient color and also the logical value if variables should be offset.
-
-To upload the saved color settings in a new session use the ‘Upload
-saved color file’-file input like the data upload.
-
-## Megaplots
-
-In this chapter the main graphical display will be explained. The
-megaplot is a huge graphical display used to show individual-level data
-over time. The megaplots uses horizontal lines to represent individual
-trajectories and events of any identifier over days (in clinical trial
-context: study units).
-
-<img src="inst/app/www/Screenshots/23_Megaplots.png" align="center" width="95%"/>
-
-The legend on the right side can be used to select and deselect event
-groups to provide an better overview. Selecting a high number of events
-can lead to overlaying event lines. In this case it is recommended to
-focus on a few number of event/event groups or zoom-in on the graphic
-accordingly.
-
-For every single event displayed a hover panel is available with
-information about the identifier, the event name as well as the start
-and end time. It is also possible to use the mouse hover for the
-individual timelines, however these are only visible when hovering near
-the start or end of the line.
-
-<img src="inst/app/www/Screenshots/25_Megaplots.png" align="center" width="95%"/>
-
-In addition to hovering, you can also click on event lines. The complete
-clicked event are then highlighted in comparison to other events. It is
-possible to click on and highlight as many events as desired. To undo
-the effect, double-click on the plot window. Note: The zoom setting will
-also be reset by double-clicking.
-
-<img src="inst/app/www/Screenshots/27_Megaplots.png" align="center" width="95%"/>
-
-There are several ways to zoom-in to the graphic. First, it is possible
-to use mouse-scrolling to zoom-in. To re-scale only one axis, click and
-drag near the edge of one of the axes. If the drag mode is set to ‘pan’
-(see chapter Plot options) it is possible to click and drag on the plot.
-Another zoom possibility is to click and drag on the plot when option
-‘Zoom’ is selected.
-
-<img src="inst/app/www/Screenshots/28_Megaplots.png" align="center" width="95%"/>
-
-Third way to zoom is to use the ‘plus’ or ‘minus’ button on the modebar
-to zoom-in or zoom-out.
-
-Further options for this megaplots graph are described in the chapter
-“Sidebar Options”, such as sorting, grouping or line thickness.
-
-## Event Summary
-
-<!-- <img src="inst/app/www/Screenshots/30_Megaplots.png" align="center" width="100%"/>  -->
-
-<!-- <img src="inst/app/www/Screenshots/31_Megaplots.png" align="center" width="100%"/>  -->
-
-<!-- <img src="inst/app/www/Screenshots/32_Megaplots.png" align="center" width="100%"/>  -->
-
-<!-- <img src="inst/app/www/Screenshots/33_Megaplots.png" align="center" width="100%"/>  -->
-
-<!-- <img src="inst/app/www/Screenshots/34_Megaplots.png" align="center" width="100%"/>  -->
-
-<!-- <img src="inst/app/www/Screenshots/35_Megaplots.png" align="center" width="100%"/>  -->
-
-Explanatory text for this chapter will follow soon.
-
-### Displays
-
-Explanatory text for this chapter will follow soon.
-
-## Sidebar Options
-
-Various options are available on the sidebar, which would be
-‘Sorting/Grouping’, ‘Plot appearance’, ‘Filter’ and ‘Download’. Each of
-these option panels is explained in a separate chapter below.
-
-### Sorting / Grouping
-
-When you click on ‘Sorting/Grouping’, a panel opens with the three
-inputs: ‘Sorting variable’, ‘Grouping variable’ and ‘Arrange Groups’. In
-the sorting variable input every numeric variable of the uploaded data
-set is eligible. Therefore custom sorting variables can be created in
-the data preparation.
-
-All character variables in the upload data can be a grouping variable.
-If a grouping variable is selected, the time-courses are splitted by all
-variable values.
-
-<img src="inst/app/www/Screenshots/36_Megaplots.png" align="center" width="95%"/>
-
-It is also possibly to select multiple grouping variables. Then the
-option ‘Arrange groups’ might be of interest, as it allows the groups to
-be reordered. This can be done simply by dragging and dropping the
-displayed group boxes.
-
-<img src="inst/app/www/Screenshots/38_Megaplots.png" align="center" width="100%"/>
-
-<!-- <img src="inst/app/www/Screenshots/39_Megaplots.png" align="center" width="100%"/>  -->
-
-<!-- <img src="inst/app/www/Screenshots/40_Megaplots.png" align="center" width="100%"/>  -->
-
-<!-- <img src="inst/app/www/Screenshots/41_Megaplots.png" align="center" width="100%"/>  -->
-
-<!-- <img src="inst/app/www/Screenshots/42_Megaplots.png" align="center" width="100%"/>  -->
-
-<!-- <img src="inst/app/www/Screenshots/43_Megaplots.png" align="center" width="100%"/>  -->
-
-Explanatory text for this chapter will follow soon.
-
-### Plot Appearance
-
-<!-- <img src="inst/app/www/Screenshots/44_Megaplots.png" align="center" width="100%"/>  -->
-
-<!-- <img src="inst/app/www/Screenshots/45_Megaplots.png" align="center" width="100%"/>  -->
-
-<!-- <img src="inst/app/www/Screenshots/46_Megaplots.png" align="center" width="100%"/>  -->
-
-<!-- <img src="inst/app/www/Screenshots/47_Megaplots.png" align="center" width="100%"/>  -->
-
-<!-- <img src="inst/app/www/Screenshots/48_Megaplots.png" align="center" width="100%"/>  -->
-
-Explanatory text for this chapter will follow soon.
-
-### Filter
-
-<!-- <img src="inst/app/www/Screenshots/49_Megaplots.png" align="center" width="100%"/>  -->
-
-<!-- <img src="inst/app/www/Screenshots/50_Megaplots.png" align="center" width="100%"/>  -->
-
-<!-- <img src="inst/app/www/Screenshots/51_Megaplots.png" align="center" width="100%"/>  -->
-
-<!-- <img src="inst/app/www/Screenshots/52_Megaplots.png" align="center" width="100%"/>  -->
-
-<!-- <img src="inst/app/www/Screenshots/53_Megaplots.png" align="center" width="100%"/>  -->
-
-Explanatory text for this chapter will follow soon.
-
-### HTML Download
-
-<!-- <img src="inst/app/www/Screenshots/54_Megaplots.png" align="center" width="100%"/>  -->
-
-Explanatory text for this chapter will follow soon.
-
-<!-- ## README  -->
-
-<!-- <img src="inst/app/www/Screenshots/55_Megaplots.png" align="center" width="100%"/>  -->
-
-<!-- Explanatory text for this chapter will follow soon. -->
-
-## Input Data
-
-| Column | Class | Note |
-|:---|:---|:---|
-| subjectid \* | numeric/character |  |
-| start_time \*\* | integer (numeric) | numeric variables are rounded down to integer |
-| end_time\*\* | integer (numeric) | numeric variables are rounded down to integer |
-| event\* | character (numeric) | numeric variables are transformed to character |
-| event_group | character (numeric) | if no selection is made, event is also used for event group |
-| event_time \*\* | integer (numeric) | numeric variables are rounded down to integer |
-| event_time_end \*\* | integer (numeric) | numeric variables are rounded down to integer |
-
-\* mandatory variable (name can differ)
-
-\*\* one of the variable pairs start/end_time or event_time/\_end is
-mandatory (names can differ)
-
-Besides these variables any variables can be added for grouping and
-sorting. All numeric variables will be applicable for sorting and all
-character variables for grouping. For more information about “Sorting /
-Grouping” please refer to chapter “Sidebar options”.
-
-## Building Upload Data
-
-The package provides a small pipe-style data builder that turns one or
-more datasets into a megaplots upload file without any manual reshaping.
-The pipeline starts with add_sl_data() or add_events() and ends with
-finalize_mp_object(), Use add_sl_data() when ADSL subject-level data is
-available; otherwise start with add_events() and supply sl_ref_date on
-that first call. Each step returns an
-‘mp_data_builder’ object that is passed on to the next step. The builder
-is designed to work with CDISC (Clinical Data Interchange Standards
-Consortium) conform ADaM (Analysis Data Model) datasets but can be used
-with any datasets that have the required variables.
-
-### add_sl_data()
-
-Reads a subject-level (ADaM standard domain: ADSL) dataset (a data frame
-or a path to a SAS, CSV or RData file) and attaches subject-level
-information to the builder. The function derives the megaplots
-‘subjectid’, ‘start_time’ and ‘end_time’ from the relevant date
-variables. The columns used for the display start, display end and
-relative day 1 can be selected explicitly or are picked from a default
-candidate list that is based on ADaM standards(e.g. ‘TRTSTDT’,
-‘RFSTDTC’, ‘RANDDT’ for the start). Optional treatment start and end
-columns add a ‘treatment_duration’ variable, and a ‘data_filter’
-argument allows for ADSL-level filtering (e.g. “SAFFL == ‘Y’”).
-
-If add_sl_data() is skipped, the first add_events() call will build a
-minimal subject-level table from the events dataset itself; in that case
-the argument ‘sl_ref_date’ (column name or numeric constant) must be
-supplied to the add_events() call to define the relative day 1
-reference.
-
-### add_events()
-
-Stacks event rows onto the builder from any ADaM domain (e.g. ADAE,
-ADLB, ADCM) or non-standardized raw events dataset. Each call processes
-one pair of ‘event_group’ and ‘event’ columns; the function can be
-called several times to combine multiple domains or raw datasets in the
-same megaplot. Both ‘event_group’ and ‘event’ accept a vector of column
-names, in which case the values are pasted together. It is recommended
-to restrict the number of pasted columns to two or three to keep the
-resulting labels concise. The arguments ‘prefix_group’ and
-‘prefix_event’ add a fixed prefix to the resulting labels (e.g. “SOC:”,
-“PT:”, “Lab:”) to keep events from different domains visually distinct.
-
-The event start and end day are derived in the same way as in
-add_sl_data(): either by selecting columns explicitly via ‘event_start’
-and ‘event_end’ or automatically from a default candidate list that is
-again based on ADaM standard (‘ASTDT’, ‘AESTDT’, ‘ADY’ etc.). Optional
-flags ‘calc_time_to_first’ and ‘calc_days_with’ add subject-level
-summary variables (‘ttf\_\*’ and ‘dw\_\*’) that become available for
-sorting in the megaplots app, and ‘left_censor’ shifts events that occur
-before the censor day onto the censor day. The argument ‘keep_vars’
-carries additional event-level variables along into the final dataset.
-
-### finalize_mp_object()
-
-Merges the subject- and event-level tables into a single data frame
-ready to be saved as ‘.RData’ and uploaded through the ‘File
-upload’-panel. The optional arguments ‘event_label_case’ and
-‘event_group_label_case’ can normalize the text of event and event group
-labels to lower, upper or title case so that displayed labels look
-consistent across domains.
-
-## Additional information
-
-<!-- <img src="inst/app/www/Screenshots/56_Megaplots.png" align="center" width="100%"/>  -->
-
-<!-- <img src="inst/app/www/Screenshots/57_Megaplots.png" align="center" width="100%"/>  -->
-
-<!-- <img src="inst/app/www/Screenshots/58_Megaplots.png" align="center" width="100%"/>  -->
-
-<!-- <img src="inst/app/www/Screenshots/59_Megaplots.png" align="center" width="100%"/>  -->
-
-<!-- <img src="inst/app/www/Screenshots/60_Megaplots.png" align="center" width="100%"/>  -->
-
-To use the full screen size for your megaplot hide sidebar, if not used.
+Megaplots is licensed under the GNU General Public License v3.0 (GPL-3).

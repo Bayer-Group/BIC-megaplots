@@ -27,7 +27,10 @@ draw_mega_plot(
   reference_line_1_color,
   reference_line_2_color,
   reference_line_3_color,
-  theme
+  theme,
+  line_color_dark,
+  line_color_light,
+  circular_vision
 )
 }
 \arguments{
@@ -75,7 +78,13 @@ draw_mega_plot(
 
 \item{reference_line_3_color}{character with hex color code for third reference line/rect}
 
-\item{theme}{character with app theme ["dark"/"light"]
+\item{theme}{character with app theme ["dark"/"light"]}
+
+\item{line_color_dark}{character with hex color for subject line (darkmode)}
+
+\item{line_color_light}{character with hex color for subject line (lightmode)}
+
+\item{circular_vision}{logical value if a circular vision should be turned on/off
 plotly legend (default: TRUE)}
 }
 \description{

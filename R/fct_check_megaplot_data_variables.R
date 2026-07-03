@@ -31,7 +31,11 @@ check_megaplot_data_variables <- function(
   init_val <- TRUE
 
   #check if either start/end_time or event_time/event_time_end  are available
-  if (!(!is.null(check_start_time) & !is.null(check_end_time) | !is.null(check_event_time) & !is.null(check_event_time_end))) {
+  if (
+    !(!is.null(check_start_time) &
+      !is.null(check_end_time) |
+      !is.null(check_event_time) & !is.null(check_event_time_end))
+  ) {
     init_val <- FALSE
   }
 

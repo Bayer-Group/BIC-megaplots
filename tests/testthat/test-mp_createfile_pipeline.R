@@ -18,7 +18,7 @@ test_that("builder pipeline with add_sl_data stacks events and finalize returns 
     stringsAsFactors = FALSE
   )
 
-  mp <- add_sl_data(adsl) %>%
+  mp <- add_sl_data(adsl) |>
     add_events(
       adae,
       event_group = "AEBODSYS",
@@ -57,7 +57,7 @@ test_that("data_filter on add_events restricts rows", {
     stringsAsFactors = FALSE
   )
 
-  mp <- add_sl_data(adsl) %>%
+  mp <- add_sl_data(adsl) |>
     add_events(
       adae,
       event_group = "AEBODSYS",

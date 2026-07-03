@@ -1,4 +1,3 @@
-
 #' Getting input-parameters for the seqdist-function
 #'
 #' @description This internal function returns a named list with all necessary input arguments for the seqdist function.
@@ -20,18 +19,20 @@ get_parameters <- function(seq, par) {
   )
   distmeasure <- par$distmeasure
 
-  if (distmeasure %in% c('OM', 'OMloc', 'OMslen', 'OMspell', 'OMstran', 'HAM', 'TWED')) {
+  if (
+    distmeasure %in%
+      c('OM', 'OMloc', 'OMslen', 'OMspell', 'OMstran', 'HAM', 'TWED')
+  ) {
     if (par$sm == "ORDINAL") {
       if (any(seq == "*")) {
         with.missing <- TRUE
-      }
-      else{
+      } else {
         with.missing <- FALSE
       }
       l <-
         length(TraMineR::alphabet(seq, with.missing = with.missing))
       sub_matrix <- matrix(
-        rep(0, l ^ 2),
+        rep(0, l^2),
         nrow = l,
         ncol = l,
         dimnames = list(
@@ -46,16 +47,14 @@ get_parameters <- function(seq, par) {
               c(dimnames(sub_matrix)[[1]][i], dimnames(sub_matrix)[[2]][j])
             if (any(dimn == "*")) {
               sub_matrix[i, j] <- mean(1:(l - 1))
-            }
-            else{
+            } else {
               sub_matrix[i, j] <- abs(i - j)
             }
           }
         }
       }
       seqargs_all[["sm"]] <- sub_matrix
-    }
-    else{
+    } else {
       seqargs_all["sm"] <- par$sm
     }
   }
@@ -63,14 +62,13 @@ get_parameters <- function(seq, par) {
     if (par$smDHD == "ORDINAL") {
       if (any(seq == "*")) {
         with.missing <- TRUE
-      }
-      else{
+      } else {
         with.missing <- FALSE
       }
       l <-
         length(TraMineR::alphabet(seq, with.missing = with.missing))
       sub_matrix <- matrix(
-        rep(0, l ^ 2),
+        rep(0, l^2),
         nrow = l,
         ncol = l,
         dimnames = list(
@@ -85,34 +83,34 @@ get_parameters <- function(seq, par) {
               c(dimnames(sub_matrix)[[1]][i], dimnames(sub_matrix)[[2]][j])
             if (any(dimn == "*")) {
               sub_matrix[i, j] <- mean(1:(l - 1))
-            }
-            else{
+            } else {
               sub_matrix[i, j] <- abs(i - j)
             }
           }
         }
       }
       seqargs_all[["sm"]] <- sub_matrix
-    }
-    else{
+    } else {
       seqargs_all["sm"] <- par$smDHD
     }
-
   }
 
-  if (distmeasure %in% c(
-    'OM',
-    'OMloc',
-    'OMslen',
-    'OMspell',
-    'OMstran',
-    'HAM',
-    'DHD',
-    'LCS',
-    'LCS',
-    'RLCP',
-    'TWED'
-  )) {
+  if (
+    distmeasure %in%
+      c(
+        'OM',
+        'OMloc',
+        'OMslen',
+        'OMspell',
+        'OMstran',
+        'HAM',
+        'DHD',
+        'LCS',
+        'LCS',
+        'RLCP',
+        'TWED'
+      )
+  ) {
     seqargs_all["norm"] <- par$norm
   }
   if (distmeasure %in% c('CHI2', 'EUCLID')) {
@@ -121,11 +119,9 @@ get_parameters <- function(seq, par) {
   if (distmeasure %in% c('OM', 'OMslen', 'OMspell', 'OMstran')) {
     if (par$indel == "numeric value") {
       seqargs_all["indel"] <- par$indel_numeric
-    }
-    else{
+    } else {
       seqargs_all["indel"] <- par$indel
     }
-
   }
   if (distmeasure %in% c('OMloc', 'OMspell')) {
     seqargs_all["expcost"] <- as.numeric(par$expcost)
@@ -142,7 +138,6 @@ get_parameters <- function(seq, par) {
     seqargs_all["otto"] <- par$otto
     seqargs_all["previous"] <- as.logical(par$previous)
     seqargs_all["add.column"] <- as.logical(par$add.column)
-
   }
   if (distmeasure %in% c("OMloc", "NMSMST", "SVRspell")) {
     seqargs_all["tpow"] <- par$tpow
@@ -155,8 +150,5 @@ get_parameters <- function(seq, par) {
     seqargs_all["weighted"] <- as.logical(par$weighted)
   }
 
-
   return(seqargs_all)
-
 }
-

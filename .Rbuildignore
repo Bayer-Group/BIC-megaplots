@@ -19,3 +19,7 @@ $run_dev.*
 ^\.positai$
 ^\.claude$
 ^app\.R$
+^[.]?air[.]toml$
+^\.vscode$
+^[.]?manifest[.]json$
+^[.]?jarl[.]toml$

@@ -3,7 +3,6 @@
 
 ## usethis namespace: start
 #' @importFrom data.table :=
-#' @importFrom dplyr %>%
 #' @importFrom graphics par
 #' @importFrom rlang .data
 #' @importFrom stats as.formula
